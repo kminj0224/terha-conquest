@@ -31,6 +31,7 @@ async function runCampaignLoading(action){
   await campaignFrame();await campaignFrame();
   setCampaignProgress(10,['지도 생성 중','Building map']);const result=action();campaignRenderedFrames=0;if(result===false)return false;
   const images=[...campaignImages];let decoded=0;await Promise.all(images.map(async image=>{await decodeCampaignImage(image);setCampaignProgress(25+45*(++decoded/Math.max(1,images.length)),['이미지 불러오는 중','Loading artwork'])}));
+  if(!worldImg.naturalWidth)throw new Error('World map image could not be decoded');
   if(document.fonts)await document.fonts.ready;
   setCampaignProgress(75,['지도·유닛 렌더링 중','Rendering map and units']);let stable=0,previous='';
   while(stable<2){await campaignFrame();const key=[cam.x,cam.y,cam.z,c.width,c.height,groundRevision,campaignRenderedFrames>0].join(':');if(campaignGroundReady()&&campaignRenderedFrames>0){stable=key===previous?stable+1:0;previous=key}else stable=0}

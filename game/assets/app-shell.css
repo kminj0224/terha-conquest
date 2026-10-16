@@ -1,1 +1,62 @@
 #frontBackground{position:fixed;inset:0;background:#101719 url('title-background.jpg') center/cover no-repeat;display:none;z-index:4}#frontBackground:after{content:'';position:absolute;inset:0;background:linear-gradient(#02080b55,#02080b22 45%,#02080bcc)}body[data-front="true"] #frontBackground{display:block}body[data-front="true"] #modal{background:transparent}body[data-front="true"] :is(#hud,#controls,#turnControls,#selectionActions,#panel,#log,#mini,#worldNotice){visibility:hidden!important}#modal .landing{background:none;border:0;box-shadow:none;width:100%;height:100%;max-height:none;padding:5vh 6vw;display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;text-align:center}#modal .landing h1{position:absolute;top:8vh;left:5vw;right:5vw;font-size:clamp(25px,4.5vw,55px);text-shadow:0 3px 18px #000;letter-spacing:4px;color:#f4e9d1}.landing .subtitle{position:absolute;top:calc(8vh + 65px);letter-spacing:7px;color:#ddc994!important}.landing .startPulse{font-size:clamp(26px,4vw,44px);letter-spacing:10px;padding:14px 34px;border:0;background:transparent;text-shadow:0 2px 15px #000;animation:startPulse 2s ease-in-out infinite}.landing .mainButtons{display:flex;gap:24px}.mainButtons button{min-width:170px;font-size:24px;padding:18px 30px;background:#12232dd9;box-shadow:0 6px 25px #0007}.landing .cornerButtons{position:absolute;right:max(24px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));display:flex;gap:12px}.appBack{margin-top:14px}.menuTitle{font-size:24px!important;letter-spacing:2px!important}.settingsRow{display:grid;grid-template-columns:120px 1fr 48px;align-items:center;gap:16px;margin:22px 0}.settingsRow input{width:100%;accent-color:#d8bb77}.settingsRow output{text-align:right}.languageOptions{display:flex;gap:8px}.languageOptions .chosen{border-color:#ffe0a1;background:#42564f}#confirmOverlay{position:fixed;inset:0;z-index:10000;background:#020a10bb;display:flex;align-items:center;justify-content:center;padding:20px}#confirmOverlay .confirmBox{width:min(420px,90vw);padding:28px;background:#142932;border:1px solid #d8c38b;border-radius:9px;text-align:center;box-shadow:0 15px 65px #000b}#confirmOverlay h2{font-size:21px;margin:0 0 24px}#confirmOverlay button{min-width:110px;margin:0 6px}.recordTable{width:100%;border-collapse:collapse;font-size:13px}.recordTable th,.recordTable td{text-align:left;padding:12px 8px;border-bottom:1px solid #7f9c8a44}.helpText h3{color:#dfc789}.helpText p{font-size:14px!important}.startrow{flex-wrap:wrap}.saveSlot{flex-wrap:wrap;gap:10px}.slotButtons{flex-wrap:wrap}#campaignProgress{position:absolute;bottom:8%;left:15%;right:15%;color:#fff5dc;text-shadow:0 2px 5px #000;font-size:13px;letter-spacing:1px;text-align:center}#campaignProgress .track{height:9px;margin-top:12px;background:#06121bd9;border:1px solid #d5ba7a88;border-radius:8px;overflow:hidden}#campaignProgressFill{display:block;height:100%;width:0;background:linear-gradient(90deg,#94723d,#ffe2a3);transition:width .15s}#campaignProgressFill.pending{animation:loadingShimmer 1.2s ease-in-out infinite}#campaignProgressText{display:block;min-height:20px}@keyframes startPulse{0%,100%{opacity:.35}50%{opacity:1}}@keyframes loadingShimmer{50%{filter:brightness(1.45)}}@media(max-height:470px){#modal .landing h1{top:5vh}.landing .subtitle{top:calc(5vh + 42px)}.settingsRow{margin:12px 0}.mainButtons button{font-size:20px;padding:12px 22px}.landing .cornerButtons{bottom:14px}.landing .mainButtons{gap:14px}}@media(prefers-reduced-motion:reduce){.landing .startPulse{animation-duration:4s}}
+#modal .landing .mainButtons{gap:clamp(18px,3vw,42px);width:min(900px,86vw);justify-content:center}
+#modal .mainButtons .illustratedMenu{position:relative;isolation:isolate;flex:1;min-width:0;height:clamp(190px,43vh,330px);padding:0;overflow:hidden;border:1px solid #d8bd7b99;border-radius:9px;background:#102029;box-shadow:0 14px 45px #0009,inset 0 0 0 4px #d8bd7b0d;transition:transform .15s,border-color .15s}
+.illustratedMenu:before{content:'';position:absolute;inset:10px;border:1px solid #d8bd7b44;z-index:2;pointer-events:none}
+.illustratedMenu:after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 15%,#06101711 35%,#050d15f5 100%);z-index:1;pointer-events:none}
+.illustratedMenu .menuIllustration{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .3s}
+.illustratedMenu .mapIllustration{object-fit:contain;background:#153647;filter:saturate(.82)}
+.illustratedMenu .bookIllustration{object-fit:contain;background:radial-gradient(ellipse at 50% 30%,#555044,#152129 70%)}
+.menuCaption{position:absolute;left:15px;right:15px;bottom:22px;display:flex;align-items:center;flex-direction:column;gap:8px;z-index:3;pointer-events:none}
+.menuCaption small{font:10px Georgia,serif;letter-spacing:5px;color:#d7bd80}
+.menuCaption strong{font-size:clamp(23px,3.3vw,40px);font-weight:800;letter-spacing:.16em;text-indent:.16em;color:#f4e7c7;text-shadow:0 2px 2px #000,0 5px 22px #000;line-height:1.15}
+.illustratedMenu:hover{border-color:#f6d898!important}
+.illustratedMenu:hover .menuIllustration{transform:scale(1.035)}
+.illustratedMenu:active{transform:translateY(2px)}
+.iconButton{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;min-width:52px;padding:8px;font:700 29px Georgia,serif;border-color:#d4bd8077;color:#e9d6a6;background:#11212cdd;box-shadow:0 4px 16px #0005}
+.iconButton svg{display:block;flex:none}
+#sound{display:inline-flex;align-items:center;justify-content:center}
+body[data-screen="country"] #frontBackground{background-color:#143445;background-image:url('world-clean.png');background-size:contain}
+body[data-screen="country"] #frontBackground:after{background:linear-gradient(#06121c99,transparent 24%,#06121c33 52%,#06121caa)}
+body:is([data-screen="country"],[data-screen="records"]) #modal{overflow:hidden;align-items:stretch;justify-content:stretch}
+#modal :is(.countryPage,.recordsPage){width:100%;height:100%;max-height:none;min-height:0;border:0;border-radius:0;padding:clamp(18px,3vw,42px);padding-top:max(18px,env(safe-area-inset-top));padding-bottom:max(18px,env(safe-area-inset-bottom));padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right));display:flex;flex-direction:column}
+#modal .countryPage{background:transparent;overflow:auto;gap:24px}
+.countryHeading{flex:none;text-shadow:0 3px 12px #000}
+.countryHeading .eyebrow{font:10px Georgia,serif;color:#ddc995;letter-spacing:4px}
+#modal .countryHeading h1{font-size:clamp(24px,3vw,36px)!important;margin:10px 0 0}
+.countryDock{width:min(1200px,100%);margin:auto auto 0;padding:16px 20px 18px;border:1px solid #afbd9e55;border-radius:8px;background:#091923d9;box-shadow:0 10px 36px #0005}
+.countryPage .factions{margin:0 0 16px;gap:9px}
+.countryPage .factions button{display:flex;align-items:center;min-width:0;height:72px;padding:10px 13px;background:#152a32e8}
+.countryPage .factions button.chosen{background:#40534ced;border-color:#e0c58d;box-shadow:inset 0 0 16px #e1bd5b13}
+.countryPage .factions .choiceFlag{width:36px;height:25px;object-fit:contain;flex:none;margin-right:11px}
+.countryPage .factions button span{min-width:0}
+.countryPage .factions small{font-size:10px;line-height:1.35}
+.countryPage .startrow{gap:10px;justify-content:center}
+.countryPage .startrow button,.countryPage .startrow select{min-height:44px}
+#modal .recordsPage{background:linear-gradient(120deg,#09151cf5,#101d24db);gap:18px;overflow:hidden}
+#modal .recordsPage>.menuTitle{width:min(1200px,100%);margin:8px auto 0;font-size:clamp(24px,3vw,36px)!important;color:#ead5a1;flex:none}
+.recordList{width:min(1200px,100%);margin:0 auto;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;border-top:1px solid #d2bd7e55;border-bottom:1px solid #d2bd7e44}
+.recordsPage .recordTable{min-width:560px;font-size:14px}
+.recordsPage .recordTable th{position:sticky;top:0;z-index:1;background:#15262ef5;color:#d9c48c;font-size:12px;letter-spacing:1px}
+.recordsPage .recordTable td,.recordsPage .recordTable th{padding:18px 16px;white-space:nowrap}
+.recordsPage .recordTable tbody tr:nth-child(even){background:#c0d0c608}
+.recordsPage .appBack{align-self:flex-start;margin:0;flex:none;min-width:110px}
+.emptyRecords{min-height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.emptyRecords img{width:min(330px,65vw);max-height:35vh;opacity:.75}
+@media(max-height:470px){
+ #modal .landing .mainButtons{width:min(760px,82vw);gap:22px}
+ #modal .mainButtons .illustratedMenu{height:clamp(155px,50vh,235px)}
+ .menuCaption{bottom:17px;gap:5px}.menuCaption small{font-size:9px;letter-spacing:4px}.menuCaption strong{font-size:clamp(23px,3.2vw,34px)}
+ .landing .cornerButtons .iconButton{width:44px;height:44px;min-width:44px;font-size:26px}
+ #modal .countryPage{gap:12px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}
+ .countryHeading .eyebrow{font-size:8px}.countryHeading .menuTitle{margin-top:5px!important}
+ .countryDock{padding:11px 14px 12px}.countryPage .factions{gap:6px;margin-bottom:10px}.countryPage .factions button{height:57px;font-size:12px;padding:7px 9px}.countryPage .factions .choiceFlag{width:30px;height:21px;margin-right:8px}.countryPage .factions small{font-size:9px;margin-top:4px}
+ .countryPage .startrow{gap:8px}.countryPage .startrow button,.countryPage .startrow select{min-height:38px;font-size:12px;padding:8px 12px}
+ #modal .recordsPage{gap:12px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}.recordsPage .recordTable td,.recordsPage .recordTable th{padding:12px 14px}
+}
+@media(max-width:600px) and (min-height:471px){
+ #modal .landing .mainButtons{width:min(340px,80vw);flex-direction:column;gap:18px}
+ #modal .mainButtons .illustratedMenu{flex:none;height:clamp(160px,29vh,230px);width:100%}
+ .countryPage .factions{grid-template-columns:repeat(2,minmax(0,1fr))}.countryDock{padding:12px}.countryPage .factions button{font-size:12px;height:68px;padding:8px}.countryPage .factions .choiceFlag{width:27px;margin-right:7px}.countryPage .factions small{font-size:9px}
+ .countryPage .startrow{gap:8px}.countryPage .startrow button,.countryPage .startrow select{flex:1;min-width:110px}
+ .settingsRow{grid-template-columns:72px 1fr 42px;gap:8px}
+}
