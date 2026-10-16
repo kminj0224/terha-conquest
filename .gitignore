@@ -1,0 +1,10 @@
+android/build/
+deliverables/
+previews/
+node_modules/
+__pycache__/
+*.pyc
+*.class
+*.pending
+.DS_Store
+audio/wav/

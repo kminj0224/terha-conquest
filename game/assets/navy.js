@@ -1,0 +1,68 @@
+'use strict';
+Object.assign(TYPES[5],{name:'초계함',cost:1600,goldCost:6500,oilCost:50,hp:6000,atk:550,def:150,move:6,range:4,text:'대함미사일을 운용하는 주력 해군함정. 지상 공격에 높은 저항력을 갖습니다.'});
+TYPES.push(
+ {name:'고속정',branch:'navy',cost:1100,goldCost:3800,oilCost:25,hp:3000,atk:280,def:80,move:8,range:3,text:'빠른 연안 함정. 함포를 연속 사격합니다.'},
+ {name:'호위함',branch:'navy',cost:2300,goldCost:10000,oilCost:70,hp:8500,atk:600,def:180,move:6,range:4,text:'대함미사일과 호위 방어를 운용합니다. 반경 9칸의 아군 수송선을 일반 폭격과 탄도미사일로부터 보호합니다.'},
+ {name:'구축함',branch:'navy',cost:3500,goldCost:18000,oilCost:110,hp:14000,atk:1100,def:240,move:5,range:5,text:'중장갑 구축함. 강력한 대함미사일로 수송선에 큰 피해를 줍니다.'},
+ {name:'항공모함',branch:'navy',cost:6000,goldCost:58000,oilCost:240,hp:20000,atk:150,def:300,move:4,range:14,text:'백양·단테·스테토피아의 5레벨 항구 도시 전용. 함재기가 출격해 폭격합니다. 턴당 최대 5회 공격합니다. 공격 1회당 석유 2를 소모합니다.'},
+ {name:'수송선',branch:'navy',cost:4200,goldCost:24000,oilCost:140,hp:16000,atk:0,def:150,move:5,range:0,text:'총 20개 부대를 수송합니다. 아군 호위함 반경 9칸에서 일반 폭격과 탄도미사일 피해를 받지 않습니다. 대함미사일에 취약하며 격침 시 승선 부대도 모두 소멸합니다.'}
+);
+const NAVY_LIST=[22,5,23,24,25,26];
+for(const k of [22,5,23,24])TYPES[k].text+=' 지상 병력 사거리 3칸 · 대함 사거리 '+TYPES[k].range+'칸.';
+Object.assign(UNIT_STORIES,{
+ 22:'고속정에서는 마른 양말 한 켤레가 뜻밖의 사치품입니다. 신참이 갑판에서 커피를 쏟으면 선임은 잔보다 신발부터 살핍니다. 출항 전 마지막으로 들리는 말은 대개 누가 간식을 가져왔느냐는 질문입니다.',
+ 5:'초계함 기관실 사람들은 동료의 목소리보다 발걸음으로 누가 오는지 먼저 알아챕니다. 당직 교대 때마다 같은 주전자가 옮겨 다니고, 손잡이의 낡은 천은 아무도 바꾸려 하지 않습니다. 가장 오래 근무한 기관병도 그 천을 처음 감은 사람이 누구인지는 모릅니다.',
+ 23:'호위함 식당에는 다리가 조금 짧은 탁자가 하나 있습니다. 승조원들은 그 아래 끼워 둔 카드 한 장을 빼면 다음 식사의 국이 쏟아진다고 믿습니다. 그 카드가 패에 들어가야 끝나는 놀이도 항해 중에는 늘 미완으로 남습니다.',
+ 24:'구축함의 복도는 처음 승선한 사람에게 유난히 비슷해 보입니다. 오래 탄 수병들은 벗겨진 페인트와 환풍기의 울림으로 길을 찾습니다. 누군가 길을 묻고도 아는 척하면, 다음 날 그의 침상에는 손으로 그린 지도가 놓입니다.',
+ 25:'항공모함의 야간 제빵실은 뜻밖에 인기 있는 장소입니다. 갓 구운 빵 냄새가 환기구를 타고 올라오면 서로 다른 당직조가 같은 계단에서 마주칩니다. 조리장은 빵이 줄어드는 속도를 보고 함내 시계보다 정확하게 교대 시간을 맞힌다고 우깁니다.',
+ 26:'수송선에 오르는 병사들은 처음에는 창가 자리를 찾다가 곧 흔들림이 덜한 자리를 찾습니다. 서로 다른 부대의 짐가방이 뒤섞이고, 내릴 때가 되면 누가 빌려 간 담요인지부터 따집니다. 승조원이 기억하는 얼굴은 계급이 높은 사람보다 갑판에서 가장 심하게 멀미하던 사람입니다.'
+});
+for(const k of [12,13,1,14,17])TYPES[k].atk=Math.round(TYPES[k].atk*.56);
+for(const k of [15,16,2,3,18])TYPES[k].atk=Math.round(TYPES[k].atk*1.3);
+function isNaval(u){return TYPES[u.type]?.branch==='navy'}
+function navGoldCost(k,l=1){return tierCost(TYPES[k].goldCost||0,l)}
+const navalAttackOil=attackOil;attackOil=function(u){return u.type===25?2:navalAttackOil(u)};
+const navalOil=unitOil;unitOil=function(k,l=1){return TYPES[k]?.branch==='navy'?tierCost(TYPES[k].oilCost,l):navalOil(k,l)};
+const navalProfile=cityProfile;cityProfile=function(q){navalProfile(q);for(const [k,min]of [[22,1],[5,2],[23,3],[24,4],[25,5],[26,3]])q.unlockAt[k]=min;return q};
+const navalCanProduce=canProduce;canProduce=function(q,k,l=1){if(TYPES[k]?.branch==='navy'&&(!q.harbor||q.level<({22:1,5:2,23:3,24:4,25:5,26:3}[k])||k===25&&q.f>2))return false;return navalCanProduce(q,k,l)};
+const navalProductionReason=productionReason;productionReason=function(q,k,l=productionTier,aa=productionAA){if(isNaval({type:k})){if(!q.harbor)return'항구가 있는 도시에서만 생산할 수 있습니다.';if(k===25&&q.f>2)return'항공모함은 백양·단테·스테토피아만 생산할 수 있습니다.';if(money[q.f]<navGoldCost(k,l)+(aa?aaCost(l):0))return'함정 생산에 필요한 골드가 부족합니다.'}return navalProductionReason(q,k,l,aa)};
+const navalProduce=produce;produce=function(q,k,l=productionTier,aa=productionAA){if(!isNaval({type:k}))return navalProduce(q,k,l,aa);const reason=productionReason(q,k,l,aa);if(reason){toast(reason);return false}money[q.f]-=navGoldCost(k,l)+(aa?aaCost(l):0);food[q.f]-=unitPrice(k,l);if(q.f===player)oil[q.f]-=unitOil(k,l);q.queue={type:k,level:l,aa:!!aa};q.produced=true;showPanel();updateHUD();save();return true};
+const navalMoveCost=moveCost;moveCost=function(u,i){if(isNaval(u))return tiles[i].owner<0?1:99999;if(!isHelicopter(u)&&!isAircraft(u)&&tiles[i].owner<0)return 99999;return navalMoveCost(u,i)};
+const navalFresh=freshOrders;freshOrders=function(u){navalFresh(u);if(u.type===25){u.carrierShots=5;u.attackReady=true;syncOrders(u)}};
+const navalMayMove=mayMove,navalMayFire=mayFire;mayMove=function(u){return!u.carriedBy&&navalMayMove(u)};mayFire=function(u){return !u.carriedBy&&u.type!==26&&(u.type!==25||u.carrierShots>0)&&navalMayFire(u)};
+const navalSpend=spendShot;spendShot=function(u){if(u.type!==25)return navalSpend(u);u.carrierShots=Math.max(0,(u.carrierShots??5)-1);u.attacked=true;u.acted=true;u.moveAllowed=false;u.attackReady=u.carrierShots>0;syncOrders(u)};
+let escortHighlights=new Map();
+function protectingEscorts(u){return u?.type===26?units.filter(v=>v.type===23&&!v.carriedBy&&v.f===u.f&&v.hp>0&&distance(v.tile,u.tile)<=9):[]}
+function escortProtected(u){return protectingEscorts(u).length>0}
+function showEscortProtection(u){const escorts=protectingEscorts(u);if(!escorts.length)return false;const until=performance.now()+3500;for(const v of escorts)escortHighlights.set(v.id,until);toast('호위함 근처의 수송선은 폭격/탄도미사일로 공격할 수 없습니다');return true}
+function drawEscortHighlights(now){for(const [id,until]of escortHighlights){const u=units.find(v=>v.id===id);if(!u||now>=until){escortHighlights.delete(id);continue}const p=pxy(u.tile),pulse=.5+.5*Math.sin(now*.012);ctx.save();hex(p,34);ctx.fillStyle='rgba(255,226,111,'+(.12+pulse*.34)+')';ctx.fill();ctx.strokeStyle='#fff0a0';ctx.lineWidth=2+pulse*2;ctx.stroke();ctx.shadowColor='#fff0a0';ctx.shadowBlur=5+pulse*20;sprite(u,p,now);ctx.restore()}}
+function showBlockedEscortTarget(i){const u=unitAt(i),sel=selected?.kind==='unit'?units.find(v=>v.id===selected.id):null;if(!u||!atWar(player,u.f)||!escortProtected(u))return false;if(airTarget||strategicTarget||sel?.type===25&&mayFire(sel))return showEscortProtection(u);return false}
+
+const navalBomb=bombProtection;bombProtection=function(u,q){return escortProtected(u)?0:navalBomb(u,q)};
+const navalDamage=damage;damage=function(u,v){let d=navalDamage(u,v);if(isNaval(v)&&!isNaval(u)&&!isHelicopter(u)&&!isAircraft(u))d=Math.max(1,Math.round(d*.08));if(isNaval(u)&&v.type===26){if([5,23,24].includes(u.type))d=Math.round(d*(u.type===24?4:2.5));if(u.type===25&&escortProtected(v))d=0}return d};
+const navalSiege=siegeDamage;siegeDamage=function(u,q){if(isNaval(u))return Math.round(unitAttack(u)*(u.type===25?20:3));return navalSiege(u,q)};
+function navalTargetRange(u,v){const range=TYPES[u.type].range;return isNaval(u)&&u.type!==25&&['infantry','armor','artillery'].includes(TYPES[v.type].branch)?Math.min(3,range):range}
+const navalCanAttack=canAttack;canAttack=function(u,v){return distance(u.tile,v.tile)<=navalTargetRange(u,v)&&!(u.type===25&&escortProtected(v))&&navalCanAttack(u,v)};
+const navalAttack=attack,navalAttackCity=attackCity;attack=async function(u,v,ai=false){if(u.type===25&&escortProtected(v)){if(!ai)showEscortProtection(v);return false}return navalAttack(u,v,ai)};attackCity=async function(u,q,ai=false){return navalAttackCity(u,q,ai)};
+const navalShot=launchShot;launchShot=function(u,target,start=performance.now(),duration=520){if(!isNaval(u))return navalShot(u,target,start,duration);const a=pxy(u.tile);fireMotions.set(u.id,{start,duration:u.type===22?500:350,burst:u.type===22});if(u.type===25){addAirRaid({kind:'airraid',x:a.x,y:a.y,tx:target.x,ty:target.y,type:'fighter',f:u.f,start,duration:2400});return a}for(let j=0;j<(u.type===22?6:1);j++)fx.push({kind:u.type===22?'shot':'navalMissile',x:a.x,y:a.y-10,tx:target.x,ty:target.y,type:u.type,bullet:u.type===22,start:start+j*65,duration});return a};
+const navalExplosions=targetExplosions;targetExplosions=function(u,p,d,now=performance.now()){navalExplosions(u,p,d,now);if(u.type===22)fx.push({kind:'navalSmoke',x:p.x,y:p.y,start:now,duration:1400})};
+const navalKill=kill;kill=function(u){if(u.type===26){const cargo=new Set(u.cargo||[]);units=units.filter(v=>v.carriedBy!==u.id&&!cargo.has(v.id))}if(!isNaval(u))return navalKill(u);const p=pxy(u.tile);units=units.filter(v=>v.id!==u.id);fx.push({kind:'navalSink',x:p.x,y:p.y,f:u.f,type:u.type,start:performance.now(),duration:1800});if(selected?.id===u.id){selected=null;panelOpen=false;refreshSelection()}};
+const navalDeploy=deploy;deploy=function(q){if(!q.queue||!isNaval({type:q.queue.type}))return navalDeploy(q);if(!canProduce(q,q.queue.type,q.queue.level))return;const sea=tiles.map((t,i)=>t.owner<0&&!unitAt(i)&&distance(q.tile,i)<=3?i:-1).filter(i=>i>=0).sort((a,b)=>distance(a,q.tile)-distance(b,q.tile))[0];if(sea!==undefined){const u=makeUnit(q.f,q.queue.type,sea,q.queue.level||1);u.aa=!!q.queue.aa;q.queue=null}};
+const navalMake=makeUnit;makeUnit=function(f,k,i,l=1){const u=navalMake(f,k,i,l);if(k===25)u.carrierShots=5;if(k===26)u.cargo=[];return u};
+const navalSetup=setup;setup=function(){escortHighlights.clear();navalSetup();for(let f=0;f<7;f++){const harbors=cities.filter(q=>q.f===f&&q.harbor),wanted=[22,22,23,24,26,26,...(f<3?[25]:[])];for(let n=0;n<wanted.length;n++){const q=harbors[n%Math.max(1,harbors.length)];if(!q)break;const tile=tiles.findIndex((t,i)=>t.owner<0&&!unitAt(i)&&distance(q.tile,i)<=3);if(tile>=0)makeUnit(f,wanted[n],tile,1)}}save();updateHUD()};
+const navalMigration=migrateArmy;migrateArmy=function(s){const destroyers=s.units.filter(u=>u.type===5).map(u=>({id:u.id,ratio:u.hp/((185+(s.tech[u.f]||0)*12)*(u.level||1))}));navalMigration(s);if(!s.navalSchema)for(const v of destroyers){const u=units.find(u=>u.id===v.id);if(u)u.hp=unitMaxHp(u)*Math.min(1,v.ratio)}for(const u of units){if(u.type===25)u.carrierShots=u.carrierShots??(u.attacked?0:5);if(u.type===26)u.cargo=u.cargo||[]}};
+function drawShip(u,angle,shotT){const f=factions[u.f],carrier=u.type===25,transport=u.type===26,w=carrier?47:transport?40:(u.type===24||u.type===23)?38:u.type===22?23:32;poly([[-w,2],[-w+7,15],[w-10,15],[w+7,2]],f.dark);rect(-w+4,-5,w*2-8,10,f.color);if(carrier){rect(-w+6,-9,w*2-12,11,'#647579');line(-w+8,-4,w-10,-4,'#e8dba7',1);rect(8,-20,14,11,f.dark);if(u.f===0)roof(15,-20,20,'#436d69');else if(u.f===1)poly([[8,-20],[15,-32],[22,-20]],'#422d39');else rect(10,-26,10,6,'#87b9c0');poly([[-25,-5],[-16,-9],[-12,-5],[-16,-1]],'#b6c6c2')}else if(transport){for(let x=-27;x<=12;x+=13)rect(x,-13,10,9,'#727f74');rect(22,-20,10,16,f.dark);rect(24,-23,8,5,f.color)}else{rect(-9,-18,18,13,f.dark);rect(-4,-24,10,6,f.color);line(0,-24,0,-35,f.accent,2);if(u.type===22){ctx.save();ctx.translate(12,-7);ctx.rotate(angle);rect(0,-2,24,4,'#223b3c');if(shotT>=0&&shotT<.5)circle(26,0,5*(1-shotT/.5),'#ffd38a');ctx.restore()}else{for(let j=-18;j<=18;j+=18){rect(j-4,-12,8,5,'#384b49');line(j,-12,j+6,-20,'#c0c6b4',3)}}}}
+const NAVAL_VISUAL_SCALE=1.45;
+const originalShipDrawing=drawShip;drawShip=function(u,angle,shotT){ctx.save();ctx.translate(0,15);ctx.scale(NAVAL_VISUAL_SCALE,NAVAL_VISUAL_SCALE);ctx.translate(0,-15);if(u.type===23||u.type===24||u.type===25){ctx.translate(0,15);ctx.scale(1.45,1.45);ctx.translate(0,-15)}originalShipDrawing(u,angle,shotT);ctx.restore()};
+function drawNavalEffect(e,t){ctx.save();if(e.kind==='navalMissile'){const x=e.x+(e.tx-e.x)*t,y=e.y+(e.ty-e.y)*t-Math.sin(t*Math.PI)*20,a=Math.atan2(e.ty-e.y,e.tx-e.x);ctx.translate(x,y);ctx.rotate(a);rect(-12,-2,19,4,'#dfd9bd');poly([[7,-3],[15,0],[7,3]],'#edd49b');poly([[-13,-3],[-23,0],[-13,3]],'#ff9851')}else if(e.kind==='navalSmoke'){for(let j=0;j<6;j++)circle(e.x+Math.sin(j*2+t)*13,e.y-t*55-j*4,5+t*13,'#222d3299')}else if(e.kind==='navalSink'){ctx.translate(e.x,e.y+Math.max(0,(t-.55)*90));ctx.globalAlpha=t<.55?1:Math.max(0,1-(t-.55)*2.3);ctx.rotate(t*.15);drawShip({type:e.type,f:e.f},0,-1);if(t<.56)for(let j=-2;j<=2;j++){poly([[j*10-4,0],[j*10,-28-Math.sin(t*30+j)*10],[j*10+5,0]],'#fa883d');circle(j*10,-35-t*40,6+t*10,'#1b272daa')}}else if(e.kind==='whale'){ctx.translate(e.x,e.y);ctx.globalAlpha=Math.sin(t*Math.PI);ctx.fillStyle='#668b94';ctx.beginPath();ctx.ellipse(0,0,28,10,0,0,Math.PI*2);ctx.fill();poly([[17,0],[35,-10],[29,3],[37,11],[17,5]],'#7698a2');for(let j=0;j<3;j++)line(-10,-4,-12+(j-1)*7,-20-Math.sin(t*Math.PI)*15,'#b2d6df99',2);ctx.strokeStyle='#b4d1d866';ctx.beginPath();ctx.ellipse(0,8,35+t*12,13,0,0,Math.PI*2);ctx.stroke()}ctx.restore()}
+Object.assign(window.Terha,{setup,migrateArmy,produce,canProduce,deploy,damage,kill,attack,attackCity,mayMove,mayFire,moveCost,escortProtected,canAttack,navalTargetRange});
+
+const escortCanAir=canAirStrike;canAirStrike=function(q,type,i){return !escortProtected(unitAt(i))&&escortCanAir(q,type,i)};
+const escortCanStrategic=canStrategic;canStrategic=function(q,kind,i){return !escortProtected(unitAt(i))&&escortCanStrategic(q,kind,i)};
+const escortAirStrike=airStrike;airStrike=async function(q,type,i,ai=false){const u=unitAt(i);if(escortProtected(u)){if(!ai&&atWar(q.f,u.f))showEscortProtection(u);return false}return escortAirStrike(q,type,i,ai)};
+const escortStrategic=launchStrategic;launchStrategic=async function(q,kind,i){const u=unitAt(i);if(escortProtected(u)){if(atWar(q.f,u.f))showEscortProtection(u);return false}return escortStrategic(q,kind,i)};
+Object.assign(window.Terha,{protectingEscorts,showEscortProtection,canAirStrike,canStrategic,airStrike,launchStrategic});
+
+function navalActionReady(u){return isNaval(u)&&u.hp>0&&u.f===player&&!u.carriedBy&&(unitActionReady(u)||u.type===26&&cargoUnits(u).some(v=>landingTiles(u,v).length>0))}
+const navalReadyTile=drawReadyTile;drawReadyTile=function(u,p,now){if(!isNaval(u))return navalReadyTile(u,p,now);if(busy||menuMode||!navalActionReady(u))return;ctx.save();hex(p,32);const pulse=.5+.5*Math.sin(now*.005+u.id*.27);ctx.fillStyle='rgba(124,219,237,'+(.07+.27*pulse)+')';ctx.fill();ctx.strokeStyle='rgba(168,234,246,'+(.16+.54*pulse)+')';ctx.lineWidth=1.5;ctx.stroke();ctx.restore()};
+Object.assign(window.Terha,{navalActionReady});

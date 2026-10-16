@@ -1,0 +1,11 @@
+'use strict';
+const baekDestroyerArt={right:loadBaekArt('baek-destroyer-right.png'),left:loadBaekArt('baek-destroyer-left.png')};
+const baekFrigateArt={right:loadBaekArt('baek-frigate-right.png'),left:loadBaekArt('baek-frigate-left.png')};
+function isBaekSurfaceShip(u){return u.f===0&&(u.type===23||u.type===24)}
+function isBaekDestroyer(u){return u.f===0&&u.type===24}
+function baekDestroyerFacing(u){return u.destroyerFacing===-1?-1:u.destroyerFacing===1?1:Number.isFinite(u.angle)&&Math.cos(u.angle)<0?-1:1}
+function faceBaekDestroyer(u,from,to){if(isBaekSurfaceShip(u)&&Math.abs(to.x-from.x)>.001)u.destroyerFacing=to.x>from.x?1:-1}
+const destroyerAim=beginAim;beginAim=function(u,p,d){faceBaekDestroyer(u,pxy(u.tile),p);return destroyerAim(u,p,d)};
+const destroyerMove=moveUnit;moveUnit=function(u,i,ai=false){const from=pxy(u.tile),ok=destroyerMove(u,i,ai);if(ok&&isBaekSurfaceShip(u)){faceBaekDestroyer(u,from,pxy(i));if(!ai)save()}return ok};
+const destroyerSprite=sprite;sprite=function(u,p,now){if(!isBaekSurfaceShip(u))return destroyerSprite(u,p,now);const images=u.type===23?baekFrigateArt:baekDestroyerArt,art=baekDestroyerFacing(u)<0?images.left:images.right;if(!art.idleReady)return destroyerSprite(u,p,now);const move=movingAnimation(u.id);if(move){const t=Math.max(0,Math.min(1,(now-move.start)/move.duration));p={x:move.from.x+(move.to.x-move.from.x)*t,y:move.from.y+(move.to.y-move.from.y)*t}}const fire=fireMotions.get(u.id);if(fire&&now>=fire.start+fire.duration)fireMotions.delete(u.id);ctx.save();ctx.translate(p.x,p.y-3);ctx.globalAlpha=1;ctx.fillStyle='#061c2866';ctx.beginPath();ctx.ellipse(0,12,51*NAVAL_VISUAL_SCALE,7*NAVAL_VISUAL_SCALE,0,0,Math.PI*2);ctx.fill();const w=110*NAVAL_VISUAL_SCALE,h=w*(u.type===23?616:622)/1672;ctx.drawImage(art.idle,-w/2,14-h,w,h);if(cam.z>.55){ctx.font='bold 9px Terha,sans-serif';ctx.textAlign='center';ctx.lineWidth=2.5;ctx.strokeStyle='#10222b';ctx.strokeText(TYPES[u.type].name+' '+u.level,0,38);ctx.fillStyle='#eee7d2';ctx.fillText(TYPES[u.type].name+' '+u.level,0,38);rect(-25,21,50,5,'#12211c');rect(-24,22,48*Math.max(0,u.hp/unitMaxHp(u)),3,factions[u.f].color)}ctx.restore()};
+Object.assign(window.Terha,{moveUnit,faceBaekDestroyer,baekDestroyerFacing});
