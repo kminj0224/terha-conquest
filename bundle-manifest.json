@@ -1,31 +1,46 @@
 {
-  "version": "1.10.69",
+  "version": "1.10.70",
   "root": "Terha-Conquest",
   "files": {
     "Terha-Conquest/.gitignore": {
       "bundle": "code",
-      "bytes": 100,
-      "sha256": "ea27d5d15ed8da9a54bad3386631b5fd4fe66b303e7e70a8f4eced31ebda08e7"
+      "bytes": 137,
+      "sha256": "5a370c6aeb672da2a8b4d69fad5399384e2036a90befce20325321638bc86203"
     },
     "Terha-Conquest/AGENTS.md": {
       "bundle": "code",
-      "bytes": 1064,
-      "sha256": "660398e00230000c3126bc22bf1aa96fd113b6f5ade102861e92cbb8af198e9b"
+      "bytes": 1298,
+      "sha256": "2f12c12507dafe02f9c935835056905a3579c6fd438050e0af011b3c69f1f8c3"
     },
     "Terha-Conquest/README-ko.md": {
       "bundle": "code",
-      "bytes": 5972,
-      "sha256": "ca26ccf93513a4e086753a06ef3ec654cebcc2bcf52fc9f7c1dae56ae0c3cec5"
+      "bytes": 7463,
+      "sha256": "f3bf02caf3fcca3d586c49d8c14bbed65b0115be541501cc4ad9cc8447cee0da"
     },
     "Terha-Conquest/README.md": {
       "bundle": "code",
-      "bytes": 818,
-      "sha256": "5df24f9168cad4c90bc00a020998b2f9b69b48dbff81f3492c901b9c6bd90495"
+      "bytes": 1257,
+      "sha256": "294046112cff0fd334d2123df5582a5e48eedf34d40366873c10fe3811e6fbb1"
+    },
+    "Terha-Conquest/android/compile-stubs/android/webkit/JavascriptInterface.java": {
+      "bundle": "code",
+      "bytes": 290,
+      "sha256": "cdc819fe35950e17c44221b0bf2f799433ee8ac9e29886fe15afd1c0bcbe96ae"
+    },
+    "Terha-Conquest/android/compile-stubs/android/webkit/WebSettings.java": {
+      "bundle": "code",
+      "bytes": 734,
+      "sha256": "c42064db35bdb3a05341bbb0b25025c605c4bbeaef4e0095e7298de57e2392c5"
     },
     "Terha-Conquest/android/native-shell.zip": {
       "bundle": "code",
-      "bytes": 3648,
-      "sha256": "03745ca4fb63e1202baa8cf54a55ac8442825cbad7d2b7cf092d29edf71f5407"
+      "bytes": 4582,
+      "sha256": "a95d5d23db93915e934f1ce49f27e6b9344de8c24ffeded4d6995878c0c21d6a"
+    },
+    "Terha-Conquest/android/native-src/com/terha/conquest/MainActivity.java": {
+      "bundle": "code",
+      "bytes": 2743,
+      "sha256": "b960a327b8240924b2f82c7b39cc3e03f3fb786d075a9d8ad90164c02c17cce6"
     },
     "Terha-Conquest/audio/wav/artillery-1.wav": {
       "bundle": "audio",
@@ -330,7 +345,7 @@
     "Terha-Conquest/build.py": {
       "bundle": "code",
       "bytes": 3171,
-      "sha256": "b7664565c90f0bd6b8e182e0b47ce6fadffb73de48fb962c03e2a45b92b73d2d"
+      "sha256": "575c2c7ea94075bb36fe9eada0cf60fb00be368bec3319997faed3405445dd95"
     },
     "Terha-Conquest/game/assets/FONT-LICENSE.txt": {
       "bundle": "code",
@@ -357,15 +372,20 @@
       "bytes": 4604,
       "sha256": "dc71c3003e38524383abd1b37ec8cbf6fe214b27f9936c0a0825c17d854c393f"
     },
+    "Terha-Conquest/game/assets/app-lifecycle.js": {
+      "bundle": "code",
+      "bytes": 1734,
+      "sha256": "45ca258e880c063cdfcbad3037c164fdd3dbf8411c46472cd2b1821855a3f3a0"
+    },
     "Terha-Conquest/game/assets/app-shell.css": {
       "bundle": "code",
-      "bytes": 10435,
-      "sha256": "e0bd592416ddab07ba8ddf401864bd6b56678841aba1ddb7262bf9702e1d690e"
+      "bytes": 13015,
+      "sha256": "3f8e5d2613fd5b5fd278bf617921da3d495f22715ad14ab21e3179ea842c7403"
     },
     "Terha-Conquest/game/assets/app-shell.js": {
       "bundle": "code",
-      "bytes": 19714,
-      "sha256": "da4a7cb9e75c6b03958acdd38984637f27a87f3bab0cffb4635a324410415d3d"
+      "bytes": 20988,
+      "sha256": "054b108cf75abe44c8bce33a8310b761ceb846fedb6bec6d0c1a990b2c591b64"
     },
     "Terha-Conquest/game/assets/artillery-alignment.js": {
       "bundle": "code",
@@ -554,8 +574,8 @@
     },
     "Terha-Conquest/game/assets/bootstrap.js": {
       "bundle": "code",
-      "bytes": 680,
-      "sha256": "6d57864cc177918f39e69c19703538a973b926aadeded463f73da7fc76f35654"
+      "bytes": 708,
+      "sha256": "d9c53ee9dcf120e72c042d22620cdc142354455bf39241579e9e357c7195eb7b"
     },
     "Terha-Conquest/game/assets/campaign-balance.js": {
       "bundle": "code",
@@ -624,8 +644,8 @@
     },
     "Terha-Conquest/game/assets/combat-audio.js": {
       "bundle": "code",
-      "bytes": 9322,
-      "sha256": "9619e33a57e504f74ceeebaaf8c7f1bdf0ea8ec156e175dfe84f1578cd70eeb9"
+      "bytes": 9181,
+      "sha256": "0071471b3f41d0afc1a9bbe4c39cc4e5ffc78353e33fb5255e40949767adc1aa"
     },
     "Terha-Conquest/game/assets/combat-sound-bank.js": {
       "bundle": "audio",
@@ -754,8 +774,8 @@
     },
     "Terha-Conquest/game/assets/defense-research.js": {
       "bundle": "code",
-      "bytes": 18285,
-      "sha256": "f06167bbc4e9b43cc74dd1f42b223fe4f53ade37b730f0c7f493bbd8964ffdce"
+      "bytes": 18349,
+      "sha256": "c89f6738cfa8ac625bf76459bffcdd5ed57ba47a403178dea3c5a1d9b6775f95"
     },
     "Terha-Conquest/game/assets/defense-sea.png": {
       "bundle": "images",
@@ -819,8 +839,8 @@
     },
     "Terha-Conquest/game/assets/game.js": {
       "bundle": "code",
-      "bytes": 44601,
-      "sha256": "69e23eed1ecb4563b02d4d276e6bd9140008fe69c0e3feecc284e33e6b7de0f8"
+      "bytes": 44455,
+      "sha256": "10dfbfaef4138dcf688b91aab052c81f8b7a3c2e75c1b16c68692cbd38dbe826"
     },
     "Terha-Conquest/game/assets/ground-0-3-anchors.png": {
       "bundle": "images",
@@ -3314,8 +3334,8 @@
     },
     "Terha-Conquest/game/assets/index.html": {
       "bundle": "code",
-      "bytes": 15359,
-      "sha256": "a27c60ae5c9680b78cc0393cfdaface9aa4ae50e6906eb34b4f812b0db2c0fe4"
+      "bytes": 15408,
+      "sha256": "8d1b61a98b3b85ed38fb1ad3dbc96c3fd06aaec82a94f376fbd20019d47d49f0"
     },
     "Terha-Conquest/game/assets/industry.js": {
       "bundle": "code",
@@ -3540,7 +3560,7 @@
     "Terha-Conquest/game/assets/saves.js": {
       "bundle": "code",
       "bytes": 3597,
-      "sha256": "9ee20ad59e24cc3bf0a8effdece45717774a2c77a64dc697551eaa0c3784eb69"
+      "sha256": "7651162a9cdfc9de005fae3d007a0b791805231a17d7288009685d41640ab1dc"
     },
     "Terha-Conquest/game/assets/static-ground.js": {
       "bundle": "code",
@@ -3762,6 +3782,11 @@
       "bytes": 1579642,
       "sha256": "51347ae58d499fcc34a70e8f4f3e76300f5725208acf10b678f1ee501d6b0f1b"
     },
+    "Terha-Conquest/game/assets/window-chrome.js": {
+      "bundle": "code",
+      "bytes": 2951,
+      "sha256": "79203da2a16ec75df7b345d3307bd39072ab513d0be409a2cccd56ad6093e220"
+    },
     "Terha-Conquest/game/assets/world-clean.png": {
       "bundle": "images",
       "bytes": 5225842,
@@ -3775,7 +3800,7 @@
     "Terha-Conquest/package.json": {
       "bundle": "code",
       "bytes": 193,
-      "sha256": "437980d045dc14014d601d14ac7453cbd99d9a669cce598f59751e9b14a9b25b"
+      "sha256": "825d7030e4209ff41830c6a739475e2939ff03c724dea8535ee251148d5b4c4e"
     },
     "Terha-Conquest/qa/canonical-units.json": {
       "bundle": "code",
@@ -3785,7 +3810,7 @@
     "Terha-Conquest/qa/english-ui-audit.json": {
       "bundle": "code",
       "bytes": 3367,
-      "sha256": "d73d30404354b0be0d1ad10c9f3d78c4db19767bf673dd7cd40c0f8885bab628"
+      "sha256": "84b49322dc4d1595903d5d819620e450e25fac5325c9a9137ba159b996f1938d"
     },
     "Terha-Conquest/qa/english-units.json": {
       "bundle": "code",
@@ -3799,8 +3824,8 @@
     },
     "Terha-Conquest/qa/native-test.cjs": {
       "bundle": "code",
-      "bytes": 18612,
-      "sha256": "e1e4689c355a0ebbd188bc7d66530acab1799de5127e68d090cbc801d061c9d8"
+      "bytes": 21617,
+      "sha256": "745980f964de6aed788331da0d864cc4451adaedb43e8cc1c84d9fb9d6b63b78"
     },
     "Terha-Conquest/qa/patch-native-audio.py": {
       "bundle": "code",
@@ -3819,8 +3844,8 @@
     },
     "Terha-Conquest/qa/verify-native.py": {
       "bundle": "code",
-      "bytes": 1303,
-      "sha256": "2b21473e140019134169e56c0029470f3d6060cff8501d5d4c9e169038e3c29b"
+      "bytes": 4016,
+      "sha256": "5da6971dbde345252559531ce345070400ac54c20b6408ac4710ea8345aa8271"
     },
     "Terha-Conquest/tools/SignApk.java": {
       "bundle": "code",
@@ -3841,6 +3866,11 @@
       "bundle": "code",
       "bytes": 194857,
       "sha256": "9637078c0016244e4be0941836295365a7e2e5b164c59cb7885783c40460bfee"
+    },
+    "Terha-Conquest/tools/build_native_shell.py": {
+      "bundle": "code",
+      "bytes": 1997,
+      "sha256": "96fd8c7003ea1d8de69f3627fc2008b4ce4ec6c89de592a4db6e2637e2581269"
     },
     "Terha-Conquest/tools/cert.der": {
       "bundle": "code",

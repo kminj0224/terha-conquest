@@ -60,3 +60,22 @@ body:is([data-screen="country"],[data-screen="records"]) #modal{overflow:hidden;
  .countryPage .startrow{gap:8px}.countryPage .startrow button,.countryPage .startrow select{flex:1;min-width:110px}
  .settingsRow{grid-template-columns:72px 1fr 42px;gap:8px}
 }
+/* Dialog titles and their close controls remain above the scrollable content. */
+#modal .box.windowFrame,#confirmOverlay .confirmBox.windowFrame{display:flex;flex-direction:column;overflow:hidden;padding:0;max-height:92vh;max-height:92dvh}
+#panel.windowFrame{flex-direction:column;overflow:hidden;padding:0!important}
+.windowHeader{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:4;margin:0;padding:14px 18px;border-bottom:1px solid #91aa9760;background:#112730;box-shadow:0 4px 12px #0003}
+#modal .windowHeader :is(h1,h2),#panel .windowHeader h2,#confirmOverlay .windowHeader h2{margin:0!important;min-width:0;line-height:1.3;font-size:clamp(17px,2.5vw,25px);letter-spacing:1px}
+.windowHeader>.close{position:static!important;float:none;flex:none;margin:0!important;min-width:40px;min-height:40px;font-size:27px;padding:0 9px;line-height:1}
+.windowContent{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:18px 22px;-webkit-overflow-scrolling:touch}
+#panel .windowContent{padding:10px 14px}#panel .windowHeader{padding:9px 12px}
+#confirmOverlay .windowHeader{padding:14px 18px;text-align:left}#confirmOverlay .windowContent{padding:24px 18px}
+.operationStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 20px}
+.operationStats>div{margin:0;padding:13px;border:1px solid #8aa48c33;border-radius:5px;background:#1a343c}
+.operationStats dt{font-size:11px;color:#a6b8ac;margin-bottom:8px}.operationStats dd{margin:0;font-size:20px;font-weight:700;color:#efddaf;overflow-wrap:anywhere}
+.operationActions{display:flex;gap:9px;flex-wrap:wrap}.operationActions button{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:1;white-space:nowrap}
+#controls #coastBuild{display:inline-flex;align-items:center;justify-content:center;gap:6px;align-self:stretch;min-height:0;font:inherit;font-size:inherit;padding:8px 13px}
+#controls #coastBuild svg{width:22px;height:22px;flex:none}
+.hubLanding .mainButtons{margin-top:65px}
+@media(max-width:850px){#controls #coastBuild{font-size:11px;padding:5px 7px}.operationStats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-height:470px){.hubLanding .mainButtons{margin-top:60px}#modal .hubLanding .illustratedMenu{height:clamp(150px,43vh,220px)}.operationStats>div{padding:9px}.windowHeader{padding:8px 14px}.windowContent{padding:12px 16px}}
+@media(orientation:portrait) and (max-width:600px){.hubLanding .mainButtons{margin-top:100px}#modal .hubLanding .illustratedMenu{height:clamp(145px,25vh,230px)}}

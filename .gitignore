@@ -7,3 +7,5 @@ __pycache__/
 *.class
 *.pending
 .DS_Store
+tools/android-stubs.jar
+tools/dx.jar

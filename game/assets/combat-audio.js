@@ -101,7 +101,6 @@ function resetCombatAudio(){stopCombatAudio();combatAudio.seen=new WeakSet()}
 const combatSetup=setup;setup=function(...args){resetCombatAudio();return combatSetup(...args)};
 const combatMigration=migrateArmy;migrateArmy=function(...args){resetCombatAudio();return combatMigration(...args)};
 const combatFastForward=enableAIFastForward;enableAIFastForward=function(){const result=combatFastForward();if(result)stopCombatAudio(false);return result};$('aiFastForward').onclick=enableAIFastForward;
-const combatSoundToggle=$('sound').onclick;$('sound').onclick=()=>{combatSoundToggle();if(sound)ensureCombatAudio();else stopCombatAudio()};
 document.addEventListener('pointerdown',()=>{if(sound)ensureCombatAudio()},{passive:true});
 document.addEventListener('keydown',()=>{if(sound)ensureCombatAudio()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopCombatAudio();if(combatAudio.context?.state==='running')combatAudio.context.suspend().catch(()=>{})}});
