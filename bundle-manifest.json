@@ -1,5 +1,5 @@
 {
-  "version": "1.10.68",
+  "version": "1.10.69",
   "root": "Terha-Conquest",
   "files": {
     "Terha-Conquest/.gitignore": {
@@ -10,17 +10,17 @@
     "Terha-Conquest/AGENTS.md": {
       "bundle": "code",
       "bytes": 1064,
-      "sha256": "986ca787ab6d29dd848180dbf334105d7236bf7f7c03bb02457f031a61441355"
+      "sha256": "660398e00230000c3126bc22bf1aa96fd113b6f5ade102861e92cbb8af198e9b"
     },
     "Terha-Conquest/README-ko.md": {
       "bundle": "code",
-      "bytes": 5532,
-      "sha256": "99ed9b2cd6af2e7f2557f662e7373f0e59de9919583890b469c9d96d84ba6306"
+      "bytes": 5972,
+      "sha256": "ca26ccf93513a4e086753a06ef3ec654cebcc2bcf52fc9f7c1dae56ae0c3cec5"
     },
     "Terha-Conquest/README.md": {
       "bundle": "code",
       "bytes": 818,
-      "sha256": "10828008053fa5448744117c5f7849d23936bf39e07a78898e207861665e3372"
+      "sha256": "5df24f9168cad4c90bc00a020998b2f9b69b48dbff81f3492c901b9c6bd90495"
     },
     "Terha-Conquest/android/native-shell.zip": {
       "bundle": "code",
@@ -330,7 +330,7 @@
     "Terha-Conquest/build.py": {
       "bundle": "code",
       "bytes": 3171,
-      "sha256": "233db9ac9b4d720accedd30c1d95e408ba9b2c6ef7d625ad901946daee13ea02"
+      "sha256": "b7664565c90f0bd6b8e182e0b47ce6fadffb73de48fb962c03e2a45b92b73d2d"
     },
     "Terha-Conquest/game/assets/FONT-LICENSE.txt": {
       "bundle": "code",
@@ -344,8 +344,8 @@
     },
     "Terha-Conquest/game/assets/aftermath-carrier.js": {
       "bundle": "code",
-      "bytes": 3368,
-      "sha256": "7434c3a14f83ce4a831bf3f0ce990c2d887b0c03973709b4f97b3da7ae3288ec"
+      "bytes": 3466,
+      "sha256": "edcdf13c1e502d92db42a99d8347843086ecb0a11ff8e8e954ee827856da28b7"
     },
     "Terha-Conquest/game/assets/ai-fast-forward.js": {
       "bundle": "code",
@@ -354,8 +354,8 @@
     },
     "Terha-Conquest/game/assets/ambience.js": {
       "bundle": "code",
-      "bytes": 4586,
-      "sha256": "f88c342e80611219e0f9406a2c925aa0bfc6c0bff7e287f757622633fb5ec3e2"
+      "bytes": 4604,
+      "sha256": "dc71c3003e38524383abd1b37ec8cbf6fe214b27f9936c0a0825c17d854c393f"
     },
     "Terha-Conquest/game/assets/app-shell.css": {
       "bundle": "code",
@@ -365,7 +365,7 @@
     "Terha-Conquest/game/assets/app-shell.js": {
       "bundle": "code",
       "bytes": 19714,
-      "sha256": "149dd3a1df05de95cbe95111657c884eb4431b88f40915585f59ea6993542460"
+      "sha256": "da4a7cb9e75c6b03958acdd38984637f27a87f3bab0cffb4635a324410415d3d"
     },
     "Terha-Conquest/game/assets/artillery-alignment.js": {
       "bundle": "code",
@@ -3329,8 +3329,8 @@
     },
     "Terha-Conquest/game/assets/infantry-remains.png": {
       "bundle": "images",
-      "bytes": 622023,
-      "sha256": "011dccde62ca22b5130ececf2b7002504f3db1f3ec03eabeb724cc301c41d8d9"
+      "bytes": 779941,
+      "sha256": "7b0d6d04b51e1f40d39276f8c54b782f0980cd02892854a674eff409b6d1b0b5"
     },
     "Terha-Conquest/game/assets/initial-layout.js": {
       "bundle": "code",
@@ -3540,7 +3540,7 @@
     "Terha-Conquest/game/assets/saves.js": {
       "bundle": "code",
       "bytes": 3597,
-      "sha256": "73e04b0ad94a57315fc96f102b0f66e4b8763a5204146204a34356cd7ca109d2"
+      "sha256": "9ee20ad59e24cc3bf0a8effdece45717774a2c77a64dc697551eaa0c3784eb69"
     },
     "Terha-Conquest/game/assets/static-ground.js": {
       "bundle": "code",
@@ -3775,7 +3775,7 @@
     "Terha-Conquest/package.json": {
       "bundle": "code",
       "bytes": 193,
-      "sha256": "1d213ac409793222d116c0d23267182aaa619ee9f88325bed949bf8ef5ef07e3"
+      "sha256": "437980d045dc14014d601d14ac7453cbd99d9a669cce598f59751e9b14a9b25b"
     },
     "Terha-Conquest/qa/canonical-units.json": {
       "bundle": "code",
@@ -3799,8 +3799,8 @@
     },
     "Terha-Conquest/qa/native-test.cjs": {
       "bundle": "code",
-      "bytes": 17555,
-      "sha256": "5cf6f402be068a2b3c1816b5b303350e12933cd2e7b80b825797967ea89f0ff3"
+      "bytes": 18612,
+      "sha256": "e1e4689c355a0ebbd188bc7d66530acab1799de5127e68d090cbc801d061c9d8"
     },
     "Terha-Conquest/qa/patch-native-audio.py": {
       "bundle": "code",

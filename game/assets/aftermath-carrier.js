@@ -1,6 +1,6 @@
 'use strict';
 const infantryRemainsArt=loadBaekArt('infantry-remains.png'),baekCarrierArt=loadBaekArt('baek-carrier.png');
-function drawInfantryRemains(e,t){if(!infantryRemainsArt.idleReady)return;ctx.save();ctx.globalAlpha=Math.max(0,1-t);ctx.drawImage(infantryRemainsArt.idle,e.x-26,e.y-16,52,52*1393/1812);ctx.restore()}
+function drawInfantryRemains(e,t){if(!infantryRemainsArt.idleReady)return;ctx.save();ctx.globalAlpha=Math.min(1,Math.max(0,(1-t)/.55));const w=64,h=w*infantryRemainsArt.idle.naturalHeight/infantryRemainsArt.idle.naturalWidth;ctx.drawImage(infantryRemainsArt.idle,e.x-w/2,e.y-h/2,w,h);ctx.restore()}
 const remainsKill=kill;kill=function(u){if(!units.includes(u))return;const show=TYPES[u.type]?.branch==='infantry'&&!u.carriedBy&&tiles[u.tile].owner>=0,p=pxy(u.tile),before=fx.length;const result=remainsKill(u);if(show){fx=fx.slice(0,before).concat(fx.slice(before).filter(e=>e.kind!=='wreck'));fx.push({kind:'infantryRemains',x:p.x,y:p.y,start:performance.now(),duration:3000})}return result};
 function isBaekCarrier(u){return u.f===0&&u.type===25}
 function baekCarrierFacing(u){return u.carrierFacing===-1?-1:u.carrierFacing===1?1:Number.isFinite(u.angle)&&Math.cos(u.angle)<0?-1:1}
