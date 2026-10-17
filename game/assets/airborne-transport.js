@@ -16,7 +16,7 @@ const originalAirEligibility=canAirStrike;
 canAirStrike=function(q,type,i){
  if(type!=='transport')return originalAirEligibility(q,type,i);
  const m=AIR_MISSIONS.transport;
- return !!q&&q.airport&&q.nukeUntil<=turn&&money[q.f]>=m.cost&&oil[q.f]>=m.oil&&
+ return !!q&&q.airport&&(q.nukeUntil||0)<=turn&&money[q.f]>=m.cost&&oil[q.f]>=m.oil&&
   distance(q.tile,i)<=m.range&&airDropTileAvailable(i);
 };
 const originalAirportAction=showPanel;
