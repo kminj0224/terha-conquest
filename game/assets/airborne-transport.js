@@ -50,10 +50,10 @@ airStrike=async function(q,type,i,ai=false){
  fx.push({kind:'airraid',type:'parachute',x:b.x,y:b.y,tx:b.x,ty:b.y,f:q.f,
   start:performance.now(),duration:ai?200:1250});
  await delay(ai?100:1250);
- const troop=makeUnit(q.f,0,i,4);
+ const troop=makeUnit(q.f,0,i,2);
  spendShot(troop); // Drop troops can act at the start of the next turn.
  if(cityAt(i))capture(troop);
- log(factions[q.f].name+' · 수송기 공수강하 · 4단계 소총수');
+ log(factions[q.f].name+' · 수송기 공수강하 · 2단계 소총수');
  if(!ai){busy=false;selectUnit(troop);updateHUD();save();checkEnd()}
  return true;
 };
