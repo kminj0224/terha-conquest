@@ -3,7 +3,7 @@ TYPES[3].atk*=.85;
 TYPES[3].text+=' 공격·피격 시 반격 발생 확률 40%.';
 for(const k of [8,9,10])TYPES[k].range=1;
 TYPES[8].text=TYPES[8].text.replace('사거리 2','사거리 1');
-TYPES[25].text+=' 도시 공격 시 공격력의 20배 피해.';
+TYPES[25].text+=' 도시 공격 피해 2,000 (전투기와 동일).';
 let aiTransportGrantTurn=Array(7).fill(-1),transportRoutes=new Map(),transportLandings=new Map(),seaComponents=null;
 function overviewColor(f){const hex=factions[f].color.slice(1),rgb=[0,2,4].map(i=>Math.round(parseInt(hex.slice(i,i+2),16)*.48));return '#'+rgb.map(n=>n.toString(16).padStart(2,'0')).join('')}
 function drawOverviewUnit(u,p,now){ctx.save();const ready=!busy&&!menuMode&&unitActionReady(u),pulse=.5+.5*Math.sin(now*.005+u.id*.27);ctx.globalAlpha=1;ctx.fillStyle=overviewColor(u.f);ctx.strokeStyle='#e2e4d6';ctx.lineWidth=1/cam.z;ctx.beginPath();ctx.arc(p.x,p.y,4.5/cam.z,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore()}
