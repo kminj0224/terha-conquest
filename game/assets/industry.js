@@ -66,4 +66,4 @@ Object.assign(window.Terha,{setup,produce,canProduce,upgradeCity,buildFacility,s
 
 const industryLaunch=launchShot;launchShot=function(u,target,start=performance.now(),duration=520){const muzzle=industryLaunch(u,target,start,duration);if(u.type===18)for(const e of fx)if(e.kind==='laser'&&e.start===start){e.kind='shot';e.laserShell=true;e.duration=520}return muzzle};
 
-const industryCanAir=canAirStrike;canAirStrike=function(q,type,i){return industryCanAir(q,type,i)&&oil[q.f]>=(AIR_MISSIONS[type]?.oil??(type==='bomber'?8:5))&&q.nukeUntil<=turn};
+const industryCanAir=canAirStrike;canAirStrike=function(q,type,i){return industryCanAir(q,type,i)&&oil[q.f]>=30&&q.nukeUntil<=turn};
