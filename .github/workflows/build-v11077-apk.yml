@@ -1,4 +1,4 @@
-name: Build Terha Conquest v1.10.77 airborne APK
+name: Build Terha Conquest v1.10.77 airborne APK (regression verified)
 on:
   push:
     paths:
