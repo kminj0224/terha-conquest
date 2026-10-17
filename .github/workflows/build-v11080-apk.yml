@@ -1,0 +1,48 @@
+name: Build Terha Conquest v1.10.80 Clean UI
+on:
+  push:
+    paths:
+      - '.github/workflows/build-v11080-apk.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install JavaScript test dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify tutorial toast messages are removed
+        run: |
+          ! grep -F '종료하려면 아래 ×' game/assets/v11079-systems.js
+          ! grep -F 'i 버튼으로 포대 정보 확인' game/assets/v11078-systems.js
+          ! grep -F 'i: 포대 정보' game/assets/v11078-systems.js
+      - name: Test full game and aircraft controls
+        run: node qa/native-test.cjs
+      - name: Verify native Android shell
+        run: python3 qa/verify-native.py
+      - name: Build signed v1.10.80 APK
+        run: python3 build.py
+      - name: Verify original signing certificate and checksum
+        run: |
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.10.80.apk
+          sha256sum deliverables/Terha-Conquest-v1.10.80.apk > deliverables/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.10.80
+          path: |
+            deliverables/Terha-Conquest-v1.10.80.apk
+            deliverables/SHA256SUMS.txt
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
