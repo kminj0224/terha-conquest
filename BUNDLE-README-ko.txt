@@ -1,4 +1,4 @@
-Terha Conquest v1.10.71 — 소스 안내
+Terha Conquest v1.10.72 — 소스 안내
 
 현재 개발 원본은 GitHub 저장소의 main 브랜치입니다.
 전체 소스는 저장소의 Code → Download ZIP으로 내려받을 수 있습니다.

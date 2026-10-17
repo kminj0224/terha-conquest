@@ -7,7 +7,6 @@ function startGameRenderer(){
  if(gameBooted)return;
  gameBooted=true;
  requestAnimationFrame(draw);
- resumeRecreatedActivity();
 }
 // Present the front end immediately; map decoding must never gate the title.
 showTitle();

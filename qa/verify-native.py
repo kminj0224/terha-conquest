@@ -65,7 +65,7 @@ for _,op,b in instructions(names.index((main,'onCreate'))):
   args=[b[4]&15,b[4]>>4,b[5]&15,b[5]>>4,b[1]&15][:b[1]>>4];assert regs.get(args[1])==0;checked=True
 assert checked
 assert 'terhaBack' in constants(names.index((main,'onBackPressed')))
-assert '#resume'in ss and 'TerhaNative'in ss
+assert '#resume'not in ss and 'TerhaNative'in ss
 for method in ['onPause','onResume','onNewIntent']:
  assert not any('file:///'in s for s in constants(names.index((main,method)))),'Lifecycle reloads the game'
 assert any('terhaBackground'in s for s in constants(names.index((main,'onPause'))))
@@ -75,4 +75,4 @@ for method in ['onPause','onResume','onNewIntent','onBackPressed','notifyGame']:
  assert ('Landroid/webkit/WebView;','loadUrl')not in calls(names.index((main,method))),method+' navigates the page'
 assert ('Landroid/webkit/WebView;','evaluateJavascript')in calls(names.index((main,'notifyGame')))
 assert 'retainedWeb'in ss and 'retainedContext'in ss
-print('PASS: DEX checksums/IDs/instruction boundaries, annotated native exit bridge, media autoplay(false), Back routing, retained live WebView, evaluateJavascript callbacks without page navigation, saved-instance recovery marker')
+print('PASS: DEX checksums/IDs/instruction boundaries, annotated native exit bridge, media autoplay(false), Back routing, retained live WebView, evaluateJavascript callbacks without page navigation, no automatic saved-game recovery')

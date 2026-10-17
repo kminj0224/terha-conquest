@@ -1,13 +1,13 @@
 # Terha Conquest
 
-Private development repository. Current baseline: **v1.10.71**, Android versionCode **115**.
+Private development repository. Current baseline: **v1.10.72**, Android versionCode **116**.
 
 ## Cloud setup
 
 Use Python 3 and Java 17. All game artwork, audio, fonts, the Android shell, signing files and Java build dependencies are included.
 
 - Build the update APK: `python3 build.py`
-- Output: `deliverables/Terha-Conquest-v1.10.71.apk`
+- Output: `deliverables/Terha-Conquest-v1.10.72.apk`
 - Install QA dependency: `npm install`
 - Game regression checks: `npm test`
 - Android shell checks: `python3 qa/verify-native.py`
@@ -17,4 +17,4 @@ Continue from this repository and commit completed changes to preserve them for 
 
 ## Android lifecycle source
 
-`android/native-src` holds the Activity and confirmed-exit bridge. After native edits, run `python3 tools/build_native_shell.py`, then the standard APK build. The helper fetches pinned Android compile APIs and dx and checks SHA-256. Compile-only API stubs stay outside the DEX. Home/app switching preserves the running WebView; Android saved-instance recreation restores the last safe campaign via `#resume`.
+`android/native-src` holds the Activity and confirmed-exit bridge. After native edits, run `python3 tools/build_native_shell.py`, then the standard APK build. The helper fetches pinned Android compile APIs and dx and checks SHA-256. Compile-only API stubs stay outside the DEX. Home/app switching preserves the running WebView; Activity recreation reattaches the same live WebView. The v1.10.70 automatic save-recovery path has been removed.

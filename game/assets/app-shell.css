@@ -79,3 +79,32 @@ body:is([data-screen="country"],[data-screen="records"]) #modal{overflow:hidden;
 @media(max-width:850px){#controls #coastBuild{font-size:11px;padding:5px 7px}.operationStats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-height:470px){.hubLanding .mainButtons{margin-top:60px}#modal .hubLanding .illustratedMenu{height:clamp(150px,43vh,220px)}.operationStats>div{padding:9px}.windowHeader{padding:8px 14px}.windowContent{padding:12px 16px}}
 @media(orientation:portrait) and (max-width:600px){.hubLanding .mainButtons{margin-top:100px}#modal .hubLanding .illustratedMenu{height:clamp(145px,25vh,230px)}}
+/* Compact operation overview: actions are a separate fixed footer, outside the scroller. */
+#modal .operationProgress{width:min(740px,94vw);max-height:92vh;max-height:92dvh;border-color:#d0b77a66;background:linear-gradient(140deg,#142b35,#0b1c26 70%)}
+#modal .operationProgress .windowHeader{padding:10px 14px;background:linear-gradient(90deg,#233a42,#132832);border-color:#c5ad7355}
+#modal .operationProgress .windowHeader h1{display:flex;align-items:center;gap:9px;font-size:19px;letter-spacing:2px;color:#e9d9b0}
+#modal .operationProgress .windowHeader h1 .operationIcon{width:27px;height:27px;color:#d9bd7d}
+#modal .operationProgress .windowHeader>.close{width:34px;min-width:34px;min-height:34px;font-size:25px}
+#modal .operationProgress .windowContent{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.operationIdentity{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.operationNation{display:flex;align-items:center;gap:9px;min-width:0}.operationNation img{width:36px;height:25px;object-fit:contain;flex:none;filter:drop-shadow(0 2px 3px #0006)}
+.operationNation>b{font-size:14px;color:#e5e8df;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.operationBadges{display:flex;align-items:center;gap:6px;flex:none}.operationBadges>span{border:1px solid #93a89a44;background:#233a4199;padding:5px 8px;border-radius:4px;font-size:11px;white-space:nowrap;color:#b3c4bc}.operationBadges b{color:#f0d594;margin-left:4px}
+.operationBadges .level0{color:#b5d2a5}.operationBadges .level1{color:#e6cc91}.operationBadges .level2{color:#e6a5a0}
+.operationConquest{padding:8px 10px;background:#07182377;border:1px solid #809c9240;border-radius:5px}
+.operationConquestLabel{display:flex;align-items:center;gap:8px;font-size:11px;color:#aebfb6}.operationConquestLabel strong{margin-left:auto;font-size:16px;color:#eddaa9;line-height:1}.operationConquestLabel strong small{font-size:10px;margin-left:2px}.operationConquestLabel>span:last-child{color:#8da79d;font-size:10px}
+.operationTrack{height:4px;background:#07131a;border-radius:4px;overflow:hidden;margin-top:6px}.operationTrack i{display:block;height:100%;background:linear-gradient(90deg,#8e8259,#dfc58a);border-radius:4px}
+#modal .operationProgress .operationStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0}
+#modal .operationProgress .operationMetric{position:relative;display:grid;grid-template-columns:23px minmax(0,1fr);grid-template-rows:auto auto;column-gap:6px;align-items:center;min-width:0;margin:0;padding:8px 9px;background:#1d3540a6;border:1px solid #91a99b28;border-radius:5px}
+.operationIcon{display:block;width:19px;height:19px;flex:none}
+#modal .operationProgress .operationMetric>.operationIcon{grid-row:1/3;color:#9db7ae}
+#modal .operationProgress .operationMetric dt{margin:0;font-size:10px;line-height:1.3;color:#97afa8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#modal .operationProgress .operationMetric dd{margin:2px 0 0;font-size:16px;line-height:1.15;letter-spacing:.3px;color:#e5e8db;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#modal .operationProgress .metric-gold :is(svg,dd){color:#e8c575}#modal .operationProgress .metric-food :is(svg,dd){color:#d7b38d}#modal .operationProgress .metric-oil :is(svg,dd){color:#a9cad0}#modal .operationProgress .metric-nuclear :is(svg,dd){color:#d6c578}
+#modal .operationProgress>.operationActions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;flex:none;padding:10px 14px;border-top:1px solid #a8a17444;background:#0b1c25;box-shadow:0 -5px 14px #0002}
+#modal .operationProgress .operationActions button{min-width:0;min-height:39px;padding:6px;gap:6px;font-size:12px;border-color:#80988d55}
+#modal .operationProgress .operationActions svg{width:18px;height:18px;flex:none}#modal .operationProgress .operationActions span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#modal .operationProgress #leaveOperation{color:#dcafa5;border-color:#a87b7055}
+@media(max-height:470px){#modal .operationProgress .windowHeader{padding:6px 12px}#modal .operationProgress .windowHeader h1{font-size:17px}#modal .operationProgress .windowContent{padding:8px 12px;gap:7px}#modal .operationProgress .operationMetric{padding:6px 7px}#modal .operationProgress .operationMetric dd{font-size:15px}.operationConquest{padding:6px 9px}#modal .operationProgress>.operationActions{padding:7px 12px}#modal .operationProgress .operationActions button{min-height:35px}}
+@media(max-width:520px){.operationNation>b{font-size:12px}.operationNation img{width:28px;height:22px}.operationBadges>span{padding:4px 5px;font-size:10px}#modal .operationProgress .operationMetric{grid-template-columns:17px minmax(0,1fr);gap:2px 4px;padding:6px}#modal .operationProgress .operationMetric svg{width:16px;height:16px}#modal .operationProgress .operationMetric dd{font-size:14px}#modal .operationProgress .operationActions button{font-size:11px;gap:4px}}
+@media(max-width:400px){#modal .operationProgress .operationActions svg{display:none}.operationBadges{gap:3px}.operationNation{gap:6px}}

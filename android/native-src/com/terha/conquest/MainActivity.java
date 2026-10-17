@@ -61,8 +61,8 @@ public class MainActivity extends Activity {
         web.addJavascriptInterface(new ExitBridge(),"TerhaNative");
         web.setWebViewClient(new WebViewClient());
         setContentView(web);
-        // Only a cold WebView after actual process death can need save recovery.
-        web.loadUrl("file:///android_asset/index.html"+(state!=null?"#resume":""));
+        // A genuinely new session starts at START; automatic save recovery was removed.
+        web.loadUrl("file:///android_asset/index.html");
     }
     @Override public void onBackPressed() {notifyGame("terhaBack");}
     @Override protected void onPause() {

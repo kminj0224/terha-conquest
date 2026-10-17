@@ -1,5 +1,5 @@
 {
-  "version": "1.10.71",
+  "version": "1.10.72",
   "root": "Terha-Conquest",
   "files": {
     "Terha-Conquest/.gitignore": {
@@ -10,17 +10,17 @@
     "Terha-Conquest/AGENTS.md": {
       "bundle": "code",
       "bytes": 1485,
-      "sha256": "ecc5f9deb37b25c995f25c82fbab424e7a5b9e825ffd6a905a1a53359a67f833"
+      "sha256": "174fe5edd2d40227cadd98adef4bb28e879e7f5433dc0cf4fb7bd099fec0cef1"
     },
     "Terha-Conquest/README-ko.md": {
       "bundle": "code",
-      "bytes": 8812,
-      "sha256": "4ef3a8a7932573d4311d963719ab500569ddb016bcaf4ca639d1283feee2a8ff"
+      "bytes": 9803,
+      "sha256": "fec34c0a87e7e5cf99efde96082fd62a3d781700bad794b38378e6569eff8cc4"
     },
     "Terha-Conquest/README.md": {
       "bundle": "code",
-      "bytes": 1257,
-      "sha256": "f13771db1e51847cd9f8ba8baf3381d9a9d53a139d343704d0eccc4b6c53ebca"
+      "bytes": 1290,
+      "sha256": "5e6c263f427b11dbfc0c844daed6a944675ea8e0cfe532d02f5cb8126abf8f08"
     },
     "Terha-Conquest/android/compile-stubs/android/webkit/JavascriptInterface.java": {
       "bundle": "code",
@@ -34,13 +34,13 @@
     },
     "Terha-Conquest/android/native-shell.zip": {
       "bundle": "code",
-      "bytes": 5260,
-      "sha256": "43652b72b1802bb3e3f58cd5ec258453589add878f9695034defc01975804e94"
+      "bytes": 5224,
+      "sha256": "43dbe0c9627596c409766e0bf474b1c7b0d99e4c04349db227191b8337f93fcf"
     },
     "Terha-Conquest/android/native-src/com/terha/conquest/MainActivity.java": {
       "bundle": "code",
-      "bytes": 4472,
-      "sha256": "b0e320143ca46112686909a4e553556dbf1399d967a0ad3738b6efeca2365ad8"
+      "bytes": 4452,
+      "sha256": "8d210d0874cf96a7b0707dd7b65a23a4671117f5bc8c2d02d4ad8a072ac2ded8"
     },
     "Terha-Conquest/audio/wav/artillery-1.wav": {
       "bundle": "audio",
@@ -345,7 +345,7 @@
     "Terha-Conquest/build.py": {
       "bundle": "code",
       "bytes": 3171,
-      "sha256": "28a477978a794b30c2f1007af26f4cfc320228d0a5904ca9952c3298746d8060"
+      "sha256": "49b151a32073f092221394686422c75a7960f60ae008e35000aaecc714734580"
     },
     "Terha-Conquest/game/assets/FONT-LICENSE.txt": {
       "bundle": "code",
@@ -374,18 +374,18 @@
     },
     "Terha-Conquest/game/assets/app-lifecycle.js": {
       "bundle": "code",
-      "bytes": 1734,
-      "sha256": "45ca258e880c063cdfcbad3037c164fdd3dbf8411c46472cd2b1821855a3f3a0"
+      "bytes": 352,
+      "sha256": "8e0c851ac0d2936f0f41ad4625880f4f3aa7c7a40353dd5209925502d33ecb35"
     },
     "Terha-Conquest/game/assets/app-shell.css": {
       "bundle": "code",
-      "bytes": 13015,
-      "sha256": "3f8e5d2613fd5b5fd278bf617921da3d495f22715ad14ab21e3179ea842c7403"
+      "bytes": 18128,
+      "sha256": "a68b45ecde44bb125212d53f5f0b2b8e33db8748973e9e5beec4bba494adc7d5"
     },
     "Terha-Conquest/game/assets/app-shell.js": {
       "bundle": "code",
-      "bytes": 20988,
-      "sha256": "8c51d4b107cdb25dad88c6fdf31e86960f8281a550b193b45e5d617214ca5f0f"
+      "bytes": 23399,
+      "sha256": "2b6a7fe60773e5e47f07126d864b383b7f531b768423d1997cfa4bfaca9be044"
     },
     "Terha-Conquest/game/assets/artillery-alignment.js": {
       "bundle": "code",
@@ -574,8 +574,8 @@
     },
     "Terha-Conquest/game/assets/bootstrap.js": {
       "bundle": "code",
-      "bytes": 708,
-      "sha256": "d9c53ee9dcf120e72c042d22620cdc142354455bf39241579e9e357c7195eb7b"
+      "bytes": 680,
+      "sha256": "6d57864cc177918f39e69c19703538a973b926aadeded463f73da7fc76f35654"
     },
     "Terha-Conquest/game/assets/campaign-balance.js": {
       "bundle": "code",
@@ -3560,7 +3560,7 @@
     "Terha-Conquest/game/assets/saves.js": {
       "bundle": "code",
       "bytes": 3597,
-      "sha256": "becf343b31d0b907c48ff8344e966f13fd6bf6138bb9396a618eb8e6126a4820"
+      "sha256": "f710c06fb1b619220f133bba58dcd78d085568b67c12d096b24b022d75063431"
     },
     "Terha-Conquest/game/assets/static-ground.js": {
       "bundle": "code",
@@ -3784,8 +3784,8 @@
     },
     "Terha-Conquest/game/assets/window-chrome.js": {
       "bundle": "code",
-      "bytes": 2951,
-      "sha256": "79203da2a16ec75df7b345d3307bd39072ab513d0be409a2cccd56ad6093e220"
+      "bytes": 2938,
+      "sha256": "860be1928d134cbdd1268f3ab20dd760422bb56b7c0b8d16914190feac3bdbac"
     },
     "Terha-Conquest/game/assets/world-clean.png": {
       "bundle": "images",
@@ -3800,7 +3800,7 @@
     "Terha-Conquest/package.json": {
       "bundle": "code",
       "bytes": 193,
-      "sha256": "58cea358ebdb68985a1e52bc29e527f1186d72756865b347ce06a73c1d6da730"
+      "sha256": "3bdd5712bc6f6bb20de8b6da0222599593386dca4b3fb2fce050f7e2a026daea"
     },
     "Terha-Conquest/qa/canonical-units.json": {
       "bundle": "code",
@@ -3824,8 +3824,8 @@
     },
     "Terha-Conquest/qa/native-test.cjs": {
       "bundle": "code",
-      "bytes": 21617,
-      "sha256": "326e023bc4c90958cabd7fc90294c10cee47d19d645765623f31aa12cb2cdac1"
+      "bytes": 22475,
+      "sha256": "9369b2d323a74016fa7102cd9a209545a279f269d382b312bac51a83f141d60c"
     },
     "Terha-Conquest/qa/patch-native-audio.py": {
       "bundle": "code",
@@ -3844,8 +3844,8 @@
     },
     "Terha-Conquest/qa/verify-native.py": {
       "bundle": "code",
-      "bytes": 4538,
-      "sha256": "14a4ff9e006136842e5cfc076e9151d3b499e33e34e0d10b0cece2b295f6a675"
+      "bytes": 4544,
+      "sha256": "65b10eedc3067fbc6b056dbc9a408719057c0b39f0dd2b6a89ca069e4c43b3ef"
     },
     "Terha-Conquest/tools/SignApk.java": {
       "bundle": "code",
@@ -3899,8 +3899,8 @@
     },
     "Terha-Conquest/qa/test-live-session.py": {
       "bundle": "code",
-      "bytes": 7170,
-      "sha256": "b646cce4efe2da18bbb1630e2b07e4bd1988d4d33a7d5f9e98a99a123265c018"
+      "bytes": 7286,
+      "sha256": "78d37baf0851d28c9e0f5cad7662c62f2056938914c5605153635f6dd76f3c76"
     },
     "Terha-Conquest/android/compile-stubs/android/webkit/WebView.java": {
       "bundle": "code",
@@ -3911,6 +3911,11 @@
       "bundle": "code",
       "bytes": 1384,
       "sha256": "b6e98627abf22a9cf730e35b75d509eb9b07e091af6eb37a41e712ebc1845c26"
+    },
+    "Terha-Conquest/.github/workflows/rebuild-v11072.yml": {
+      "bundle": "code",
+      "bytes": 1394,
+      "sha256": "45990ea6925e7efc13b2b5ba23869e9ed0a57d335278e591d52d468e77945ca1"
     }
   }
 }

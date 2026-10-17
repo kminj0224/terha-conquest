@@ -8,7 +8,7 @@ function closeAppWindow(){
  returnAppScreen(appReturn);
 }
 function decorateAppWindow(box,isPanel=false){
- if(!box||['landing','countryPage','recordsPage'].some(name=>isWindowClass(box,name)))return;
+ if(!box||['landing','countryPage','recordsPage','confirmBox'].some(name=>isWindowClass(box,name)))return;
  const children=[...box.children];if(children.some(e=>isWindowClass(e,'windowHeader')))return;
  let close=children.find(e=>e.tagName==='BUTTON'&&isWindowClass(e,'close'));
  const title=children.find(e=>e.tagName==='H1'||e.tagName==='H2');
@@ -17,15 +17,15 @@ function decorateAppWindow(box,isPanel=false){
  const header=document.createElement('header');header.className='windowHeader';
  if(title)header.appendChild(title);else{const label=document.createElement('h2');label.textContent=tr('정보','Information');header.appendChild(label)}
  header.appendChild(close);
+ const footer=children.find(e=>isWindowClass(e,'operationActions'));
  const content=document.createElement('div');content.className='windowContent';
- for(const node of [...box.childNodes])if(node!==title&&node!==close)content.appendChild(node);
- box.appendChild(header);box.appendChild(content);box.classList.add('windowFrame');
+ for(const node of [...box.childNodes])if(node!==title&&node!==close&&node!==footer)content.appendChild(node);
+ box.appendChild(header);box.appendChild(content);if(footer)box.appendChild(footer);box.classList.add('windowFrame');
  if(isPanel&&box.style.display!=='none')box.style.display='flex';
 }
 function refreshWindowChrome(){
  for(const box of [...$('modal').children])if(isWindowClass(box,'box'))decorateAppWindow(box);
  if($('panel').children.length)decorateAppWindow($('panel'),true);
- const overlay=$('confirmOverlay');if(overlay)for(const box of [...overlay.children])if(isWindowClass(box,'confirmBox'))decorateAppWindow(box);
 }
 // Decorate after the complete panel builder has attached its controls and listeners.
 for(const name of ['showPanel','showMenu','showSettings','showHelp','showRecords','showSaveSlots','showDiplomacy','showNuclearOverview','showBase','defenseMenu','showProductionInfo','endModal']){
