@@ -1,4 +1,4 @@
-name: Build Terha Conquest v1.10.79 Oil & Air Combat
+name: Build Terha Conquest v1.10.79 Tested Release
 on:
   push:
     paths:
