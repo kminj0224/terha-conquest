@@ -21,8 +21,9 @@ moveCost=function(u,i){const cost=guerrillaMoveCost(u,i),t=tiles[i];
  return isDekphuingGuerrilla(u)&&t?.owner>=0&&cost<999&&(t.terrain===2||t.terrain===3||RANNA_RIVER_TILES.has(i))?1:cost;
 };
 
-// Reuse the existing Ranna rifle art and its matching muzzle coordinates.
-RANNA_INFANTRY_PROFILES[DEKPHUING_GUERRILLA]=RANNA_INFANTRY_PROFILES[0];
+// Supplied idle and aiming art; muzzle origins follow the firing image.
+const rannaGuerrillaArt=loadBaekArt('ranna-guerrilla-idle.png','ranna-guerrilla-fire.png');
+RANNA_INFANTRY_PROFILES[DEKPHUING_GUERRILLA]={art:rannaGuerrillaArt,baseFacing:1,muzzles:rightInfantryMuzzles([[689,311],[1034,199],[1439,313]],1448,1086)};
 // Scale bodies and muzzle origins together, anchored at the soldiers' feet.
 for(const [key,profile]of Object.entries(BAEK_ART_PROFILES)){
  if(Number(key)===10)continue;

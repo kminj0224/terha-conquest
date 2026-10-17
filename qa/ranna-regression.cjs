@@ -28,14 +28,14 @@ module.exports=function({run}){
   for(const k of [2,3])check(isBaekArtillery({f:6,type:k})&&baekArtilleryProfile({f:6,type:k}).art===baekArtilleryProfile({f:2,type:k}).art,'Sielun artillery art');
   check(TOWED_ART[6]===TOWED_ART[2]&&isStetopiaCarrier({f:6,type:25}),'Sielun towed/carrier art');
   check(!isStetopiaTank({f:6,type:12})&&!infantryArtProfile({f:6,type:11}),'Missing art must preserve fallback');
-  check(infantryArtProfile({f:4,type:27})===RANNA_INFANTRY_PROFILES[0],'Guerrilla art');
+  check(infantryArtProfile({f:4,type:27}).art===rannaGuerrillaArt&&rannaGuerrillaArt.idle.src==='ranna-guerrilla-idle.png'&&rannaGuerrillaArt.fire.src==='ranna-guerrilla-fire.png','Guerrilla art');
   const capital=cities.find(q=>q.f===4&&q.capital);check(canProduce(capital,27,1)&&!canProduce(cities.find(q=>q.f===5&&q.capital),27,1),'Special unit production country');
   check(unitPrice(27,1)===30&&navGoldCost(27,1)===0&&unitOil(27,1)===0,'Cheap production resources');
-  const before=units.length,s=snapshot();check(s.appVersion==='1.10.74'&&s.units.some(u=>u.type===27),'Save includes new unit');
+  const before=units.length,s=snapshot();check(s.appVersion==='1.10.75'&&s.units.some(u=>u.type===27),'Save includes new unit');
   s.diplomacy[4][5]=s.diplomacy[5][4]='neutral';migrateArmy(s);check(units.length===before&&units.filter(u=>u.rannaGuerrillaInitial).length===initial.length,'Loading duplicates initial guerrillas');
   check(diplomacy[4][5]==='neutral','Loading overwrote saved diplomacy');diplomacy[4][5]=diplomacy[5][4]='war';
   return {initialGuerrillas:initial.length,regions:regionCount,typeId:27};
  })()`);
  assert(report.initialGuerrillas>=16);
- console.log('PASS: v1.10.74 Ranna guerrilla terrain/combat/movement/production/save, Baekyang size, Sielun art, initial war:',report);
+ console.log('PASS: v1.10.75 Ranna guerrilla terrain/combat/movement/production/save, Baekyang size, Sielun art, initial war:',report);
 };
