@@ -136,7 +136,6 @@ tap=function(sx,sy){
   navalMode=b.kind!=='sam'&&readyDefense(b)&&b.lastShot!==turn&&oil[player]>=8?
    {kind:'coastal',base:b.id}:null;
   refreshSelection();
-  toast(navalMode?'적 함정을 바로 선택하여 대함미사일을 발사하세요. · i: 포대 정보':'i 버튼으로 포대 정보 확인 · 건설/발사 조건을 확인하세요.');
   return;
  }
  if(!b&&navalMode?.kind!=='coastal')selectedDefenseId=null;
