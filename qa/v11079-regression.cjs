@@ -42,13 +42,14 @@ module.exports=async function({run}){
   units=[];city.hp=cityMaxHp(city);city.aa=true;
   const occupant=makeUnit(city.f,0,city.tile,2);
   const base=capital;
+  const forwardAirfield={...capital,tile:city.tile,level:5,airport:true,nukeUntil:0};
   base.airport=true;
   base.nukeUntil=0;
   money[0]=300000;oil[0]=10000;missileBases=[];
   const oilD=oil[0],cityHP=city.hp,unitHP=occupant.hp;
-  check(canAirStrike(base,'fighter',city.tile) || canAirStrike(base,'strategic',city.tile),'Need city in airport range');
-  const kind=canAirStrike(base,'fighter',city.tile)?'fighter':'strategic',expected=cityAirStrikeDamage(kind,city);
-  check(await airStrike(base,kind,city.tile,true),'Garrison airstrike failed');
+  check(canAirStrike(forwardAirfield,'fighter',city.tile),'Forward test airport must reach occupied city');
+  const kind='fighter',expected=cityAirStrikeDamage(kind,city);
+  check(await airStrike(forwardAirfield,kind,city.tile,true),'Garrison airstrike failed');
   check(city.hp===cityHP-expected,'Airstrike city HP differs from AA-adjusted number');
   check(occupant.hp<unitHP,'Garrison unit HP must fall on airstrike');
   check(fx.some(e=>e.kind==='blast'&&e.damage===expected),'Displayed airstrike city hit must equal actual reduced damage');
