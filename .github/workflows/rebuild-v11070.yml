@@ -1,0 +1,38 @@
+name: Rebuild v1.10.70 APK
+on:
+  push:
+    paths:
+      - '.github/workflows/rebuild-v11070.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: d45f9f5164ada41f9e62f23be45a75b1d65a1892
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify Android shell
+        run: python3 qa/verify-native.py
+      - name: Build original signed APK
+        run: python3 build.py
+      - name: Verify original signing certificate
+        run: |
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.10.70.apk
+          sha256sum deliverables/Terha-Conquest-v1.10.70.apk > deliverables/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.10.70
+          path: |
+            deliverables/Terha-Conquest-v1.10.70.apk
+            deliverables/SHA256SUMS.txt
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
