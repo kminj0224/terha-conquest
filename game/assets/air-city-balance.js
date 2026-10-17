@@ -10,6 +10,9 @@ const previousAirSiegeDamage=siegeDamage;
 siegeDamage=function(u,q){
  const damage=previousAirSiegeDamage(u,q);
  if(q?.kind==='sam'||q?.kind==='sea')return damage;
- return u.type===25?2000:(isAircraft(u)||isHelicopter(u))?Math.max(2000,Math.min(3000,damage)):damage;
+ const protection=(q?.aa?.45:1)*samAirProtection(q);
+  if(u.type===25)return Math.round(2000*protection);
+  if(isAircraft(u)||isHelicopter(u))return Math.round(Math.max(2000,Math.min(3000,damage/Math.max(.1,protection)))*protection);
+  return damage;
 };
 Object.assign(window.Terha,{cityAirStrikeDamage,siegeDamage,AIR_CITY_DAMAGE_MULTIPLIER});
