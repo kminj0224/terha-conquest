@@ -1,0 +1,36 @@
+name: Build Terha Conquest v1.10.76 APK
+on:
+  push:
+    paths:
+      - '.github/workflows/build-v11076-apk.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify Android DEX
+        run: python3 qa/verify-native.py
+      - name: Build signed APK from current v1.10.76 source
+        run: python3 build.py
+      - name: Verify signing certificate and record checksum
+        run: |
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.10.76.apk
+          sha256sum deliverables/Terha-Conquest-v1.10.76.apk > deliverables/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.10.76
+          path: |
+            deliverables/Terha-Conquest-v1.10.76.apk
+            deliverables/SHA256SUMS.txt
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
