@@ -1,4 +1,4 @@
-name: Build Terha Conquest v1.10.78 updated combat and research
+name: Build Terha Conquest v1.10.78 tested release
 on:
   push:
     paths:
