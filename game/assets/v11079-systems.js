@@ -28,7 +28,6 @@ airStrike=async function(q,type,i,ai=false){
   reach.clear();
   airTarget={city:q.id,type};
   refreshSelection();
-  toast(m.name+' · 다음 목표를 선택하세요. 종료하려면 아래 ×');
  }else{
   airTarget=null;
   refreshSelection();
