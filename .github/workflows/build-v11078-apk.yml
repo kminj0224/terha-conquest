@@ -1,0 +1,43 @@
+name: Build Terha Conquest v1.10.78 updated combat and research
+on:
+  push:
+    paths:
+      - '.github/workflows/build-v11078-apk.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install JavaScript game test dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Check Android gameplay and v1.10.78 regressions
+        run: node qa/native-test.cjs
+      - name: Verify Android native shell
+        run: python3 qa/verify-native.py
+      - name: Build signed APK v1.10.78
+        run: python3 build.py
+      - name: Verify original signing certificate and checksum
+        run: |
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.10.78.apk
+          sha256sum deliverables/Terha-Conquest-v1.10.78.apk > deliverables/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.10.78
+          path: |
+            deliverables/Terha-Conquest-v1.10.78.apk
+            deliverables/SHA256SUMS.txt
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
