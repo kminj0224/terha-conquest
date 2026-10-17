@@ -2,7 +2,7 @@
 // City air damage is tuned by mission class; AA and SAM defenses remain effective.
 const AIR_CITY_DAMAGE_MULTIPLIER=1;
 function cityAirStrikeDamage(type,q){
- const damage={fighter:2000,bomber:20000,strategic:40000}[type];
+ const damage={fighter:2000,bomber:5000,strategic:15000}[type];
  if(!damage)return 0;
  return Math.round(damage*(q.aa?.45:1)*samAirProtection(q));
 }
