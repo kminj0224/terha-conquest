@@ -19,13 +19,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Verify research progress and previously added HUD assets are packaged
+      - name: Verify HUD and compact city UI scripts are packaged
         run: |
           test -s game/assets/fuel-efficiency-icon.webp
           test -s game/assets/v11083-unit-nameplates.js
           grep -q 'v11083-unit-nameplates.js' game/assets/index.html
-          grep -q 'v11086-command-ui.js' game/assets/index.html
-          grep -q 'v11086-strategic.js' game/assets/index.html
+          grep -q 'v11085-command-ui.js' game/assets/index.html
+          grep -q 'v11085-strategic.js' game/assets/index.html
+          grep -q 'v11086-ui-polish.js' game/assets/index.html
       - name: Install game test dependencies
         run: npm ci --no-audit --no-fund
       - name: Full gameplay, clean city UI, technical info, SVG icons and owner-terrain regression
