@@ -44,11 +44,8 @@ damage=function(u,v){
  const target=TYPES[v.type];
  if(target.branch==='armor'&&TYPES[u.type].antiArmor)atk*=TYPES[u.type].antiArmor;
  if(target.branch==='infantry'&&TYPES[u.type].antiInfantry)atk*=TYPES[u.type].antiInfantry;
- // Other protections (AA against aerial raids, special damage reduction,
- // city-garrison shelter) are deliberately retained.
- const defense=cityAt(v.tile)?.f===v.f?.7:1;
- const terrain=typeof rannaTerrainProtection==='function'?rannaTerrainProtection(v):1;
- return Math.round(Math.max(1,atk)*defense*terrain);
+ // Full defense bypass: armor, terrain, city shelter and defensive bonuses.
+ return Math.round(Math.max(1,atk));
 };
 const MECHA_KNIGHT_ART=loadBaekArt('mecha-knight-new.webp');
 const previousMechaSprite=sprite;
