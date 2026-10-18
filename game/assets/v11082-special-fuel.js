@@ -109,7 +109,13 @@ const fuelOverview=cityOverview;
 cityOverview=function(q){
  let html=fuelOverview(q);
  if(q.fuelEfficiency)html+='<p class="hint">연비 개선 완료 · 이후 생산 부대에 적용</p>';
- else if(q.fuelResearchJob)html+='<p class="hint">연비 개선 연구 · '+q.fuelResearchJob.remaining+'턴 남음</p>';
+ if(q.fuelResearchJob){
+  const card=progressCard('연비 개선 연구','이 도시 연구소에서 진행 중 · 완료 후 생산 부대에 적용',q.fuelResearchJob.remaining,FUEL_RESEARCH_TURNS);
+  const heading='<h3>진행 중인 작업</h3>';
+  const empty=heading+'<p class="quiet">진행 중인 작업이 없습니다.</p>';
+  if(html.includes(empty))html=html.replace(empty,heading+card);
+  else html=html.replace(heading,heading+card);
+ }
  return html;
 };
 const fuelDeploy=deploy;
