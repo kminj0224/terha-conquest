@@ -110,9 +110,16 @@ showBase=function(b){
 };
 const defenseInteractionRefresh=refreshSelection;
 refreshSelection=function(){
+ // Returning to a real unit or city must restore its own information button.
+ // A previously selected coastal battery must not retain that button's handler.
+ if(selected?.kind==='unit'||selected?.kind==='city'){
+  selectedDefenseId=null;
+  const info=$('selectionInfo');
+  if(info)info.onclick=()=>openSelectionPanel();
+ }
  defenseInteractionRefresh();
  const b=missileBases.find(v=>v.id===selectedDefenseId&&v.f===player);
- if(!b||busy||menuMode||coastBuildMode||airTarget||strategicTarget||navalMode&&navalMode.kind!=='coastal')return;
+ if(selected||!b||busy||menuMode||coastBuildMode||airTarget||strategicTarget||navalMode&&navalMode.kind!=='coastal')return;
  const bar=$('selectionActions');
  if(!bar)return;
  bar.style.display='flex';
