@@ -1,0 +1,74 @@
+name: Build Terha Conquest v1.10.84 Fuel Research Task Banner
+on:
+  push:
+    paths:
+      - '.github/workflows/build-v11084-apk.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify research progress and previously added HUD assets are packaged
+        run: |
+          test -s game/assets/fuel-efficiency-icon.webp
+          test -s game/assets/v11083-unit-nameplates.js
+          grep -q 'v11083-unit-nameplates.js' game/assets/index.html
+      - name: Install game test dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Full gameplay regression including fuel research 0%, 50% and completed task banner
+        run: node qa/native-test.cjs
+      - name: Verify Android native wrapper
+        run: python3 qa/verify-native.py
+      - name: Build signed v1.10.84 APK
+        run: python3 build.py
+      - name: Verify original signing certificate and SHA256
+        run: |
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.10.84.apk
+          sha256sum deliverables/Terha-Conquest-v1.10.84.apk > deliverables/SHA256SUMS.txt
+      - name: Split verified APK into transport-safe pieces
+        run: |
+          mkdir -p deliverables/parts
+          split -b 90m -d -a 2 deliverables/Terha-Conquest-v1.10.84.apk deliverables/parts/Terha-Conquest-v1.10.84.apk.part
+          test -s deliverables/parts/Terha-Conquest-v1.10.84.apk.part00
+          test -s deliverables/parts/Terha-Conquest-v1.10.84.apk.part01
+          test -s deliverables/parts/Terha-Conquest-v1.10.84.apk.part02
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11084-part00
+          path: deliverables/parts/Terha-Conquest-v1.10.84.apk.part00
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11084-part01
+          path: deliverables/parts/Terha-Conquest-v1.10.84.apk.part01
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11084-part02
+          path: deliverables/parts/Terha-Conquest-v1.10.84.apk.part02
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11084-SHA256
+          path: deliverables/SHA256SUMS.txt
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
