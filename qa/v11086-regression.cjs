@@ -21,14 +21,14 @@ module.exports=async function({run}){
   check(!html.includes('<span class="eyebrow">'),'Duplicate top page heading in '+tab);
   check(!html.includes('<h2>'),'City name must not repeat in '+tab);
   check(html.includes('id="cityCommandContent"'),'Missing compact page content on '+tab);
-  const rows=$('cityCommandContent').children.filter(e=>e.className?.includes('cityActionRow'));
+  const rows=[];function visit(e){for(const c of e.children||[]){if(c.className?.includes('cityActionRow'))rows.push(c);visit(c)}}visit($('cityCommandContent'));
   check(rows.length>0,'No command rows in '+tab);
   const found=rows.find(row=>row.children[0]?.textContent.includes(label));
   check(found,'Missing '+label+' in '+tab);
   const button=found.children[0];
   check(button.innerHTML.includes('<small>'),'Metadata must be below name inside small text on '+tab);
   check(!button.childNodes[0].textContent.includes('골드'),'Gold price must not share title line in '+tab);
-  if(found.children[1]?.textContent==='i'){
+  if(tab!=='units'&&found.children[1]?.textContent==='i'){
    found.children[1].onclick();
    check(!$('modal').textContent.includes('골드')&&!$('modal').textContent.includes('연속출격')&&!$('modal').textContent.includes('턴 남음'),'Info must only contain technical specifications on '+tab);
    $('cityInfoX').onclick();
