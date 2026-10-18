@@ -11,7 +11,9 @@ function decorateAppWindow(box,isPanel=false){
  if(!box||['landing','countryPage','recordsPage','confirmBox'].some(name=>isWindowClass(box,name)))return;
  const children=[...box.children];if(children.some(e=>isWindowClass(e,'windowHeader')))return;
  let close=children.find(e=>e.tagName==='BUTTON'&&isWindowClass(e,'close'));
- const title=children.find(e=>e.tagName==='H1'||e.tagName==='H2');
+ // City command pages group the title, nation and level in a single header.
+ // Treat that group as the real window heading rather than fabricating '정보'.
+ const title=children.find(e=>e.tagName==='H1'||e.tagName==='H2'||(isPanel&&isWindowClass(e,'cityNameHeader')));
  if(!close){close=document.createElement('button');close.className='close';close.textContent='×';close.onclick=isPanel?()=>{panelOpen=false;refreshSelection()}:closeAppWindow}
  close.setAttribute('aria-label',tr('닫기','Close'));close.setAttribute('title',tr('닫기','Close'));
  const header=document.createElement('header');header.className='windowHeader';
