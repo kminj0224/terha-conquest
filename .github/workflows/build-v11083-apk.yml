@@ -37,12 +37,38 @@ jobs:
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
           java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.10.83.apk
           sha256sum deliverables/Terha-Conquest-v1.10.83.apk > deliverables/SHA256SUMS.txt
+      - name: Split verified APK into transport-safe pieces
+        run: |
+          mkdir -p deliverables/parts
+          split -b 90m -d -a 2 deliverables/Terha-Conquest-v1.10.83.apk deliverables/parts/Terha-Conquest-v1.10.83.apk.part
+          test -s deliverables/parts/Terha-Conquest-v1.10.83.apk.part00
+          test -s deliverables/parts/Terha-Conquest-v1.10.83.apk.part01
+          test -s deliverables/parts/Terha-Conquest-v1.10.83.apk.part02
       - uses: actions/upload-artifact@v4
         with:
-          name: Terha-Conquest-v1.10.83
-          path: |
-            deliverables/Terha-Conquest-v1.10.83.apk
-            deliverables/SHA256SUMS.txt
+          name: Terha-v11083-part00
+          path: deliverables/parts/Terha-Conquest-v1.10.83.apk.part00
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11083-part01
+          path: deliverables/parts/Terha-Conquest-v1.10.83.apk.part01
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11083-part02
+          path: deliverables/parts/Terha-Conquest-v1.10.83.apk.part02
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11083-SHA256
+          path: deliverables/SHA256SUMS.txt
           compression-level: 0
           retention-days: 30
           if-no-files-found: error
