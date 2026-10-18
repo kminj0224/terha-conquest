@@ -1,4 +1,4 @@
-name: Build Terha Conquest v1.10.85 Command Centers and Strategic Weapons
+name: Build Terha Conquest v1.10.85 Complete Gameplay Verification
 on:
   push:
     paths:
