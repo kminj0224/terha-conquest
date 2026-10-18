@@ -68,6 +68,7 @@ setup=function(...args){
 };
 const typedWarheadIndustryTurn=industryTurn;
 industryTurn=async function(...args){
+ for(let f=0;f<7;f++){const j=militaryResearchJobs[f];if(j&&!Number.isInteger(j.city))j.city=cities.find(q=>q.f===f&&q.capital)?.id??cities.find(q=>q.f===f)?.id??-1}
  const finishing=cities.filter(q=>q.nuclearJob&&q.nuclearJob.remaining<=1).map(q=>({id:q.id,kind:q.nuclearJob.kind||'atomic'}));
  await typedWarheadIndustryTurn(...args);
  for(const {id,kind}of finishing){
@@ -79,11 +80,13 @@ industryTurn=async function(...args){
  for(const q of cities)syncWarheads(q);
 };
 fabricateNuke=function(q,kind='atomic'){
+ const ai=kind===true;if(ai)kind='atomic';
  const d=NUCLEAR_WARHEADS[kind];
- if(!d||busy||q.f!==player||q.nukeUntil>turn||!strategicResearch[q.f].nuclear||q.nuclearJob||money[q.f]<d.gold||oil[q.f]<d.oil)return false;
+ if(!d||(!ai&&(busy||q.f!==player))||q.nukeUntil>turn||!strategicResearch[q.f].nuclear||q.nuclearJob||money[q.f]<d.gold||oil[q.f]<d.oil)return false;
  money[q.f]-=d.gold;oil[q.f]-=d.oil;
  q.nuclearJob={kind,remaining:d.turns,total:d.turns,startedTurn:turn};
- showPanel();updateHUD();save();return true;
+ if(!ai){showPanel();updateHUD();save()}
+ return true;
 };
 const oldCaptureWithWarheads=capture;
 capture=function(u){const q=cityAt(u.tile),old=q?.f;const result=oldCaptureWithWarheads(u);if(q&&q.f!==old){q.nukeTypes={atomic:0,hydrogen:0};syncWarheads(q)}return result};
