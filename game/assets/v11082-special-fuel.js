@@ -23,11 +23,12 @@ productionPanel=function(q){
  // special in that same list, not in the generic infantry catalogue.
  if(q.f!==5||!q.capital||q.origin!==5||q.f!==player)return;
  const cat=$('unitCatalogue');
- if(!cat||cat.querySelector('[data-nakwol-commando]'))return;
- const group=Array.from(cat.querySelectorAll('.unitGroup')).find(g=>g.querySelector('h3')?.textContent==='특수 병종');
- if(!group)return;
+ if(!cat)return;
+ const group=document.createElement('div');group.className='unitGroup';
+ group.innerHTML='<h3>낙월민국 특수 병종</h3>';
+ cat.appendChild(group);
  const k=NAKWOL_COMMANDO,l=productionTier,reason=productionReason(q,k,l,productionAA);
- const row=document.createElement('div');row.className='productionRow';row.dataset.nakwolCommando='true';
+ const row=document.createElement('div');row.className='productionRow';row.id='nakwolCommandoProductionRow';
  const b=document.createElement('button');b.className='produceButton'+(reason?' unavailable':'');b.title=reason;
  b.innerHTML=TYPES[k].name+' '+l+'<small>식량 '+unitPrice(k,l)+' · 석유 '+unitOil(k,l)+(productionAA?' · 골드 '+aaCost(l):'')+'</small>';
  b.onclick=()=>produce(q,k,l,productionAA);
