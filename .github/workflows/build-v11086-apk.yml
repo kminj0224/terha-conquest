@@ -29,7 +29,7 @@ jobs:
           grep -q 'v11086-ui-polish.js' game/assets/index.html
       - name: Install game test dependencies
         run: npm ci --no-audit --no-fund
-      - name: Full gameplay, clean city UI, technical info, SVG icons and owner-terrain regression
+      - name: Full gameplay plus nested unit catalogue and compact city command UI regression
         run: node qa/native-test.cjs
       - name: Verify Android native wrapper
         run: python3 qa/verify-native.py
