@@ -1,0 +1,40 @@
+name: Publish Terha Conquest v1.10.88 Direct APK
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-v11088-apk.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch verified signed APK pieces from successful test build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p deliverables sums
+          for n in 00 01 02; do
+            mkdir -p "parts/${n}"
+            gh run download 39136610239 --name "Terha-v11088-part${n}" --dir "parts/${n}"
+          done
+          gh run download 39136610239 --name Terha-v11088-SHA256 --dir sums
+          for n in 00 01 02; do
+            cat "parts/${n}/Terha-Conquest-v1.10.88.apk.part${n}" >> deliverables/Terha-Conquest-v1.10.88.apk
+          done
+          sha256sum -c sums/SHA256SUMS.txt
+          test -s deliverables/Terha-Conquest-v1.10.88.apk
+      - name: Publish directly downloadable original-signed APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.10.88 >/dev/null 2>&1; then
+            gh release upload v1.10.88 deliverables/Terha-Conquest-v1.10.88.apk --clobber
+          else
+            gh release create v1.10.88 deliverables/Terha-Conquest-v1.10.88.apk --target "$GITHUB_SHA" --title "Terha Conquest v1.10.88" --notes "Signed Android APK. Preserve the city name header on every command screen with faction and city level together; overview-only upgrade; centered vector icons; separate bomber nuclear load button on the strategic strike row. All previous terrain restoration, gameplay tests and original signing retained."
+          fi
+          gh release view v1.10.88 --json url,assets
