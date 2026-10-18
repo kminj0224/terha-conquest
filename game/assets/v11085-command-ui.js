@@ -107,10 +107,8 @@ function sciencePage(q){
  addCityRow(box,'연비 개선 · 골드 '+FUEL_RESEARCH_COST+' · '+FUEL_RESEARCH_TURNS+'턴'+(q.fuelEfficiency?' · 완료':''),
   why,()=>studyFuelEfficiency(q),'연비 개선',
   '해당 도시에서 연구 완료 후 생산한 보병·기갑·포병은 이동과 공격 석유 소모 0. 해군은 이동·공격 석유 절반(소수점 버림, 1→0). 기존 유닛이나 다른 도시 생산 유닛에는 소급 적용되지 않습니다.');
- if(busyHere){const note=document.createElement('p');note.className='hint';note.textContent='이 도시에서 진행 중: '+busyHere.key+' · '+busyHere.remaining+'턴 남음';box.appendChild(note)}
 }
-function facilityPage(q){
- const box=$('cityCommandContent');
+function facilityPage(q,box=$('cityCommandContent')){
  for(const [key,d] of Object.entries(FACILITIES)){
   addCityRow(box,d.name+' 건설 · 골드 '+d.cost,facilityReason(q,key),()=>buildFacility(q,key));
  }
@@ -198,11 +196,12 @@ showPanel=function(){
   (own?'<button id="cityExpandGold" class="gold">도시 확장'+(q.level<5?' · '+UPGRADE_COSTS[q.level].toLocaleString()+'골드':' · 최대 등급')+'</button>':'')+'</div>'+
   '<h2>'+q.name+' <small class="cityLevel">'+q.level+'레벨'+(q.capital?' · 수도':'')+'</small></h2>'+
   '<p class="cityNation" style="color:'+factions[q.f].color+'">'+factions[q.f].name+'</p>'+
-  (cityCommandTab==='overview'?cityOverview(q):'<section class="citySection"><h3>'+pageNames[cityCommandTab]+'</h3><div id="cityCommandContent"></div></section>');
+  (cityCommandTab==='overview'?cityOverview(q)+(own?'<details class="citySection" open><summary>시설 건설</summary><div id="cityOverviewFacilities"></div></details>':''):'<section class="citySection"><h3>'+pageNames[cityCommandTab]+'</h3><div id="cityCommandContent"></div></section>');
  $('close').onclick=()=>{panelOpen=false;refreshSelection()};
  if(!own)return;
  const expand=$('cityExpandGold');expand.disabled=q.level>=5;expand.onclick=()=>upgradeCity(q);
- if(cityCommandTab==='facilities')facilityPage(q);
+ if(cityCommandTab==='overview')facilityPage(q,$('cityOverviewFacilities'));
+ else if(cityCommandTab==='facilities')facilityPage(q);
  else if(cityCommandTab==='science')sciencePage(q);
  else if(cityCommandTab==='units')unitPage(q);
  else if(cityCommandTab==='air')airPage(q);
