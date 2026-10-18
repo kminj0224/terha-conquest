@@ -1,9 +1,9 @@
 'use strict';
 // Nakwol infantry: three-soldier artwork, aligned by figure scale rather
 // than by weapon/tripod or spare transparent canvas area.
-const nakwolGrenadierArt=loadBaekArt('nakwol-grenadier-idle.png','nakwol-grenadier-fire.png');
-const nakwolAntitankArt=loadBaekArt('nakwol-antitank-idle.png','nakwol-antitank-fire.png');
-const nakwolMachinegunArt=loadBaekArt('nakwol-machinegun.png');
+const nakwolGrenadierArt=loadBaekArt('nakwol-grenadier-idle.webp','nakwol-grenadier-fire.webp');
+const nakwolAntitankArt=loadBaekArt('nakwol-antitank-idle.webp','nakwol-antitank-fire.webp');
+const nakwolMachinegunArt=loadBaekArt('nakwol-machinegun.webp');
 Object.assign(NAKWOL_INFANTRY_PROFILES,{
  8:{art:nakwolGrenadierArt,baseFacing:-1,
     // Grenade launcher muzzles measured in the FIRE artwork, not the idle one.
