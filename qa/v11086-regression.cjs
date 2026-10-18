@@ -11,7 +11,7 @@ module.exports=async function({run}){
  strategicResearch[0].ballistic=true;strategicResearch[0].nuclear=true;
  selectCity(q,true);cityCommandOpen('overview');
  check($('cityExpandGold'),'City expansion must appear on the city-information page');
- check($('panel').innerHTML.includes('<span class="eyebrow">도시 정보</span>'),'Only the overview needs the city-information header');
+ check($('panel').innerHTML.includes('<h2 class="cityName">'+q.name+'</h2>'),'City name must appear on the overview');
  check($('cityOverviewFacilities'),'Keep building section in city overview');
  const checkRows=(tab,label)=>{
   cityCommandOpen(tab);
@@ -19,7 +19,7 @@ module.exports=async function({run}){
   check(!html.includes('cityExpandGold'),'Expansion erroneously shown in '+tab);
   check(!html.includes('cityNation'),'Nation is repeated in '+tab);
   check(!html.includes('<span class="eyebrow">'),'Duplicate top page heading in '+tab);
-  check(!html.includes('<h2>'),'City name must not repeat in '+tab);
+  check(html.includes('<h2 class="cityName">'+q.name+'</h2>'),'City name must remain at top of '+tab);
   check(html.includes('id="cityCommandContent"'),'Missing compact page content on '+tab);
   if(tab==='units'){
    const catalogue=$('unitCatalogue');
