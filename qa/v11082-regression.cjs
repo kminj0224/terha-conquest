@@ -33,10 +33,17 @@ module.exports=async function({run}){
   const balance=money[5],startTurn=turn;
   check(studyFuelEfficiency(q),'Research could not start');
   check(money[5]===balance-20000&&q.fuelResearchJob?.remaining===2&&!q.fuelEfficiency,'Fuel research must cost 20k and take two turns');
+  let progress=cityOverview(q);
+  check(progress.includes('<div class="progressCard">')&&progress.includes('<b>연비 개선 연구</b>')&&progress.includes('<span>2턴 남음</span>'),'Fuel project must appear inside ongoing tasks progress banner');
+  check(progress.includes('width:0%')&&!progress.includes('진행 중인 작업이 없습니다.'),'Fuel progress banner must start at 0% and replace empty placeholder');
   turn++;await industryTurn();
   check(q.fuelResearchJob?.remaining===1&&!q.fuelEfficiency,'Fuel research finished too early');
+  progress=cityOverview(q);
+  check(progress.includes('<span>1턴 남음</span>')&&progress.includes('width:50%'),'Fuel progress banner must update after one turn');
   turn++;await industryTurn();
   check(q.fuelEfficiency&&!q.fuelResearchJob,'Fuel research must finish on turn 2');
+  progress=cityOverview(q);
+  check(!progress.includes('<b>연비 개선 연구</b>')&&progress.includes('연비 개선 완료'),'Finished research must remove progress banner and mark city complete');
   check(attackOil(oldUnit)===beforeCost,'Existing unit must not gain new fuel bonus retroactively');
   units=[];q.queue={type:1,level:1,aa:false};
   deploy(q);
