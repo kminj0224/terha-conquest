@@ -108,3 +108,9 @@ body:is([data-screen="country"],[data-screen="records"]) #modal{overflow:hidden;
 @media(max-height:470px){#modal .operationProgress .windowHeader{padding:6px 12px}#modal .operationProgress .windowHeader h1{font-size:17px}#modal .operationProgress .windowContent{padding:8px 12px;gap:7px}#modal .operationProgress .operationMetric{padding:6px 7px}#modal .operationProgress .operationMetric dd{font-size:15px}.operationConquest{padding:6px 9px}#modal .operationProgress>.operationActions{padding:7px 12px}#modal .operationProgress .operationActions button{min-height:35px}}
 @media(max-width:520px){.operationNation>b{font-size:12px}.operationNation img{width:28px;height:22px}.operationBadges>span{padding:4px 5px;font-size:10px}#modal .operationProgress .operationMetric{grid-template-columns:17px minmax(0,1fr);gap:2px 4px;padding:6px}#modal .operationProgress .operationMetric svg{width:16px;height:16px}#modal .operationProgress .operationMetric dd{font-size:14px}#modal .operationProgress .operationActions button{font-size:11px;gap:4px}}
 @media(max-width:400px){#modal .operationProgress .operationActions svg{display:none}.operationBadges{gap:3px}.operationNation{gap:6px}}
+
+/* v1.10.89: the city-name group IS the real framed-window title. */
+#panel .windowHeader .cityNameHeader{display:flex;flex:1;align-items:baseline;flex-wrap:wrap;gap:3px 10px;margin:0;padding:0;min-width:0}
+#panel .windowHeader .cityNameHeader .cityName{font-size:clamp(17px,2.5vw,25px);font-weight:800;letter-spacing:0;line-height:1.3;margin:0}
+#panel .windowHeader .cityHeadMeta{display:inline-flex;align-items:baseline;gap:7px;flex-wrap:nowrap;white-space:nowrap}
+#panel .windowHeader .cityCountryName,#panel .windowHeader .cityHeadLevel{font-size:11px}
