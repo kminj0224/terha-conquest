@@ -58,8 +58,8 @@ module.exports=async function({run}){
  })()`);
  assert.equal(result.vectorButtons,5);
  const source=fs.readFileSync(path.join(root,'static-ground.js'),'utf8');
- assert(source.includes('const hex=factions[f].color,r='),'Ground must use true current-owner faction color, not desaturated original color');
- assert(source.includes("g.globalCompositeOperation='copy';g.drawImage(mask"),'Terrain must replace old color rather than blending with captured country original palette');
- assert(source.includes('g.globalAlpha=1;g.drawImage(territoryCanvas'),'Underlying map must use full owner tint instead of 30% blended color');
- console.log('PASS v1.10.86 clean city tabs, unit-style small price labels, i-only specifications, aligned SVG icons and unblended owner-colored ground:',result);
+ assert(source.includes('const hex=terrainTintColor(f),r='),'Ground palette must restore v1.10.85 terrain-tint shading');
+ assert(source.includes("g.globalCompositeOperation='color';g.drawImage(mask"),'Terrain must retain baked mountain/forest artwork luminosity and textures');
+ assert(source.includes('g.globalAlpha=.30;g.drawImage(territoryCanvas'),'Background territory overlay must match v1.10.85');
+ console.log('PASS v1.10.86 clean city tabs, unit-style small price labels, i-only specifications, aligned SVG icons and restored v1.10.85 mountain/forest ground coloring:',result);
 };
