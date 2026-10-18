@@ -1,4 +1,4 @@
-name: Build Terha Conquest v1.10.82 Nakwol commando and city fuel research
+name: Build Terha Conquest v1.10.82 Nakwol commando and fuel research validated
 on:
   push:
     paths:
