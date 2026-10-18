@@ -11,8 +11,8 @@ module.exports=async function({run}){
  const text=TYPES[u.type].name+' '+u.level;
  const drawn=[],images=[];
  const fill=ctx.fillText,stroke=ctx.strokeText,drawImage=ctx.drawImage;
- ctx.fillText=function(t,...args){if(t===text)drawn.push({type:'name',x:args[0],y:args[1]});return fill(t,...args)};
- ctx.strokeText=function(t,...args){if(t===text)drawn.push({type:'outline',x:args[0],y:args[1]});return stroke(t,...args)};
+ ctx.fillText=function(t,...args){if(t===text&&!unitNameBeingDrawn)drawn.push({type:'name',x:args[0],y:args[1]});return fill(t,...args)};
+ ctx.strokeText=function(t,...args){if(t===text&&!unitNameBeingDrawn)drawn.push({type:'outline',x:args[0],y:args[1]});return stroke(t,...args)};
  ctx.drawImage=function(im,...args){if(im===fuelBadgeArt)images.push(args);return drawImage(im,...args)};
  try{
   u.fuelEfficient=false;
