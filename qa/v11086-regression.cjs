@@ -21,6 +21,12 @@ module.exports=async function({run}){
   check(!html.includes('<span class="eyebrow">'),'Duplicate top page heading in '+tab);
   check(!html.includes('<h2>'),'City name must not repeat in '+tab);
   check(html.includes('id="cityCommandContent"'),'Missing compact page content on '+tab);
+  if(tab==='units'){
+   const catalogue=$('unitCatalogue');
+   check(!!catalogue,'Unit production catalogue must be present');
+   check(catalogue.textContent.includes('소총수')&&catalogue.innerHTML.includes('<small>'),'Unit production must retain names and small pricing lines');
+   return catalogue.children.length;
+  }
   const rows=[];function visit(e){for(const c of e.children||[]){if(c.className?.includes('cityActionRow'))rows.push(c);visit(c)}}visit($('cityCommandContent'));
   check(rows.length>0,'No command rows in '+tab);
   const found=rows.find(row=>row.children[0]?.textContent.includes(label));
