@@ -40,4 +40,5 @@ run(`showTitle();window.__exits=0;window.TerhaNative={exitGame:()=>window.__exit
 await require('./v11078-regression.cjs')({run});
 await require('./v11079-regression.cjs')({run});
 require('./nakwol-infantry-regression.cjs')({run});
+await require('./v11082-regression.cjs')({run});
 console.log('PASS: compact status with icon metrics and fixed footer, Yes/No-only confirmations, live hamburger status, menu settings/exit, fixed close headers, defense placement, live Home retention without automatic disk recovery, confirmed native exit, immediate title, illustrated hub, country/records full-page markup, music continuity/restart/mute, difficulty and legacy records, title/hub/country/help/settings, audio levels, English, loading progress, save overwrite/delete yes/no, hardware Back yes/no, continue, Hansa island/water, Dante range/capture/fade/two ghosts, infantry remains, victory deduplication/sorting, corrupt save failure; runtime pixel reads=0');fs.writeFileSync(path.resolve(__dirname,'results.txt'),'All native tests passed.\n');process.exit(0)})().catch(e=>{console.error(e);process.exit(1)});
