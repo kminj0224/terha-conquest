@@ -1,4 +1,4 @@
-name: Build Terha Conquest v1.10.85 Complete Gameplay Verification
+name: Build Terha Conquest v1.10.85 Verified Release
 on:
   push:
     paths:
