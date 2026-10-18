@@ -18,7 +18,7 @@ module.exports=async function({run}){
   check(!$('panel').innerHTML.includes('<details'),'Specialized city page must open directly: '+tab);
  }
  for(const id of ['cityScience','cityArmy','cityAircraft','cityNuclear','cityMissiles'])
-  check($(id)?.style.display==='inline-block','Missing visible equal-size city footer '+id);
+  check($(id)?.style.display==='inline-flex','Missing visible equal-size city footer '+id);
  cityCommandOpen('science');
  const jobBefore=militaryResearchJobs[0];
  check(research(),'Military study cannot start');
