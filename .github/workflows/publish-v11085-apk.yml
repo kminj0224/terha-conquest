@@ -1,0 +1,40 @@
+name: Publish Terha Conquest v1.10.85 Direct APK
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-v11085-apk.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch verified signed APK pieces from successful test build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p deliverables sums
+          for n in 00 01 02; do
+            mkdir -p "parts/${n}"
+            gh run download 39130299638 --name "Terha-v11085-part${n}" --dir "parts/${n}"
+          done
+          gh run download 39130299638 --name Terha-v11085-SHA256 --dir sums
+          for n in 00 01 02; do
+            cat "parts/${n}/Terha-Conquest-v1.10.85.apk.part${n}" >> deliverables/Terha-Conquest-v1.10.85.apk
+          done
+          sha256sum -c sums/SHA256SUMS.txt
+          test -s deliverables/Terha-Conquest-v1.10.85.apk
+      - name: Publish directly downloadable original-signed APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.10.85 >/dev/null 2>&1; then
+            gh release upload v1.10.85 deliverables/Terha-Conquest-v1.10.85.apk --clobber
+          else
+            gh release create v1.10.85 deliverables/Terha-Conquest-v1.10.85.apk --target "$GITHUB_SHA" --title "Terha Conquest v1.10.85" --notes "Signed Android APK. City command pages, local research queues, escorted carriers, four ballistic missile classes, and typed nuclear warheads. Existing save and signing key retained."
+          fi
+          gh release view v1.10.85 --json url,assets
