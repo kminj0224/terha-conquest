@@ -28,7 +28,8 @@ module.exports=async function({run}){
   q.level=5;q.lab=true;q.nukeUntil=0;
   units=[];money[5]=100000;oil[5]=10000;food[5]=100000;selected={kind:'city',id:q.id};panelOpen=true;
   cityProfile(q);showPanel();
-  check($('strategicResearch').textContent.includes('연비 개선')||$('strategicResearch').innerHTML.includes('연비 개선'),'Fuel research missing from science panel');
+  cityCommandOpen('science');
+  check($('panel').textContent.includes('연비 개선'),'Fuel research missing from dedicated science page');
   const oldUnit=makeUnit(5,1,q.tile,1),beforeCost=attackOil(oldUnit);
   const balance=money[5],startTurn=turn;
   check(studyFuelEfficiency(q),'Research could not start');
