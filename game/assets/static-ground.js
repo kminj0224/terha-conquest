@@ -47,6 +47,9 @@ function drawStaticGround(){
   groundView??=document.createElement('canvas');const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));groundView.width=Math.ceil(screenW*d);groundView.height=Math.ceil(screenH*d);const g=groundView.getContext('2d');g.scale(d,d);g.translate(screenW/2,screenH/2);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
   g.drawImage(worldImg,0,0,WW,HH);drawCoastArtwork(g,0,0,WW,HH);if(territoryCanvas){g.save();g.globalAlpha=.30;g.drawImage(territoryCanvas,0,0,WW,HH);g.restore()}
   paintStaticGroundConnections(g);for(const {meta,image}of images)if(image)g.drawImage(image,meta.x,meta.y,meta.w,meta.h);
+  // One coherent world-space pass, rather than effects cut at chunk boundaries.
+  if(typeof paintMapAtmosphere==='function')paintMapAtmosphere(g);
+  if(typeof paintMapRiverFinish==='function')paintMapRiverFinish(g);
   groundViewKey=key;groundViewBuilds++;
  }
  ctx.save();ctx.setTransform(1,0,0,1,0,0);nativeMapDrawImage(groundView,0,0,c.width,c.height);ctx.restore();
