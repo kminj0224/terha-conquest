@@ -128,10 +128,13 @@ function colorize(base,mask,seaDist,landDist,w,h){
     // Beach pigment follows each underlying biome, not a continuous
     // yellow/gold stroke around the polygonal islands.
     const mean=(R+G+B)/3;
-    const shoreTint=smooth((9+irregular-d)/9)*(.10+.11*broken);
-    R=mix(R,mean*.96+3,shoreTint);
-    G=mix(G,mean*1.00+5,shoreTint);
-    B=mix(B,mean*1.06+8,shoreTint);
+    // The previous image contained solid yellow country-wide littoral bands.
+    // Fully re-pigment the last few metres as cool weathered sand/rock,
+    // feathering inland without creating another geometric contour.
+    const shoreTint=smooth((28+irregular-d)/25)*(.60+.23*broken);
+    R=mix(R,mean*.92+2,shoreTint);
+    G=mix(G,mean*1.02+4,shoreTint);
+    B=mix(B,mean*1.12+6,shoreTint);
     const sand=snowy?[207,210,207]:[mean*.96+6,mean*1.0+3,mean*1.06+2];
     R=mix(R,sand[0]+variation*.3,beach);
     G=mix(G,sand[1]+variation*.3,beach);
