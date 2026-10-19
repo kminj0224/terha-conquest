@@ -35,7 +35,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terha-v11102-painted-world-preview
-          path: game/assets/world-painted-preview.jpg
+          path: |
+            game/assets/world-painted-preview.jpg
+            game/assets/world-painted-shore-test.png
           retention-days: 30
       - name: Verify no old glowing coastline is drawn
         run: |
