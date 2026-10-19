@@ -104,8 +104,8 @@ jobs:
                           codes.append(struct.unpack_from('<I',manifest,pos+16)[0])
               off+=size
           assert codes==[142],f'Wrong Android versionCode: {codes}'
-          assert '1.10.97' in strs and '1.10.65' not in strs,'Wrong Android versionName'
-          print('PASS: Android versionName 1.10.97, versionCode 142, native package DEX unchanged')
+          assert '1.10.98' in strs and '1.10.65' not in strs,'Wrong Android versionName'
+          print('PASS: Android versionName 1.10.98, versionCode 142, native package DEX unchanged')
           PY
       - name: Verify original signing certificate and SHA256
         run: |
