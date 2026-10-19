@@ -43,3 +43,4 @@ module.exports=function({run}){
  assert(report.initialGuerrillas>=16);
  console.log('PASS: v1.10.76 Ranna special and diplomacy, inland starting guards, Nakwol city art and infantry scale:',report);
 };
+

@@ -1,13 +1,5 @@
 name: Build Terha Conquest v1.11.4 Exact v1.11.0 Rollback
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/build-v11104-rollback.yml'
-      - 'build.py'
-      - 'game/assets/app-shell.js'
-      - 'game/assets/saves.js'
-      - 'qa/ranna-regression.cjs'
   workflow_dispatch:
 permissions:
   contents: write
@@ -125,3 +117,4 @@ jobs:
             gh release create "$tag" "$apk" "$sums" --target main --title "Terha Conquest v1.11.4 — Exact v1.11.0 Rollback" --notes "Restores the exact v1.11.0 gameplay, maps, shoreline, forests, terrain assets, and original interface. Only v1.11.4 version metadata, Android versionCode 149, regression version assertion, and release workflow are updated. Map repaint v1.11.2/v1.11.3 has been removed. Original signing key retained."
           fi
           gh release view "$tag" --json url,assets
+

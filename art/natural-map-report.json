@@ -1,0 +1,10 @@
+{
+  "width": 1448,
+  "height": 1086,
+  "originalLandPixels": 560751,
+  "coastlineMaskSHA256": "d12dde459b10db42fd0b38b2705ee7a0c299cb512c0a6430f0aeefe4df1171b5",
+  "mapDataSHA256": "e7e50272f93cb798811f6c2a76d8f7799701b1dd4ed9e0b8bc31f8f85c9de02d",
+  "riverDataSHA256": "b58b4f06ec0a4d07d89257b8276ce63b59d28030f9dc8721c63cf38290b1c44c",
+  "source": "Built-in image generation: original coast artwork + user reference, then original river guide refinement",
+  "geometry": "Original silhouette supplied to both image edits. MAP and RIVER_NETWORK unchanged; no runtime clipping of vegetation."
+}

@@ -1,0 +1,77 @@
+name: Build Terha Conquest v1.11.5 Natural Map
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-v11105-natural-map.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Verify unchanged geography and new artwork
+        run: |
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          report=json.loads(Path('art/natural-map-report.json').read_text())
+          for name,key in [('mapdata.js','mapDataSHA256'),('river-data.js','riverDataSHA256')]:
+            assert hashlib.sha256(Path('game/assets',name).read_bytes()).hexdigest()==report[key]
+          assert "VERSION='1.11.5';CODE=150" in Path('build.py').read_text()
+          assert "APP_VERSION='1.11.5'" in Path('game/assets/app-shell.js').read_text()
+          assert "appVersion:'1.11.5'" in Path('game/assets/saves.js').read_text()
+          assert Path('game/assets/world-natural.png').stat().st_size>1_000_000
+          print('PASS original map and river data, release version, painted surface')
+          PY
+      - name: Full gameplay regression
+        run: npm test
+      - name: Natural map rendering and cache regression
+        run: node qa/natural-map-view.cjs
+      - name: Retained Android shell verification
+        run: python3 qa/verify-native.py
+      - name: Build signed update APK
+        run: python3 build.py
+      - name: Verify packaged map and original native DEX
+        run: |
+          python3 - <<'PY'
+          import zipfile,hashlib
+          from pathlib import Path
+          apk=Path('deliverables/Terha-Conquest-v1.11.5.apk')
+          with zipfile.ZipFile(apk) as z,zipfile.ZipFile('android/native-shell.zip') as shell:
+            assert z.testzip() is None
+            assert z.read('classes.dex')==shell.read('classes.dex')
+            assert z.read('assets/world-natural.png')==Path('game/assets/world-natural.png').read_bytes()
+            assert b"world-natural.png" in z.read('assets/coast-art.js')
+            assert b"drawNaturalGround" in z.read('assets/static-ground.js')
+          Path('deliverables/SHA256SUMS.txt').write_text(hashlib.sha256(apk.read_bytes()).hexdigest()+'  '+apk.name+'\n')
+          print('PASS packaged artwork, native DEX and ZIP integrity')
+          PY
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.5.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.11.5-natural-map-signed-apk
+          path: |
+            deliverables/Terha-Conquest-v1.11.5.apk
+            deliverables/SHA256SUMS.txt
+            previews/natural-*.png
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - name: Publish APK download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.5 deliverables/Terha-Conquest-v1.11.5.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title "Terha Conquest v1.11.5 — Natural Map" --notes "Repainted ocean texture, broken coastal surf, ground, forests and integrated riverbanks from the supplied visual reference. A continuous map surface replaces clipped terrain/decor chunks in the normal rendering path. Original map data, river gameplay data, save identities and Android signing key retained. Full native Canvas regressions, natural map cache/conquest checks and package verification passed."

@@ -37,8 +37,30 @@ function getGroundChunk(meta){
  const scale=meta===groundOverview?GROUND_DATA.overviewScale:GROUND_DATA.scale,bytes=Math.ceil(meta.w*scale)*Math.ceil(meta.h*scale)*4;
  entry={meta,bytes,generation:territoryGeneration,signature:groundSignature(meta),canvas:null,loading:false,disposed:false};groundChunks.set(meta.name,entry);groundBytes+=bytes;trimGroundCache();loadGroundChunk(entry);return null;
 }
+let naturalTerritory=null,naturalTerritoryGeneration=-1;
+function drawNaturalGround(){
+ const key=['natural1',cam.x,cam.y,cam.z,c.width,c.height,territoryGeneration,coastArtwork.maskReady].join(':');
+ if(!groundView||groundViewKey!==key){
+  groundView??=document.createElement('canvas');
+  const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));
+  groundView.width=Math.ceil(screenW*d);groundView.height=Math.ceil(screenH*d);
+  const g=groundView.getContext('2d');g.scale(d,d);g.translate(screenW/2,screenH/2);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
+  // Paint one continuous image: no hex/chunk clipping can sever a tree or bank.
+  g.drawImage(coastArtwork.image,0,0,WW,HH);
+  if(territoryCanvas&&coastArtwork.maskReady){
+   if(!naturalTerritory||naturalTerritoryGeneration!==territoryGeneration){
+    naturalTerritory??=document.createElement('canvas');naturalTerritory.width=territoryCanvas.width;naturalTerritory.height=territoryCanvas.height;
+    const tint=naturalTerritory.getContext('2d');tint.drawImage(territoryCanvas,0,0);tint.globalCompositeOperation='destination-in';tint.drawImage(coastArtwork.mask,0,0,naturalTerritory.width,naturalTerritory.height);tint.globalCompositeOperation='source-over';naturalTerritoryGeneration=territoryGeneration;
+   }
+   g.save();g.globalAlpha=.18;g.drawImage(naturalTerritory,0,0,WW,HH);g.restore();
+  }
+  paintStaticGroundConnections(g);groundViewKey=key;groundViewBuilds++;
+ }
+ ctx.save();ctx.setTransform(1,0,0,1,0,0);nativeMapDrawImage(groundView,0,0,c.width,c.height);ctx.restore();
+}
 function drawStaticGround(){
  refreshTerritory();
+ if(coastArtwork.ready&&coastArtwork.natural)return drawNaturalGround();
  const key=[cam.x,cam.y,cam.z,c.width,c.height,coastArtwork.ready,territoryGeneration,groundRevision].join(':');
  if(!groundView||groundViewKey!==key){
   const left=cam.x-screenW/2/cam.z,right=cam.x+screenW/2/cam.z,top=cam.y-screenH/2/cam.z,bottom=cam.y+screenH/2/cam.z;
