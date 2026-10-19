@@ -93,7 +93,7 @@ jobs:
                 if key=='versionCode':codes.append(struct.unpack_from('<I',xml,q+16)[0])
             off+=size
           assert codes==[148],codes
-          assert '1.11.2' in strings
+          assert '1.11.3' in strings
           print('PASS art in signed APK v1.11.3 build 148')
           PY
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
