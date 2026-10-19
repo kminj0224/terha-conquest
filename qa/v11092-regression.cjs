@@ -49,10 +49,12 @@ module.exports=async function({run}){
  })()`);
  assert(rendered.rendered>=3);
  const ground=fs.readFileSync(path.join(root,'static-ground.js'),'utf8');
- assert(ground.includes("const hex=factions[f].color,r="),'Ground must use current owner color');
- assert(ground.includes("g.filter='grayscale(1) contrast(70%)'"),'Ground must neutralize original faction hue while retaining land relief');
+ assert(ground.includes("const hex=terrainTintColor(f),r="),'v1.10.91 ground must use its muted faction color palette');
+ assert(!ground.includes("g.filter='grayscale(1) contrast(70%)'"),'v1.10.91 terrain retains original baked hues');
  assert(ground.includes("g.globalCompositeOperation='color';g.drawImage(mask"),'Ground must apply owner hue over preserved land luminance');
  assert(ground.includes("g.globalCompositeOperation='source-over';g.drawImage(images[1]"),'Terrain decor must remain over colored land');
- assert(!ground.includes("g.globalAlpha=.30;g.drawImage(territoryCanvas"),'Old mixed-faction territory overlay must not reappear');
- console.log('PASS v1.10.92 Dante fleet 3 texture dimensions and width ratios, owner-based terrain without tinted overlay, preserved relief:',rendered);
+ assert(ground.includes("g.globalAlpha=.30;g.drawImage(territoryCanvas"),'v1.10.91 translucent territory overlay must be restored');
+ assert(ground.includes('function terrainTintColor(f){const h=factions[f].color.slice(1)'),'v1.10.91 muted territory color function must be restored');
+ assert(ground.includes("const g=canvas.getContext('2d'),m=mask.getContext('2d');g.drawImage(images[0],0,0);"),'v1.10.91 original terrain base render must be restored');
+ console.log('PASS Dante fleet textures and sizing unchanged; v1.10.91 muted territory palette, baked relief, and translucent overlay restored:',rendered);
 };

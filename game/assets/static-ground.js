@@ -2,7 +2,7 @@
 // Terrain and river geometry are baked into APK PNGs. No sprite painter runs here.
 const GROUND_BUDGET=48*1024*1024,groundChunks=new Map();
 let groundBytes=0,groundRevision=0,groundView=null,groundViewKey='',groundViewBuilds=0,groundChunkBuilds=0;
-function terrainTintColor(f){return factions[f].color}
+function terrainTintColor(f){const h=factions[f].color.slice(1),rgb=[0,2,4].map(n=>parseInt(h.slice(n,n+2),16)),gray=rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;return '#'+rgb.map(v=>Math.round(gray+(v-gray)*.42).toString(16).padStart(2,'0')).join('')}
 function terrainBiome(i){const f=MAP.tiles[i][0];return f===3?'cactus':f===4||f===5?'palm':'forest'}
 const groundOverview={name:'ground-overview',x:0,y:0,w:WW,h:HH,tiles:MAP.tiles.map((_,i)=>i).filter(i=>MAP.tiles[i][0]>=0)};
 function groundSignature(meta){return meta.tiles.map(i=>tiles[i].owner).join(',')}
@@ -10,7 +10,7 @@ function releaseGroundEntry(entry){entry.disposed=true;for(const image of entry.
 function trimGroundCache(){while(groundBytes>GROUND_BUDGET&&groundChunks.size>1){const name=groundChunks.keys().next().value,entry=groundChunks.get(name);groundChunks.delete(name);releaseGroundEntry(entry)}}
 function groundColorPixels(m,meta,w,h){
  const pixels=m.createImageData(w,h),output=new Uint32Array(pixels.data.buffer),little=new Uint8Array(new Uint32Array([1]).buffer)[0]===1;
- const palette=factions.map((_,f)=>{const hex=factions[f].color,r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return little?(r|g<<8|b<<16|255<<24)>>>0:(255|b<<8|g<<16|r<<24)>>>0});
+ const palette=factions.map((_,f)=>{const hex=terrainTintColor(f),r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return little?(r|g<<8|b<<16|255<<24)>>>0:(255|b<<8|g<<16|r<<24)>>>0});
  const encoded=GROUND_COLOR_RUNS[meta.name];if(!encoded)throw Error('Missing terrain colors: '+meta.name);
  const runs=atob(encoded);let cursor=0;
  for(let n=0;n<runs.length;n+=4){const id=runs.charCodeAt(n)|(runs.charCodeAt(n+1)<<8),count=runs.charCodeAt(n+2)|(runs.charCodeAt(n+3)<<8),owner=tiles[id]?.owner;
@@ -23,10 +23,7 @@ function groundColorPixels(m,meta,w,h){
 function loadGroundChunk(entry){
  entry.loading=true;entry.failed=false;entry.colorFallback=false;const images=[new Image(),new Image()];entry.images=images;let ready=0;
  const finish=()=>{if(entry.disposed||++ready!==2)return;const meta=entry.meta,w=images[0].naturalWidth,h=images[0].naturalHeight,canvas=document.createElement('canvas'),mask=document.createElement('canvas');canvas.width=mask.width=w;canvas.height=mask.height=h;
-  const g=canvas.getContext('2d'),m=mask.getContext('2d');
-  // Remove baked homeland hue and normalize its luminance before tinting.
-  // Contrast remains nonzero to retain rocky relief, forests and shadows.
-  g.save();g.filter='grayscale(1) contrast(70%)';g.drawImage(images[0],0,0);g.restore();
+  const g=canvas.getContext('2d'),m=mask.getContext('2d');g.drawImage(images[0],0,0);
   try{groundColorPixels(m,meta,w,h);g.globalCompositeOperation='color';g.drawImage(mask,0,0);g.globalCompositeOperation='destination-in';g.drawImage(images[0],0,0)}
   catch(error){g.globalCompositeOperation='copy';g.drawImage(images[0],0,0);entry.colorFallback=true;console.warn('Terrain tint fallback',meta.name,String(error))}
   g.globalCompositeOperation='source-over';g.drawImage(images[1],0,0);mask.width=mask.height=0;
@@ -48,7 +45,7 @@ function drawStaticGround(){
   let visible=GROUND_DATA.chunks.filter(q=>q.x+q.w>left&&q.x<right&&q.y+q.h>top&&q.y<bottom);if(cam.z<.55||visible.length>14)visible=[groundOverview];
   const images=visible.map(meta=>({meta,image:getGroundChunk(meta)}));
   groundView??=document.createElement('canvas');const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));groundView.width=Math.ceil(screenW*d);groundView.height=Math.ceil(screenH*d);const g=groundView.getContext('2d');g.scale(d,d);g.translate(screenW/2,screenH/2);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
-  g.drawImage(worldImg,0,0,WW,HH);drawCoastArtwork(g,0,0,WW,HH);// Country color is already applied to the static terrain chunks; avoid a second owner overlay.
+  g.drawImage(worldImg,0,0,WW,HH);drawCoastArtwork(g,0,0,WW,HH);if(territoryCanvas){g.save();g.globalAlpha=.30;g.drawImage(territoryCanvas,0,0,WW,HH);g.restore()}
   paintStaticGroundConnections(g);for(const {meta,image}of images)if(image)g.drawImage(image,meta.x,meta.y,meta.w,meta.h);
   groundViewKey=key;groundViewBuilds++;
  }

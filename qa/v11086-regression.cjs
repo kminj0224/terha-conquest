@@ -58,9 +58,9 @@ module.exports=async function({run}){
  })()`);
  assert.equal(result.vectorButtons,5);
  const source=fs.readFileSync(path.join(root,'static-ground.js'),'utf8');
- assert(source.includes('const hex=factions[f].color,r='),'The ground palette must use the current owning faction without former homeland colors');
- assert(source.includes("g.filter='grayscale(1) contrast(70%)'"),'Ground should normalize baked hues but preserve mountain and forest luminance');
+ assert(source.includes('const hex=terrainTintColor(f),r='),'The ground palette must use v1.10.91 muted faction colors');
+ assert(!source.includes("g.filter='grayscale(1) contrast(70%)'"),'v1.10.91 must not neutralize the original terrain colors');
  assert(source.includes("g.globalCompositeOperation='color';g.drawImage(mask"),'Terrain must retain baked mountain/forest artwork luminosity and textures');
- assert(!source.includes('g.globalAlpha=.30;g.drawImage(territoryCanvas'),'Full-size territory must not mix a second translucent former-owner overlay over normalized terrain');
- console.log('PASS v1.10.86 clean city tabs, unit-style small price labels, i-only specifications, aligned SVG icons and neutralized owner colors with visible mountain/forest relief:',result);
+ assert(source.includes('g.globalAlpha=.30;g.drawImage(territoryCanvas'),'v1.10.91 translucent territorial overlay must be restored');
+ console.log('PASS v1.10.86 clean city tabs, unit-style small price labels, i-only specifications, aligned SVG icons and v1.10.91 muted territory colors and original terrain relief:',result);
 };
