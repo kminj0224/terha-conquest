@@ -41,7 +41,48 @@ function distanceField(mask,w,h,nearestSea){
  }
  return d;
 }
-function colorize(base,mask,seaDist,landDist,w,h){
+// The original game map owns the land/sea classification.  Blue, icy,
+// turquoise and grey LAND pigment must never be mistaken for sea water.
+// Rasterise the precise flat-top hex footprints in the same WW/HH space used
+// by game.js (pxy and hexPoints).  The original illustrated coastline is
+// retained outside those footprints for soft bays and coastal surf.
+function authoritativeLandMask(w,h){
+ const map=JSON.parse(fs.readFileSync(path.join(ROOT,'map.json'),'utf8'));
+ if(map.w!==112||map.h!==84||map.tiles.length!==map.w*map.h)
+  throw Error('Invalid authoritative map geometry');
+ const layer=createCanvas(w,h),g=layer.getContext('2d',{willReadFrequently:true});
+ g.setTransform(w/W_WORLD,0,0,h/H_WORLD,0,0);
+ g.fillStyle='#fff';
+ const S=64,V=55.43,rx=S*2/3,ry=V/2;
+ let landTiles=0;
+ for(let i=0;i<map.tiles.length;i++){
+  if(map.tiles[i][0]<0)continue;
+  landTiles++;
+  const col=i%map.w,row=Math.floor(i/map.w);
+  const cx=(col+2/3)*S,cy=(row+.5+.5*(col&1))*V;
+  g.beginPath();
+  g.moveTo(cx+rx,cy);
+  g.lineTo(cx+rx/2,cy+ry);g.lineTo(cx-rx/2,cy+ry);
+  g.lineTo(cx-rx,cy);g.lineTo(cx-rx/2,cy-ry);
+  g.lineTo(cx+rx/2,cy-ry);g.closePath();g.fill();
+ }
+ const pixels=g.getImageData(0,0,w,h).data,land=new Uint8Array(w*h);
+ let area=0;
+ for(let k=0,p=3;k<land.length;k++,p+=4)if(pixels[p]>0){land[k]=1;area++}
+ if(landTiles<1000||area<land.length*.08||area>land.length*.9)
+  throw Error('Authoritative land raster implausible: '+JSON.stringify({landTiles,area,w,h}));
+ // Assert we actually protected the centre of every terrestrial hex.
+ for(let i=0;i<map.tiles.length;i++)if(map.tiles[i][0]>=0){
+  const col=i%map.w,row=Math.floor(i/map.w);
+  const x=Math.round((col+2/3)*64*w/W_WORLD);
+  const y=Math.round((row+.5+.5*(col&1))*55.43*h/H_WORLD);
+  if(x>=0&&x<w&&y>=0&&y<h&&!land[y*w+x])
+   throw Error('Land hex centre is not protected: '+i);
+ }
+ return {land,landTiles,area,map};
+}
+function colorize(base,mask,seaDist,landDist,w,h,protectedLand){
+
  const original=base.data,out=new Uint8ClampedArray(original.length);
  let shorePixels=0,waterPixels=0,snowPixels=0;
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
@@ -50,6 +91,12 @@ function colorize(base,mask,seaDist,landDist,w,h){
   const big=noise(X*.0047,Y*.0045),mid=noise(X*.017+11,Y*.019+3),fine=noise(X*.072,Y*.083),
        tiny=noise(X*.31+49,Y*.26-19),flow=noise(X*.009+3,Y*.011+7);
   let R=r,G=g,B=b;
+  // Preserve every pixel of the authoritative land polygons byte-for-byte.
+  // In particular Stetopia, Nakwol and Cielrun's cold blue/grey hues are land.
+  if(protectedLand[k]){
+   out[p]=r;out[p+1]=g;out[p+2]=b;out[p+3]=255;
+   continue;
+  }
   if(wet){
    waterPixels++;
    const d=landDist[k]/(3*SCALE);
@@ -205,15 +252,25 @@ function rivers(g,w,h){
  const sc=createCanvas(w,h),sg=sc.getContext('2d',{willReadFrequently:true});
  sg.drawImage(src,0,0,w,h);
  const input=sg.getImageData(0,0,w,h);
+ const {land:protectedLand,landTiles,area:protectedArea}=authoritativeLandMask(w,h);
  const mask=new Uint8Array(n),srcp=input.data;
  for(let k=0,p=0;k<n;k++,p+=4){
   const r=srcp[p],g=srcp[p+1],b=srcp[p+2];
   // Use original geographic pigment, never tile ownership, to classify water.
-  mask[k]=r<111&&g<192&&b>47&&b-r>12&&b>=g*.84&&(g-r>10||b-r>28)?1:0;
+  // A land tile always beats any misleading water-like source pigment.
+  const seaPigment=r<111&&g<192&&b>47&&b-r>12&&b>=g*.84&&(g-r>10||b-r>28);
+  mask[k]=!protectedLand[k]&&seaPigment?1:0;
  }
  const distanceToLand=distanceField(mask,w,h,0);
  const distanceToSea=distanceField(mask,w,h,1);
- const {out,stats}=colorize(input,mask,distanceToSea,distanceToLand,w,h);
+ const {out,stats}=colorize(input,mask,distanceToSea,distanceToLand,w,h,protectedLand);
+ // Regression: the repaint pass must not change even one land-polygon pixel.
+ let landPixelMismatch=0;
+ for(let k=0;k<n;k++)if(protectedLand[k]){
+  const p=k*4;
+  if(out[p]!==srcp[p]||out[p+1]!==srcp[p+1]||out[p+2]!==srcp[p+2])landPixelMismatch++;
+ }
+ if(landPixelMismatch)throw Error('Land color integrity failure: '+landPixelMismatch);
  const image=sg.createImageData(w,h);image.data.set(out);sg.putImageData(image,0,0);
  const riverCount=rivers(sg,w,h);
  // Keep rivers on land.  Never draw map drainage geometry as disconnected
@@ -230,5 +287,5 @@ function rivers(g,w,h){
  cg.drawImage(sc,Math.floor(850*SCALE),Math.floor(1650*SCALE),
   Math.floor(1280*SCALE),Math.floor(820*SCALE),0,0,1280,820);
  fs.writeFileSync(path.join(ROOT,'world-painted-shore-test.png'),shoreTest.toBuffer('image/png'));
- console.log('BAKED_MAP_ART',JSON.stringify({dimensions:[w,h],original:[src.width,src.height],rivers:riverCount,bytes:fs.statSync(target).size,...stats}));
+ console.log('BAKED_MAP_ART',JSON.stringify({dimensions:[w,h],original:[src.width,src.height],landTiles,protectedArea,landPixelMismatch,rivers:riverCount,bytes:fs.statSync(target).size,...stats}));
 })().catch(e=>{console.error(e);process.exitCode=1});
