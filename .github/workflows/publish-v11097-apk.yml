@@ -37,6 +37,6 @@ jobs:
           if gh release view v1.10.97 >/dev/null 2>&1; then
             gh release upload v1.10.97 deliverables/Terha-Conquest-v1.10.97.apk sums/SHA256SUMS.txt --clobber
           else
-            gh release create v1.10.97 deliverables/Terha-Conquest-v1.10.97.apk sums/SHA256SUMS.txt --target 9e28c946c708eaeb210fefdb18325ccfc3fdde9d --title "Terha Conquest v1.10.97" --notes "Neutral world plains rebuilt offline from original map while retaining sea colors and terrain relief. Territory colors now derive exclusively from the current occupying country, including captured regions. Mountain/forest baked detail and all game systems retained. Signed with original Android update certificate; versionCode 141. Regression tested."
+            gh release create v1.10.97 deliverables/Terha-Conquest-v1.10.97.apk sums/SHA256SUMS.txt --target 6f5862c63788379049ebd68d9296b8d13db3ebf9 --title "Terha Conquest v1.10.97" --notes "Neutral world plains rebuilt offline from original map while retaining sea colors and terrain relief. Territory colors now derive exclusively from the current occupying country, including captured regions. Mountain/forest baked detail and all game systems retained. Signed with original Android update certificate; versionCode 141. Regression tested."
           fi
           gh release view v1.10.97 --json url,assets
