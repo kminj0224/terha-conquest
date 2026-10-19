@@ -1,4 +1,5 @@
 name: Build Terha Conquest v1.10.97 Neutral Base + Owner-Colored Plains
+# Re-run verified package build to trigger workflow_run-based Release publishing.
 on:
   push:
     paths:
