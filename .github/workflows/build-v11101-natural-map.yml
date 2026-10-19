@@ -12,6 +12,7 @@ on:
       - 'game/assets/app-shell.js'
       - 'game/assets/saves.js'
       - 'build.py'
+      - 'qa/ranna-regression.cjs'
   workflow_dispatch:
 permissions:
   contents: write
