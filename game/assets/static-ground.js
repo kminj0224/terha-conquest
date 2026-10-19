@@ -39,13 +39,13 @@ function getGroundChunk(meta){
 }
 function drawStaticGround(){
  refreshTerritory();
- const key=[cam.x,cam.y,cam.z,c.width,c.height,coastArtwork.ready,coastSurface.ready,territoryGeneration,groundRevision].join(':');
+ const key=[cam.x,cam.y,cam.z,c.width,c.height,coastArtwork.ready,territoryGeneration,groundRevision].join(':');
  if(!groundView||groundViewKey!==key){
   const left=cam.x-screenW/2/cam.z,right=cam.x+screenW/2/cam.z,top=cam.y-screenH/2/cam.z,bottom=cam.y+screenH/2/cam.z;
   let visible=GROUND_DATA.chunks.filter(q=>q.x+q.w>left&&q.x<right&&q.y+q.h>top&&q.y<bottom);if(cam.z<.55||visible.length>14)visible=[groundOverview];
   const images=visible.map(meta=>({meta,image:getGroundChunk(meta)}));
   groundView??=document.createElement('canvas');const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));groundView.width=Math.ceil(screenW*d);groundView.height=Math.ceil(screenH*d);const g=groundView.getContext('2d');g.scale(d,d);g.translate(screenW/2,screenH/2);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
-  g.drawImage(worldImg,0,0,WW,HH);/* Pre-smoothed natural coast and matching owner mask; logical hex tiles are unchanged. */if(territoryCanvas){g.save();g.globalAlpha=.62;g.drawImage(territoryCanvas,0,0,WW,HH);g.restore()}drawCoastArtwork(g,0,0,WW,HH);
+  g.drawImage(worldImg,0,0,WW,HH);drawCoastArtwork(g,0,0,WW,HH);if(territoryCanvas){g.save();g.globalAlpha=.30;g.drawImage(territoryCanvas,0,0,WW,HH);g.restore()}
   paintStaticGroundConnections(g);for(const {meta,image}of images)if(image)g.drawImage(image,meta.x,meta.y,meta.w,meta.h);
   groundViewKey=key;groundViewBuilds++;
  }

@@ -2,7 +2,7 @@
 """Repackage the retained Android shell with current game assets and original signing key."""
 import pathlib,zipfile,struct,subprocess,os,urllib.request
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
-VERSION='1.10.99';CODE=143
+VERSION='1.11.0';CODE=144
 T=ROOT/'tools';T.mkdir(exist_ok=True)
 for name,url in [('ecj.jar','https://repo.maven.apache.org/maven2/org/eclipse/jdt/ecj/3.33.0/ecj-3.33.0.jar'),('apksig.jar','https://repo.maven.apache.org/maven2/com/android/tools/build/apksig/2.3.0/apksig-2.3.0.jar')]:
  if not (T/name).exists():urllib.request.urlretrieve(url,T/name)
@@ -17,7 +17,12 @@ def manifest_version(data):
    for j in range(count):
     p=off+start+struct.unpack_from('<I',b,off+head+4*j)[0];n=struct.unpack_from('<H',b,p)[0];assert n<0x8000
     s=b[p+2:p+2+2*n].decode('utf-16le');strings.append(s)
-    if s=='1.10.65':b[p+2:p+2+2*n]=VERSION.encode('utf-16le')
+    if s=='1.10.65':
+     encoded=VERSION.encode('utf-16le')
+     assert len(encoded)<=n*2,'App version longer than original manifest string slot'
+     struct.pack_into('<H',b,p,len(VERSION))
+     b[p+2:p+2+len(encoded)]=encoded
+     b[p+2+len(encoded):p+2+2*n+2]=bytes(n*2+2-len(encoded))
   elif kind==0x102:
    start,asize,count=struct.unpack_from('<HHH',b,off+24)
    for j in range(count):
