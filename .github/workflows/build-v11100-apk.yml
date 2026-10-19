@@ -1,4 +1,4 @@
-name: Build Terha Conquest v1.11.0 Exact v1.10.91 Rollback
+name: Build Terha Conquest v1.11.0 Exact v1.10.94 Rollback
 on:
   push:
     paths:
@@ -7,6 +7,7 @@ on:
       - 'game/assets/app-shell.js'
       - 'game/assets/saves.js'
       - 'qa/ranna-regression.cjs'
+      - '.github/workflows/publish-v11100-apk.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,16 +26,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Verify full tree rolled back to v1.10.91 apart from release versions
+      - name: Verify full tree rolled back to v1.10.94 apart from release versions
         run: |
-          git fetch --no-tags --depth=1 origin d88f4852c63ee6c8835cdc1365c1a9633471a238
+          git fetch --no-tags --depth=1 origin 91d5fcc0a69b1216ac8eed62a83fc342dd345fd5
           python3 - <<'PY'
           import subprocess
-          original='d88f4852c63ee6c8835cdc1365c1a9633471a238'
+          original='91d5fcc0a69b1216ac8eed62a83fc342dd345fd5'
           changes=set(subprocess.check_output(['git','diff','--name-only',original,'HEAD'],text=True).splitlines())
           allowed={'build.py','game/assets/app-shell.js','game/assets/saves.js','qa/ranna-regression.cjs',
                    '.github/workflows/build-v11100-apk.yml','.github/workflows/publish-v11100-apk.yml'}
-          assert changes==allowed, f'Unexpected changes from original v1.10.91: {sorted(changes^allowed)}'
+          assert changes==allowed, f'Unexpected changes from original v1.10.94: {sorted(changes^allowed)}'
           from pathlib import Path
           assets=Path('game/assets')
           game=(assets/'game.js').read_text()
@@ -44,17 +45,17 @@ jobs:
           assert not (assets/'world-natural-coast.png').exists()
           assert not (assets/'world-neutral.png').exists()
           assert not (assets/'world-surface-detail.png').exists()
-          print('PASS exact original v1.10.91 tree, except version and release workflow files')
+          print('PASS exact original v1.10.94 tree, except version and release workflow files')
           PY
       - name: Install historical game test dependencies
         run: npm ci --no-audit --no-fund
-      - name: Run original v1.10.91 full regression suite
+      - name: Run original v1.10.94 full regression suite
         run: node qa/native-test.cjs
       - name: Verify original Android shell
         run: python3 qa/verify-native.py
       - name: Build original-signed Android v1.11.0 update
         run: python3 build.py
-      - name: Verify manifest version 1.11.0 and monotonic versionCode 144
+      - name: Verify manifest version 1.11.0 and monotonic versionCode 145
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -85,9 +86,9 @@ jobs:
                       key=strings[struct.unpack_from('<I',xml,q+4)[0]]
                       if key=='versionCode':codes.append(struct.unpack_from('<I',xml,q+16)[0])
               off+=size
-          assert codes==[144],codes
+          assert codes==[145],codes
           assert '1.11.0' in strings and '1.10.65' not in strings,strings
-          print('PASS APK versionName 1.11.0, versionCode 144 and original DEX, no recent coastal assets')
+          print('PASS APK versionName 1.11.0, versionCode 145 and original DEX, no recent coastal assets')
           PY
       - name: Verify original signing certificate and checksum
         run: |

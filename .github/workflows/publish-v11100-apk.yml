@@ -2,7 +2,7 @@ name: Publish Terha Conquest v1.11.0 Rollback APK
 on:
   workflow_run:
     workflows:
-      - Build Terha Conquest v1.11.0 Exact v1.10.91 Rollback
+      - Build Terha Conquest v1.11.0 Exact v1.10.94 Rollback
     types: [completed]
   workflow_dispatch:
 permissions:
@@ -37,7 +37,10 @@ jobs:
         run: |
           if gh release view v1.11.0 >/dev/null 2>&1; then
             gh release upload v1.11.0 deliverables/Terha-Conquest-v1.11.0.apk sums/SHA256SUMS.txt --clobber
+            gh release edit v1.11.0 --title 'Terha Conquest v1.11.0 (v1.10.94 Rollback)' --notes 'Exactly restores v1.10.94 gameplay, maps, artwork, city and naval units, and interface. The previous v1.11.0 build based on v1.10.91 is replaced. Only the app version, Android versionCode 145 and release tooling differ. Original Android signing certificate retained and regression-tested.'
           else
-            gh release create v1.11.0 deliverables/Terha-Conquest-v1.11.0.apk sums/SHA256SUMS.txt --target "${{ github.event.workflow_run.head_sha }}" --title "Terha Conquest v1.11.0 (v1.10.91 Rollback)" --notes "Exactly restores v1.10.91 gameplay, maps, assets and UI. Only the app version and Android update code changed: versionName 1.11.0 and versionCode 144. Original signing certificate retained. Newer map experiments and gameplay additions have been removed. Full original game regression verified."
+            gh release create v1.11.0 deliverables/Terha-Conquest-v1.11.0.apk sums/SHA256SUMS.txt --target "${{ github.event.workflow_run.head_sha }}" --title "Terha Conquest v1.11.0 (v1.10.94 Rollback)" --notes "Exactly restores v1.10.94 gameplay, maps, artwork, city and naval units, and interface. The previous v1.11.0 build based on v1.10.91 is replaced. Only the app version, Android versionCode 145 and release tooling differ. Original Android signing certificate retained and regression-tested."
           fi
+          # Keep the v1.11.0 tag at the newly restored original-v1.10.94 tree.
+          gh api -X PATCH "repos/${GH_REPO}/git/refs/tags/v1.11.0" -f sha="${{ github.event.workflow_run.head_sha }}" -F force=true
           gh release view v1.11.0 --json url,assets
