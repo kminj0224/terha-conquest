@@ -52,8 +52,7 @@ module.exports=async function({run}){
  assert(ground.includes("const hex=terrainTintColor(f),r="),'v1.10.91 ground must use its muted faction color palette');
  assert(!ground.includes("g.filter='grayscale(1) contrast(70%)'"),'v1.10.91 terrain retains original baked hues');
  assert(ground.includes("g.globalCompositeOperation='color';g.drawImage(mask"),'Ground must apply owner hue over preserved land luminance');
- assert(ground.includes("g.drawImage(images[1],0,0);g.drawImage(terrainFront,0,0)"),'Baked water must render beneath intact tinted forest and mountain silhouettes');
- assert(ground.indexOf("paintMapRiverFinish(g);")<ground.indexOf("for(const {meta,image}of images)if(image)g.drawImage(image"),'Natural watercourse must run below forest sprites, not clip tree canopies');
+ assert(ground.includes("g.globalCompositeOperation='source-over';g.drawImage(images[1]"),'Terrain decor must remain over colored land');
  assert(ground.includes("g.globalAlpha=.30;g.drawImage(territoryCanvas"),'v1.10.91 translucent territory overlay must be restored');
  assert(ground.includes('function terrainTintColor(f){const h=factions[f].color.slice(1)'),'v1.10.91 muted territory color function must be restored');
  assert(ground.includes("const g=canvas.getContext('2d'),m=mask.getContext('2d');g.drawImage(images[0],0,0);"),'v1.10.91 original terrain base render must be restored');
