@@ -50,7 +50,7 @@ module.exports=async function({run}){
   // and the damage popup must equal the number subtracted from the HP.
   const enemy=cities.find(c=>atWar(player,c.f));
   check(!!enemy,'An enemy faction must exist');
-  const tile=tiles.findIndex((t,i)=>i!==q.tile&&!cityAt(i)&&!unitAt(i)&&!baseAt(i)&&distance(i,q.tile)<=AIR_MISSIONS.fighter.range&&t.owner===enemy.f);
+  const tile=tiles.findIndex((t,i)=>i!==q.tile&&!cityAt(i)&&!unitAt(i)&&!baseAt(i)&&distance(i,q.tile)<=AIR_MISSIONS.fighter.range);
   check(tile>=0,'Need a non-occupied enemy tile in aircraft range');
   const base={id:990099,tile,f:enemy.f,kind:'sam',hp:DEFENSES.sam.hp,remaining:0,lastTick:turn,lastShot:-1};
   missileBases.push(base);
