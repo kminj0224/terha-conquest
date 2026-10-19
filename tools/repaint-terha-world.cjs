@@ -216,6 +216,11 @@ function rivers(g,w,h){
  const {out,stats}=colorize(input,mask,distanceToSea,distanceToLand,w,h);
  const image=sg.createImageData(w,h);image.data.set(out);sg.putImageData(image,0,0);
  const riverCount=rivers(sg,w,h);
+ // Keep rivers on land.  Never draw map drainage geometry as disconnected
+ // straight lines across deep sea or through offshore water pixels.
+ const composited=sg.getImageData(0,0,w,h),p=composited.data;
+ for(let k=0;k<n;k++)if(mask[k]===1){const i=k*4;p[i]=out[i];p[i+1]=out[i+1];p[i+2]=out[i+2];p[i+3]=255}
+ sg.putImageData(composited,0,0);
  const target=path.join(ROOT,'world-painted.png');
  fs.writeFileSync(target,sc.toBuffer('image/png'));
  if(stats.waterPixels<n*.05||stats.waterPixels>n*.93||stats.shorePixels<20000)throw Error('Map geographic segmentation failed: '+JSON.stringify(stats));
