@@ -2,7 +2,7 @@
 // Terrain and river geometry are baked into APK PNGs. No sprite painter runs here.
 const GROUND_BUDGET=48*1024*1024,groundChunks=new Map();
 let groundBytes=0,groundRevision=0,groundView=null,groundViewKey='',groundViewBuilds=0,groundChunkBuilds=0;
-function terrainTintColor(f){const h=factions[f].color.slice(1),rgb=[0,2,4].map(n=>parseInt(h.slice(n,n+2),16)),gray=rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;return '#'+rgb.map(v=>Math.round(gray+(v-gray)*.42).toString(16).padStart(2,'0')).join('')}
+function terrainTintColor(f){return factions[f].color}
 function terrainBiome(i){const f=MAP.tiles[i][0];return f===3?'cactus':f===4||f===5?'palm':'forest'}
 const groundOverview={name:'ground-overview',x:0,y:0,w:WW,h:HH,tiles:MAP.tiles.map((_,i)=>i).filter(i=>MAP.tiles[i][0]>=0)};
 function groundSignature(meta){return meta.tiles.map(i=>tiles[i].owner).join(',')}
