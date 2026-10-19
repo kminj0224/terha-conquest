@@ -64,7 +64,8 @@ jobs:
           assert apk.is_file() and apk.stat().st_size>30_000_000
           with zipfile.ZipFile(apk) as z:
               assert z.testzip() is None
-              assert b'prepareMapWaterDetail' in z.read('assets/map-quality.js')
+              assert b'naturalWaterArt' in z.read('assets/map-quality.js')
+              assert len(z.read('assets/world-water-detail.png'))>10000
               assert b'paintMapRiverFinish(g)' in z.read('assets/static-ground.js')
               assert b'rivers.js' in z.read('assets/index.html')
               xml=z.read('AndroidManifest.xml')
