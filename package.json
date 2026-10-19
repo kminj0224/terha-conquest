@@ -3,7 +3,7 @@
   "version": "1.10.76",
   "private": true,
   "scripts": {
-    "test": "node qa/native-test.cjs"
+    "test": "node tools/prepare-map-detail.cjs && node qa/native-test.cjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "0.1.100"
