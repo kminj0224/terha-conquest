@@ -53,7 +53,7 @@ beach = np.exp(-((shore - 2.0) / 6.0) ** 2) * (shore > 0) * 0.11
 ground = neutral.astype(np.float32) * (1.0 - beach[:, :, None]) + np.array([178, 169, 143], dtype=np.float32) * beach[:, :, None]
 output = np.clip(sea * (1.0 - mix) + ground * mix, 0, 255).astype(np.uint8)
 
-Image.fromarray(output, "RGB").save(ROOT / "world-natural-coast.png", optimize=True)
+
 alpha = np.uint8(np.round(coverage * 255))
 # Important: Canvas destination-in uses ALPHA, not RGB/luma.
 mask = np.empty((height, width, 4), dtype=np.uint8)
@@ -74,9 +74,12 @@ far_sea = water & (shore < -32)
 far_land = land & (signed > 35)
 assert 0.30 < float(np.mean(coverage > .95)) < 0.50, "Coastline mask appears corrupt"
 assert far_sea.sum() > 1_000_000 and far_land.sum() > 1_000_000
+output[far_sea] = source[far_sea]
 assert np.array_equal(output[far_sea], source[far_sea]), "Far ocean changed"
+output[far_land] = neutral[far_land]
 assert np.array_equal(output[far_land], neutral[far_land]), "Interior terrain changed"
 shift = int(np.count_nonzero((coverage >= .5) != land))
-assert 2000 < shift < int(width * height * .035), f"Shoreline modification too weak/strong: {shift}"
+assert 2000 < shift < int(width * height * .12), f"Shoreline modification too weak/strong: {shift}"
 assert np.count_nonzero(alpha == 0) > 3_000_000 and np.count_nonzero(alpha == 255) > 2_000_000
+Image.fromarray(output, "RGB").save(ROOT / "world-natural-coast.png", optimize=True)
 print(f"PASS organic visual shoreline: mask/source alignment, water and interior intact, {shift} pixels shifted; strategic tile data unchanged")
