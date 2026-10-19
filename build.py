@@ -2,7 +2,7 @@
 """Repackage the retained Android shell with current game assets and original signing key."""
 import pathlib,zipfile,struct,subprocess,os,urllib.request
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
-VERSION='1.11.2';CODE=147
+VERSION='1.11.3';CODE=148
 # The game map is an actual hand-painted generated raster, not an overdraw FX pass.
 if not (ROOT/'game/assets/world-painted.png').is_file():
  subprocess.run(['node','tools/repaint-terha-world.cjs'],check=True)
