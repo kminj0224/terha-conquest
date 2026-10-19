@@ -1,0 +1,127 @@
+name: Build Terha Conquest v1.11.4 Exact v1.11.0 Rollback
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-v11104-rollback.yml'
+      - 'build.py'
+      - 'game/assets/app-shell.js'
+      - 'game/assets/saves.js'
+      - 'qa/ranna-regression.cjs'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify complete rollback to v1.11.0 original map and game
+        run: |
+          git fetch --no-tags --depth=1 origin bddfefa3130d1d3943ed2f678158e945cd73412c
+          python3 - <<'PY'
+          import subprocess
+          from pathlib import Path
+          previous='bddfefa3130d1d3943ed2f678158e945cd73412c'
+          modified=set(subprocess.check_output(['git','diff','--name-only',previous,'HEAD'],text=True).splitlines())
+          expected={'build.py','game/assets/app-shell.js','game/assets/saves.js',
+                    'qa/ranna-regression.cjs',
+                    '.github/workflows/build-v11100-apk.yml',
+                    '.github/workflows/publish-v11100-apk.yml',
+                    '.github/workflows/build-v11104-rollback.yml'}
+          assert modified==expected, f'Changes beyond release version and workflows: {sorted(modified^expected)}'
+          a=Path('game/assets')
+          assert "worldImg.src='world-clean.png'" in (a/'game.js').read_text()
+          assert "coastArtwork.image.src='coast-overlay.png'" in (a/'coast-art.js').read_text()
+          assert 'g.globalAlpha=.30;g.drawImage(territoryCanvas' in (a/'static-ground.js').read_text()
+          assert not (a/'world-painted.png').exists()
+          assert not (a/'map-quality.js').exists()
+          assert not Path('tools/repaint-terha-world.cjs').exists()
+          assert "VERSION='1.11.4';CODE=149" in Path('build.py').read_text()
+          assert "APP_VERSION='1.11.4'" in (a/'app-shell.js').read_text()
+          assert "appVersion:'1.11.4'" in (a/'saves.js').read_text()
+          print('PASS exact v1.11.0 gameplay/map baseline; only version metadata & workflow differ')
+          PY
+      - name: Install original test dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run complete original native game regression
+        run: npm test
+      - name: Verify original retained Android shell
+        run: python3 qa/verify-native.py
+      - name: Package v1.11.4 signed Android APK with original graphics
+        run: python3 build.py
+      - name: Verify Android manifest, original graphics, update signature and checksum
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct,zipfile
+          apk=Path('deliverables/Terha-Conquest-v1.11.4.apk')
+          assert apk.is_file() and apk.stat().st_size>30_000_000
+          with zipfile.ZipFile(apk) as z:
+            assert z.testzip() is None
+            assert b"world-clean.png" in z.read('assets/game.js')
+            assert b"world-painted.png" not in z.read('assets/game.js')
+            assert 'assets/world-painted.png' not in z.namelist()
+            assert 'assets/world-clean.png' in z.namelist()
+            assert 'assets/coast-overlay.png' in z.namelist()
+            xml=z.read('AndroidManifest.xml')
+            dex=z.read('classes.dex')
+          with zipfile.ZipFile('android/native-shell.zip') as original:
+            assert dex==original.read('classes.dex')
+          strings=[];codes=[];off=8
+          while off<len(xml):
+            kind,head,size=struct.unpack_from('<HHI',xml,off)
+            assert size>0
+            if kind==1:
+              count,_,flags,start,_=struct.unpack_from('<IIIII',xml,off+8)
+              assert not flags&0x100
+              for j in range(count):
+                q=off+start+struct.unpack_from('<I',xml,off+head+4*j)[0]
+                n=struct.unpack_from('<H',xml,q)[0]
+                strings.append(xml[q+2:q+2+2*n].decode('utf-16le'))
+            if kind==0x102:
+              begin,sz,count=struct.unpack_from('<HHH',xml,off+24)
+              for j in range(count):
+                q=off+16+begin+j*sz
+                key=strings[struct.unpack_from('<I',xml,q+4)[0]]
+                if key=='versionCode':codes.append(struct.unpack_from('<I',xml,q+16)[0])
+            off+=size
+          assert codes==[149],codes
+          assert '1.11.4' in strings,strings
+          print('PASS original APK graphics, v1.11.4 versionCode 149, native DEX unchanged')
+          PY
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.4.apk
+          cd deliverables && sha256sum Terha-Conquest-v1.11.4.apk > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.11.4-rollback-signed-apk
+          path: |
+            deliverables/Terha-Conquest-v1.11.4.apk
+            deliverables/SHA256SUMS.txt
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - name: Publish directly downloadable v1.11.4 APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=v1.11.4
+          apk=deliverables/Terha-Conquest-v1.11.4.apk
+          sums=deliverables/SHA256SUMS.txt
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$apk" "$sums" --clobber
+          else
+            gh release create "$tag" "$apk" "$sums" --target main --title "Terha Conquest v1.11.4 — Exact v1.11.0 Rollback" --notes "Restores the exact v1.11.0 gameplay, maps, shoreline, forests, terrain assets, and original interface. Only v1.11.4 version metadata, Android versionCode 149, regression version assertion, and release workflow are updated. Map repaint v1.11.2/v1.11.3 has been removed. Original signing key retained."
+          fi
+          gh release view "$tag" --json url,assets

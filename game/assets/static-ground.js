@@ -26,12 +26,7 @@ function loadGroundChunk(entry){
   const g=canvas.getContext('2d'),m=mask.getContext('2d');g.drawImage(images[0],0,0);
   try{groundColorPixels(m,meta,w,h);g.globalCompositeOperation='color';g.drawImage(mask,0,0);g.globalCompositeOperation='destination-in';g.drawImage(images[0],0,0)}
   catch(error){g.globalCompositeOperation='copy';g.drawImage(images[0],0,0);entry.colorFallback=true;console.warn('Terrain tint fallback',meta.name,String(error))}
-  // The colored terrain (including forest crowns and mountain tops) is the
-  // foreground. Detailed water/banks go beneath it so trees remain intact.
-  const terrainFront=document.createElement('canvas');terrainFront.width=w;terrainFront.height=h;
-  terrainFront.getContext('2d').drawImage(canvas,0,0);
-  g.globalCompositeOperation='source-over';g.drawImage(images[1],0,0);g.drawImage(terrainFront,0,0);
-  terrainFront.width=terrainFront.height=0;mask.width=mask.height=0;
+  g.globalCompositeOperation='source-over';g.drawImage(images[1],0,0);mask.width=mask.height=0;
   if(entry.canvas)entry.canvas.width=entry.canvas.height=0;entry.canvas=canvas;entry.signature=groundSignature(meta);entry.generation=territoryGeneration;entry.loading=false;entry.images=null;for(const image of images){campaignImages.delete(image);image.onload=image.onerror=null;image.removeAttribute?image.removeAttribute('src'):image.src=''}groundChunkBuilds++;groundRevision++;
  };
  images.forEach((image,n)=>{image.onload=finish;image.onerror=()=>{campaignImages.delete(image);if(entry.disposed)return;entry.failed=true;entry.loading=false;groundRevision++};image.src=entry.meta.name+(n?'-detail.png':'-terrain.png')});
