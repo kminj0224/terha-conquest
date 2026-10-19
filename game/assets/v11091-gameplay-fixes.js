@@ -43,7 +43,7 @@ endTurn=async function(...args){
  return turnPriorStrategic(...args);
 };
 function constructionComplete(name){
- const particle=name.endsWith('공항')||name.endsWith('발사대')?'이':'가';
+ const particle=name.endsWith('공항')?'이':'가';
  return name+particle+' 건설되었습니다.';
 }
 const buildPriorFacility=buildFacility;
