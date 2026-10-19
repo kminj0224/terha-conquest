@@ -48,7 +48,7 @@ function drawStaticGround(){
   let visible=GROUND_DATA.chunks.filter(q=>q.x+q.w>left&&q.x<right&&q.y+q.h>top&&q.y<bottom);if(cam.z<.55||visible.length>14)visible=[groundOverview];
   const images=visible.map(meta=>({meta,image:getGroundChunk(meta)}));
   groundView??=document.createElement('canvas');const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));groundView.width=Math.ceil(screenW*d);groundView.height=Math.ceil(screenH*d);const g=groundView.getContext('2d');g.scale(d,d);g.translate(screenW/2,screenH/2);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
-  g.drawImage(worldImg,0,0,WW,HH);drawCoastArtwork(g,0,0,WW,HH);if(territoryCanvas){g.save();g.globalAlpha=0;g.drawImage(territoryCanvas,0,0,WW,HH);g.restore()}
+  g.drawImage(worldImg,0,0,WW,HH);drawCoastArtwork(g,0,0,WW,HH);// Country color is already applied to the static terrain chunks; avoid a second owner overlay.
   paintStaticGroundConnections(g);for(const {meta,image}of images)if(image)g.drawImage(image,meta.x,meta.y,meta.w,meta.h);
   groundViewKey=key;groundViewBuilds++;
  }
