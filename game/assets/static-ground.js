@@ -26,7 +26,13 @@ function loadGroundChunk(entry){
   const g=canvas.getContext('2d'),m=mask.getContext('2d');g.drawImage(images[0],0,0);
   try{groundColorPixels(m,meta,w,h);g.globalCompositeOperation='color';g.drawImage(mask,0,0);g.globalCompositeOperation='destination-in';g.drawImage(images[0],0,0)}
   catch(error){g.globalCompositeOperation='copy';g.drawImage(images[0],0,0);entry.colorFallback=true;console.warn('Terrain tint fallback',meta.name,String(error))}
-  g.globalCompositeOperation='source-over';g.drawImage(images[1],0,0);mask.width=mask.height=0;
+  g.globalCompositeOperation='source-over';
+  // Restore canopy silhouettes above baked waterways; land features are no
+  // longer abruptly sliced by the water-image layer.
+  const terrainFront=document.createElement('canvas');terrainFront.width=w;terrainFront.height=h;
+  terrainFront.getContext('2d').drawImage(canvas,0,0);
+  g.clearRect(0,0,w,h);g.drawImage(images[1],0,0);g.drawImage(terrainFront,0,0);
+  terrainFront.width=terrainFront.height=0;mask.width=mask.height=0;
   if(entry.canvas)entry.canvas.width=entry.canvas.height=0;entry.canvas=canvas;entry.signature=groundSignature(meta);entry.generation=territoryGeneration;entry.loading=false;entry.images=null;for(const image of images){campaignImages.delete(image);image.onload=image.onerror=null;image.removeAttribute?image.removeAttribute('src'):image.src=''}groundChunkBuilds++;groundRevision++;
  };
  images.forEach((image,n)=>{image.onload=finish;image.onerror=()=>{campaignImages.delete(image);if(entry.disposed)return;entry.failed=true;entry.loading=false;groundRevision++};image.src=entry.meta.name+(n?'-detail.png':'-terrain.png')});
@@ -46,10 +52,13 @@ function drawStaticGround(){
   const images=visible.map(meta=>({meta,image:getGroundChunk(meta)}));
   groundView??=document.createElement('canvas');const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));groundView.width=Math.ceil(screenW*d);groundView.height=Math.ceil(screenH*d);const g=groundView.getContext('2d');g.scale(d,d);g.translate(screenW/2,screenH/2);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
   g.drawImage(worldImg,0,0,WW,HH);drawCoastArtwork(g,0,0,WW,HH);if(territoryCanvas){g.save();g.globalAlpha=.30;g.drawImage(territoryCanvas,0,0,WW,HH);g.restore()}
-  paintStaticGroundConnections(g);for(const {meta,image}of images)if(image)g.drawImage(image,meta.x,meta.y,meta.w,meta.h);
-  // One coherent world-space pass, rather than effects cut at chunk boundaries.
-  if(typeof paintMapAtmosphere==='function')paintMapAtmosphere(g);
+  paintStaticGroundConnections(g);
+  // Rivers track the entire world before mountain/forest sprites, so a tree
+  // standing along the bank remains whole rather than being cut by a river.
   if(typeof paintMapRiverFinish==='function')paintMapRiverFinish(g);
+  for(const {meta,image}of images)if(image)g.drawImage(image,meta.x,meta.y,meta.w,meta.h);
+  // One coherent world-space surf pass, without visible chunk seams.
+  if(typeof paintMapAtmosphere==='function')paintMapAtmosphere(g);
   groundViewKey=key;groundViewBuilds++;
  }
  ctx.save();ctx.setTransform(1,0,0,1,0,0);nativeMapDrawImage(groundView,0,0,c.width,c.height);ctx.restore();
