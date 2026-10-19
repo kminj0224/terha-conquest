@@ -1,0 +1,20 @@
+name: Natural map build
+on:
+  push:
+    branches: [codex/natural-map-v11101, main]
+    paths: ['.github/workflows/natural-map.yml', 'tools/bake-natural-map.cjs', 'game/assets/natural-*']
+permissions:
+  contents: read
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: natural-map-sources
+          path: |
+            game/assets/world-clean.png
+            game/assets/coast-overlay.png
+            game/assets/ground-overview-detail.png
+          retention-days: 3
