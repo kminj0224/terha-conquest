@@ -58,12 +58,12 @@ function colorize(base,mask,seaDist,landDist,w,h){
    const folded=X*.020+14*flow+Math.sin(Y*.012+big*4)*2;
    const current=Math.sin(folded+Y*.018+7*mid)*.52+Math.sin(Y*.028-X*.009+mid*7)*.24;
    const wave=ridge(noise(X*.08+4*mid,Y*.025+3*flow));
-   const swell=(big-.5)*27+(mid-.5)*19+current*8+(fine-.5)*8;
+   const swell=(big-.5)*15+(mid-.5)*13+current*6+(fine-.5)*5;
    const baseR=18+swell*.49,baseG=91+swell,baseB=122+swell*1.15;
    const deepR=9+swell*.55,deepG=54+swell*.80,deepB=82+swell*.96;
    R=mix(baseR,deepR,depth);G=mix(baseG,deepG,depth);B=mix(baseB,deepB,depth);
-   const shoal=(1-depth)*(.65+.35*mid);
-   R+=shoal*13;G+=shoal*27;B+=shoal*28;
+   const shoal=(1-depth)*(.56+.44*mid);
+   R+=shoal*9;G+=shoal*19;B+=shoal*21;
    // Dark wave troughs and light slivers are pigmented directly into this PNG.
    const shimmer=(Math.pow(Math.max(0,current*.75+wave*.35-.47),3))*32;
    R+=shimmer*.68;G+=shimmer;B+=shimmer*1.2;
@@ -72,18 +72,18 @@ function colorize(base,mask,seaDist,landDist,w,h){
     const warp=(noise(X*.035,Y*.041)-.5)*8+(fine-.5)*2.8;
     const warped=d+warp*(.25+.75*smooth(d/5));
     const bands=[
-      [2.0,1.7,.82],[7.8,1.55,.56],[14.6,1.3,.44],[23.9,1.0,.22],[36,.85,.1]
+      [2.8,2.3,.61],[9.8,2.2,.72],[18.3,1.65,.47],[28.9,1.35,.25],[43,.95,.12]
     ];
-    const gap=smooth((noise(X*.078+51,Y*.071-36)-.25)/.53);
-    const lace=smooth((noise(X*.19,Y*.21)-.25)/.68);
+    const gap=smooth((noise(X*.058+51,Y*.065-36)-.32)/.56);
+    const lace=smooth((noise(X*.19,Y*.21)-.24)/.7);
     let foam=0;
     for(const [at,width,power] of bands){
       let t=Math.max(0,1-Math.abs(warped-at)/width);
-      foam=Math.max(foam,t*power*(.36+.64*gap)*(.72+.28*lace));
+      foam=Math.max(foam,t*power*(.15+.85*gap)*(.55+.45*lace));
     }
-    const flecks=(fine>.73&&tiny>.48?(.12+.2*gap)*(1-smooth(d/42)):0);
-    foam=clamp(foam+flecks,0,.94);
-    R=mix(R,227+10*mid,foam);G=mix(G,238+9*mid,foam);B=mix(B,237+11*mid,foam);
+    const flecks=(fine>.76&&tiny>.51?(.15+.22*gap)*(1-smooth(d/48)):0);
+    foam=clamp(foam+flecks,0,.79);
+    R=mix(R,233+8*mid,foam);G=mix(G,242+7*mid,foam);B=mix(B,242+7*mid,foam);
     shorePixels++;
    }
    // Long, delicate offshore crests rather than periodic parallel contours.
@@ -105,16 +105,24 @@ function colorize(base,mask,seaDist,landDist,w,h){
     shorePixels++;
     // Shoreline sand/snow meet in a thin, broken, earth-toned bank.
     // It is a part of the *ground* illustration, not drawn over sea.
-    const irregular=(mid-.5)*6+(fine-.5)*2;
-    const beach=smooth((13+irregular-d)/6.5)*(.55+.25*big);
-    const sand=snowy?[187,182,168]:[160,147,116];
-    R=mix(R,sand[0]+variation*.5,beach);
-    G=mix(G,sand[1]+variation*.5,beach);
-    B=mix(B,sand[2]+variation*.4,beach);
-    const snowLip=Math.max(0,1-Math.abs(d-(12+irregular)) / 4.8)*(snowy?.28:.16);
-    R=mix(R,232,snowLip);G=mix(G,237,snowLip);B=mix(B,239,snowLip);
-    // Minute dark stones break up the uniform beach, never a continuous band.
-    if(d<12&&hash(x,y,31)>.995&&mid<.54){R*=.77;G*=.80;B*=.83}
+    const irregular=(mid-.5)*10+(fine-.5)*3;
+    const broken=smooth((noise(X*.014+24,Y*.017-39)-.30)/.62);
+    const beach=smooth((13+irregular-d)/11)*(.12+.17*broken);
+    // Beach pigment follows each underlying biome, not a continuous
+    // yellow/gold stroke around the polygonal islands.
+    const mean=(r+g+b)/3;
+    const shoreTint=smooth((9+irregular-d)/9)*(.30+.26*broken);
+    R=mix(R,mean*.96+3,shoreTint);
+    G=mix(G,mean*1.00+5,shoreTint);
+    B=mix(B,mean*1.06+8,shoreTint);
+    const sand=snowy?[207,210,207]:[mean*.96+6,mean*1.0+3,mean*1.06+2];
+    R=mix(R,sand[0]+variation*.3,beach);
+    G=mix(G,sand[1]+variation*.3,beach);
+    B=mix(B,sand[2]+variation*.3,beach);
+    const snowLip=snowy?Math.max(0,1-Math.abs(d-(16+irregular))/6)*.10*broken:0;
+    R=mix(R,228,snowLip);G=mix(G,235,snowLip);B=mix(B,241,snowLip);
+    // Discrete bank pebbles, never a continuous bank outline.
+    if(d<12&&hash(x,y,31)>.997&&mid<.54){R*=.82;G*=.84;B*=.87}
    }
   }
   out[p]=clamp(R);out[p+1]=clamp(G);out[p+2]=clamp(B);out[p+3]=255;
@@ -193,5 +201,9 @@ function rivers(g,w,h){
  if(stats.waterPixels<n*.05||stats.waterPixels>n*.93||stats.shorePixels<20000)throw Error('Map geographic segmentation failed: '+JSON.stringify(stats));
  const preview=createCanvas(1200,Math.ceil(h*1200/w));preview.getContext('2d').drawImage(sc,0,0,preview.width,preview.height);
  fs.writeFileSync(path.join(ROOT,'world-painted-preview.jpg'),preview.toBuffer('image/jpeg',{quality:84}));
+ const shoreTest=createCanvas(1280,820),cg=shoreTest.getContext('2d');
+ cg.drawImage(sc,Math.floor(850*SCALE),Math.floor(1650*SCALE),
+  Math.floor(1280*SCALE),Math.floor(820*SCALE),0,0,1280,820);
+ fs.writeFileSync(path.join(ROOT,'world-painted-shore-test.png'),shoreTest.toBuffer('image/png'));
  console.log('BAKED_MAP_ART',JSON.stringify({dimensions:[w,h],original:[src.width,src.height],rivers:riverCount,bytes:fs.statSync(target).size,...stats}));
 })().catch(e=>{console.error(e);process.exitCode=1});
