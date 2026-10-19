@@ -46,7 +46,7 @@ coverage = coverage * coverage * (3 - 2 * coverage)
 mix = coverage[:, :, None]
 output = source.astype(np.float32)
 # Gently brighten water at the shoreline: not a cartoon thick outline.
-shallows = np.exp(-((shore + 7.0) / 13.0) ** 2) * (shore < 0) * 0.23
+shallows = np.exp(-((shore + 7.0) / 13.0) ** 2) * (shore < 0) * (shore > -30) * 0.23
 sea = output * (1.0 - shallows[:, :, None]) + np.array([79, 139, 142], dtype=np.float32) * shallows[:, :, None]
 # Preserve subtle sandy/earth coast lighting beneath the political color.
 beach = np.exp(-((shore - 2.0) / 6.0) ** 2) * (shore > 0) * 0.11
@@ -70,7 +70,7 @@ decoration[:, :, 2] = 192
 decoration[:, :, 3] = np.uint8(np.clip(foam * 255, 0, 255))
 Image.fromarray(decoration, "RGBA").save(ROOT / "coast-natural-overlay.png", optimize=True)
 
-far_sea = water & (signed < -35)
+far_sea = water & (shore < -32)
 far_land = land & (signed > 35)
 assert 0.30 < float(np.mean(coverage > .95)) < 0.50, "Coastline mask appears corrupt"
 assert far_sea.sum() > 1_000_000 and far_land.sum() > 1_000_000
