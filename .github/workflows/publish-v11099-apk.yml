@@ -26,9 +26,9 @@ jobs:
           mkdir -p deliverables sums
           for n in 00 01 02; do
             mkdir -p "parts/${n}"
-            gh run download "${{ github.event.workflow_run.id || 39213860071 }}" --repo "${{ github.repository }}" --name "Terha-v11099-part${n}" --dir "parts/${n}"
+            gh run download "${{ github.event.workflow_run.id || 39214366755 }}" --repo "${{ github.repository }}" --name "Terha-v11099-part${n}" --dir "parts/${n}"
           done
-          gh run download "${{ github.event.workflow_run.id || 39213860071 }}" --repo "${{ github.repository }}" --name Terha-v11099-SHA256 --dir sums
+          gh run download "${{ github.event.workflow_run.id || 39214366755 }}" --repo "${{ github.repository }}" --name Terha-v11099-SHA256 --dir sums
           for n in 00 01 02; do
             cat "parts/${n}/Terha-Conquest-v1.10.99.apk.part${n}" >> deliverables/Terha-Conquest-v1.10.99.apk
           done
