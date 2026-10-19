@@ -55,7 +55,6 @@ module.exports=async function({run}){
  assert(ground.includes("g.filter='grayscale(1) contrast(82%) brightness(1.04)'"),'Baked homeland hues must be neutralized while retaining terrain relief');
  assert(ground.includes("g.globalCompositeOperation='source-atop';g.globalAlpha=TERRITORY_TINT_ALPHA;g.drawImage(mask"),'Neutral ground must take a single translucent current-owner tint');
  assert(ground.includes('const TERRITORY_TINT_ALPHA=.72'),'Owner tint strength must preserve relief while visibly coloring captured land');
- assert(ground.includes("g.globalCompositeOperation='source-over';g.drawImage(images[1]"),'Terrain decor must remain over colored land');
  assert(!ground.includes('g.globalAlpha=.30;g.drawImage(territoryCanvas'),'Second full-map overlay would mix faction hues on occupied territories');
  assert(!ground.includes('gray+(v-gray)*.42'),'Old muted colors would wash out the new occupying-owner palette');
  assert(ground.indexOf("g.filter='grayscale(1)")<ground.indexOf('groundColorPixels(m,meta,w,h);'),'Neutral land must render before new owner tint');

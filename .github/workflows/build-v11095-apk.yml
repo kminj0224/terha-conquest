@@ -3,6 +3,9 @@ on:
   push:
     paths:
       - '.github/workflows/build-v11095-apk.yml'
+      - 'game/assets/static-ground.js'
+      - 'qa/v11092-regression.cjs'
+      - 'qa/v11086-regression.cjs'
   workflow_dispatch:
 permissions:
   contents: read
