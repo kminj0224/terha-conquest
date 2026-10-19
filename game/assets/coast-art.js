@@ -1,16 +1,19 @@
 'use strict';
-// Visual coast assets are generated offline; game logic still uses unchanged hexes.
-// Natural shoreline detail is independent from the strategic tile boundary.
+// Four offline baked painterly map layers; game tiles remain logically hexagonal.
+// Load independently: slow Android bitmap decoding must never block UI.
 const coastArtwork={image:new Image(),ready:false,layer:null};
+const coastSurface={image:new Image(),ready:false};
 const coastLandMask={image:new Image(),ready:false};
-coastArtwork.image.onload=()=>{coastArtwork.ready=true;coastArtwork.layer=null};
+function naturalGroundInvalidate(){if(typeof groundViewKey!=='undefined')groundViewKey=''}
+coastArtwork.image.onload=()=>{coastArtwork.ready=true;naturalGroundInvalidate()};
 coastArtwork.image.src='coast-natural-overlay.png';
-coastLandMask.image.onload=()=>{
- coastLandMask.ready=true;
- territoryDirty=true; // Repaint owner colors clipped to the curved visual shoreline.
- if(typeof groundViewKey!=='undefined')groundViewKey='';
-};
+coastSurface.image.onload=()=>{coastSurface.ready=true;naturalGroundInvalidate()};
+coastSurface.image.src='world-surface-detail.png';
+coastLandMask.image.onload=()=>{coastLandMask.ready=true;territoryDirty=true;naturalGroundInvalidate()};
 coastLandMask.image.src='coast-land-mask.png';
 function coastArtworkLayer(){return coastArtwork.ready?coastArtwork.image:null}
-function drawCoastArtwork(target,x,y,w,h){const layer=coastArtworkLayer();if(layer)target.drawImage(layer,x,y,w,h)}
+function drawCoastArtwork(target,x,y,w,h){
+ if(coastSurface.ready){target.save();target.globalCompositeOperation='soft-light';target.drawImage(coastSurface.image,x,y,w,h);target.restore()}
+ if(coastArtwork.ready)target.drawImage(coastArtwork.image,x,y,w,h)
+}
 Object.assign(window.Terha,{drawCoastArtwork,coastArtworkLayer});
