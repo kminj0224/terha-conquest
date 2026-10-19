@@ -1,5 +1,8 @@
 name: Publish Terha Conquest v1.10.99 APK
 on:
+  push:
+    paths:
+      - '.github/workflows/publish-v11099-apk.yml'
   workflow_run:
     workflows:
       - Build Terha Conquest v1.10.99 Painted Land-Sea Atlas
@@ -10,9 +13,11 @@ permissions:
   contents: write
 jobs:
   release:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      GH_REPO: ${{ github.repository }}
     steps:
       - name: Reassemble verified original-signed v1.10.99 APK
         env:
