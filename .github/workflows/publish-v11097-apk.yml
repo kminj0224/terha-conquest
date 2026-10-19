@@ -1,14 +1,16 @@
 name: Publish Terha Conquest v1.10.97 APK
 on:
-  push:
-    paths:
-      - '.github/workflows/publish-v11097-apk.yml'
+  workflow_run:
+    workflows:
+      - Build Terha Conquest v1.10.97 Neutral Base + Owner-Colored Plains
+    types: [completed]
   workflow_dispatch:
 permissions:
   actions: read
   contents: write
 jobs:
   release:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
