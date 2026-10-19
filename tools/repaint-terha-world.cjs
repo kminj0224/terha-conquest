@@ -72,14 +72,15 @@ function colorize(base,mask,seaDist,landDist,w,h){
     const warp=(noise(X*.035,Y*.041)-.5)*8+(fine-.5)*2.8;
     const warped=d+warp*(.25+.75*smooth(d/5));
     const bands=[
-      [2.8,2.3,.61],[9.8,2.2,.72],[18.3,1.65,.47],[28.9,1.35,.25],[43,.95,.12]
+      [3.2,2.8,.67],[11.1,2.0,.43],[25.0,1.2,.16]
     ];
     const gap=smooth((noise(X*.058+51,Y*.065-36)-.32)/.56);
     const lace=smooth((noise(X*.19,Y*.21)-.24)/.7);
     let foam=0;
     for(const [at,width,power] of bands){
       let t=Math.max(0,1-Math.abs(warped-at)/width);
-      foam=Math.max(foam,t*power*(.15+.85*gap)*(.55+.45*lace));
+      const waveBreak=at>9?smooth((noise(X*.018+17,Y*.019+7)-.39)/.5):1;
+      foam=Math.max(foam,t*power*(.09+.91*gap)*(.45+.55*lace)*waveBreak);
     }
     const flecks=(fine>.76&&tiny>.51?(.15+.22*gap)*(1-smooth(d/48)):0);
     foam=clamp(foam+flecks,0,.79);
@@ -101,17 +102,33 @@ function colorize(base,mask,seaDist,landDist,w,h){
     snowPixels++;R=clamp(r+variation*.92+3);G=clamp(g+variation*.92+5);B=clamp(b+variation*.9+8);
    }else{R=clamp(r+variation*.6);G=clamp(g+variation*.66);B=clamp(b+variation*.78)}
    const d=seaDist[k]/(3*SCALE);
-   if(d<16){
+   if(d<29){
     shorePixels++;
     // Shoreline sand/snow meet in a thin, broken, earth-toned bank.
     // It is a part of the *ground* illustration, not drawn over sea.
+    // Source world-clean.png already has a bright yellow border baked into its
+    // LAND pixels.  Removing the runtime overlay alone cannot remove it.
+    // Replace that legacy halo pigment with local inland ground color.
+    const warmHalo=r>132&&g>125&&(r-b>18||g-b>17);
+    if(warmHalo){
+     let best=seaDist[k],pick=k;
+     for(const radius of [12,25,39])for(let i=0;i<8;i++){
+      const a=i*Math.PI/4,xx=clamp(Math.round(x+Math.cos(a)*radius*SCALE),0,w-1),yy=clamp(Math.round(y+Math.sin(a)*radius*SCALE),0,h-1),j=yy*w+xx;
+      if(mask[j]===0&&seaDist[j]>best){best=seaDist[j];pick=j}
+     }
+     const q=pick*4;
+     let rr=original[q],gg=original[q+1],bb=original[q+2];
+     if(best<seaDist[k]+6*SCALE){const v=(r+g+b)/3;rr=v*.97;gg=v*1.01;bb=v*1.07}
+     const neutralize=(.91-.32*smooth((d-8)/22));
+     R=mix(R,rr,neutralize);G=mix(G,gg,neutralize);B=mix(B,bb,neutralize);
+    }
     const irregular=(mid-.5)*10+(fine-.5)*3;
     const broken=smooth((noise(X*.014+24,Y*.017-39)-.30)/.62);
-    const beach=smooth((13+irregular-d)/11)*(.12+.17*broken);
+    const beach=smooth((13+irregular-d)/11)*(.07+.13*broken);
     // Beach pigment follows each underlying biome, not a continuous
     // yellow/gold stroke around the polygonal islands.
-    const mean=(r+g+b)/3;
-    const shoreTint=smooth((9+irregular-d)/9)*(.30+.26*broken);
+    const mean=(R+G+B)/3;
+    const shoreTint=smooth((9+irregular-d)/9)*(.10+.11*broken);
     R=mix(R,mean*.96+3,shoreTint);
     G=mix(G,mean*1.00+5,shoreTint);
     B=mix(B,mean*1.06+8,shoreTint);
