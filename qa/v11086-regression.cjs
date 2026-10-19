@@ -61,7 +61,8 @@ module.exports=async function({run}){
  assert(source.includes('const hex=terrainTintColor(f),r='),'The ground palette must use v1.10.91 muted faction colors');
  assert(!source.includes("g.filter='grayscale(1) contrast(70%)'"),'v1.10.91 must not neutralize the original terrain colors');
  assert(source.includes("g.globalCompositeOperation='color';g.drawImage(mask"),'Terrain must retain baked mountain/forest artwork luminosity and textures');
- assert(source.includes('g.globalAlpha=.74;g.drawImage(territoryCanvas'),'Neutral plain must receive stronger current-owner tint');
- assert(fs.readFileSync(path.join(root,'game.js'),'utf8').includes("worldImg.src='world-neutral.png'"),'Plain-color underlay must be neutral, not the baked homeland colors');
+ assert(source.includes('g.globalAlpha=.74;g.drawImage(territoryCanvas'),'Natural shore must retain owner tint inside smoothed visual landmask');
+ assert(fs.readFileSync(path.join(root,'game.js'),'utf8').includes("worldImg.src='world-natural-coast.png'"),'Main map must use the natural-coast neutral base');
+ assert(fs.readFileSync(path.join(root,'warfare.js'),'utf8').includes("g.globalCompositeOperation='destination-in';g.drawImage(coastLandMask.image"),'Strategic hex territory colors must be clipped to the natural shoreline');
  console.log('PASS v1.10.86 clean city tabs, unit-style small price labels, i-only specifications, aligned SVG icons and neutral map base with owner-colored plains and preserved terrain relief:',result);
 };

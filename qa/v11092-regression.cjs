@@ -54,8 +54,12 @@ module.exports=async function({run}){
  assert(ground.includes("g.globalCompositeOperation='color';g.drawImage(mask"),'Ground must apply owner hue over preserved land luminance');
  assert(ground.includes("g.globalCompositeOperation='source-over';g.drawImage(images[1]"),'Terrain decor must remain over colored land');
  assert(ground.includes("g.globalAlpha=.74;g.drawImage(territoryCanvas"),'Current owner must dominate neutralized plains');
- const neutral=await loadImage(path.join(root,'world-neutral.png'));
- assert(neutral.width===3360&&neutral.height===2520,'Neutral world needs full original detail resolution');
+ const neutral=await loadImage(path.join(root,'world-natural-coast.png'));
+ assert(neutral.width===3360&&neutral.height===2520,'Natural coast map needs full original resolution');
+ for(const file of ['coast-land-mask.png','coast-natural-overlay.png']){const image=await loadImage(path.join(root,file));assert(image.width===3360&&image.height===2520,'Coast mask/detail must align with base map: '+file)}
+ const shoreline=fs.readFileSync(path.join(root,'coast-art.js'),'utf8');
+ assert(shoreline.includes("coastArtwork.image.src='coast-natural-overlay.png'"),'Replace legacy angular coastal decoration');
+ assert(shoreline.includes("coastLandMask.image.src='coast-land-mask.png'"),'Natural political-mask source required');
  assert(ground.includes('function terrainTintColor(f){const h=factions[f].color.slice(1)'),'v1.10.91 muted territory color function must be restored');
  assert(ground.includes("const g=canvas.getContext('2d'),m=mask.getContext('2d');g.drawImage(images[0],0,0);"),'v1.10.91 original terrain base render must be restored');
  console.log('PASS Dante fleet textures and sizing unchanged; neutral original-color-free plain underlay and owner overlay with relief preserved:',rendered);

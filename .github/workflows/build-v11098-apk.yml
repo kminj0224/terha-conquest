@@ -1,0 +1,149 @@
+name: Build Terha Conquest v1.10.98 Organic Coastline (Hex Logic Kept)
+# Re-run verified package build to trigger workflow_run-based Release publishing.
+on:
+  push:
+    paths:
+      - '.github/workflows/build-v11098-apk.yml'
+      - 'tools/neutralize_world.py'
+      - 'tools/generate_natural_coast.py'
+      - 'game/assets/coast-art.js'
+      - 'game/assets/warfare.js'
+      - 'game/assets/static-ground.js'
+      - 'game/assets/game.js'
+      - 'build.py'
+      - 'game/assets/app-shell.js'
+      - 'game/assets/saves.js'
+      - 'qa/ranna-regression.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify HUD and compact city UI scripts are packaged
+        run: |
+          test -s game/assets/fuel-efficiency-icon.webp
+          test -s game/assets/v11083-unit-nameplates.js
+          grep -q 'v11083-unit-nameplates.js' game/assets/index.html
+          grep -q 'v11085-command-ui.js' game/assets/index.html
+          grep -q 'v11085-strategic.js' game/assets/index.html
+          grep -q 'v11086-ui-polish.js' game/assets/index.html
+          grep -q 'v11088-city-ui.js' game/assets/index.html
+          grep -q 'v11091-gameplay-fixes.js' game/assets/index.html
+          grep -q 'dante-fleet-art.js' game/assets/index.html
+          test -s game/assets/dante-carrier.webp
+          test -s game/assets/dante-destroyer.webp
+          test -s game/assets/dante-frigate.webp
+      - name: Generate neutral map from original colored source (preserve relief and sea)
+        run: |
+          python3 -m pip install --quiet pillow numpy scipy
+          python3 tools/neutralize_world.py
+          python3 tools/generate_natural_coast.py
+          test -s game/assets/world-neutral.png
+          test -s game/assets/world-natural-coast.png
+          test -s game/assets/coast-land-mask.png
+          test -s game/assets/coast-natural-overlay.png
+      - name: Install game test dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Full gameplay, organic coast visual assets, tile logic, native regressions
+        run: node qa/native-test.cjs
+      - name: Verify coastline change never touches strategic mapdata
+        run: |
+          git diff --exit-code HEAD -- game/assets/mapdata.js game/assets/ground-data.js
+          python3 - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          base=Path('game/assets')
+          for name in ['world-natural-coast.png','coast-land-mask.png','coast-natural-overlay.png']:
+            im=Image.open(base/name); assert im.size==(3360,2520),name
+          assert Image.open(base/'coast-land-mask.png').mode=='RGBA'
+          print('PASS coastal masks preserve strategic tiles and source resolution')
+          PY
+      - name: Verify Android native wrapper
+        run: python3 qa/verify-native.py
+      - name: Build signed v1.10.98 update APK
+        run: python3 build.py
+      - name: Verify installable package version, Android build number and retained DEX
+        run: |
+          python3 - <<'PY'
+          import zipfile, struct
+          with zipfile.ZipFile('deliverables/Terha-Conquest-v1.10.98.apk') as z:
+              manifest=z.read('AndroidManifest.xml')
+              dex=z.read('classes.dex')
+          with zipfile.ZipFile('android/native-shell.zip') as z:
+              assert dex==z.read('classes.dex'), 'Native package changed unexpectedly'
+          strs=[]; codes=[]; off=8
+          while off<len(manifest):
+              kind,head,size=struct.unpack_from('<HHI',manifest,off)
+              assert size>0
+              if kind==1:
+                  count,_,flags,start,_=struct.unpack_from('<IIIII',manifest,off+8)
+                  assert not flags&0x100
+                  for j in range(count):
+                      idx=struct.unpack_from('<I',manifest,off+head+4*j)[0]
+                      pos=off+start+idx
+                      n=struct.unpack_from('<H',manifest,pos)[0]
+                      strs.append(manifest[pos+2:pos+2+n*2].decode('utf-16le'))
+              if kind==0x102:
+                  begin,item_size,count=struct.unpack_from('<HHH',manifest,off+24)
+                  for j in range(count):
+                      pos=off+16+begin+j*item_size
+                      key=strs[struct.unpack_from('<I',manifest,pos+4)[0]]
+                      if key=='versionCode':
+                          assert manifest[pos+15]==0x10
+                          codes.append(struct.unpack_from('<I',manifest,pos+16)[0])
+              off+=size
+          assert codes==[142],f'Wrong Android versionCode: {codes}'
+          assert '1.10.97' in strs and '1.10.65' not in strs,'Wrong Android versionName'
+          print('PASS: Android versionName 1.10.97, versionCode 142, native package DEX unchanged')
+          PY
+      - name: Verify original signing certificate and SHA256
+        run: |
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.10.98.apk
+          sha256sum deliverables/Terha-Conquest-v1.10.98.apk > deliverables/SHA256SUMS.txt
+      - name: Split verified APK into transport-safe pieces
+        run: |
+          mkdir -p deliverables/parts
+          split -b 90m -d -a 2 deliverables/Terha-Conquest-v1.10.98.apk deliverables/parts/Terha-Conquest-v1.10.98.apk.part
+          test -s deliverables/parts/Terha-Conquest-v1.10.98.apk.part00
+          test -s deliverables/parts/Terha-Conquest-v1.10.98.apk.part01
+          test -s deliverables/parts/Terha-Conquest-v1.10.98.apk.part02
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11098-part00
+          path: deliverables/parts/Terha-Conquest-v1.10.98.apk.part00
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11098-part01
+          path: deliverables/parts/Terha-Conquest-v1.10.98.apk.part01
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11098-part02
+          path: deliverables/parts/Terha-Conquest-v1.10.98.apk.part02
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-v11098-SHA256
+          path: deliverables/SHA256SUMS.txt
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
