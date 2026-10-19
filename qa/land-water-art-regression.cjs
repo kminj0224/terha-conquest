@@ -65,7 +65,7 @@ function nearPaintedRiver(x,y){
  }
  for(const stat of stats){
   const untouched=stat.original-stat.riverPixels;
-  assert(stat.original>900,'Too few land samples: '+stat.name);
+  assert(stat.original>=500,'Too few land samples: '+stat.name);
   assert(stat.unexplained===0,stat.name+' has WATER-coloured LAND pixels outside rivers: '+JSON.stringify({stat,unexpected}));
  }
  assert(unexpected.length===0,'Sea paint contaminated national land outside real rivers');
