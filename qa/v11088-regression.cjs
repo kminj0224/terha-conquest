@@ -40,13 +40,16 @@ module.exports=async function({run}){
   check($('warheadOptions').textContent.includes('원자폭탄')&&$('warheadOptions').textContent.includes('수소폭탄'),'Warhead chooser must list available types');
   const first=$('warheadOptions').children[0];
   first.children[0].onclick();
-  check(armedBomber?.city===q.id&&armedBomber.payload==='atomic','Selecting atomic must arm bomber');
+  check(armedBomber?.city===q.id&&armedBomber.payload==='atomic','Selecting atomic must temporarily arm bomber');
+  check(strategicTarget?.kind==='nuclearBomber'&&strategicTarget.payload==='atomic','Choosing atomic must immediately enter bomber targeting');
+  check(panelOpen===false&&menuMode===false,'Choosing warhead must close modal and city panel');
+  cancelAirTarget();
+  check(!strategicTarget&&!armedBomber,'Cancel must abandon the mounted atomic payload');
+  cityCommandOpen('air');
   const bomberAfter=Array.from($('cityCommandContent').children).filter(x=>x.className?.includes('cityActionRow')&&x.children[0]?.textContent.includes(AIR_MISSIONS.strategic.name));
-  check(bomberAfter.length===1&&bomberAfter[0].children.length===3,'After arming, bomber must stay a single 3-button row');
-  check(bomberAfter[0].children[0].textContent.includes('원자폭탄 장착'),'Armed payload must be visible on bomber row');
-  bomberAfter[0].children[0].onclick();
-  check(strategicTarget?.kind==='nuclearBomber'&&strategicTarget.payload==='atomic','Armed bomber strike must target nuclear bombing');
-  strategicTarget=null;busy=false;menuMode=false;
+  check(bomberAfter.length===1&&bomberAfter[0].children.length===3,'After cancel, bomber must stay a single 3-button row');
+  check(!bomberAfter[0].children[0].textContent.includes('원자폭탄 장착'),'Cancelled payload must not remain on bomber row');
+  busy=false;menuMode=false;
   for(const id of Object.keys(CITY_COMMAND_ICONS_11088)){
    const b=$(id);
    check(b.innerHTML.includes('viewBox="0 0 24 24"'),'Uniform viewbox missing '+id);
