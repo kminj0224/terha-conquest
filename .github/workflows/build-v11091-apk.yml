@@ -1,4 +1,4 @@
-name: Build Terha Conquest v1.10.91 Gameplay Fixes
+name: Build Terha Conquest v1.10.91 Gameplay Fixes Verified
 on:
   push:
     paths:
