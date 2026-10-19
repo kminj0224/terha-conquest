@@ -1,0 +1,33 @@
+name: Check In v1.10.98 Natural Coast Assets
+on:
+  push:
+    paths:
+      - '.github/workflows/commit-v11098-natural-coast.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  create-natural-coast-png:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Generate deterministic coastline PNGs from source map
+        run: |
+          python3 -m pip install --quiet pillow numpy scipy
+          python3 tools/neutralize_world.py
+          python3 tools/generate_natural_coast.py
+          test -s game/assets/world-natural-coast.png
+          test -s game/assets/coast-land-mask.png
+          test -s game/assets/coast-natural-overlay.png
+      - name: Check generated visual assets into main
+        run: |
+          git add game/assets/world-natural-coast.png game/assets/coast-land-mask.png game/assets/coast-natural-overlay.png
+          if git diff --cached --quiet; then
+            echo "Natural coastal maps already present"
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Check in softened organic coastline, ownership mask and shoreline details'
+          git push origin HEAD:main
