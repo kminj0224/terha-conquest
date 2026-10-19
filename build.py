@@ -3,6 +3,9 @@
 import pathlib,zipfile,struct,subprocess,os,urllib.request
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
 VERSION='1.11.1';CODE=146
+# Generate the painterly coastal artwork from the source map before packaging.
+if not (ROOT/'game/assets/world-water-detail.png').is_file():
+ subprocess.run(['node','tools/prepare-map-detail.cjs'],check=True)
 T=ROOT/'tools';T.mkdir(exist_ok=True)
 for name,url in [('ecj.jar','https://repo.maven.apache.org/maven2/org/eclipse/jdt/ecj/3.33.0/ecj-3.33.0.jar'),('apksig.jar','https://repo.maven.apache.org/maven2/com/android/tools/build/apksig/2.3.0/apksig-2.3.0.jar')]:
  if not (T/name).exists():urllib.request.urlretrieve(url,T/name)
