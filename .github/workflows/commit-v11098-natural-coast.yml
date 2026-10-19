@@ -31,4 +31,11 @@ jobs:
             exit 0
           fi
           git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Check in softened organic coastline, ownership mask and shoreline details'
-          git push origin HEAD:main
+          # The Release workflow may be edited during the image job; fast-forward safely.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then exit 0; fi
+          done
+          echo "Could not fast-forward generated map assets" >&2
+          exit 1
