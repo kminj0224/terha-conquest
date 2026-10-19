@@ -5,6 +5,9 @@ on:
     paths:
       - '.github/workflows/build-v11105-natural-map.yml'
   workflow_dispatch:
+concurrency:
+  group: natural-map-release
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
@@ -74,4 +77,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.5 deliverables/Terha-Conquest-v1.11.5.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title "Terha Conquest v1.11.5 — Natural Map" --notes "Repainted ocean texture, broken coastal surf, ground, forests and integrated riverbanks from the supplied visual reference. A continuous map surface replaces clipped terrain/decor chunks in the normal rendering path. Original map data, river gameplay data, save identities and Android signing key retained. Full native Canvas regressions, natural map cache/conquest checks and package verification passed."
+          if gh release view v1.11.5 >/dev/null 2>&1; then
+            gh release upload v1.11.5 deliverables/Terha-Conquest-v1.11.5.apk deliverables/SHA256SUMS.txt --clobber
+            gh api "repos/$GITHUB_REPOSITORY/git/refs/tags/v1.11.5" -X PATCH -f sha="$GITHUB_SHA"
+          else
+            gh release create v1.11.5 deliverables/Terha-Conquest-v1.11.5.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title "Terha Conquest v1.11.5 — Natural Map" --notes "Repainted ocean texture, broken coastal surf, ground, forests and integrated riverbanks from the supplied visual reference. A continuous map surface replaces clipped terrain/decor chunks in the normal rendering path. Original map data, river gameplay data, save identities and Android signing key retained. Full native Canvas regressions, natural map cache/conquest checks and package verification passed."
+          fi
