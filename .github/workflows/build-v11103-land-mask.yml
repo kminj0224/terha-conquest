@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/build-v11103-painted-world.yml'
+      - '.github/workflows/build-v11103-land-mask.yml'
       - 'tools/repaint-terha-world.cjs'
       - 'game/assets/map.json'
       - 'qa/land-water-art-regression.cjs'
