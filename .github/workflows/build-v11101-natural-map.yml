@@ -13,6 +13,7 @@ on:
       - 'game/assets/saves.js'
       - 'build.py'
       - 'qa/ranna-regression.cjs'
+      - 'tools/prepare-map-detail.cjs'
   workflow_dispatch:
 permissions:
   contents: write
@@ -31,6 +32,8 @@ jobs:
           node-version: '20'
       - name: Install regression dependencies
         run: npm ci --no-audit --no-fund
+      - name: Generate complete natural map texture for tests
+        run: node tools/prepare-map-detail.cjs
       - name: Run native Canvas game regression suite
         run: npm test
       - name: Verify unchanged native Android shell
