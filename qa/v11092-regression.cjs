@@ -53,8 +53,10 @@ module.exports=async function({run}){
  assert(!ground.includes("g.filter='grayscale(1) contrast(70%)'"),'v1.10.91 terrain retains original baked hues');
  assert(ground.includes("g.globalCompositeOperation='color';g.drawImage(mask"),'Ground must apply owner hue over preserved land luminance');
  assert(ground.includes("g.globalCompositeOperation='source-over';g.drawImage(images[1]"),'Terrain decor must remain over colored land');
- assert(ground.includes("g.globalAlpha=.30;g.drawImage(territoryCanvas"),'v1.10.91 translucent territory overlay must be restored');
+ assert(ground.includes("g.globalAlpha=.74;g.drawImage(territoryCanvas"),'Current owner must dominate neutralized plains');
+ const neutral=await loadImage(path.join(root,'world-neutral.png'));
+ assert(neutral.width===3360&&neutral.height===2520,'Neutral world needs full original detail resolution');
  assert(ground.includes('function terrainTintColor(f){const h=factions[f].color.slice(1)'),'v1.10.91 muted territory color function must be restored');
  assert(ground.includes("const g=canvas.getContext('2d'),m=mask.getContext('2d');g.drawImage(images[0],0,0);"),'v1.10.91 original terrain base render must be restored');
- console.log('PASS Dante fleet textures and sizing unchanged; v1.10.91 muted territory palette, baked relief, and translucent overlay restored:',rendered);
+ console.log('PASS Dante fleet textures and sizing unchanged; neutral original-color-free plain underlay and owner overlay with relief preserved:',rendered);
 };

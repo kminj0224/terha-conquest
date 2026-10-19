@@ -1,5 +1,5 @@
 'use strict';
-const APP_VERSION='1.10.96',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
+const APP_VERSION='1.10.97',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
 function readAppJSON(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
 const savedAppSettings=readAppJSON(APP_SETTINGS_KEY,{});
 const appSettings={music:Number.isFinite(savedAppSettings.music)?Math.min(1,Math.max(0,savedAppSettings.music)):.65,effects:Number.isFinite(savedAppSettings.effects)?Math.min(1,Math.max(0,savedAppSettings.effects)):1,language:savedAppSettings.language==='en'?'en':'ko'};
