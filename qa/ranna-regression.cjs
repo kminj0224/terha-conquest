@@ -35,7 +35,7 @@ module.exports=function({run}){
   check(infantryArtProfile({f:4,type:27}).art===rannaGuerrillaArt&&rannaGuerrillaArt.idle.src==='ranna-guerrilla-idle.png'&&rannaGuerrillaArt.fire.src==='ranna-guerrilla-fire.png','Guerrilla art');
   const capital=cities.find(q=>q.f===4&&q.capital);check(canProduce(capital,27,1)&&!canProduce(cities.find(q=>q.f===5&&q.capital),27,1),'Special unit production country');
   check(unitPrice(27,1)===30&&navGoldCost(27,1)===0&&unitOil(27,1)===0,'Cheap production resources');
-  const before=units.length,s=snapshot();check(s.appVersion==='1.10.94'&&s.units.some(u=>u.type===27),'Save includes new unit');
+  const before=units.length,s=snapshot();check(s.appVersion==='1.10.95'&&s.units.some(u=>u.type===27),'Save includes new unit');
   s.diplomacy[4][5]=s.diplomacy[5][4]='neutral';migrateArmy(s);check(units.length===before&&units.filter(u=>u.rannaGuerrillaInitial).length===initial.length,'Loading duplicates initial guerrillas');
   check(diplomacy[4][5]==='neutral','Loading overwrote saved diplomacy');diplomacy[4][5]=diplomacy[5][4]='war';
   return {initialGuerrillas:initial.length,regions:regionCount,typeId:27};
