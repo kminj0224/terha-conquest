@@ -2,9 +2,7 @@
 // Terrain and river geometry are baked into APK PNGs. No sprite painter runs here.
 const GROUND_BUDGET=48*1024*1024,groundChunks=new Map();
 let groundBytes=0,groundRevision=0,groundView=null,groundViewKey='',groundViewBuilds=0,groundChunkBuilds=0;
-// Only the CURRENT owner selects land color. Baekyang gets a clearer green without changing unit/UI colors.
-function terrainTintColor(f){return f===0?'#4eaa67':factions[f].color}
-const TERRITORY_TINT_ALPHA=.72;
+function terrainTintColor(f){const h=factions[f].color.slice(1),rgb=[0,2,4].map(n=>parseInt(h.slice(n,n+2),16)),gray=rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;return '#'+rgb.map(v=>Math.round(gray+(v-gray)*.42).toString(16).padStart(2,'0')).join('')}
 function terrainBiome(i){const f=MAP.tiles[i][0];return f===3?'cactus':f===4||f===5?'palm':'forest'}
 const groundOverview={name:'ground-overview',x:0,y:0,w:WW,h:HH,tiles:MAP.tiles.map((_,i)=>i).filter(i=>MAP.tiles[i][0]>=0)};
 function groundSignature(meta){return meta.tiles.map(i=>tiles[i].owner).join(',')}
@@ -25,17 +23,10 @@ function groundColorPixels(m,meta,w,h){
 function loadGroundChunk(entry){
  entry.loading=true;entry.failed=false;entry.colorFallback=false;const images=[new Image(),new Image()];entry.images=images;let ready=0;
  const finish=()=>{if(entry.disposed||++ready!==2)return;const meta=entry.meta,w=images[0].naturalWidth,h=images[0].naturalHeight,canvas=document.createElement('canvas'),mask=document.createElement('canvas');canvas.width=mask.width=w;canvas.height=mask.height=h;
-  const g=canvas.getContext('2d'),m=mask.getContext('2d');
-  // Neutralize every baked homeland hue BEFORE tinting; grayscale keeps relief luminance.
-  // Flatten broad old-faction brightness differences while retaining mountain and forest contrast.
-  g.save();g.filter='grayscale(1) contrast(82%) brightness(1.04)';g.drawImage(images[0],0,0);g.restore();
-  try{
-   groundColorPixels(m,meta,w,h);
-   // Draw ONLY the current occupying owner's tint over the neutral land pixels.
-   // source-atop clips to the terrain alpha; partial opacity retains land shading.
-   g.globalCompositeOperation='source-atop';g.globalAlpha=TERRITORY_TINT_ALPHA;g.drawImage(mask,0,0);
-  }catch(error){entry.colorFallback=true;console.warn('Terrain tint fallback',meta.name,String(error))}
-  g.globalCompositeOperation='source-over';g.globalAlpha=1;g.drawImage(images[1],0,0);mask.width=mask.height=0;
+  const g=canvas.getContext('2d'),m=mask.getContext('2d');g.drawImage(images[0],0,0);
+  try{groundColorPixels(m,meta,w,h);g.globalCompositeOperation='color';g.drawImage(mask,0,0);g.globalCompositeOperation='destination-in';g.drawImage(images[0],0,0)}
+  catch(error){g.globalCompositeOperation='copy';g.drawImage(images[0],0,0);entry.colorFallback=true;console.warn('Terrain tint fallback',meta.name,String(error))}
+  g.globalCompositeOperation='source-over';g.drawImage(images[1],0,0);mask.width=mask.height=0;
   if(entry.canvas)entry.canvas.width=entry.canvas.height=0;entry.canvas=canvas;entry.signature=groundSignature(meta);entry.generation=territoryGeneration;entry.loading=false;entry.images=null;for(const image of images){campaignImages.delete(image);image.onload=image.onerror=null;image.removeAttribute?image.removeAttribute('src'):image.src=''}groundChunkBuilds++;groundRevision++;
  };
  images.forEach((image,n)=>{image.onload=finish;image.onerror=()=>{campaignImages.delete(image);if(entry.disposed)return;entry.failed=true;entry.loading=false;groundRevision++};image.src=entry.meta.name+(n?'-detail.png':'-terrain.png')});
@@ -54,7 +45,7 @@ function drawStaticGround(){
   let visible=GROUND_DATA.chunks.filter(q=>q.x+q.w>left&&q.x<right&&q.y+q.h>top&&q.y<bottom);if(cam.z<.55||visible.length>14)visible=[groundOverview];
   const images=visible.map(meta=>({meta,image:getGroundChunk(meta)}));
   groundView??=document.createElement('canvas');const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));groundView.width=Math.ceil(screenW*d);groundView.height=Math.ceil(screenH*d);const g=groundView.getContext('2d');g.scale(d,d);g.translate(screenW/2,screenH/2);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
-  g.drawImage(worldImg,0,0,WW,HH);drawCoastArtwork(g,0,0,WW,HH); // Current-owner color is applied once per terrain chunk, never via a second overlay.
+  g.drawImage(worldImg,0,0,WW,HH);drawCoastArtwork(g,0,0,WW,HH);if(territoryCanvas){g.save();g.globalAlpha=.30;g.drawImage(territoryCanvas,0,0,WW,HH);g.restore()}
   paintStaticGroundConnections(g);for(const {meta,image}of images)if(image)g.drawImage(image,meta.x,meta.y,meta.w,meta.h);
   groundViewKey=key;groundViewBuilds++;
  }
