@@ -1,0 +1,41 @@
+name: Publish Terha Conquest v1.10.99 APK
+on:
+  workflow_run:
+    workflows:
+      - Build Terha Conquest v1.10.99 Painted Land-Sea Atlas
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  release:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Reassemble verified original-signed v1.10.99 APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p deliverables sums
+          for n in 00 01 02; do
+            mkdir -p "parts/${n}"
+            gh run download "${{ github.event.workflow_run.id || 39213860071 }}" --repo "${{ github.repository }}" --name "Terha-v11099-part${n}" --dir "parts/${n}"
+          done
+          gh run download "${{ github.event.workflow_run.id || 39213860071 }}" --repo "${{ github.repository }}" --name Terha-v11099-SHA256 --dir sums
+          for n in 00 01 02; do
+            cat "parts/${n}/Terha-Conquest-v1.10.99.apk.part${n}" >> deliverables/Terha-Conquest-v1.10.99.apk
+          done
+          sha256sum -c sums/SHA256SUMS.txt
+          test -s deliverables/Terha-Conquest-v1.10.99.apk
+      - name: Publish single direct-download APK with checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.10.99 >/dev/null 2>&1; then
+            gh release upload v1.10.99 deliverables/Terha-Conquest-v1.10.99.apk sums/SHA256SUMS.txt --clobber
+          else
+            gh release create v1.10.99 deliverables/Terha-Conquest-v1.10.99.apk sums/SHA256SUMS.txt --title "Terha Conquest v1.10.99" --target "${{ github.event.workflow_run.head_sha || github.sha }}" --notes "Repainted map landscape: subdued curved shoreline, ocean bathymetric shade, slim natural surf, woodland and geological micro-relief, drylands and snowfield biomes. Existing political ownership, tile combat, city and naval logic unchanged. Original Android update signature retained (versionCode 143)."
+          fi
+          gh release view v1.10.99 --json url,assets
