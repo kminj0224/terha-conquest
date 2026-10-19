@@ -1,4 +1,5 @@
 name: Check In v1.10.98 Natural Coast Assets
+# Repeat after coastline generator deep-water safety adjustment.
 on:
   push:
     paths:
