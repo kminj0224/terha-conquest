@@ -153,14 +153,16 @@ function chooseWarhead(q,missileKey,bomber=false){
  menuMode=true;$('modal').style.display='flex';
  $('modal').innerHTML='<div class="box"><button class="close" id="warheadClose">×</button><h2>핵탄두 장착</h2>'+
  '<p>원자폭탄 '+stock.atomic+'개 · 수소폭탄 '+stock.hydrogen+'개</p>'+
- '<div id="warheadOptions"></div><p class="hint">장착은 표적 선택을 준비합니다. 탄두는 실제 발사 시 1개 차감됩니다.</p></div>';
+ '<div id="warheadOptions"></div></div>';
  $('warheadClose').onclick=()=>{menuMode=false;$('modal').style.display='none';showPanel()};
  for(const [key,d]of Object.entries(NUCLEAR_WARHEADS)){
   const reason=stock[key]?null:'해당 핵탄두가 없습니다.';
   addCityRow($('warheadOptions'),d.name+' '+stock[key]+'개',reason,()=>{
-   if(bomber)armedBomber={city:q.id,payload:key};
-   else armedMissile={city:q.id,missileKey,payload:key};
-   menuMode=false;$('modal').style.display='none';showPanel();
+   menuMode=false;$('modal').style.display='none';
+   if(prepareStrategicLaunch(q,missileKey||'short',key,bomber)){
+    if(bomber)armedBomber={city:q.id,payload:key};
+    else armedMissile={city:q.id,missileKey,payload:key};
+   }else showPanel();
   },d.name,'폭발 반경 '+d.radius+'칸 / '+d.damage);
  }
 }
