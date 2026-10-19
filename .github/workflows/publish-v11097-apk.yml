@@ -22,9 +22,9 @@ jobs:
           mkdir -p deliverables sums
           for n in 00 01 02; do
             mkdir -p "parts/${n}"
-            gh run download 39205786100 --name "Terha-v11097-part${n}" --dir "parts/${n}"
+            gh run download 39206133725 --name "Terha-v11097-part${n}" --dir "parts/${n}"
           done
-          gh run download 39205786100 --name Terha-v11097-SHA256 --dir sums
+          gh run download 39206133725 --name Terha-v11097-SHA256 --dir sums
           for n in 00 01 02; do
             cat "parts/${n}/Terha-Conquest-v1.10.97.apk.part${n}" >> deliverables/Terha-Conquest-v1.10.97.apk
           done
