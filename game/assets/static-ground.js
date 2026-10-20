@@ -45,7 +45,7 @@ function drawNaturalGround(){
   groundView.width=Math.ceil(screenW*d);groundView.height=Math.ceil(screenH*d);
   const g=groundView.getContext('2d');g.scale(d,d);g.translate(screenW/2,screenH/2);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
   // Paint one continuous image: no hex/chunk clipping can sever a tree or bank.
-  g.drawImage(coastArtwork.image,0,0,WW,HH);drawNaturalOverviewOwnership(g);drawNaturalDetails(g);
+  drawNaturalOwnedOverview(g);drawNaturalDetails(g);
   paintStaticGroundConnections(g);groundViewKey=key;groundViewBuilds++;
  }
  ctx.save();ctx.setTransform(1,0,0,1,0,0);nativeMapDrawImage(groundView,0,0,c.width,c.height);ctx.restore();

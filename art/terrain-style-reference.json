@@ -1,0 +1,12 @@
+{
+  "reference": "v1.11.8",
+  "placements": "acf06c40878b2e5d1036adc9702bbe7589a0989b5d74d33f4c5f36586d81390f",
+  "rivers": "0b94e9604609d08a2a2d484ff017c3fd32018201cfc1028749af63e61ddc6db5",
+  "files": {
+    "game/assets/world-natural-land.png": "0ac8fb350aed552cf06861817efd77a4b286d27362e42012d7b93befeb230b52",
+    "game/assets/mapdata.js": "e7e50272f93cb798811f6c2a76d8f7799701b1dd4ed9e0b8bc31f8f85c9de02d",
+    "game/assets/river-data.js": "b58b4f06ec0a4d07d89257b8276ce63b59d28030f9dc8721c63cf38290b1c44c",
+    "game/assets/ranna-special.js": "a594f1fa73f14a1f46e2050f49d10adfe37145b66611292e9b874b9382de4363",
+    "game/assets/warfare.js": "83cb4cedc2f2f5006b4e1d3001efbd44108fc6c0ac0d521bf918a505f8718c54"
+  }
+}
