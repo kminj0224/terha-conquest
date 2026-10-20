@@ -10,7 +10,7 @@ new Function('require','__dirname',source+`
  fs.mkdirSync(path.join(__dirname,'../previews'),{recursive:true});
  for(const [name,x,y,z]of views){
   run('cam.x='+x+';cam.y='+y+';cam.z='+z+';draw(1000)');await settle();
-  const before=run('groundViewBuilds');run('draw(1000)');assert.equal(run('groundViewBuilds'),before,'Stationary map must reuse view bitmap');
+  run('draw(1000)');const before=run('groundViewBuilds');run('draw(1000)');assert.equal(run('groundViewBuilds'),before,'Stationary map must reuse view bitmap');
   fs.writeFileSync(path.join(__dirname,'../previews/natural-'+name+'.png'),main.toBuffer('image/png'));
  }
  const before=run('groundViewBuilds');

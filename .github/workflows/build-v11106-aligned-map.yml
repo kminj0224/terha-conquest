@@ -1,3 +1,4 @@
+# Stationary view checks begin after loaded HD bitmaps have been composited.
 name: Build Terha Conquest v1.11.6 Aligned HD Map
 on:
   push:
