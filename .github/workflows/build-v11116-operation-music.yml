@@ -1,0 +1,54 @@
+name: Build v1.11.16 operation menu music fix
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/build-v11116-operation-music.yml', 'qa/operation-music-regression.cjs', 'qa/operation-menu-regression.cjs']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: operation-music-v11116
+  cancel-in-progress: false
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Gameplay and operation menu music fix regressions
+        run: |
+          mkdir -p previews
+          node qa/operation-music-regression.cjs
+          npm test
+          python3 qa/verify-native.py
+      - name: Build and verify signed Android update
+        run: |
+          python3 build.py
+          python3 - <<'PY'
+          import zipfile,hashlib
+          from pathlib import Path
+          apk=Path('deliverables/Terha-Conquest-v1.11.16.apk')
+          with zipfile.ZipFile(apk) as z,zipfile.ZipFile('android/native-shell.zip') as shell:
+            assert z.testzip() is None
+            assert z.read('classes.dex')==shell.read('classes.dex')
+            for p in Path('game/assets').iterdir():
+              if p.is_file():assert z.read('assets/'+p.name)==p.read_bytes(),p
+          digest=hashlib.sha256(apk.read_bytes()).hexdigest()
+          Path('deliverables/SHA256SUMS.txt').write_text(digest+'  '+apk.name+'\n')
+          print('APK_SHA256',digest,'APK_BYTES',apk.stat().st_size)
+          PY
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.16.apk
+      - name: Publish downloadable APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.16 deliverables/Terha-Conquest-v1.11.16.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.16 — Operation Music' --notes 'Keep operation music playing through the hamburger menu, settings, save slots and exit confirmation. Rejecting exit does not interrupt music. Prevent title music from playing inside operation settings. Preserve playlist position and 4-second gaps until actual exit. Original Android update signing retained. Android versionCode 161.'

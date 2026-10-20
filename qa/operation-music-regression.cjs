@@ -11,7 +11,7 @@ class AudioStub{
 const b={Audio:AudioStub,started:true,appScreen:'game',campaignLoading:false,appSettings:{music:.65},
  document:{hidden:false,addEventListener(){}},performance:{now:()=>clock},
  setTimeout:(fn,ms)=>{const id=nextTimer++;timers.set(id,{fn,at:clock+ms});return id},clearTimeout:id=>timers.delete(id),
- appFront:()=>['title','hub','country'].includes(b.appScreen),applyAppAudio(){},
+ appFront:()=>['title','hub','country'].includes(b.appScreen),appUsesMenuMusic:()=>['title','hub','country','settings'].includes(b.appScreen),applyAppAudio(){},
  runCampaignLoading:async()=>{b.campaignLoading=true;await new Promise(r=>finishLoading=r);b.campaignLoading=false;return !failLoading}
 };
 vm.createContext(b);vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../game/assets/operation-music.js'),'utf8'),b);
@@ -30,19 +30,22 @@ function ended(){audio.paused=true;audio.onended()}
   const before=audio.plays;tick(3999);assert.equal(audio.plays,before,'No early next track');
   tick(1);assert.equal(audio.src,`operation-music-${next}.mp3`);assert.equal(audio.plays,before+1);
  }
- audio.currentTime=17;b.appScreen='menu';b.applyAppAudio();assert.equal(audio.paused,true);
+ audio.currentTime=17;const beforeOverlays=audio.plays;
+ for(const screen of ['menu','settings','slots','menu','game','result']){b.appScreen=screen;b.applyAppAudio();assert.equal(audio.paused,false,'Operation overlay must not pause: '+screen);assert.equal(audio.currentTime,17);assert.equal(audio.plays,beforeOverlays,'Overlay must not restart track');assert.equal(b.appUsesMenuMusic(),false,'No front music during operation overlays')}
+ ended();b.appScreen='settings';b.applyAppAudio();tick(4000);assert.equal(audio.src,'operation-music-2.mp3','Playlist advances while in operation settings');
+ audio.currentTime=17;
  b.appScreen='game';b.applyAppAudio();assert.equal(audio.currentTime,17,'Resume without restarting track');
  b.appSettings.music=.2;b.applyAppAudio();assert.equal(audio.volume,.2);
  b.appSettings.music=0;b.applyAppAudio();assert.equal(audio.paused,true);
  b.appSettings.music=.65;b.applyAppAudio();assert.equal(audio.paused,false);
  ended();tick(1000);b.document.hidden=true;b.applyAppAudio();assert.equal(timers.size,0);
- tick(10000);b.document.hidden=false;b.applyAppAudio();tick(2999);assert.equal(audio.src,'operation-music-1.mp3');
- tick(1);assert.equal(audio.src,'operation-music-2.mp3','Resume remaining gap after background');
+ tick(10000);b.document.hidden=false;b.applyAppAudio();tick(2999);assert.equal(audio.src,'operation-music-2.mp3');
+ tick(1);assert.equal(audio.src,'operation-music-3.mp3','Resume remaining gap after background');
  ended();b.appScreen='hub';b.applyAppAudio();const stoppedPlays=audio.plays;
- assert.equal(timers.size,0);assert.equal(audio.paused,true);assert.equal(audio.currentTime,0);assert.equal(audio.src,'operation-music-1.mp3');
+ assert.equal(timers.size,0);assert.equal(audio.paused,true);assert.equal(audio.currentTime,0);assert.equal(audio.src,'operation-music-1.mp3');assert.equal(b.appUsesMenuMusic(),true,'Front music returns after actual operation exit');
  tick(10000);audio.onended();assert.equal(timers.size,0);assert.equal(audio.plays,stoppedPlays,'Exit cancels all future tracks');
  b.appScreen='game';const restart=b.runCampaignLoading();finishLoading();await restart;
  assert.equal(audio.src,'operation-music-1.mp3');assert.equal(audio.paused,false,'New operation starts at first track');
  const failure=b.runCampaignLoading();failLoading=true;finishLoading();assert.equal(await failure,false);assert.equal(audio.paused,true);assert.equal(run('operationMusicActive'),false);
- console.log('PASS operation music: map-ready start, upload order, 4000ms gaps, wraparound, volume, menu/background resume, exit cancellation and failed loads');
+ console.log('PASS operation music: map-ready start, upload order, 4000ms gaps, wraparound, volume, uninterrupted operation overlays, exclusive music and background resume, exit cancellation and failed loads');
 })().catch(e=>{console.error(e);process.exitCode=1});

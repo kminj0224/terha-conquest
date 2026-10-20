@@ -25,10 +25,10 @@ function stopOperationMusic(){
  try{operationMusic.currentTime=0}catch{}
 }
 function operationMusicWanted(){
- return operationMusicActive&&started&&appScreen==='game'&&!campaignLoading&&!document.hidden&&appSettings.music>0;
+ return operationMusicActive&&started&&!appFront()&&!campaignLoading&&!document.hidden&&appSettings.music>0;
 }
 function syncOperationMusic(){
- if(operationMusicActive&&(appFront()||appScreen==='result'))stopOperationMusic();
+ if(operationMusicActive&&appFront())stopOperationMusic();
  operationMusic.volume=appSettings.music;
  if(!operationMusicWanted()){pauseOperationMusic();return}
  if(operationMusicWaiting){
@@ -52,8 +52,12 @@ operationMusic.onended=function(){
  operationMusicWaiting=true;operationMusicRemaining=OPERATION_MUSIC_GAP;
  syncOperationMusic();
 };
+// Operation overlays are part of the same music session, including settings.
+const operationAppUsesMenuMusic=appUsesMenuMusic;
+appUsesMenuMusic=function(){return !operationMusicActive&&operationAppUsesMenuMusic()};
 const operationApplyAppAudio=applyAppAudio;
-applyAppAudio=function(){operationApplyAppAudio();syncOperationMusic()};
+// End the operation session before deciding whether front-screen music can start.
+applyAppAudio=function(){syncOperationMusic();operationApplyAppAudio()};
 document.addEventListener('visibilitychange',syncOperationMusic);
 // The loading cover is removed only after the map has rendered successfully.
 const operationRunCampaignLoading=runCampaignLoading;
