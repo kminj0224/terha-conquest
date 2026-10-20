@@ -4,6 +4,7 @@ assert0.equal(audit.styles.length,manifest.placements.length);
 assert0.deepEqual(audit.styles.map(p=>p.tile).sort((a,b)=>a-b),manifest.placements.map(p=>p.tile).sort((a,b)=>a-b),'No added or missing forest/mountain gameplay tile');
 for(const p of audit.styles){const t=geo.tiles[p.tile];assert0.equal(p.terrain,t.terrain);assert0.equal(p.anchorX,t.x);assert0.equal(p.anchorY,t.y);assert0(p.coverage>20,'Every scenery tile retains actual painted pixels');if(p.dense)assert0(t.owner===4&&t.terrain===2,'Dense jungle only on original Ranna forest tiles')}
 assert0(new Set(audit.styles.map(p=>p.hash)).size>audit.styles.length*.97,'Individual silhouette/cluster variants must differ');
+assert0(new Set(audit.styles.filter(p=>p.terrain===2&&!p.dense).map(p=>p.foliageGroups)).size>=3,'Vary actual tree-cluster counts, not only tint or mirroring');
 const jungle=audit.styles.filter(p=>p.dense),ratio=jungle.map(p=>p.coverage/Math.max(1,p.eligible)).sort((a,b)=>a-b);assert0.equal(jungle.length,87);assert0(ratio[Math.floor(ratio.length/2)]>.64,'Dense canopy inside each eligible forest hex');
 assert0(new Set(audit.styles.filter(p=>p.terrain===3&&!p.source.includes('snow')).map(p=>p.source)).size>=3,'Multiple mountain ridge families');
 const source=fs0.readFileSync(path0.join(__dirname,'native-test.cjs'),'utf8').split("assert.equal(run('appScreen'),'title')")[0];

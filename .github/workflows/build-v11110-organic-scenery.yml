@@ -1,4 +1,4 @@
-# Preserve all gameplay geography; soften terrain pigments and reuse owned scenery bitmaps.
+# Preserve gameplay geography; vary tree-group counts as well as mountain silhouettes.
 name: Build Terha Conquest v1.11.10 Organic Scenery and Protected Snow
 on:
   push:
