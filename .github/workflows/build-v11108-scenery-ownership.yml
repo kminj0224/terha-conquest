@@ -1,3 +1,4 @@
+# Verify native rendered alpha at offshore river endpoints.
 name: Build Terha Conquest v1.11.8 Scenery Ownership and Smooth Terrain
 on:
   push:
@@ -91,7 +92,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add game/assets/natural-detail-*.jpg game/assets/natural-mid-*.jpg game/assets/world-natural.png game/assets/world-natural-land.png game/assets/world-ownership-mask.png game/assets/natural-ownership-data.js art/aligned-map-manifest.json art/terrain-alignment-audit.json art/ownership-probes.json art/map-lod-report.json
+          git add game/assets/natural-detail-*.jpg game/assets/natural-mid-*.jpg game/assets/world-natural.png game/assets/world-natural-land.png game/assets/world-ownership-mask.png game/assets/natural-ownership-data.js art/aligned-map-manifest.json art/terrain-alignment-audit.json art/ownership-probes.json art/map-lod-report.json art/river-mouth-audit.json
           git diff --cached --quiet || git commit -m 'Bake anchor-owned scenery, protected snow and refined terrain'
           git push origin HEAD:work/scenery-ownership-v1118
       - name: Publish APK download
