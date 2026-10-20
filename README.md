@@ -1,13 +1,13 @@
 # Terha Conquest
 
-Private development repository. Current baseline: **v1.11.9**, Android versionCode **154**.
+Private development repository. Current baseline: **v1.11.11**, Android versionCode **154**.
 
 ## Cloud setup
 
 Use Python 3 and Java 17. All game artwork, audio, fonts, the Android shell, signing files and Java build dependencies are included.
 
 - Build the update APK: `python3 build.py`
-- Output: `deliverables/Terha-Conquest-v1.11.9.apk`
+- Output: `deliverables/Terha-Conquest-v1.11.11.apk`
 - Install QA dependency: `npm install`
 - Game regression checks: `npm test`
 - Android shell checks: `python3 qa/verify-native.py`
