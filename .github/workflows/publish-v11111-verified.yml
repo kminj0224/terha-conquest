@@ -1,0 +1,45 @@
+name: Publish verified v1.11.11 APK
+on:
+  push:
+    branches: [work/rollback-snow-v11111]
+    paths: ['.github/workflows/publish-v11111-verified.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify exact tested application and successful checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git diff --exit-code e9cfbfefb2b2964aef2a31e3b39b40d243b95161 HEAD -- game/assets tools qa art build.py package.json package-lock.json
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/39375316320/jobs" > /tmp/verified.json
+          python3 - <<'PY'
+          import json
+          steps={s['name']:s['conclusion'] for j in json.load(open('/tmp/verified.json'))['jobs'] for s in j['steps']}
+          for name in ['Bake v1.11.9 artwork with only snow territory changes','Verify rollback scope, original palette and immutable geography','Verify conquest colors and protected white snow','Runtime, pan, gameplay and native checks','Build and verify original signed update']:
+            assert steps[name]=='success',(name,steps[name])
+          print('PASS complete previously verified matrix and identical application')
+          PY
+      - name: Repackage verified artwork with original certificate
+        run: |
+          python3 build.py
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.11.apk
+          sha256sum deliverables/Terha-Conquest-v1.11.11.apk | tee deliverables/SHA256SUMS.txt
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.11 deliverables/Terha-Conquest-v1.11.11.apk deliverables/SHA256SUMS.txt --target "$(git rev-parse HEAD)" --title 'Terha Conquest v1.11.11 — v1.11.9 rollback and snow territory fix' --notes 'Fully rolls back v1.11.10 to v1.11.9. Only Sielun and the northern Baekyang island have changed: plains and snow-free tree/mountain surfaces follow their current territory owner; actual snow stays white when captured. Original v1.11.9 palette, scenery shapes/density/positions, coastline, rivers, gameplay and performance caching retained. All geography, conquest, gameplay, memory, pan, native shell and original signature checks passed. Android versionCode 156.'
