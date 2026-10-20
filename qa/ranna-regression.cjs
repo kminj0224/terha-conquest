@@ -36,7 +36,7 @@ module.exports=function({run}){
    for(const firing of [false,true]){
     const profile=baekArtilleryProfile(u,firing),image=art[firing?'fire':'idle'],box=baekArtilleryBox(u,firing);
     check(profile.art===art&&profile.w===image.naturalWidth&&profile.h===image.naturalHeight,'Ranna artillery source dimensions');
-    check(box.w===64&&box.crop[0]+box.crop[2]<=image.naturalWidth&&box.crop[1]+box.crop[3]<=image.naturalHeight,'Ranna artillery crop bounds');
+    check(Math.abs(box.w-64)<1e-8&&box.crop[0]+box.crop[2]<=image.naturalWidth&&box.crop[1]+box.crop[3]<=image.naturalHeight,'Ranna artillery crop bounds');
     check(Math.abs(box.bottom-baekArtilleryBox(u,false).bottom)<1e-8,'Ranna firing feet moved');
    }
    const p={x:200,y:200},right=baekArtilleryMuzzle(u,p);u.artilleryFacing=-1;const left=baekArtilleryMuzzle(u,p);

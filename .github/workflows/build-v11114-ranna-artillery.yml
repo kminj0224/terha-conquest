@@ -2,7 +2,7 @@ name: Build v1.11.14 Ranna artillery
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/build-v11114-ranna-artillery.yml']
+    paths: ['.github/workflows/build-v11114-ranna-artillery.yml', 'qa/ranna-regression.cjs']
   workflow_dispatch:
 permissions:
   contents: write
