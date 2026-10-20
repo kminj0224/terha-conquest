@@ -74,3 +74,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create v1.11.11 deliverables/Terha-Conquest-v1.11.11.apk deliverables/SHA256SUMS.txt --target "$(git rev-parse HEAD)" --title 'Terha Conquest v1.11.11 — v1.11.9 rollback and snow territory fix' --notes 'Fully rolls back v1.11.10 to v1.11.9. The only map change is in Sielun and the northern Baekyang island: plains and snow-free mountain/tree surfaces follow the current territory owner, while actual snow stays white on conquest. Original v1.11.9 palette, art shapes, density, placements, coastline, rivers, gameplay and performance cache retained. Signed with the original Android update certificate; version code 156.'
+# Reference data excludes unused placement lists to keep upload lossless.
