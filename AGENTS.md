@@ -1,6 +1,6 @@
 # Terha Conquest project instructions
 
-The current baseline is v1.11.9. Preserve existing save compatibility, faction/type IDs, geography and Android update identity unless the task changes them.
+The current baseline is v1.11.10. Preserve existing save compatibility, faction/type IDs, geography and Android update identity unless the task changes them.
 
 - Edit the game under game/assets; index.html script order matters and bootstrap.js must be last.
 - Build with Python 3 and Java 17 using python3 build.py. The original Android shell, build JARs and signing files are under android/ and tools/.
