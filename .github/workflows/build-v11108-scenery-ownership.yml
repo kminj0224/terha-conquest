@@ -1,0 +1,106 @@
+name: Build Terha Conquest v1.11.8 Scenery Ownership and Smooth Terrain
+on:
+  push:
+    branches: [work/scenery-ownership-v1118]
+    paths:
+      - '.github/workflows/build-v11108-scenery-ownership.yml'
+  workflow_dispatch:
+concurrency:
+  group: aligned-map-release
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Compose high-resolution artwork from exact gameplay geometry
+        run: |
+          node tools/bake-aligned-map.cjs
+          node tools/build-map-lods.cjs
+      - name: Exact terrain anchors, rivers and city clearings
+        run: node qa/aligned-map-regression.cjs
+      - name: Ownership and resolution-level regression
+        run: node qa/territory-lod-regression.cjs
+      - name: Object overhang conquest and immutable snow regression
+        run: node qa/scenery-ownership-regression.cjs
+      - name: HD runtime views and memory regression
+        run: node qa/hd-map-regression.cjs
+      - name: Verify unchanged geography and new artwork
+        run: |
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          report=json.loads(Path('art/natural-map-report.json').read_text())
+          for name,key in [('mapdata.js','mapDataSHA256'),('river-data.js','riverDataSHA256')]:
+            assert hashlib.sha256(Path('game/assets',name).read_bytes()).hexdigest()==report[key]
+          assert "VERSION='1.11.8';CODE=153" in Path('build.py').read_text()
+          assert "APP_VERSION='1.11.8'" in Path('game/assets/app-shell.js').read_text()
+          assert "appVersion:'1.11.8'" in Path('game/assets/saves.js').read_text()
+          assert Path('game/assets/world-natural.png').stat().st_size>1_000_000
+          print('PASS original map and river data, release version, painted surface')
+          PY
+      - name: Full gameplay regression
+        run: npm test
+      - name: Natural map rendering and cache regression
+        run: node qa/natural-map-view.cjs
+      - name: Retained Android shell verification
+        run: python3 qa/verify-native.py
+      - name: Build signed update APK
+        run: python3 build.py
+      - name: Verify packaged map and original native DEX
+        run: |
+          python3 - <<'PY'
+          import zipfile,hashlib
+          from pathlib import Path
+          apk=Path('deliverables/Terha-Conquest-v1.11.8.apk')
+          with zipfile.ZipFile(apk) as z,zipfile.ZipFile('android/native-shell.zip') as shell:
+            assert z.testzip() is None
+            assert z.read('classes.dex')==shell.read('classes.dex')
+            assert z.read('assets/world-natural.png')==Path('game/assets/world-natural.png').read_bytes()
+            assert b"world-natural.png" in z.read('assets/coast-art.js')
+            assert b"drawNaturalGround" in z.read('assets/static-ground.js')
+          Path('deliverables/SHA256SUMS.txt').write_text(hashlib.sha256(apk.read_bytes()).hexdigest()+'  '+apk.name+'\n')
+          print('PASS packaged artwork, native DEX and ZIP integrity')
+          PY
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.8.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.11.8-aligned-map-signed-apk
+          path: |
+            deliverables/Terha-Conquest-v1.11.8.apk
+            deliverables/SHA256SUMS.txt
+            previews/natural-*.png
+            previews/aligned-*.png
+            art/terrain-alignment-audit.json
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - name: Retain generated map in the working branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add game/assets/natural-detail-*.jpg game/assets/natural-mid-*.jpg game/assets/world-natural.png game/assets/world-natural-land.png game/assets/world-ownership-mask.png game/assets/natural-ownership-data.js art/aligned-map-manifest.json art/terrain-alignment-audit.json art/ownership-probes.json art/map-lod-report.json
+          git diff --cached --quiet || git commit -m 'Bake anchor-owned scenery, protected snow and refined terrain'
+          git push origin HEAD:work/scenery-ownership-v1118
+      - name: Publish APK download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.11.8 >/dev/null 2>&1; then
+            gh release upload v1.11.8 deliverables/Terha-Conquest-v1.11.8.apk deliverables/SHA256SUMS.txt --clobber
+            gh api "repos/$GITHUB_REPOSITORY/git/refs/tags/v1.11.8" -X PATCH -f sha="$(git rev-parse HEAD)"
+          else
+            gh release create v1.11.8 deliverables/Terha-Conquest-v1.11.8.apk deliverables/SHA256SUMS.txt --target "$(git rev-parse HEAD)" --title "Terha Conquest v1.11.8 — Scenery Ownership and Smooth Terrain" --notes "Visible tree and mountain pixels follow their anchor tile owner, including overhangs above rivers and the sea. Snow caps remain white while snowy-region plains use full faction colors. Smoother ground with broad lighting, stout black leafless Dante trees and fading river mouths. Three map resolutions retained. Exact v1.11.4 gameplay terrain, save compatibility and Android signing identity preserved."
+          fi
