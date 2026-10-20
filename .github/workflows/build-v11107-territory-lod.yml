@@ -1,3 +1,4 @@
+# Padded source overlaps prevent half-pixel seams in the far map.
 # Use decoded native mask for offline pixel assertions.
 # Verify all river centers remain excluded from ownership colors.
 # Stationary view checks begin after loaded HD bitmaps have been composited.
