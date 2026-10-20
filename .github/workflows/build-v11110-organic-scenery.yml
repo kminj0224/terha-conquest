@@ -1,10 +1,6 @@
 # Preserve gameplay geography; merge jungle edges organically and retain readable foliage relief.
 name: Build Terha Conquest v1.11.10 Organic Scenery and Protected Snow
 on:
-  push:
-    branches: [work/organic-terrain-v11110]
-    paths:
-      - '.github/workflows/build-v11110-organic-scenery.yml'
   workflow_dispatch:
 concurrency:
   group: aligned-map-release
@@ -83,6 +79,7 @@ jobs:
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
           java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.10.apk
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: Terha-Conquest-v1.11.10-aligned-map-signed-apk
           path: |
