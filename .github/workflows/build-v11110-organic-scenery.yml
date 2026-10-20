@@ -1,4 +1,4 @@
-# Preserve gameplay geography; vary tree-group counts as well as mountain silhouettes.
+# Preserve gameplay geography; validate moderate gold as well as green/pink pigments.
 name: Build Terha Conquest v1.11.10 Organic Scenery and Protected Snow
 on:
   push:
