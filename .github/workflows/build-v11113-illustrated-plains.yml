@@ -1,0 +1,104 @@
+name: Build v1.11.13 illustrated plains and complete scenery
+on:
+  push:
+    branches: [work/illustrated-plains-v11113]
+    paths: ['.github/workflows/build-v11113-illustrated-plains.yml']
+  workflow_dispatch:
+concurrency:
+  group: aligned-map-release
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify unchanged gameplay, geography and native shell
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          from pathlib import Path
+          base='3e7629df42a399b4f0f46329c49bbc7c0bc08546'
+          for p in Path('game/assets').glob('*.js'):
+            old=subprocess.check_output(['git','show',base+':'+str(p)]).decode()
+            if p.name in ['app-shell.js','saves.js']:old=old.replace('1.11.12','1.11.13')
+            assert p.read_text().rstrip('\n')==old.rstrip('\n'),str(p)
+          for p in ['art/terrain-alignment-geography.json','art/city-footprints.json','android/native-shell.zip','tools/ownership-bake.cjs']:
+            assert Path(p).read_bytes()==subprocess.check_output(['git','show',base+':'+p]),p
+          print('PASS gameplay sources, authoritative geography, ownership rules and native shell unchanged')
+          PY
+      - run: npm ci --no-audit --no-fund
+      - name: Bake selected B plains, connected scenery and uncut coastal silhouettes
+        run: |
+          node tools/bake-aligned-map.cjs
+          node tools/build-map-lods.cjs
+      - name: Verify all map anchors, plains eligibility, rivers and ownership
+        run: |
+          node qa/illustrated-plains-regression.cjs
+          node qa/terrain-style-regression.cjs
+          node qa/aligned-map-regression.cjs
+          node qa/snow-territory-regression.cjs
+          node qa/scenery-ownership-regression.cjs
+          node qa/territory-lod-regression.cjs
+      - name: Full gameplay, loaded map, pan performance and native checks
+        run: |
+          npm test
+          node qa/hd-map-regression.cjs
+          node qa/terrain-pan-benchmark.cjs --assert
+          node qa/natural-map-view.cjs
+          python3 qa/verify-native.py
+      - name: Build and verify original signed Android update
+        run: |
+          python3 build.py
+          python3 - <<'PY'
+          import zipfile,hashlib
+          from pathlib import Path
+          apk=Path('deliverables/Terha-Conquest-v1.11.13.apk')
+          with zipfile.ZipFile(apk) as z,zipfile.ZipFile('android/native-shell.zip') as shell:
+            assert z.testzip() is None
+            assert z.read('classes.dex')==shell.read('classes.dex')
+            for p in Path('game/assets').iterdir():
+              if p.is_file():assert z.read('assets/'+p.name)==p.read_bytes(),p
+          digest=hashlib.sha256(apk.read_bytes()).hexdigest()
+          Path('deliverables/SHA256SUMS.txt').write_text(digest+'  '+apk.name+'\n')
+          print('APK_SHA256',digest,'APK_BYTES',apk.stat().st_size)
+          PY
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.13.apk
+      - name: Commit baked map and fast-forward main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add game/assets/natural-detail-*.jpg game/assets/natural-mid-*.jpg game/assets/world-natural.png game/assets/world-natural-land.png game/assets/world-ownership-mask.png game/assets/natural-ownership-data.js art/aligned-map-manifest.json art/terrain-alignment-audit.json art/ownership-probes.json art/map-lod-report.json art/river-mouth-audit.json art/illustrated-plains-audit.json
+          git diff --cached --quiet || git commit -m 'Retain selected B plains, connected scenery and uncut coastal silhouettes'
+          git push origin HEAD:work/illustrated-plains-v11113
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = 3e7629df42a399b4f0f46329c49bbc7c0bc08546
+          git push origin HEAD:main
+      - name: Publish directly downloadable APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.13 deliverables/Terha-Conquest-v1.11.13.apk deliverables/SHA256SUMS.txt --target "$(git rev-parse HEAD)" --title 'Terha Conquest v1.11.13 — Illustrated Plains and Connected Scenery' --notes 'Selected B illustrated plains with owner-coloured grass, earth and small stones; connected option 2 with eight mountain and eight forest compositions; complete scenery silhouettes over rivers and sea. All 2029 scenery roots, gameplay tiles, river paths and coastlines preserved. Actual snow remains white during capture. Pre-baked map artwork, existing map cache, save compatibility, native shell and original Android signing retained. Android versionCode 158.'
+      - name: Attach downloadable build artifact
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: Terha-Conquest-v1.11.13
+          path: |
+            deliverables/Terha-Conquest-v1.11.13.apk
+            deliverables/SHA256SUMS.txt
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
