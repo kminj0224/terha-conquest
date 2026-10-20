@@ -1,0 +1,102 @@
+name: Build Terha Conquest v1.11.6 Aligned HD Map
+on:
+  push:
+    branches: [work/aligned-map-v1116]
+    paths:
+      - '.github/workflows/build-v11106-aligned-map.yml'
+  workflow_dispatch:
+concurrency:
+  group: aligned-map-release
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Compose high-resolution artwork from exact gameplay geometry
+        run: |
+          node tools/export-aligned-geometry.cjs
+          node tools/bake-aligned-map.cjs
+      - name: Exact terrain anchors, rivers and city clearings
+        run: node qa/aligned-map-regression.cjs
+      - name: HD runtime views and memory regression
+        run: node qa/hd-map-regression.cjs
+      - name: Verify unchanged geography and new artwork
+        run: |
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          report=json.loads(Path('art/natural-map-report.json').read_text())
+          for name,key in [('mapdata.js','mapDataSHA256'),('river-data.js','riverDataSHA256')]:
+            assert hashlib.sha256(Path('game/assets',name).read_bytes()).hexdigest()==report[key]
+          assert "VERSION='1.11.6';CODE=151" in Path('build.py').read_text()
+          assert "APP_VERSION='1.11.6'" in Path('game/assets/app-shell.js').read_text()
+          assert "appVersion:'1.11.6'" in Path('game/assets/saves.js').read_text()
+          assert Path('game/assets/world-natural.png').stat().st_size>1_000_000
+          print('PASS original map and river data, release version, painted surface')
+          PY
+      - name: Full gameplay regression
+        run: npm test
+      - name: Natural map rendering and cache regression
+        run: node qa/natural-map-view.cjs
+      - name: Retained Android shell verification
+        run: python3 qa/verify-native.py
+      - name: Build signed update APK
+        run: python3 build.py
+      - name: Verify packaged map and original native DEX
+        run: |
+          python3 - <<'PY'
+          import zipfile,hashlib
+          from pathlib import Path
+          apk=Path('deliverables/Terha-Conquest-v1.11.6.apk')
+          with zipfile.ZipFile(apk) as z,zipfile.ZipFile('android/native-shell.zip') as shell:
+            assert z.testzip() is None
+            assert z.read('classes.dex')==shell.read('classes.dex')
+            assert z.read('assets/world-natural.png')==Path('game/assets/world-natural.png').read_bytes()
+            assert b"world-natural.png" in z.read('assets/coast-art.js')
+            assert b"drawNaturalGround" in z.read('assets/static-ground.js')
+          Path('deliverables/SHA256SUMS.txt').write_text(hashlib.sha256(apk.read_bytes()).hexdigest()+'  '+apk.name+'\n')
+          print('PASS packaged artwork, native DEX and ZIP integrity')
+          PY
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.6.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.11.6-aligned-map-signed-apk
+          path: |
+            deliverables/Terha-Conquest-v1.11.6.apk
+            deliverables/SHA256SUMS.txt
+            previews/natural-*.png
+            previews/aligned-*.png
+            art/terrain-alignment-audit.json
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - name: Retain generated map in the working branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add game/assets/natural-detail-*.jpg game/assets/world-natural.png game/assets/world-natural-land.png art/aligned-map-manifest.json art/terrain-alignment-audit.json art/terrain-alignment-geography.json art/city-footprints.json
+          git diff --cached --quiet || git commit -m 'Bake validated high-resolution map from original terrain and river coordinates'
+          git push origin HEAD:work/aligned-map-v1116
+      - name: Publish APK download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.11.6 >/dev/null 2>&1; then
+            gh release upload v1.11.6 deliverables/Terha-Conquest-v1.11.6.apk deliverables/SHA256SUMS.txt --clobber
+            gh api "repos/$GITHUB_REPOSITORY/git/refs/tags/v1.11.6" -X PATCH -f sha="$(git rev-parse HEAD)"
+          else
+            gh release create v1.11.6 deliverables/Terha-Conquest-v1.11.6.apk deliverables/SHA256SUMS.txt --target "$(git rev-parse HEAD)" --title "Terha Conquest v1.11.6 — Aligned HD Map" --notes "Retains original v1.11.4 mountain, forest and river-effect coordinates. Rebuilt at an effective 8688x6516 using exact terrain anchors, natural flat ground materials, fine coastal foam, ocean ripples and complete climate-specific trees. Maximum upgraded city envelopes keep trees clear of all 181 cities. All terrain placements and river samples verified, 48-region runtime memory checks and full gameplay regressions passed. Original save IDs, gameplay data and Android signing identity retained."
+          fi

@@ -11,7 +11,7 @@ async function decodeCampaignImage(image){
  await new Promise(resolve=>{image.addEventListener('load',resolve,{once:true});image.addEventListener('error',resolve,{once:true})});
 }
 function campaignGroundReady(){
- if(coastArtwork.ready&&coastArtwork.natural)return !!groundView;
+ if(coastArtwork.ready&&coastArtwork.natural)return !!groundView&&naturalDetailsReady();
  const left=cam.x-screenW/2/cam.z,right=cam.x+screenW/2/cam.z,top=cam.y-screenH/2/cam.z,bottom=cam.y+screenH/2/cam.z;
  let visible=GROUND_DATA.chunks.filter(q=>q.x+q.w>left&&q.x<right&&q.y+q.h>top&&q.y<bottom);
  if(cam.z<.55||visible.length>14)visible=[groundOverview];

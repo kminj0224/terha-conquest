@@ -39,14 +39,14 @@ function getGroundChunk(meta){
 }
 let naturalTerritory=null,naturalTerritoryGeneration=-1;
 function drawNaturalGround(){
- const key=['natural1',cam.x,cam.y,cam.z,c.width,c.height,territoryGeneration,coastArtwork.maskReady].join(':');
+ const key=['natural1',cam.x,cam.y,cam.z,c.width,c.height,territoryGeneration,coastArtwork.maskReady,naturalDetailRevision,naturalDetailEnabled].join(':');
  if(!groundView||groundViewKey!==key){
   groundView??=document.createElement('canvas');
   const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));
   groundView.width=Math.ceil(screenW*d);groundView.height=Math.ceil(screenH*d);
   const g=groundView.getContext('2d');g.scale(d,d);g.translate(screenW/2,screenH/2);g.scale(cam.z,cam.z);g.translate(-cam.x,-cam.y);
   // Paint one continuous image: no hex/chunk clipping can sever a tree or bank.
-  g.drawImage(coastArtwork.image,0,0,WW,HH);
+  g.drawImage(coastArtwork.image,0,0,WW,HH);drawNaturalDetails(g);
   if(territoryCanvas&&coastArtwork.maskReady){
    if(!naturalTerritory||naturalTerritoryGeneration!==territoryGeneration){
     naturalTerritory??=document.createElement('canvas');naturalTerritory.width=territoryCanvas.width;naturalTerritory.height=territoryCanvas.height;
