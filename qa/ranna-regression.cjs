@@ -30,6 +30,22 @@ module.exports=function({run}){
   for(const k of [0,8,9,10])check(infantryArtProfile({f:6,type:k})===STETOPIA_INFANTRY_PROFILES[k],'Sielun infantry art');
   for(const k of [1,13,14])check(isStetopiaTank({f:6,type:k}),'Sielun tank art');
   for(const k of [2,3])check(isBaekArtillery({f:6,type:k})&&baekArtilleryProfile({f:6,type:k}).art===baekArtilleryProfile({f:2,type:k}).art,'Sielun artillery art');
+  for(const type of [2,3]){
+   const u={f:4,type,tile:i,id:-100-type,level:1,artilleryFacing:1},art=type===2?rannaSPArt:rannaMLArt;
+   check(isBaekArtillery(u)&&art.idleReady&&art.fireReady,'Ranna artillery images failed to load');
+   for(const firing of [false,true]){
+    const profile=baekArtilleryProfile(u,firing),image=art[firing?'fire':'idle'],box=baekArtilleryBox(u,firing);
+    check(profile.art===art&&profile.w===image.naturalWidth&&profile.h===image.naturalHeight,'Ranna artillery source dimensions');
+    check(box.w===64&&box.crop[0]+box.crop[2]<=image.naturalWidth&&box.crop[1]+box.crop[3]<=image.naturalHeight,'Ranna artillery crop bounds');
+    check(Math.abs(box.bottom-baekArtilleryBox(u,false).bottom)<1e-8,'Ranna firing feet moved');
+   }
+   const p={x:200,y:200},right=baekArtilleryMuzzle(u,p);u.artilleryFacing=-1;const left=baekArtilleryMuzzle(u,p);
+   check(right.x>p.x&&left.x<p.x&&Math.abs(right.x+left.x-2*p.x)<1e-8&&right.y===left.y&&right.y<p.y,'Ranna mirrored muzzle origin');
+   const savedFx=fx.length;launchShot(u,{x:100,y:100},performance.now());
+   check(fx.slice(savedFx).filter(e=>e.kind==='baekArtilleryShell').length===(type===3?5:1),'Ranna shell/rocket volley');
+   fx.length=savedFx;fireMotions.delete(u.id);baekArtilleryShots.delete(u.id);
+  }
+  check(!isBaekArtillery({f:4,type:1})&&!isBaekArtillery({f:3,type:2}),'Ranna artillery selector leaked to other units');
   check(TOWED_ART[6]===TOWED_ART[2]&&isStetopiaCarrier({f:6,type:25}),'Sielun towed/carrier art');
   check(!isStetopiaTank({f:6,type:12})&&!infantryArtProfile({f:6,type:11}),'Missing art must preserve fallback');
   check(infantryArtProfile({f:4,type:27}).art===rannaGuerrillaArt&&rannaGuerrillaArt.idle.src==='ranna-guerrilla-idle.png'&&rannaGuerrillaArt.fire.src==='ranna-guerrilla-fire.png','Guerrilla art');
@@ -43,4 +59,5 @@ module.exports=function({run}){
  assert(report.initialGuerrillas>=16);
  console.log('PASS: v1.10.76 Ranna special and diplomacy, inland starting guards, Nakwol city art and infantry scale:',report);
 };
+
 

@@ -1,0 +1,60 @@
+name: Build v1.11.14 Ranna artillery
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/build-v11114-ranna-artillery.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: ranna-artillery-v11114
+  cancel-in-progress: false
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Gameplay and Ranna artillery regressions
+        run: |
+          mkdir -p previews
+          npm test
+          python3 qa/verify-native.py
+      - name: Build and verify signed Android update
+        run: |
+          python3 build.py
+          python3 - <<'PY'
+          import zipfile,hashlib
+          from pathlib import Path
+          apk=Path('deliverables/Terha-Conquest-v1.11.14.apk')
+          with zipfile.ZipFile(apk) as z,zipfile.ZipFile('android/native-shell.zip') as shell:
+            assert z.testzip() is None
+            assert z.read('classes.dex')==shell.read('classes.dex')
+            for p in Path('game/assets').iterdir():
+              if p.is_file():assert z.read('assets/'+p.name)==p.read_bytes(),p
+          digest=hashlib.sha256(apk.read_bytes()).hexdigest()
+          Path('deliverables/SHA256SUMS.txt').write_text(digest+'  '+apk.name+'\n')
+          print('APK_SHA256',digest,'APK_BYTES',apk.stat().st_size)
+          PY
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.14.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.11.14
+          path: deliverables/*
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+      - name: Publish downloadable APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.14 deliverables/Terha-Conquest-v1.11.14.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.14 — Ranna Artillery' --notes 'Ranna self-propelled artillery and multiple rocket launcher use the four supplied original images, with idle/firing poses, mirrored facing and aligned muzzle origins. Existing gameplay, saves and Android signing identity retained. Android versionCode 159.'

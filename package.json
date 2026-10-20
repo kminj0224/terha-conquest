@@ -1,6 +1,6 @@
 {
   "name": "terha-conquest",
-  "version": "1.11.13",
+  "version": "1.11.14",
   "private": true,
   "scripts": {
     "test": "node qa/native-test.cjs"
@@ -9,3 +9,4 @@
     "@napi-rs/canvas": "0.1.100"
   }
 }
+
