@@ -37,9 +37,10 @@ function getGroundChunk(meta){
  const scale=meta===groundOverview?GROUND_DATA.overviewScale:GROUND_DATA.scale,bytes=Math.ceil(meta.w*scale)*Math.ceil(meta.h*scale)*4;
  entry={meta,bytes,generation:territoryGeneration,signature:groundSignature(meta),canvas:null,loading:false,disposed:false};groundChunks.set(meta.name,entry);groundBytes+=bytes;trimGroundCache();loadGroundChunk(entry);return null;
 }
-let naturalTerritory=null,naturalTerritoryGeneration=-1;
+const NATURAL_OWNERSHIP_COLORS=['#469650','#ba4943','#318fd2','#d2a13c','#93b639','#ae74c5','#74babc'];
+let naturalTerritory=null,naturalTerritoryGeneration=-1,naturalTerritoryMaskReady=false;
 function drawNaturalGround(){
- const key=['natural1',cam.x,cam.y,cam.z,c.width,c.height,territoryGeneration,coastArtwork.maskReady,naturalDetailRevision,naturalDetailEnabled].join(':');
+ const key=['natural2',cam.x,cam.y,cam.z,c.width,c.height,territoryGeneration,coastArtwork.maskReady,ownershipMaskReady,naturalDetailRevision,naturalDetailEnabled].join(':');
  if(!groundView||groundViewKey!==key){
   groundView??=document.createElement('canvas');
   const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));
@@ -48,11 +49,14 @@ function drawNaturalGround(){
   // Paint one continuous image: no hex/chunk clipping can sever a tree or bank.
   g.drawImage(coastArtwork.image,0,0,WW,HH);drawNaturalDetails(g);
   if(territoryCanvas&&coastArtwork.maskReady){
-   if(!naturalTerritory||naturalTerritoryGeneration!==territoryGeneration){
+   if(!naturalTerritory||naturalTerritoryGeneration!==territoryGeneration||naturalTerritoryMaskReady!==ownershipMaskReady){
     naturalTerritory??=document.createElement('canvas');naturalTerritory.width=territoryCanvas.width;naturalTerritory.height=territoryCanvas.height;
-    const tint=naturalTerritory.getContext('2d');tint.drawImage(territoryCanvas,0,0);tint.globalCompositeOperation='destination-in';tint.drawImage(coastArtwork.mask,0,0,naturalTerritory.width,naturalTerritory.height);tint.globalCompositeOperation='source-over';naturalTerritoryGeneration=territoryGeneration;
+    const tint=naturalTerritory.getContext('2d');
+    tint.save();tint.scale(naturalTerritory.width/WW,naturalTerritory.height/HH);
+    for(let i=0;i<tiles.length;i++){const owner=tiles[i].owner;if(owner<0)continue;const p=pxy(i);hexPoints(p,36.6).forEach((q,n)=>{if(!n){tint.beginPath();tint.moveTo(q[0],q[1])}else tint.lineTo(q[0],q[1])});tint.closePath();tint.fillStyle=NATURAL_OWNERSHIP_COLORS[owner];tint.fill()}
+    tint.restore();tint.globalCompositeOperation='destination-in';tint.drawImage(territoryCanvas,0,0);tint.globalCompositeOperation='destination-in';tint.drawImage(ownershipMaskReady?ownershipMask:coastArtwork.mask,0,0,naturalTerritory.width,naturalTerritory.height);tint.globalCompositeOperation='source-over';naturalTerritoryGeneration=territoryGeneration;naturalTerritoryMaskReady=ownershipMaskReady;
    }
-   g.save();g.globalAlpha=.18;g.drawImage(naturalTerritory,0,0,WW,HH);g.restore();
+   g.save();g.globalCompositeOperation='color';g.globalAlpha=.64;g.drawImage(naturalTerritory,0,0,WW,HH);g.globalCompositeOperation='source-over';g.globalAlpha=.20;g.drawImage(naturalTerritory,0,0,WW,HH);g.restore();
   }
   paintStaticGroundConnections(g);groundViewKey=key;groundViewBuilds++;
  }

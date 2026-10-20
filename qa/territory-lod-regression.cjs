@@ -1,0 +1,9 @@
+const source=require('fs').readFileSync(require('path').join(__dirname,'native-test.cjs'),'utf8').split("assert.equal(run('appScreen'),'title')")[0];
+new Function('require','__dirname',source+`
+(async()=>{await Promise.all(pending);run("setup();started=true;setAppScreen('game');menuMode=false;busy=false;cam.x=3590;cam.y=2340");await settle();
+ const original=run('c.width');for(const[z,expected]of [[.17,'far'],[.4,'mid'],[1.4,'near']]){run('cam.z='+z+';draw(1000)');await settle();run('draw(1000)');assert.equal(run('naturalDetailLevel()'),expected);assert(run('naturalDetailsReady()'));assert(run('naturalDetailBytes<=NATURAL_DETAIL_BUDGET'));const builds=run('groundViewBuilds');run('draw(1000)');assert.equal(run('groundViewBuilds'),builds)}
+ run('c.width=screenW*2;cam.z=.2');assert.equal(run('naturalDetailLevel()'),'mid','Retina zoom-out must retain middle-resolution assets');run('c.width='+original);
+ const tile=run('cities[0].tile');run('draw(1000)');const readOwnership=()=>{const tc=run('naturalTerritory'),p=JSON.parse(run('JSON.stringify(pxy('+tile+'))'));const copy=createCanvas(tc.width,tc.height),g=copy.getContext('2d');g.drawImage(tc,0,0);return Array.from(g.getImageData(Math.floor(p.x/run('WW')*tc.width),Math.floor(p.y/run('HH')*tc.height),1,1).data)};
+ const before=readOwnership();run('tiles['+tile+'].owner=2;territoryDirty=true;draw(1000)');const after=readOwnership();assert.notDeepEqual(before,after,'Conquest must actually recolor ownership pixels');assert(after[2]>after[0],'Captured territory must become Stetopia blue');
+ assert(run('ownershipMaskReady'));const mask=run('ownershipMask');assert(mask.naturalWidth>=2172);assert.equal(reads,0);assert.deepEqual(errors,[]);console.log('PASS 3 actual loaded resolution levels, Retina selection, 80 MiB cache, conquest pixel recoloring and river mask');process.exit(0)})().catch(e=>{console.error(e);process.exit(1)});
+`)(require,__dirname);
