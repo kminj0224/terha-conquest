@@ -5,8 +5,9 @@
   "forestAnchors": 954,
   "mountainAnchors": 1075,
   "riverReaches": 130,
-  "riverPixelSamples": 1418,
-  "riverWaterSamples": 1418,
+  "sceneryOccludedSamples": 360,
+  "riverPixelSamples": 1058,
+  "riverWaterSamples": 1056,
   "coast": {
     "wrongLandCenters": 0,
     "wrongWaterCenters": 0
