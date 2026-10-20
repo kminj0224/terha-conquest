@@ -1,6 +1,6 @@
 # Terha Conquest
 
-Private development repository. Current baseline: **v1.11.11**, Android versionCode **154**.
+Private development repository. Current baseline: **v1.11.11**, Android versionCode **156**.
 
 ## Cloud setup
 
