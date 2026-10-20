@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "releaseBlocked": false,
+  "reference": "v1.11.4",
+  "forestAnchors": 954,
+  "mountainAnchors": 1075,
+  "riverReaches": 130,
+  "riverPixelSamples": 1419,
+  "riverWaterSamples": 1419,
+  "coast": {
+    "wrongLandCenters": 0,
+    "wrongWaterCenters": 0
+  },
+  "cities": 181,
+  "regions": 48,
+  "method": "Exact runtime terrain anchors and river sampler, full tree bounds against city envelopes, all coastline tile centers, rendered region hashes and unobstructed river water pixel samples. Paired visual inspection separately required."
+}
