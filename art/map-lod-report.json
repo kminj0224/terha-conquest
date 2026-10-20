@@ -20,15 +20,15 @@
     },
     {
       "name": "natural-detail-1-0",
-      "sha256": "b0f744c376cebd2f8b3e78f93c20ed1785b9bb1354d68b65b668214066a12642"
+      "sha256": "e776dd041ff8bbfe62c539b2789f1a2ee676d359261cf4c79464e904ec19533a"
     },
     {
       "name": "natural-detail-2-0",
-      "sha256": "9a0e9198be7cafc493f21a5be1964de4344f5f29fd5556db0e58fb07717d5573"
+      "sha256": "d2eb0307e8d02269ca47e01db0739f23e4abdc5a894cb2301c4593b9e85ef9ae"
     },
     {
       "name": "natural-detail-3-0",
-      "sha256": "adcaf9dec9804f9d83cb39c5dc7557e195eb34c8097959b3ea8a7014e58332c6"
+      "sha256": "5465f9463c647781ace4d5c8c353eb3b1d73548b3887d8c0f34450b2125f885b"
     },
     {
       "name": "natural-detail-4-0",
@@ -36,11 +36,11 @@
     },
     {
       "name": "natural-detail-5-0",
-      "sha256": "0ea365e90131611cdfb14ba161d2b0979e45dc8440aeef46e4c447d623465b46"
+      "sha256": "63e1c50e3a65bc3ef7b58aabf7daf25f2386e24f9ceb6ca7b2388aa95727028e"
     },
     {
       "name": "natural-detail-6-0",
-      "sha256": "7feda3b620cce916ae87d6cd90a523ccc314d7813f6ddb39210ea4688c667271"
+      "sha256": "a76830263e9c7eb31a03eab3103d7ef99cd3bf7f6a7dddb246afb4e41829a1f6"
     },
     {
       "name": "natural-detail-7-0",
@@ -52,127 +52,127 @@
     },
     {
       "name": "natural-detail-1-1",
-      "sha256": "bbb198457c63eabff276b0a6a27762679e658a6e9e82211803e7f1ca756d919c"
+      "sha256": "dcfd3eff3e2a52482cac43be24e5632fb124be7ddaac9d4b321bdb84ccda9e17"
     },
     {
       "name": "natural-detail-2-1",
-      "sha256": "50100283aae3f01e6531eff66b8db28c0d207b398f4f458016c9a3a79755b458"
+      "sha256": "77443ee74ec9a8234dc9da18bd5aaacab37dafce2fd3f8815c64875158ab2e80"
     },
     {
       "name": "natural-detail-3-1",
-      "sha256": "c8c1f6ee5f4a245956285d8fa66c449ef4ebe08605c9353c431a615b56c202de"
+      "sha256": "ff4d33cec4b9beeef59fb0942ec00fba9fede405fba48bede6085c1800b6507b"
     },
     {
       "name": "natural-detail-4-1",
-      "sha256": "6183935966e420f3b7eb41ab64cacb6c56d25c3d2004e14817077fa66f0f113a"
+      "sha256": "42157942c2597bedc15c6eb7bc2863af75e5ec9e85f6511103da918a2a7dbfbe"
     },
     {
       "name": "natural-detail-5-1",
-      "sha256": "6bdd29a5dfb45b91a0aadb3d1e6a63c2bdac541d97093bfbcaadacd209fe29ef"
+      "sha256": "27988ce065810873d4b52f585f9263cfdd2461e2fd1b43d511fee0b5ee881861"
     },
     {
       "name": "natural-detail-6-1",
-      "sha256": "b5ac2b2eb10c223b1528c2bd725901ffd8cffa4c4e52b469da06f889dc043beb"
+      "sha256": "94e6fb1c9ed81e974e2a1e7fc6bf82bec0526ffb76105fc3eeb4d571f1eb3442"
     },
     {
       "name": "natural-detail-7-1",
-      "sha256": "dcfdac8cb488fcaf79d74ccedcfc2cbf204b9632c006d7295ce7fcfdc56b76e0"
+      "sha256": "483e8c9f540094ef556d00680b2a7fab6e0083349abf233867748085828438bc"
     },
     {
       "name": "natural-detail-0-2",
-      "sha256": "f4cdb35d7c2e2c5a56fcb14aea635f06c474cb4304be31a95883e11e4dd34c5e"
+      "sha256": "4d2b3dba53e0be6e5e6c9214a14df1bc33aaf5653ea034e21b7bc9cc11fe2fd5"
     },
     {
       "name": "natural-detail-1-2",
-      "sha256": "5185e049e160496ea517993aa6eb327bafe240c1070db30696342545cc9ddd21"
+      "sha256": "420995795611b6cfe33524e6acbf0f0d5649bae4c7c3d03860b5f85bd7d1cf60"
     },
     {
       "name": "natural-detail-2-2",
-      "sha256": "d86a7b95a346d25b1a139ea63eea077ff0320168fe22fb7b37baa220603a479a"
+      "sha256": "fbcca5a35a9c9d9bee7d567adeb8f32454e0627ad539bec8dbcfcda1fe1860ef"
     },
     {
       "name": "natural-detail-3-2",
-      "sha256": "6884037c26c82086d8c67fbd00f27e6526d200373f3c91c1196449351139806e"
+      "sha256": "cd5a17ee13a1cd4bcb9a7addcb6b7a0187e83c5ab6b5dfdf5bc50565fa0789f2"
     },
     {
       "name": "natural-detail-4-2",
-      "sha256": "fb9e30f1e302c8d5ace8f3d5881f2612c90395a2008a0e6e9b97021230f4680e"
+      "sha256": "b1019218080c1ca85cf2e2faf97031e02aa6cf125859da8863a3d0eceefdc7f5"
     },
     {
       "name": "natural-detail-5-2",
-      "sha256": "22d60b07e281f486d77fb7b34d1936f3ebe480ea18c868ecd7663e3811ef4814"
+      "sha256": "3dc80ed5eb28de75c857dd50ba5d84a91c5bdf3160d16c57811d98e6162a85b6"
     },
     {
       "name": "natural-detail-6-2",
-      "sha256": "14487c62ae9287a9c8341ffcf7467e6691a79286eef57b815765b4ead7c3daad"
+      "sha256": "9ef31a79e9e6f9cc91b747741f6a5c372968ed77ef5f745ca1097eac39945b1d"
     },
     {
       "name": "natural-detail-7-2",
-      "sha256": "4cade0a5fb23fe03f1ea32cde37a4ed877c368b1b98092b058e6f5c3b9f6bd06"
+      "sha256": "ef44dddefb0df55b44247674d05e958108b19498c844546630b30b6ffd88cd34"
     },
     {
       "name": "natural-detail-0-3",
-      "sha256": "6c511eee77591936c059d8f01bbf4d386fb9284e77dd863c5f62ec4a0ee43781"
+      "sha256": "afca9285d099913b78fb07644b1cc1487fc85455ad091accba1ab7663d08d836"
     },
     {
       "name": "natural-detail-1-3",
-      "sha256": "2de0d9eff01bfbb2fa4f79c5bf84fec4d36f2ad0710725a13720a7eece11855c"
+      "sha256": "4601f4a6feade5178d90e286cb7e85aff4edf35754ff46ee1d20da6a32c1279e"
     },
     {
       "name": "natural-detail-2-3",
-      "sha256": "336d9f12ae72ddc7d96a23e1ffce7caf49735975072bd76b43bc395077c33bf3"
+      "sha256": "665e9adac7b778ed985d7780dd44058033c8f4d55d3b7f5c1cd012e2aa8debe0"
     },
     {
       "name": "natural-detail-3-3",
-      "sha256": "33960d3cc2e274e5fe8ca9c12e89fe8a69b76c88ea978f8ea2b0f130fd98f89f"
+      "sha256": "d81a8739711420ab73625e926679816d3113d4bf0b77bb3b0c8caeaf498a9b9b"
     },
     {
       "name": "natural-detail-4-3",
-      "sha256": "e6ec2770b91d65b2428a0a6121cd09047a1f42e50f84a6794de2d793c473244f"
+      "sha256": "7c6fba873380a01ccde5c4efd67722918430eb64c90a6cd413e326ce625862c5"
     },
     {
       "name": "natural-detail-5-3",
-      "sha256": "85d6d2931d2f24ab83bd4c049a9270e0c349088944b3218f7027ad19573a8bdb"
+      "sha256": "75f4d754b71261ff21ce61e5a661792b5cd4566102c2e0b5bc796c06c40e82c7"
     },
     {
       "name": "natural-detail-6-3",
-      "sha256": "9a1f6ad33156385521abd70a14e22043ca0160f4aa55a927c7d8965c7763c5df"
+      "sha256": "c23e53dba7a73a6ba0c570bde25992736a29331f341997f41e3a6fe65771a1ce"
     },
     {
       "name": "natural-detail-7-3",
-      "sha256": "bfa997e4466702bfe6fd734a0c79f8b68dc93f4eda1544c0e992733408525f35"
+      "sha256": "26f5c4bcd94988c53fcfe94eeced670b236bf86abd2746687163577520c731fe"
     },
     {
       "name": "natural-detail-0-4",
-      "sha256": "93cc725d542d53253ade77db5f2c6f8cd9af5de41cfccd0acd1e2cb193babd6b"
+      "sha256": "ae83392aef774221a2288b24368cda0e8f10153e5aebef3c5dc06b6ce5e06d78"
     },
     {
       "name": "natural-detail-1-4",
-      "sha256": "3550f3ff17ab985d9cd490ef4a8ba9248371ad2f9ee4945e01fd38522cf55833"
+      "sha256": "3379b6bdc1cfeba42a13cf959f23ff879d33a694f2cf5619c0008715a71dfb22"
     },
     {
       "name": "natural-detail-2-4",
-      "sha256": "be5f8d7e2781758e12287772e769ba6d4ac070182f93e7153f42de8c663ec967"
+      "sha256": "2591a853ad55e0b7ac80a8ed59ad6881b91b8e8c2ae3fb7660258a9457292a51"
     },
     {
       "name": "natural-detail-3-4",
-      "sha256": "12c253f0067c60808b121df47b97f75d5013893ab58592bd68678c684eb5db75"
+      "sha256": "ce7af9f1ced4a599f6671d11c94b0c7e58476ddfbf513baf578172b18406550a"
     },
     {
       "name": "natural-detail-4-4",
-      "sha256": "99489974f256c094e3a36008f1129a492db2318605ddd3937bdf1c91af819561"
+      "sha256": "74bedc1d706ad3c1ef0c05f0f31979a19bf82682983dd3e28510f9ea92f06b22"
     },
     {
       "name": "natural-detail-5-4",
-      "sha256": "fe4e758ca845e0115c9e4ac890eb4aedbdb00907539f1308ffd1591ae5e75655"
+      "sha256": "32c5cae04f4a74b43cb139a654f2ec0347db6609f09df8169e2cefb10205efa4"
     },
     {
       "name": "natural-detail-6-4",
-      "sha256": "a0b8126c491d9a002caefe69d65d3a1673204b027662db369e5247ef815be303"
+      "sha256": "fe855fb5d4d0d5f9528a98364d7f921495fa1f9e46d6fb0a0f0dac460a749024"
     },
     {
       "name": "natural-detail-7-4",
-      "sha256": "e038e53f8c4620c8010904e4299e12d4762e3205631fee58b0dcd4cf6425b8ec"
+      "sha256": "c84400329394d0721d59522ee6f597a0db2d2f0ab1e148fa4b5df1d79271c955"
     },
     {
       "name": "natural-detail-0-5",
@@ -180,31 +180,31 @@
     },
     {
       "name": "natural-detail-1-5",
-      "sha256": "22c125a7786f89c39373ca3a2a25189ee005a84aab1f77a55b8adf7981c0d4e3"
+      "sha256": "7e3714d4a10fcf4f70d0c562d3cfb57593cad99602400d949098ba44b45dd8f7"
     },
     {
       "name": "natural-detail-2-5",
-      "sha256": "fc7c0923009d59086ada2f45c31e895c379a0f49d72985afb5a1294357deabef"
+      "sha256": "400b847e338b83ea1181c6ce8989996383b94a17d52dae5ac76640bf7625e39a"
     },
     {
       "name": "natural-detail-3-5",
-      "sha256": "7051cd10be10d8188147fa5074c637b31d6ef99ed5c7d3722be3100c05c60848"
+      "sha256": "6bf25de307a5fd796a85e90124cc1fdca1f38f01686bfbb241385da5caf24fff"
     },
     {
       "name": "natural-detail-4-5",
-      "sha256": "0522573ee3907aa75f379c150550f6dfa624fd457dca0fbb8582e4c11e6a8d0b"
+      "sha256": "633c159cbf3aaf51f5bee00cff925e8459737162c5b332544e9f59b17f00d70e"
     },
     {
       "name": "natural-detail-5-5",
-      "sha256": "bee64c327734b2d4cdcbd6843dbe217a3af7cd0ef1175dd84a744f299f1a268e"
+      "sha256": "0d34a733b5d9d90d9e1c056a712b4b1e56abe6f5a534e8e8f4a7998024f7ded8"
     },
     {
       "name": "natural-detail-6-5",
-      "sha256": "4ea65e75d547c481b7b59368d53c7c0d97845a404d6842f5d0a2ff7afb001477"
+      "sha256": "def117013fe29152a45436f29eac00bbd240af0eda51623e8695651d18cb2c85"
     },
     {
       "name": "natural-detail-7-5",
-      "sha256": "453435ee93ee71a441be6cfbfe9c04c461d7558fe2f1185663d3abcc6624b348"
+      "sha256": "643236dce265b060cff18d12f6145be9bb79952baa1670b6f03a48fd14a38e3b"
     }
   ]
 }
