@@ -10,5 +10,3 @@ function coastArtworkLayer(){return coastArtwork.ready?coastArtwork.image:null}
 function drawCoastArtwork(target,x,y,w,h){const layer=coastArtworkLayer();if(layer)target.drawImage(layer,x,y,w,h)}
 Object.assign(window.Terha,{drawCoastArtwork,coastArtworkLayer});
 
-// Rivers remain blue when territory ownership changes.
-const ownershipMask=new Image();let ownershipMaskReady=false;ownershipMask.onload=()=>{ownershipMaskReady=true};ownershipMask.src='world-ownership-mask.png';
