@@ -1,6 +1,6 @@
 'use strict';
 // No pixel reads: offline runs connect visible scenery to its anchor tile.
-const NATURAL_OWNERSHIP_COLORS=['#6d9d78','#8e4f40','#5d9fbd','#bf9f57','#c1799a','#aa79ba','#80b5b7'];
+const NATURAL_OWNERSHIP_COLORS=['#87998b','#aa7871','#7b9eb2','#b6a377','#b88f9e','#a58eae','#b6c5c6'];
 let naturalTerritory=null,naturalTerritoryGeneration=-1,naturalOwnershipWork=null;
 const ownershipLittleEndian=new Uint8Array(new Uint32Array([1]).buffer)[0]===1;
 function fillNaturalOwnership(canvas,meta){
