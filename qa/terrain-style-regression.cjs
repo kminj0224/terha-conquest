@@ -8,7 +8,7 @@ const source=fs.readFileSync(path.join(__dirname,'native-test.cjs'),'utf8').spli
 new Function('require','__dirname',source+`
 (async()=>{await Promise.all(pending);run("setup();started=true;setAppScreen('game');menuMode=false;busy=false");await settle();
  const colors=JSON.parse(run('JSON.stringify(NATURAL_OWNERSHIP_COLORS)')).map(h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)));
- assert(colors.every(c=>Math.max(...c)-Math.min(...c)<=65),'All territory pigments remain muted');assert(colors[4][0]>colors[4][1]&&colors[4][2]>colors[4][1],'Ranna pink');assert(colors[0][1]>colors[0][0]&&colors[0][1]>colors[0][2],'Baekyang grey-green');
+ assert(colors.every(c=>Math.max(...c)-Math.min(...c)<=65),'All territory pigments remain muted');assert(colors[4][0]>colors[4][1]&&colors[4][2]>colors[4][1],'Ranna pink');assert(colors[0][1]-colors[0][0]>=35&&colors[0][1]-colors[0][2]>=25,'Baekyang visibly green-grey');
  assert.equal(reads,0);assert.deepEqual(errors,[]);console.log('PASS 2029 immutable scenery placements, unchanged coast/rivers/gameplay, muted faction colors');process.exit(0)
 })().catch(e=>{console.error(e);process.exit(1)});
 `)(require,__dirname);

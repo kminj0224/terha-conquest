@@ -1,0 +1,89 @@
+name: Build v1.11.12 selected mountain shading and greener Baekyang
+on:
+  push:
+    branches: [work/deep-mountains-v11112]
+    paths: ['.github/workflows/build-v11112-deep-mountains.yml']
+  workflow_dispatch:
+concurrency:
+  group: aligned-map-release
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify unchanged gameplay sources
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          from pathlib import Path
+          base='6de03bdabd2d4bb91d09106fa9baf0287ccb7be1'
+          for p in Path('game/assets').glob('*.js'):
+            old=subprocess.check_output(['git','show',base+':'+str(p)]).decode()
+            if p.name in ['game.js','natural-ownership.js']:old=old.replace('#87998b','#739b7b')
+            if p.name in ['app-shell.js','saves.js']:old=old.replace('1.11.11','1.11.12')
+            assert p.read_text()==old,str(p)
+          print('PASS all game logic identical; only Baekyang color and version metadata differ')
+          PY
+      - run: npm ci --no-audit --no-fund
+      - name: Bake selected mountain option 3
+        run: |
+          node tools/bake-aligned-map.cjs
+          node tools/build-map-lods.cjs
+      - name: Verify immutable geography and restrained green-grey palette
+        run: |
+          node qa/terrain-style-regression.cjs
+          node qa/aligned-map-regression.cjs
+      - name: Verify conquest colors and protected white snow
+        run: |
+          node qa/snow-territory-regression.cjs
+          node qa/scenery-ownership-regression.cjs
+          node qa/territory-lod-regression.cjs
+      - name: Runtime, pan and native checks
+        run: |
+          node qa/hd-map-regression.cjs
+          node qa/terrain-pan-benchmark.cjs --assert
+          node qa/natural-map-view.cjs
+          python3 qa/verify-native.py
+      - name: Build and verify original signed update
+        run: |
+          python3 build.py
+          python3 - <<'PY'
+          import zipfile,hashlib
+          from pathlib import Path
+          apk=Path('deliverables/Terha-Conquest-v1.11.12.apk')
+          with zipfile.ZipFile(apk) as z,zipfile.ZipFile('android/native-shell.zip') as shell:
+            assert z.testzip() is None
+            assert z.read('classes.dex')==shell.read('classes.dex')
+          Path('deliverables/SHA256SUMS.txt').write_text(hashlib.sha256(apk.read_bytes()).hexdigest()+'  '+apk.name+'\n')
+          assert "VERSION='1.11.12';CODE=157" in Path('build.py').read_text()
+          PY
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.12.apk
+      - name: Retain selected map and fast-forward main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add game/assets/natural-detail-*.jpg game/assets/natural-mid-*.jpg game/assets/world-natural.png game/assets/world-natural-land.png game/assets/world-ownership-mask.png game/assets/natural-ownership-data.js art/aligned-map-manifest.json art/terrain-alignment-audit.json art/ownership-probes.json art/map-lod-report.json art/river-mouth-audit.json
+          git diff --cached --quiet || git commit -m 'Retain selected mountain option 3 and greener Baekyang for v1.11.12'
+          git push origin HEAD:work/deep-mountains-v11112
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = 6de03bdabd2d4bb91d09106fa9baf0287ccb7be1
+          git push origin HEAD:main
+      - name: Publish APK directly to Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.12 deliverables/Terha-Conquest-v1.11.12.apk deliverables/SHA256SUMS.txt --target "$(git rev-parse HEAD)" --title 'Terha Conquest v1.11.12 — Selected Mountains and Greener Baekyang' --notes 'Applies the selected mountain preview option 3 exactly: stronger bare-rock shading with unchanged mountain shapes, sizes and terrain anchors. Baekyang uses a clearer muted green-grey (#739b7b); all other factions retain their previous pigments. White snow stays protected during capture; non-snow plains, rocks and trees follow their owner. Coastline, rivers, forest positions and density, gameplay, saves, native shell and original Android signing identity retained. Version code 157.'
