@@ -1,0 +1,2978 @@
+{
+  "threshold": 0.3,
+  "alphaThreshold": 48,
+  "sampleSpacing": 1,
+  "source": "released option B scenery, with foreground forest occlusion",
+  "changes": [
+    {
+      "tile": 595,
+      "from": 1,
+      "owner": 6,
+      "covered": 1815,
+      "total": 3529,
+      "fraction": 0.5143100028336639
+    },
+    {
+      "tile": 596,
+      "from": 1,
+      "owner": 6,
+      "covered": 2965,
+      "total": 3573,
+      "fraction": 0.8298348726560314
+    },
+    {
+      "tile": 704,
+      "from": 1,
+      "owner": 6,
+      "covered": 1135,
+      "total": 3528,
+      "fraction": 0.3217120181405896
+    },
+    {
+      "tile": 1732,
+      "from": 1,
+      "owner": 1,
+      "covered": 1771,
+      "total": 3572,
+      "fraction": 0.4958006718924972
+    },
+    {
+      "tile": 1762,
+      "from": 1,
+      "owner": 0,
+      "covered": 1106,
+      "total": 3572,
+      "fraction": 0.30963045912653975
+    },
+    {
+      "tile": 1764,
+      "from": 1,
+      "owner": 0,
+      "covered": 1223,
+      "total": 3572,
+      "fraction": 0.3423852183650616
+    },
+    {
+      "tile": 1844,
+      "from": 1,
+      "owner": 1,
+      "covered": 3250,
+      "total": 3528,
+      "fraction": 0.921201814058957
+    },
+    {
+      "tile": 2062,
+      "from": 2,
+      "owner": 1,
+      "covered": 1382,
+      "total": 3529,
+      "fraction": 0.3916123547747237
+    },
+    {
+      "tile": 2171,
+      "from": 1,
+      "owner": 1,
+      "covered": 1402,
+      "total": 3528,
+      "fraction": 0.3973922902494331
+    },
+    {
+      "tile": 2172,
+      "from": 1,
+      "owner": 1,
+      "covered": 2271,
+      "total": 3572,
+      "fraction": 0.6357782754759238
+    },
+    {
+      "tile": 2173,
+      "from": 1,
+      "owner": 1,
+      "covered": 2576,
+      "total": 3528,
+      "fraction": 0.7301587301587301
+    },
+    {
+      "tile": 2181,
+      "from": 1,
+      "owner": 1,
+      "covered": 2503,
+      "total": 3528,
+      "fraction": 0.7094671201814059
+    },
+    {
+      "tile": 2183,
+      "from": 2,
+      "owner": 1,
+      "covered": 1415,
+      "total": 3528,
+      "fraction": 0.40107709750566894
+    },
+    {
+      "tile": 2415,
+      "from": 1,
+      "owner": 1,
+      "covered": 1221,
+      "total": 3530,
+      "fraction": 0.3458923512747875
+    },
+    {
+      "tile": 2416,
+      "from": 1,
+      "owner": 1,
+      "covered": 3098,
+      "total": 3529,
+      "fraction": 0.8778690847265515
+    },
+    {
+      "tile": 2417,
+      "from": 1,
+      "owner": 1,
+      "covered": 2044,
+      "total": 3530,
+      "fraction": 0.5790368271954675
+    },
+    {
+      "tile": 2444,
+      "from": 1,
+      "owner": 0,
+      "covered": 1609,
+      "total": 3529,
+      "fraction": 0.4559365259280249
+    },
+    {
+      "tile": 2448,
+      "from": 1,
+      "owner": 0,
+      "covered": 1093,
+      "total": 3529,
+      "fraction": 0.30971946727118166
+    },
+    {
+      "tile": 2527,
+      "from": 1,
+      "owner": 1,
+      "covered": 1266,
+      "total": 3572,
+      "fraction": 0.35442329227323627
+    },
+    {
+      "tile": 2635,
+      "from": 1,
+      "owner": 1,
+      "covered": 1847,
+      "total": 3528,
+      "fraction": 0.5235260770975056
+    },
+    {
+      "tile": 2642,
+      "from": 1,
+      "owner": 1,
+      "covered": 1412,
+      "total": 3528,
+      "fraction": 0.4002267573696145
+    },
+    {
+      "tile": 2643,
+      "from": 1,
+      "owner": 1,
+      "covered": 2007,
+      "total": 3528,
+      "fraction": 0.5688775510204082
+    },
+    {
+      "tile": 2644,
+      "from": 1,
+      "owner": 1,
+      "covered": 2313,
+      "total": 3528,
+      "fraction": 0.6556122448979592
+    },
+    {
+      "tile": 2671,
+      "from": 2,
+      "owner": 0,
+      "covered": 2875,
+      "total": 3528,
+      "fraction": 0.8149092970521542
+    },
+    {
+      "tile": 2672,
+      "from": 1,
+      "owner": 0,
+      "covered": 2862,
+      "total": 3528,
+      "fraction": 0.8112244897959183
+    },
+    {
+      "tile": 2739,
+      "from": 2,
+      "owner": 1,
+      "covered": 1471,
+      "total": 3528,
+      "fraction": 0.4169501133786848
+    },
+    {
+      "tile": 2740,
+      "from": 1,
+      "owner": 1,
+      "covered": 2200,
+      "total": 3574,
+      "fraction": 0.6155567991046447
+    },
+    {
+      "tile": 2741,
+      "from": 1,
+      "owner": 1,
+      "covered": 1501,
+      "total": 3528,
+      "fraction": 0.42545351473922904
+    },
+    {
+      "tile": 2745,
+      "from": 1,
+      "owner": 1,
+      "covered": 2344,
+      "total": 3528,
+      "fraction": 0.6643990929705216
+    },
+    {
+      "tile": 2781,
+      "from": 2,
+      "owner": 0,
+      "covered": 1561,
+      "total": 3528,
+      "fraction": 0.44246031746031744
+    },
+    {
+      "tile": 2785,
+      "from": 1,
+      "owner": 0,
+      "covered": 1418,
+      "total": 3528,
+      "fraction": 0.40192743764172334
+    },
+    {
+      "tile": 2791,
+      "from": 1,
+      "owner": 0,
+      "covered": 1817,
+      "total": 3528,
+      "fraction": 0.5150226757369615
+    },
+    {
+      "tile": 2792,
+      "from": 1,
+      "owner": 0,
+      "covered": 1926,
+      "total": 3574,
+      "fraction": 0.5388919977616117
+    },
+    {
+      "tile": 2793,
+      "from": 1,
+      "owner": 0,
+      "covered": 1609,
+      "total": 3528,
+      "fraction": 0.4560657596371882
+    },
+    {
+      "tile": 2840,
+      "from": 1,
+      "owner": 1,
+      "covered": 2458,
+      "total": 3530,
+      "fraction": 0.6963172804532578
+    },
+    {
+      "tile": 2841,
+      "from": 2,
+      "owner": 1,
+      "covered": 1407,
+      "total": 3572,
+      "fraction": 0.3938969764837626
+    },
+    {
+      "tile": 2860,
+      "from": 1,
+      "owner": 1,
+      "covered": 2259,
+      "total": 3530,
+      "fraction": 0.639943342776204
+    },
+    {
+      "tile": 2861,
+      "from": 1,
+      "owner": 1,
+      "covered": 1706,
+      "total": 3572,
+      "fraction": 0.4776035834266517
+    },
+    {
+      "tile": 2868,
+      "from": 1,
+      "owner": 1,
+      "covered": 2895,
+      "total": 3530,
+      "fraction": 0.8201133144475921
+    },
+    {
+      "tile": 2869,
+      "from": 2,
+      "owner": 1,
+      "covered": 1117,
+      "total": 3572,
+      "fraction": 0.31270996640537513
+    },
+    {
+      "tile": 2892,
+      "from": 1,
+      "owner": 0,
+      "covered": 1161,
+      "total": 3530,
+      "fraction": 0.32889518413597735
+    },
+    {
+      "tile": 2901,
+      "from": 1,
+      "owner": 0,
+      "covered": 1228,
+      "total": 3572,
+      "fraction": 0.3437849944008959
+    },
+    {
+      "tile": 2902,
+      "from": 1,
+      "owner": 0,
+      "covered": 1611,
+      "total": 3530,
+      "fraction": 0.4563739376770538
+    },
+    {
+      "tile": 2905,
+      "from": 2,
+      "owner": 0,
+      "covered": 2113,
+      "total": 3572,
+      "fraction": 0.591545352743561
+    },
+    {
+      "tile": 2950,
+      "from": 1,
+      "owner": 1,
+      "covered": 1640,
+      "total": 3572,
+      "fraction": 0.45912653975363943
+    },
+    {
+      "tile": 2963,
+      "from": 2,
+      "owner": 1,
+      "covered": 1485,
+      "total": 3528,
+      "fraction": 0.42091836734693877
+    },
+    {
+      "tile": 2964,
+      "from": 1,
+      "owner": 1,
+      "covered": 2737,
+      "total": 3572,
+      "fraction": 0.7662374020156775
+    },
+    {
+      "tile": 2967,
+      "from": 1,
+      "owner": 1,
+      "covered": 1168,
+      "total": 3528,
+      "fraction": 0.3310657596371882
+    },
+    {
+      "tile": 2975,
+      "from": 1,
+      "owner": 1,
+      "covered": 2118,
+      "total": 3528,
+      "fraction": 0.6003401360544217
+    },
+    {
+      "tile": 2976,
+      "from": 1,
+      "owner": 1,
+      "covered": 3296,
+      "total": 3572,
+      "fraction": 0.9227323628219485
+    },
+    {
+      "tile": 2990,
+      "from": 1,
+      "owner": 0,
+      "covered": 1253,
+      "total": 3572,
+      "fraction": 0.3507838745800672
+    },
+    {
+      "tile": 3013,
+      "from": 1,
+      "owner": 0,
+      "covered": 1575,
+      "total": 3528,
+      "fraction": 0.44642857142857145
+    },
+    {
+      "tile": 3061,
+      "from": 1,
+      "owner": 1,
+      "covered": 1986,
+      "total": 3573,
+      "fraction": 0.5558354324097398
+    },
+    {
+      "tile": 3067,
+      "from": 2,
+      "owner": 1,
+      "covered": 1751,
+      "total": 3573,
+      "fraction": 0.49006437167646233
+    },
+    {
+      "tile": 3068,
+      "from": 2,
+      "owner": 1,
+      "covered": 3139,
+      "total": 3529,
+      "fraction": 0.88948710682913
+    },
+    {
+      "tile": 3069,
+      "from": 2,
+      "owner": 1,
+      "covered": 1459,
+      "total": 3573,
+      "fraction": 0.4083403302546879
+    },
+    {
+      "tile": 3071,
+      "from": 1,
+      "owner": 1,
+      "covered": 1548,
+      "total": 3573,
+      "fraction": 0.4332493702770781
+    },
+    {
+      "tile": 3075,
+      "from": 2,
+      "owner": 1,
+      "covered": 1950,
+      "total": 3573,
+      "fraction": 0.5457598656591099
+    },
+    {
+      "tile": 3078,
+      "from": 1,
+      "owner": 1,
+      "covered": 1333,
+      "total": 3529,
+      "fraction": 0.37772740153017853
+    },
+    {
+      "tile": 3082,
+      "from": 1,
+      "owner": 1,
+      "covered": 1904,
+      "total": 3529,
+      "fraction": 0.5395296117880419
+    },
+    {
+      "tile": 3092,
+      "from": 1,
+      "owner": 1,
+      "covered": 2603,
+      "total": 3529,
+      "fraction": 0.7376027203173704
+    },
+    {
+      "tile": 3093,
+      "from": 1,
+      "owner": 1,
+      "covered": 1282,
+      "total": 3573,
+      "fraction": 0.3588021270640918
+    },
+    {
+      "tile": 3110,
+      "from": 1,
+      "owner": 0,
+      "covered": 1535,
+      "total": 3529,
+      "fraction": 0.43496741286483426
+    },
+    {
+      "tile": 3111,
+      "from": 1,
+      "owner": 0,
+      "covered": 1549,
+      "total": 3573,
+      "fraction": 0.43352924713126223
+    },
+    {
+      "tile": 3176,
+      "from": 1,
+      "owner": 1,
+      "covered": 1349,
+      "total": 3528,
+      "fraction": 0.38236961451247165
+    },
+    {
+      "tile": 3178,
+      "from": 1,
+      "owner": 1,
+      "covered": 1317,
+      "total": 3528,
+      "fraction": 0.37329931972789115
+    },
+    {
+      "tile": 3184,
+      "from": 1,
+      "owner": 1,
+      "covered": 1526,
+      "total": 3528,
+      "fraction": 0.43253968253968256
+    },
+    {
+      "tile": 3185,
+      "from": 1,
+      "owner": 1,
+      "covered": 1622,
+      "total": 3531,
+      "fraction": 0.4593599546870575
+    },
+    {
+      "tile": 3186,
+      "from": 1,
+      "owner": 1,
+      "covered": 1631,
+      "total": 3528,
+      "fraction": 0.4623015873015873
+    },
+    {
+      "tile": 3190,
+      "from": 1,
+      "owner": 1,
+      "covered": 1202,
+      "total": 3528,
+      "fraction": 0.340702947845805
+    },
+    {
+      "tile": 3196,
+      "from": 1,
+      "owner": 1,
+      "covered": 1352,
+      "total": 3528,
+      "fraction": 0.3832199546485261
+    },
+    {
+      "tile": 3220,
+      "from": 1,
+      "owner": 0,
+      "covered": 1800,
+      "total": 3528,
+      "fraction": 0.5102040816326531
+    },
+    {
+      "tile": 3288,
+      "from": 1,
+      "owner": 1,
+      "covered": 2426,
+      "total": 3571,
+      "fraction": 0.679361523382806
+    },
+    {
+      "tile": 3290,
+      "from": 1,
+      "owner": 1,
+      "covered": 1579,
+      "total": 3571,
+      "fraction": 0.44217306076729207
+    },
+    {
+      "tile": 3295,
+      "from": 1,
+      "owner": 1,
+      "covered": 2772,
+      "total": 3572,
+      "fraction": 0.7760358342665173
+    },
+    {
+      "tile": 3296,
+      "from": 1,
+      "owner": 1,
+      "covered": 2586,
+      "total": 3571,
+      "fraction": 0.7241669000280033
+    },
+    {
+      "tile": 3297,
+      "from": 1,
+      "owner": 1,
+      "covered": 1803,
+      "total": 3572,
+      "fraction": 0.5047592385218365
+    },
+    {
+      "tile": 3302,
+      "from": 2,
+      "owner": 1,
+      "covered": 1212,
+      "total": 3571,
+      "fraction": 0.3394007280873705
+    },
+    {
+      "tile": 3314,
+      "from": 1,
+      "owner": 1,
+      "covered": 1222,
+      "total": 3571,
+      "fraction": 0.3422010641276953
+    },
+    {
+      "tile": 3321,
+      "from": 1,
+      "owner": 1,
+      "covered": 1140,
+      "total": 3572,
+      "fraction": 0.3191489361702128
+    },
+    {
+      "tile": 3323,
+      "from": 1,
+      "owner": 1,
+      "covered": 1618,
+      "total": 3572,
+      "fraction": 0.45296752519596867
+    },
+    {
+      "tile": 3332,
+      "from": 1,
+      "owner": 0,
+      "covered": 2097,
+      "total": 3571,
+      "fraction": 0.5872304676561187
+    },
+    {
+      "tile": 3336,
+      "from": 1,
+      "owner": 0,
+      "covered": 1340,
+      "total": 3571,
+      "fraction": 0.37524502940352844
+    },
+    {
+      "tile": 3407,
+      "from": 1,
+      "owner": 1,
+      "covered": 1544,
+      "total": 3529,
+      "fraction": 0.4375177103995466
+    },
+    {
+      "tile": 3409,
+      "from": 1,
+      "owner": 1,
+      "covered": 2587,
+      "total": 3529,
+      "fraction": 0.7330688580334372
+    },
+    {
+      "tile": 3410,
+      "from": 1,
+      "owner": 1,
+      "covered": 2138,
+      "total": 3528,
+      "fraction": 0.6060090702947846
+    },
+    {
+      "tile": 3414,
+      "from": 1,
+      "owner": 1,
+      "covered": 1676,
+      "total": 3528,
+      "fraction": 0.47505668934240364
+    },
+    {
+      "tile": 3417,
+      "from": 1,
+      "owner": 1,
+      "covered": 1455,
+      "total": 3529,
+      "fraction": 0.4122981014451686
+    },
+    {
+      "tile": 3422,
+      "from": 1,
+      "owner": 1,
+      "covered": 1326,
+      "total": 3528,
+      "fraction": 0.3758503401360544
+    },
+    {
+      "tile": 3433,
+      "from": 1,
+      "owner": 1,
+      "covered": 1822,
+      "total": 3529,
+      "fraction": 0.5162935675828847
+    },
+    {
+      "tile": 3436,
+      "from": 1,
+      "owner": 1,
+      "covered": 2274,
+      "total": 3528,
+      "fraction": 0.6445578231292517
+    },
+    {
+      "tile": 3437,
+      "from": 1,
+      "owner": 0,
+      "covered": 2419,
+      "total": 3529,
+      "fraction": 0.6854633040521394
+    },
+    {
+      "tile": 3439,
+      "from": 1,
+      "owner": 0,
+      "covered": 1787,
+      "total": 3529,
+      "fraction": 0.506375743836781
+    },
+    {
+      "tile": 3442,
+      "from": 1,
+      "owner": 0,
+      "covered": 1727,
+      "total": 3528,
+      "fraction": 0.4895124716553288
+    },
+    {
+      "tile": 3444,
+      "from": 1,
+      "owner": 0,
+      "covered": 1698,
+      "total": 3528,
+      "fraction": 0.4812925170068027
+    },
+    {
+      "tile": 3448,
+      "from": 1,
+      "owner": 0,
+      "covered": 1142,
+      "total": 3528,
+      "fraction": 0.32369614512471656
+    },
+    {
+      "tile": 3512,
+      "from": 1,
+      "owner": 1,
+      "covered": 2811,
+      "total": 3573,
+      "fraction": 0.7867338371116709
+    },
+    {
+      "tile": 3513,
+      "from": 2,
+      "owner": 1,
+      "covered": 1253,
+      "total": 3529,
+      "fraction": 0.35505809011051287
+    },
+    {
+      "tile": 3525,
+      "from": 1,
+      "owner": 1,
+      "covered": 1382,
+      "total": 3529,
+      "fraction": 0.3916123547747237
+    },
+    {
+      "tile": 3542,
+      "from": 1,
+      "owner": 1,
+      "covered": 1618,
+      "total": 3573,
+      "fraction": 0.4528407500699692
+    },
+    {
+      "tile": 3552,
+      "from": 1,
+      "owner": 0,
+      "covered": 2818,
+      "total": 3573,
+      "fraction": 0.7886929750909599
+    },
+    {
+      "tile": 3553,
+      "from": 1,
+      "owner": 0,
+      "covered": 1206,
+      "total": 3529,
+      "fraction": 0.34173986965145936
+    },
+    {
+      "tile": 3557,
+      "from": 1,
+      "owner": 0,
+      "covered": 1492,
+      "total": 3529,
+      "fraction": 0.42278265797676395
+    },
+    {
+      "tile": 3559,
+      "from": 1,
+      "owner": 0,
+      "covered": 1263,
+      "total": 3529,
+      "fraction": 0.3578917540379711
+    },
+    {
+      "tile": 3577,
+      "from": 1,
+      "owner": 0,
+      "covered": 1600,
+      "total": 3529,
+      "fraction": 0.45338622839331255
+    },
+    {
+      "tile": 3620,
+      "from": 2,
+      "owner": 1,
+      "covered": 1318,
+      "total": 3530,
+      "fraction": 0.373371104815864
+    },
+    {
+      "tile": 3632,
+      "from": 1,
+      "owner": 1,
+      "covered": 1483,
+      "total": 3530,
+      "fraction": 0.4201133144475921
+    },
+    {
+      "tile": 3642,
+      "from": 1,
+      "owner": 1,
+      "covered": 1983,
+      "total": 3530,
+      "fraction": 0.5617563739376771
+    },
+    {
+      "tile": 3651,
+      "from": 1,
+      "owner": 1,
+      "covered": 2706,
+      "total": 3571,
+      "fraction": 0.7577709325119014
+    },
+    {
+      "tile": 3652,
+      "from": 1,
+      "owner": 1,
+      "covered": 3113,
+      "total": 3530,
+      "fraction": 0.8818696883852691
+    },
+    {
+      "tile": 3655,
+      "from": 2,
+      "owner": 1,
+      "covered": 1258,
+      "total": 3571,
+      "fraction": 0.35228227387286476
+    },
+    {
+      "tile": 3656,
+      "from": 1,
+      "owner": 1,
+      "covered": 3211,
+      "total": 3530,
+      "fraction": 0.9096317280453258
+    },
+    {
+      "tile": 3666,
+      "from": 1,
+      "owner": 0,
+      "covered": 1550,
+      "total": 3530,
+      "fraction": 0.43909348441926344
+    },
+    {
+      "tile": 3671,
+      "from": 1,
+      "owner": 0,
+      "covered": 1422,
+      "total": 3571,
+      "fraction": 0.3982077849341921
+    },
+    {
+      "tile": 3685,
+      "from": 1,
+      "owner": 0,
+      "covered": 1314,
+      "total": 3571,
+      "fraction": 0.36796415569868385
+    },
+    {
+      "tile": 3686,
+      "from": 1,
+      "owner": 0,
+      "covered": 1477,
+      "total": 3530,
+      "fraction": 0.41841359773371106
+    },
+    {
+      "tile": 3691,
+      "from": 2,
+      "owner": 0,
+      "covered": 1453,
+      "total": 3571,
+      "fraction": 0.4068888266591991
+    },
+    {
+      "tile": 3692,
+      "from": 1,
+      "owner": 0,
+      "covered": 2918,
+      "total": 3530,
+      "fraction": 0.826628895184136
+    },
+    {
+      "tile": 3744,
+      "from": 1,
+      "owner": 1,
+      "covered": 1250,
+      "total": 3572,
+      "fraction": 0.34994400895856664
+    },
+    {
+      "tile": 3750,
+      "from": 1,
+      "owner": 1,
+      "covered": 1509,
+      "total": 3572,
+      "fraction": 0.42245240761478164
+    },
+    {
+      "tile": 3753,
+      "from": 1,
+      "owner": 1,
+      "covered": 1309,
+      "total": 3528,
+      "fraction": 0.37103174603174605
+    },
+    {
+      "tile": 3756,
+      "from": 1,
+      "owner": 1,
+      "covered": 3032,
+      "total": 3572,
+      "fraction": 0.8488241881298992
+    },
+    {
+      "tile": 3757,
+      "from": 2,
+      "owner": 1,
+      "covered": 1385,
+      "total": 3528,
+      "fraction": 0.3925736961451247
+    },
+    {
+      "tile": 3766,
+      "from": 1,
+      "owner": 1,
+      "covered": 2047,
+      "total": 3572,
+      "fraction": 0.5730683090705487
+    },
+    {
+      "tile": 3767,
+      "from": 2,
+      "owner": 1,
+      "covered": 2360,
+      "total": 3528,
+      "fraction": 0.6689342403628118
+    },
+    {
+      "tile": 3774,
+      "from": 1,
+      "owner": 0,
+      "covered": 1606,
+      "total": 3572,
+      "fraction": 0.4496080627099664
+    },
+    {
+      "tile": 3783,
+      "from": 1,
+      "owner": 0,
+      "covered": 2834,
+      "total": 3528,
+      "fraction": 0.8032879818594104
+    },
+    {
+      "tile": 3784,
+      "from": 1,
+      "owner": 0,
+      "covered": 3089,
+      "total": 3572,
+      "fraction": 0.8647816349384099
+    },
+    {
+      "tile": 3793,
+      "from": 1,
+      "owner": 0,
+      "covered": 1154,
+      "total": 3528,
+      "fraction": 0.32709750566893425
+    },
+    {
+      "tile": 3794,
+      "from": 1,
+      "owner": 0,
+      "covered": 1230,
+      "total": 3572,
+      "fraction": 0.34434490481522956
+    },
+    {
+      "tile": 3801,
+      "from": 2,
+      "owner": 0,
+      "covered": 1211,
+      "total": 3528,
+      "fraction": 0.34325396825396826
+    },
+    {
+      "tile": 3811,
+      "from": 1,
+      "owner": 2,
+      "covered": 1162,
+      "total": 3572,
+      "fraction": 0.32530795072788354
+    },
+    {
+      "tile": 3822,
+      "from": 1,
+      "owner": 2,
+      "covered": 1550,
+      "total": 3530,
+      "fraction": 0.43909348441926344
+    },
+    {
+      "tile": 3825,
+      "from": 1,
+      "owner": 2,
+      "covered": 1572,
+      "total": 3572,
+      "fraction": 0.4400895856662934
+    },
+    {
+      "tile": 3827,
+      "from": 1,
+      "owner": 2,
+      "covered": 2082,
+      "total": 3572,
+      "fraction": 0.5828667413213886
+    },
+    {
+      "tile": 3828,
+      "from": 1,
+      "owner": 2,
+      "covered": 2782,
+      "total": 3530,
+      "fraction": 0.7881019830028329
+    },
+    {
+      "tile": 3829,
+      "from": 1,
+      "owner": 2,
+      "covered": 1242,
+      "total": 3572,
+      "fraction": 0.3477043673012318
+    },
+    {
+      "tile": 3844,
+      "from": 1,
+      "owner": 2,
+      "covered": 1105,
+      "total": 3530,
+      "fraction": 0.3130311614730878
+    },
+    {
+      "tile": 3850,
+      "from": 1,
+      "owner": 1,
+      "covered": 1118,
+      "total": 3530,
+      "fraction": 0.31671388101983
+    },
+    {
+      "tile": 3856,
+      "from": 1,
+      "owner": 1,
+      "covered": 2198,
+      "total": 3530,
+      "fraction": 0.6226628895184136
+    },
+    {
+      "tile": 3863,
+      "from": 1,
+      "owner": 1,
+      "covered": 1649,
+      "total": 3572,
+      "fraction": 0.4616461366181411
+    },
+    {
+      "tile": 3865,
+      "from": 1,
+      "owner": 1,
+      "covered": 1386,
+      "total": 3572,
+      "fraction": 0.38801791713325867
+    },
+    {
+      "tile": 3869,
+      "from": 1,
+      "owner": 1,
+      "covered": 1126,
+      "total": 3572,
+      "fraction": 0.31522956326987683
+    },
+    {
+      "tile": 3871,
+      "from": 1,
+      "owner": 1,
+      "covered": 1192,
+      "total": 3572,
+      "fraction": 0.3337066069428891
+    },
+    {
+      "tile": 3879,
+      "from": 1,
+      "owner": 1,
+      "covered": 2353,
+      "total": 3572,
+      "fraction": 0.6587346024636058
+    },
+    {
+      "tile": 3891,
+      "from": 1,
+      "owner": 0,
+      "covered": 1632,
+      "total": 3572,
+      "fraction": 0.4568868980963046
+    },
+    {
+      "tile": 3898,
+      "from": 1,
+      "owner": 0,
+      "covered": 1115,
+      "total": 3530,
+      "fraction": 0.31586402266288954
+    },
+    {
+      "tile": 3905,
+      "from": 1,
+      "owner": 0,
+      "covered": 1744,
+      "total": 3572,
+      "fraction": 0.48824188129899215
+    },
+    {
+      "tile": 3916,
+      "from": 1,
+      "owner": 0,
+      "covered": 1425,
+      "total": 3530,
+      "fraction": 0.40368271954674223
+    },
+    {
+      "tile": 3941,
+      "from": 1,
+      "owner": 2,
+      "covered": 1380,
+      "total": 3530,
+      "fraction": 0.3909348441926346
+    },
+    {
+      "tile": 3959,
+      "from": 1,
+      "owner": 1,
+      "covered": 1283,
+      "total": 3530,
+      "fraction": 0.3634560906515581
+    },
+    {
+      "tile": 3963,
+      "from": 1,
+      "owner": 1,
+      "covered": 2009,
+      "total": 3530,
+      "fraction": 0.5691218130311615
+    },
+    {
+      "tile": 3972,
+      "from": 1,
+      "owner": 1,
+      "covered": 1602,
+      "total": 3529,
+      "fraction": 0.4539529611788042
+    },
+    {
+      "tile": 3975,
+      "from": 2,
+      "owner": 1,
+      "covered": 1167,
+      "total": 3530,
+      "fraction": 0.3305949008498584
+    },
+    {
+      "tile": 3981,
+      "from": 1,
+      "owner": 1,
+      "covered": 2355,
+      "total": 3530,
+      "fraction": 0.6671388101983002
+    },
+    {
+      "tile": 3991,
+      "from": 1,
+      "owner": 1,
+      "covered": 1648,
+      "total": 3530,
+      "fraction": 0.4668555240793201
+    },
+    {
+      "tile": 4003,
+      "from": 1,
+      "owner": 0,
+      "covered": 1266,
+      "total": 3530,
+      "fraction": 0.35864022662889516
+    },
+    {
+      "tile": 4008,
+      "from": 1,
+      "owner": 0,
+      "covered": 1389,
+      "total": 3529,
+      "fraction": 0.39359591952394446
+    },
+    {
+      "tile": 4071,
+      "from": 1,
+      "owner": 1,
+      "covered": 1974,
+      "total": 3572,
+      "fraction": 0.5526315789473685
+    },
+    {
+      "tile": 4085,
+      "from": 2,
+      "owner": 1,
+      "covered": 1286,
+      "total": 3572,
+      "fraction": 0.36002239641657335
+    },
+    {
+      "tile": 4091,
+      "from": 1,
+      "owner": 1,
+      "covered": 1300,
+      "total": 3572,
+      "fraction": 0.3639417693169093
+    },
+    {
+      "tile": 4094,
+      "from": 1,
+      "owner": 1,
+      "covered": 2436,
+      "total": 3571,
+      "fraction": 0.6821618594231308
+    },
+    {
+      "tile": 4100,
+      "from": 1,
+      "owner": 1,
+      "covered": 1926,
+      "total": 3571,
+      "fraction": 0.539344721366564
+    },
+    {
+      "tile": 4103,
+      "from": 1,
+      "owner": 1,
+      "covered": 1474,
+      "total": 3572,
+      "fraction": 0.41265397536394177
+    },
+    {
+      "tile": 4110,
+      "from": 2,
+      "owner": 0,
+      "covered": 1404,
+      "total": 3571,
+      "fraction": 0.3931671800616074
+    },
+    {
+      "tile": 4111,
+      "from": 2,
+      "owner": 0,
+      "covered": 2185,
+      "total": 3572,
+      "fraction": 0.6117021276595744
+    },
+    {
+      "tile": 4112,
+      "from": 1,
+      "owner": 0,
+      "covered": 2305,
+      "total": 3571,
+      "fraction": 0.6454774572948754
+    },
+    {
+      "tile": 4113,
+      "from": 1,
+      "owner": 0,
+      "covered": 1391,
+      "total": 3572,
+      "fraction": 0.38941769316909297
+    },
+    {
+      "tile": 4115,
+      "from": 1,
+      "owner": 0,
+      "covered": 1322,
+      "total": 3572,
+      "fraction": 0.37010078387458006
+    },
+    {
+      "tile": 4120,
+      "from": 1,
+      "owner": 0,
+      "covered": 1089,
+      "total": 3571,
+      "fraction": 0.304956594791375
+    },
+    {
+      "tile": 4128,
+      "from": 1,
+      "owner": 0,
+      "covered": 1429,
+      "total": 3571,
+      "fraction": 0.4001680201624195
+    },
+    {
+      "tile": 4171,
+      "from": 2,
+      "owner": 2,
+      "covered": 1512,
+      "total": 3529,
+      "fraction": 0.42844998583168037
+    },
+    {
+      "tile": 4172,
+      "from": 1,
+      "owner": 2,
+      "covered": 2218,
+      "total": 3529,
+      "fraction": 0.6285066591102295
+    },
+    {
+      "tile": 4173,
+      "from": 1,
+      "owner": 2,
+      "covered": 2540,
+      "total": 3529,
+      "fraction": 0.7197506375743836
+    },
+    {
+      "tile": 4179,
+      "from": 2,
+      "owner": 2,
+      "covered": 1535,
+      "total": 3529,
+      "fraction": 0.43496741286483426
+    },
+    {
+      "tile": 4180,
+      "from": 2,
+      "owner": 1,
+      "covered": 2584,
+      "total": 3529,
+      "fraction": 0.7322187588551998
+    },
+    {
+      "tile": 4181,
+      "from": 2,
+      "owner": 1,
+      "covered": 2394,
+      "total": 3529,
+      "fraction": 0.6783791442334939
+    },
+    {
+      "tile": 4182,
+      "from": 1,
+      "owner": 1,
+      "covered": 1633,
+      "total": 3529,
+      "fraction": 0.46273731935392465
+    },
+    {
+      "tile": 4187,
+      "from": 1,
+      "owner": 1,
+      "covered": 1762,
+      "total": 3529,
+      "fraction": 0.49929158401813545
+    },
+    {
+      "tile": 4212,
+      "from": 1,
+      "owner": 1,
+      "covered": 2996,
+      "total": 3529,
+      "fraction": 0.8489657126664778
+    },
+    {
+      "tile": 4213,
+      "from": 2,
+      "owner": 1,
+      "covered": 1156,
+      "total": 3529,
+      "fraction": 0.3275715500141683
+    },
+    {
+      "tile": 4220,
+      "from": 1,
+      "owner": 0,
+      "covered": 3383,
+      "total": 3529,
+      "fraction": 0.9586285066591103
+    },
+    {
+      "tile": 4221,
+      "from": 1,
+      "owner": 0,
+      "covered": 2876,
+      "total": 3529,
+      "fraction": 0.8149617455369793
+    },
+    {
+      "tile": 4225,
+      "from": 1,
+      "owner": 0,
+      "covered": 1380,
+      "total": 3529,
+      "fraction": 0.3910456219892321
+    },
+    {
+      "tile": 4283,
+      "from": 1,
+      "owner": 2,
+      "covered": 1713,
+      "total": 3530,
+      "fraction": 0.48526912181303117
+    },
+    {
+      "tile": 4291,
+      "from": 1,
+      "owner": 2,
+      "covered": 2635,
+      "total": 3530,
+      "fraction": 0.7464589235127479
+    },
+    {
+      "tile": 4296,
+      "from": 1,
+      "owner": 1,
+      "covered": 1573,
+      "total": 3572,
+      "fraction": 0.44036954087346025
+    },
+    {
+      "tile": 4322,
+      "from": 1,
+      "owner": 1,
+      "covered": 1932,
+      "total": 3572,
+      "fraction": 0.5408734602463606
+    },
+    {
+      "tile": 4362,
+      "from": 1,
+      "owner": 0,
+      "covered": 1126,
+      "total": 3572,
+      "fraction": 0.31522956326987683
+    },
+    {
+      "tile": 4381,
+      "from": 1,
+      "owner": 2,
+      "covered": 1439,
+      "total": 3571,
+      "fraction": 0.40296835620274435
+    },
+    {
+      "tile": 4399,
+      "from": 1,
+      "owner": 2,
+      "covered": 2012,
+      "total": 3571,
+      "fraction": 0.5634276113133576
+    },
+    {
+      "tile": 4407,
+      "from": 1,
+      "owner": 1,
+      "covered": 1358,
+      "total": 3571,
+      "fraction": 0.3802856342761131
+    },
+    {
+      "tile": 4412,
+      "from": 1,
+      "owner": 1,
+      "covered": 2061,
+      "total": 3529,
+      "fraction": 0.5840181354491357
+    },
+    {
+      "tile": 4413,
+      "from": 1,
+      "owner": 1,
+      "covered": 2575,
+      "total": 3571,
+      "fraction": 0.721086530383646
+    },
+    {
+      "tile": 4439,
+      "from": 2,
+      "owner": 1,
+      "covered": 1374,
+      "total": 3571,
+      "fraction": 0.3847661719406329
+    },
+    {
+      "tile": 4440,
+      "from": 1,
+      "owner": 1,
+      "covered": 2676,
+      "total": 3529,
+      "fraction": 0.7582884669878153
+    },
+    {
+      "tile": 4441,
+      "from": 1,
+      "owner": 1,
+      "covered": 1915,
+      "total": 3571,
+      "fraction": 0.5362643517222067
+    },
+    {
+      "tile": 4467,
+      "from": 1,
+      "owner": 0,
+      "covered": 2034,
+      "total": 3571,
+      "fraction": 0.5695883506020722
+    },
+    {
+      "tile": 4468,
+      "from": 1,
+      "owner": 0,
+      "covered": 2681,
+      "total": 3529,
+      "fraction": 0.7597052989515444
+    },
+    {
+      "tile": 4469,
+      "from": 1,
+      "owner": 0,
+      "covered": 1936,
+      "total": 3571,
+      "fraction": 0.5421450574068888
+    },
+    {
+      "tile": 4499,
+      "from": 1,
+      "owner": 2,
+      "covered": 1450,
+      "total": 3529,
+      "fraction": 0.4108812694814395
+    },
+    {
+      "tile": 4500,
+      "from": 1,
+      "owner": 2,
+      "covered": 2312,
+      "total": 3572,
+      "fraction": 0.6472564389697648
+    },
+    {
+      "tile": 4501,
+      "from": 1,
+      "owner": 2,
+      "covered": 1464,
+      "total": 3529,
+      "fraction": 0.41484839897988096
+    },
+    {
+      "tile": 4512,
+      "from": 1,
+      "owner": 2,
+      "covered": 1116,
+      "total": 3572,
+      "fraction": 0.3124300111982083
+    },
+    {
+      "tile": 4515,
+      "from": 2,
+      "owner": 2,
+      "covered": 1459,
+      "total": 3529,
+      "fraction": 0.41343156701615186
+    },
+    {
+      "tile": 4527,
+      "from": 1,
+      "owner": 1,
+      "covered": 1242,
+      "total": 3529,
+      "fraction": 0.3519410597903089
+    },
+    {
+      "tile": 4541,
+      "from": 1,
+      "owner": 1,
+      "covered": 1280,
+      "total": 3529,
+      "fraction": 0.36270898271465
+    },
+    {
+      "tile": 4549,
+      "from": 1,
+      "owner": 1,
+      "covered": 1371,
+      "total": 3529,
+      "fraction": 0.3884953244545197
+    },
+    {
+      "tile": 4551,
+      "from": 2,
+      "owner": 1,
+      "covered": 1852,
+      "total": 3529,
+      "fraction": 0.5247945593652593
+    },
+    {
+      "tile": 4565,
+      "from": 1,
+      "owner": 0,
+      "covered": 1807,
+      "total": 3529,
+      "fraction": 0.5120430716916974
+    },
+    {
+      "tile": 4578,
+      "from": 1,
+      "owner": 0,
+      "covered": 1096,
+      "total": 3572,
+      "fraction": 0.3068309070548712
+    },
+    {
+      "tile": 4583,
+      "from": 1,
+      "owner": 0,
+      "covered": 1429,
+      "total": 3529,
+      "fraction": 0.4049305752337773
+    },
+    {
+      "tile": 4606,
+      "from": 1,
+      "owner": 2,
+      "covered": 1063,
+      "total": 3529,
+      "fraction": 0.30121847548880704
+    },
+    {
+      "tile": 4608,
+      "from": 1,
+      "owner": 2,
+      "covered": 3299,
+      "total": 3529,
+      "fraction": 0.9348257296684613
+    },
+    {
+      "tile": 4609,
+      "from": 2,
+      "owner": 2,
+      "covered": 1333,
+      "total": 3573,
+      "fraction": 0.3730758466274839
+    },
+    {
+      "tile": 4611,
+      "from": 1,
+      "owner": 2,
+      "covered": 1305,
+      "total": 3573,
+      "fraction": 0.36523929471032746
+    },
+    {
+      "tile": 4619,
+      "from": 1,
+      "owner": 2,
+      "covered": 1251,
+      "total": 3573,
+      "fraction": 0.3501259445843829
+    },
+    {
+      "tile": 4624,
+      "from": 1,
+      "owner": 2,
+      "covered": 2701,
+      "total": 3529,
+      "fraction": 0.7653726268064608
+    },
+    {
+      "tile": 4625,
+      "from": 2,
+      "owner": 2,
+      "covered": 1415,
+      "total": 3573,
+      "fraction": 0.39602574867058493
+    },
+    {
+      "tile": 4630,
+      "from": 1,
+      "owner": 1,
+      "covered": 1078,
+      "total": 3529,
+      "fraction": 0.30546897137999435
+    },
+    {
+      "tile": 4639,
+      "from": 1,
+      "owner": 1,
+      "covered": 1282,
+      "total": 3573,
+      "fraction": 0.3588021270640918
+    },
+    {
+      "tile": 4658,
+      "from": 1,
+      "owner": 1,
+      "covered": 1138,
+      "total": 3529,
+      "fraction": 0.32247095494474354
+    },
+    {
+      "tile": 4666,
+      "from": 2,
+      "owner": 0,
+      "covered": 1641,
+      "total": 3529,
+      "fraction": 0.46500425049589117
+    },
+    {
+      "tile": 4672,
+      "from": 1,
+      "owner": 0,
+      "covered": 2924,
+      "total": 3529,
+      "fraction": 0.8285633323887787
+    },
+    {
+      "tile": 4677,
+      "from": 1,
+      "owner": 0,
+      "covered": 1073,
+      "total": 3573,
+      "fraction": 0.30030786453960256
+    },
+    {
+      "tile": 4683,
+      "from": 1,
+      "owner": 0,
+      "covered": 1435,
+      "total": 3573,
+      "fraction": 0.40162328575426814
+    },
+    {
+      "tile": 4686,
+      "from": 1,
+      "owner": 0,
+      "covered": 1291,
+      "total": 3529,
+      "fraction": 0.36582601303485407
+    },
+    {
+      "tile": 4695,
+      "from": 1,
+      "owner": 0,
+      "covered": 2421,
+      "total": 3573,
+      "fraction": 0.6775818639798489
+    },
+    {
+      "tile": 4718,
+      "from": 1,
+      "owner": 2,
+      "covered": 1500,
+      "total": 3529,
+      "fraction": 0.42504958911873053
+    },
+    {
+      "tile": 4737,
+      "from": 1,
+      "owner": 2,
+      "covered": 1653,
+      "total": 3529,
+      "fraction": 0.468404647208841
+    },
+    {
+      "tile": 4746,
+      "from": 1,
+      "owner": 1,
+      "covered": 1969,
+      "total": 3529,
+      "fraction": 0.5579484273165203
+    },
+    {
+      "tile": 4763,
+      "from": 1,
+      "owner": 1,
+      "covered": 1224,
+      "total": 3529,
+      "fraction": 0.3468404647208841
+    },
+    {
+      "tile": 4764,
+      "from": 1,
+      "owner": 1,
+      "covered": 3218,
+      "total": 3529,
+      "fraction": 0.9118730518560498
+    },
+    {
+      "tile": 4770,
+      "from": 1,
+      "owner": 1,
+      "covered": 1422,
+      "total": 3529,
+      "fraction": 0.40294701048455656
+    },
+    {
+      "tile": 4785,
+      "from": 1,
+      "owner": 0,
+      "covered": 1370,
+      "total": 3529,
+      "fraction": 0.3882119580617739
+    },
+    {
+      "tile": 4791,
+      "from": 1,
+      "owner": 0,
+      "covered": 1237,
+      "total": 3529,
+      "fraction": 0.35052422782657977
+    },
+    {
+      "tile": 4828,
+      "from": 1,
+      "owner": 2,
+      "covered": 1464,
+      "total": 3571,
+      "fraction": 0.40996919630355644
+    },
+    {
+      "tile": 4862,
+      "from": 1,
+      "owner": 1,
+      "covered": 1787,
+      "total": 3571,
+      "fraction": 0.5004200504060488
+    },
+    {
+      "tile": 4863,
+      "from": 1,
+      "owner": 1,
+      "covered": 2079,
+      "total": 3572,
+      "fraction": 0.582026875699888
+    },
+    {
+      "tile": 4875,
+      "from": 1,
+      "owner": 1,
+      "covered": 1406,
+      "total": 3572,
+      "fraction": 0.39361702127659576
+    },
+    {
+      "tile": 4882,
+      "from": 1,
+      "owner": 1,
+      "covered": 1310,
+      "total": 3571,
+      "fraction": 0.3668440212825539
+    },
+    {
+      "tile": 4890,
+      "from": 1,
+      "owner": 0,
+      "covered": 1204,
+      "total": 3571,
+      "fraction": 0.3371604592551106
+    },
+    {
+      "tile": 4900,
+      "from": 1,
+      "owner": 0,
+      "covered": 1256,
+      "total": 3571,
+      "fraction": 0.35172220666479975
+    },
+    {
+      "tile": 4903,
+      "from": 1,
+      "owner": 0,
+      "covered": 1244,
+      "total": 3572,
+      "fraction": 0.3482642777155655
+    },
+    {
+      "tile": 4914,
+      "from": 1,
+      "owner": 0,
+      "covered": 1095,
+      "total": 3571,
+      "fraction": 0.30663679641556985
+    },
+    {
+      "tile": 4916,
+      "from": 1,
+      "owner": 0,
+      "covered": 2141,
+      "total": 3571,
+      "fraction": 0.599551946233548
+    },
+    {
+      "tile": 4920,
+      "from": 1,
+      "owner": 0,
+      "covered": 3307,
+      "total": 3571,
+      "fraction": 0.9260711285354243
+    },
+    {
+      "tile": 4921,
+      "from": 2,
+      "owner": 0,
+      "covered": 1229,
+      "total": 3572,
+      "fraction": 0.3440649496080627
+    },
+    {
+      "tile": 4979,
+      "from": 2,
+      "owner": 1,
+      "covered": 1380,
+      "total": 3528,
+      "fraction": 0.391156462585034
+    },
+    {
+      "tile": 4980,
+      "from": 1,
+      "owner": 1,
+      "covered": 2302,
+      "total": 3530,
+      "fraction": 0.6521246458923513
+    },
+    {
+      "tile": 4981,
+      "from": 1,
+      "owner": 1,
+      "covered": 1306,
+      "total": 3528,
+      "fraction": 0.3701814058956916
+    },
+    {
+      "tile": 5010,
+      "from": 1,
+      "owner": 0,
+      "covered": 1407,
+      "total": 3530,
+      "fraction": 0.39858356940509915
+    },
+    {
+      "tile": 5028,
+      "from": 1,
+      "owner": 0,
+      "covered": 1939,
+      "total": 3530,
+      "fraction": 0.5492917847025496
+    },
+    {
+      "tile": 5033,
+      "from": 1,
+      "owner": 0,
+      "covered": 1326,
+      "total": 3528,
+      "fraction": 0.3758503401360544
+    },
+    {
+      "tile": 5091,
+      "from": 1,
+      "owner": 1,
+      "covered": 1443,
+      "total": 3528,
+      "fraction": 0.40901360544217685
+    },
+    {
+      "tile": 5093,
+      "from": 1,
+      "owner": 1,
+      "covered": 2626,
+      "total": 3528,
+      "fraction": 0.7443310657596371
+    },
+    {
+      "tile": 5097,
+      "from": 1,
+      "owner": 1,
+      "covered": 1942,
+      "total": 3528,
+      "fraction": 0.550453514739229
+    },
+    {
+      "tile": 5141,
+      "from": 1,
+      "owner": 0,
+      "covered": 1424,
+      "total": 3528,
+      "fraction": 0.4036281179138322
+    },
+    {
+      "tile": 5215,
+      "from": 2,
+      "owner": 1,
+      "covered": 2153,
+      "total": 3571,
+      "fraction": 0.6029123494819378
+    },
+    {
+      "tile": 5216,
+      "from": 1,
+      "owner": 1,
+      "covered": 2466,
+      "total": 3529,
+      "fraction": 0.698781524511193
+    },
+    {
+      "tile": 5217,
+      "from": 1,
+      "owner": 1,
+      "covered": 1902,
+      "total": 3571,
+      "fraction": 0.5326239148697843
+    },
+    {
+      "tile": 5243,
+      "from": 1,
+      "owner": 0,
+      "covered": 1986,
+      "total": 3571,
+      "fraction": 0.5561467376085131
+    },
+    {
+      "tile": 5244,
+      "from": 1,
+      "owner": 0,
+      "covered": 2526,
+      "total": 3529,
+      "fraction": 0.7157835080759422
+    },
+    {
+      "tile": 5245,
+      "from": 1,
+      "owner": 0,
+      "covered": 1205,
+      "total": 3571,
+      "fraction": 0.33744049285914307
+    },
+    {
+      "tile": 5251,
+      "from": 2,
+      "owner": 0,
+      "covered": 1225,
+      "total": 3571,
+      "fraction": 0.34304116493979275
+    },
+    {
+      "tile": 5252,
+      "from": 1,
+      "owner": 0,
+      "covered": 2850,
+      "total": 3529,
+      "fraction": 0.807594219325588
+    },
+    {
+      "tile": 5330,
+      "from": 1,
+      "owner": 1,
+      "covered": 1325,
+      "total": 3573,
+      "fraction": 0.3708368317940106
+    },
+    {
+      "tile": 5346,
+      "from": 1,
+      "owner": 0,
+      "covered": 1493,
+      "total": 3573,
+      "fraction": 0.41785614329694937
+    },
+    {
+      "tile": 5348,
+      "from": 1,
+      "owner": 0,
+      "covered": 2743,
+      "total": 3573,
+      "fraction": 0.7677022110271481
+    },
+    {
+      "tile": 5349,
+      "from": 1,
+      "owner": 0,
+      "covered": 1399,
+      "total": 3529,
+      "fraction": 0.39642958345140267
+    },
+    {
+      "tile": 5354,
+      "from": 1,
+      "owner": 0,
+      "covered": 1080,
+      "total": 3573,
+      "fraction": 0.3022670025188917
+    },
+    {
+      "tile": 5419,
+      "from": 1,
+      "owner": 1,
+      "covered": 1404,
+      "total": 3573,
+      "fraction": 0.3929471032745592
+    },
+    {
+      "tile": 5420,
+      "from": 1,
+      "owner": 1,
+      "covered": 3001,
+      "total": 3529,
+      "fraction": 0.8503825446302069
+    },
+    {
+      "tile": 5421,
+      "from": 2,
+      "owner": 1,
+      "covered": 1169,
+      "total": 3573,
+      "fraction": 0.32717604254128185
+    },
+    {
+      "tile": 5425,
+      "from": 1,
+      "owner": 1,
+      "covered": 1862,
+      "total": 3573,
+      "fraction": 0.521130702490904
+    },
+    {
+      "tile": 5426,
+      "from": 1,
+      "owner": 1,
+      "covered": 1479,
+      "total": 3529,
+      "fraction": 0.4190988948710683
+    },
+    {
+      "tile": 5428,
+      "from": 1,
+      "owner": 1,
+      "covered": 2253,
+      "total": 3529,
+      "fraction": 0.6384244828563332
+    },
+    {
+      "tile": 5429,
+      "from": 2,
+      "owner": 1,
+      "covered": 1288,
+      "total": 3573,
+      "fraction": 0.3604813881891967
+    },
+    {
+      "tile": 5437,
+      "from": 1,
+      "owner": 1,
+      "covered": 1261,
+      "total": 3573,
+      "fraction": 0.3529247131262245
+    },
+    {
+      "tile": 5438,
+      "from": 1,
+      "owner": 1,
+      "covered": 1928,
+      "total": 3529,
+      "fraction": 0.5463304052139416
+    },
+    {
+      "tile": 5475,
+      "from": 1,
+      "owner": 0,
+      "covered": 1534,
+      "total": 3573,
+      "fraction": 0.42933109431849986
+    },
+    {
+      "tile": 5476,
+      "from": 1,
+      "owner": 0,
+      "covered": 2928,
+      "total": 3529,
+      "fraction": 0.8296967979597619
+    },
+    {
+      "tile": 5478,
+      "from": 2,
+      "owner": 0,
+      "covered": 1132,
+      "total": 3529,
+      "fraction": 0.32077075658826865
+    },
+    {
+      "tile": 5533,
+      "from": 2,
+      "owner": 1,
+      "covered": 1272,
+      "total": 3529,
+      "fraction": 0.3604420515726835
+    },
+    {
+      "tile": 5541,
+      "from": 2,
+      "owner": 1,
+      "covered": 1477,
+      "total": 3529,
+      "fraction": 0.41853216208557664
+    },
+    {
+      "tile": 5554,
+      "from": 1,
+      "owner": 1,
+      "covered": 1728,
+      "total": 3571,
+      "fraction": 0.48389806776813216
+    },
+    {
+      "tile": 5645,
+      "from": 1,
+      "owner": 1,
+      "covered": 1119,
+      "total": 3573,
+      "fraction": 0.3131821998320739
+    },
+    {
+      "tile": 5647,
+      "from": 1,
+      "owner": 1,
+      "covered": 2334,
+      "total": 3573,
+      "fraction": 0.653232577665827
+    },
+    {
+      "tile": 5654,
+      "from": 1,
+      "owner": 1,
+      "covered": 1555,
+      "total": 3571,
+      "fraction": 0.4354522542705125
+    },
+    {
+      "tile": 5655,
+      "from": 1,
+      "owner": 1,
+      "covered": 1611,
+      "total": 3573,
+      "fraction": 0.4508816120906801
+    },
+    {
+      "tile": 5664,
+      "from": 2,
+      "owner": 1,
+      "covered": 1196,
+      "total": 3550,
+      "fraction": 0.3369014084507042
+    },
+    {
+      "tile": 5684,
+      "from": 1,
+      "owner": 0,
+      "covered": 1163,
+      "total": 3528,
+      "fraction": 0.3296485260770975
+    },
+    {
+      "tile": 5703,
+      "from": 2,
+      "owner": 0,
+      "covered": 1285,
+      "total": 3573,
+      "fraction": 0.3596417576266443
+    },
+    {
+      "tile": 5768,
+      "from": 1,
+      "owner": 1,
+      "covered": 1292,
+      "total": 3529,
+      "fraction": 0.3661093794275999
+    },
+    {
+      "tile": 5812,
+      "from": 1,
+      "owner": 0,
+      "covered": 1138,
+      "total": 3529,
+      "fraction": 0.32247095494474354
+    },
+    {
+      "tile": 5814,
+      "from": 1,
+      "owner": 0,
+      "covered": 2013,
+      "total": 3529,
+      "fraction": 0.5704165485973364
+    },
+    {
+      "tile": 5872,
+      "from": 1,
+      "owner": 1,
+      "covered": 1457,
+      "total": 3573,
+      "fraction": 0.4077805765463196
+    },
+    {
+      "tile": 5880,
+      "from": 1,
+      "owner": 1,
+      "covered": 1187,
+      "total": 3573,
+      "fraction": 0.3322138259165967
+    },
+    {
+      "tile": 5919,
+      "from": 1,
+      "owner": 0,
+      "covered": 1386,
+      "total": 3571,
+      "fraction": 0.38812657518902266
+    },
+    {
+      "tile": 5920,
+      "from": 1,
+      "owner": 0,
+      "covered": 2289,
+      "total": 3573,
+      "fraction": 0.6406381192275399
+    },
+    {
+      "tile": 5921,
+      "from": 1,
+      "owner": 0,
+      "covered": 1763,
+      "total": 3571,
+      "fraction": 0.4936992439092691
+    },
+    {
+      "tile": 5924,
+      "from": 1,
+      "owner": 0,
+      "covered": 2398,
+      "total": 3573,
+      "fraction": 0.6711446963336132
+    },
+    {
+      "tile": 5981,
+      "from": 1,
+      "owner": 1,
+      "covered": 1652,
+      "total": 3528,
+      "fraction": 0.46825396825396826
+    },
+    {
+      "tile": 5982,
+      "from": 1,
+      "owner": 1,
+      "covered": 1172,
+      "total": 3529,
+      "fraction": 0.3321054122981014
+    },
+    {
+      "tile": 5984,
+      "from": 1,
+      "owner": 1,
+      "covered": 1438,
+      "total": 3529,
+      "fraction": 0.40748087276848965
+    },
+    {
+      "tile": 5988,
+      "from": 1,
+      "owner": 1,
+      "covered": 1499,
+      "total": 3529,
+      "fraction": 0.4247662227259847
+    },
+    {
+      "tile": 6034,
+      "from": 1,
+      "owner": 0,
+      "covered": 1061,
+      "total": 3529,
+      "fraction": 0.3006517427033154
+    },
+    {
+      "tile": 6035,
+      "from": 1,
+      "owner": 0,
+      "covered": 2545,
+      "total": 3528,
+      "fraction": 0.7213718820861678
+    },
+    {
+      "tile": 6095,
+      "from": 1,
+      "owner": 1,
+      "covered": 1360,
+      "total": 3528,
+      "fraction": 0.3854875283446712
+    },
+    {
+      "tile": 6097,
+      "from": 1,
+      "owner": 1,
+      "covered": 1197,
+      "total": 3528,
+      "fraction": 0.3392857142857143
+    },
+    {
+      "tile": 6100,
+      "from": 1,
+      "owner": 1,
+      "covered": 1258,
+      "total": 3574,
+      "fraction": 0.3519865696698377
+    },
+    {
+      "tile": 6144,
+      "from": 1,
+      "owner": 0,
+      "covered": 1096,
+      "total": 3574,
+      "fraction": 0.30665920537213204
+    },
+    {
+      "tile": 6207,
+      "from": 1,
+      "owner": 1,
+      "covered": 1296,
+      "total": 3572,
+      "fraction": 0.3628219484882419
+    },
+    {
+      "tile": 6338,
+      "from": 1,
+      "owner": 1,
+      "covered": 1108,
+      "total": 3571,
+      "fraction": 0.31027723326799217
+    },
+    {
+      "tile": 6410,
+      "from": 1,
+      "owner": 3,
+      "covered": 1140,
+      "total": 3529,
+      "fraction": 0.32303768773023517
+    },
+    {
+      "tile": 6430,
+      "from": 1,
+      "owner": 1,
+      "covered": 1079,
+      "total": 3529,
+      "fraction": 0.30575233777274013
+    },
+    {
+      "tile": 6542,
+      "from": 1,
+      "owner": 1,
+      "covered": 1142,
+      "total": 3529,
+      "fraction": 0.32360442051572685
+    },
+    {
+      "tile": 6623,
+      "from": 1,
+      "owner": 3,
+      "covered": 1241,
+      "total": 3571,
+      "fraction": 0.34752170260431253
+    },
+    {
+      "tile": 6735,
+      "from": 1,
+      "owner": 3,
+      "covered": 1456,
+      "total": 3530,
+      "fraction": 0.41246458923512747
+    },
+    {
+      "tile": 6739,
+      "from": 1,
+      "owner": 3,
+      "covered": 2723,
+      "total": 3530,
+      "fraction": 0.7713881019830028
+    },
+    {
+      "tile": 6740,
+      "from": 1,
+      "owner": 3,
+      "covered": 1909,
+      "total": 3529,
+      "fraction": 0.540946443751771
+    },
+    {
+      "tile": 6744,
+      "from": 1,
+      "owner": 3,
+      "covered": 2276,
+      "total": 3529,
+      "fraction": 0.6449419098894871
+    },
+    {
+      "tile": 6745,
+      "from": 2,
+      "owner": 3,
+      "covered": 1143,
+      "total": 3530,
+      "fraction": 0.32379603399433426
+    },
+    {
+      "tile": 7084,
+      "from": 1,
+      "owner": 3,
+      "covered": 1395,
+      "total": 3571,
+      "fraction": 0.390646877625315
+    },
+    {
+      "tile": 7143,
+      "from": 1,
+      "owner": 4,
+      "covered": 1581,
+      "total": 3530,
+      "fraction": 0.4478753541076487
+    },
+    {
+      "tile": 7296,
+      "from": 1,
+      "owner": 3,
+      "covered": 1337,
+      "total": 3530,
+      "fraction": 0.37875354107648723
+    },
+    {
+      "tile": 7304,
+      "from": 1,
+      "owner": 3,
+      "covered": 1366,
+      "total": 3530,
+      "fraction": 0.38696883852691216
+    },
+    {
+      "tile": 7356,
+      "from": 1,
+      "owner": 4,
+      "covered": 2691,
+      "total": 3530,
+      "fraction": 0.7623229461756373
+    },
+    {
+      "tile": 7357,
+      "from": 1,
+      "owner": 4,
+      "covered": 1420,
+      "total": 3528,
+      "fraction": 0.40249433106575966
+    },
+    {
+      "tile": 7368,
+      "from": 1,
+      "owner": 4,
+      "covered": 2809,
+      "total": 3530,
+      "fraction": 0.7957507082152975
+    },
+    {
+      "tile": 7369,
+      "from": 1,
+      "owner": 4,
+      "covered": 1295,
+      "total": 3528,
+      "fraction": 0.36706349206349204
+    },
+    {
+      "tile": 7371,
+      "from": 1,
+      "owner": 5,
+      "covered": 1540,
+      "total": 3528,
+      "fraction": 0.4365079365079365
+    },
+    {
+      "tile": 7372,
+      "from": 1,
+      "owner": 5,
+      "covered": 2424,
+      "total": 3530,
+      "fraction": 0.686685552407932
+    },
+    {
+      "tile": 7373,
+      "from": 1,
+      "owner": 5,
+      "covered": 1422,
+      "total": 3528,
+      "fraction": 0.4030612244897959
+    },
+    {
+      "tile": 7376,
+      "from": 1,
+      "owner": 5,
+      "covered": 2064,
+      "total": 3530,
+      "fraction": 0.5847025495750708
+    },
+    {
+      "tile": 7377,
+      "from": 1,
+      "owner": 5,
+      "covered": 1581,
+      "total": 3528,
+      "fraction": 0.4481292517006803
+    },
+    {
+      "tile": 7471,
+      "from": 1,
+      "owner": 4,
+      "covered": 1080,
+      "total": 3571,
+      "fraction": 0.3024362923550826
+    },
+    {
+      "tile": 7475,
+      "from": 1,
+      "owner": 4,
+      "covered": 1218,
+      "total": 3571,
+      "fraction": 0.3410809297115654
+    },
+    {
+      "tile": 7477,
+      "from": 2,
+      "owner": 4,
+      "covered": 1172,
+      "total": 3571,
+      "fraction": 0.3281993839260711
+    },
+    {
+      "tile": 7588,
+      "from": 1,
+      "owner": 4,
+      "covered": 1171,
+      "total": 3530,
+      "fraction": 0.33172804532577904
+    },
+    {
+      "tile": 7659,
+      "from": 1,
+      "owner": 4,
+      "covered": 1915,
+      "total": 3529,
+      "fraction": 0.542646642108246
+    },
+    {
+      "tile": 7690,
+      "from": 1,
+      "owner": 4,
+      "covered": 1288,
+      "total": 3573,
+      "fraction": 0.3604813881891967
+    },
+    {
+      "tile": 7712,
+      "from": 1,
+      "owner": 5,
+      "covered": 1145,
+      "total": 3573,
+      "fraction": 0.32045899804086203
+    },
+    {
+      "tile": 7714,
+      "from": 1,
+      "owner": 5,
+      "covered": 1436,
+      "total": 3573,
+      "fraction": 0.40190316260845227
+    },
+    {
+      "tile": 7773,
+      "from": 2,
+      "owner": 4,
+      "covered": 1726,
+      "total": 3572,
+      "fraction": 0.4832026875699888
+    },
+    {
+      "tile": 7777,
+      "from": 1,
+      "owner": 4,
+      "covered": 1260,
+      "total": 3572,
+      "fraction": 0.3527435610302352
+    },
+    {
+      "tile": 7779,
+      "from": 1,
+      "owner": 4,
+      "covered": 1247,
+      "total": 3572,
+      "fraction": 0.3491041433370661
+    },
+    {
+      "tile": 7807,
+      "from": 1,
+      "owner": 4,
+      "covered": 1569,
+      "total": 3572,
+      "fraction": 0.43924972004479285
+    },
+    {
+      "tile": 7809,
+      "from": 1,
+      "owner": 4,
+      "covered": 1928,
+      "total": 3572,
+      "fraction": 0.5397536394176932
+    },
+    {
+      "tile": 7820,
+      "from": 1,
+      "owner": 4,
+      "covered": 1220,
+      "total": 3528,
+      "fraction": 0.3458049886621315
+    },
+    {
+      "tile": 7824,
+      "from": 2,
+      "owner": 5,
+      "covered": 1114,
+      "total": 3528,
+      "fraction": 0.3157596371882086
+    },
+    {
+      "tile": 7826,
+      "from": 1,
+      "owner": 5,
+      "covered": 1442,
+      "total": 3528,
+      "fraction": 0.4087301587301587
+    },
+    {
+      "tile": 7883,
+      "from": 1,
+      "owner": 4,
+      "covered": 1371,
+      "total": 3531,
+      "fraction": 0.3882752761257434
+    },
+    {
+      "tile": 7889,
+      "from": 1,
+      "owner": 4,
+      "covered": 1479,
+      "total": 3531,
+      "fraction": 0.41886151231945623
+    },
+    {
+      "tile": 7898,
+      "from": 1,
+      "owner": 4,
+      "covered": 1390,
+      "total": 3571,
+      "fraction": 0.3892467096051526
+    },
+    {
+      "tile": 7919,
+      "from": 1,
+      "owner": 4,
+      "covered": 1515,
+      "total": 3531,
+      "fraction": 0.4290569243840272
+    },
+    {
+      "tile": 7926,
+      "from": 1,
+      "owner": 4,
+      "covered": 1202,
+      "total": 3571,
+      "fraction": 0.33660039204704567
+    },
+    {
+      "tile": 7936,
+      "from": 1,
+      "owner": 5,
+      "covered": 1316,
+      "total": 3571,
+      "fraction": 0.3685242229067488
+    },
+    {
+      "tile": 8014,
+      "from": 1,
+      "owner": 4,
+      "covered": 1062,
+      "total": 3528,
+      "fraction": 0.3010204081632653
+    },
+    {
+      "tile": 8015,
+      "from": 1,
+      "owner": 4,
+      "covered": 1532,
+      "total": 3573,
+      "fraction": 0.42877134061013156
+    },
+    {
+      "tile": 8022,
+      "from": 1,
+      "owner": 4,
+      "covered": 1678,
+      "total": 3528,
+      "fraction": 0.4756235827664399
+    },
+    {
+      "tile": 8028,
+      "from": 1,
+      "owner": 4,
+      "covered": 1249,
+      "total": 3528,
+      "fraction": 0.3540249433106576
+    },
+    {
+      "tile": 8031,
+      "from": 1,
+      "owner": 4,
+      "covered": 2195,
+      "total": 3573,
+      "fraction": 0.614329694934229
+    },
+    {
+      "tile": 8114,
+      "from": 1,
+      "owner": 4,
+      "covered": 1320,
+      "total": 3529,
+      "fraction": 0.37404363842448285
+    },
+    {
+      "tile": 8117,
+      "from": 1,
+      "owner": 4,
+      "covered": 1430,
+      "total": 3528,
+      "fraction": 0.40532879818594103
+    },
+    {
+      "tile": 8125,
+      "from": 1,
+      "owner": 4,
+      "covered": 1590,
+      "total": 3528,
+      "fraction": 0.45068027210884354
+    },
+    {
+      "tile": 8141,
+      "from": 1,
+      "owner": 4,
+      "covered": 1543,
+      "total": 3528,
+      "fraction": 0.4373582766439909
+    },
+    {
+      "tile": 8144,
+      "from": 1,
+      "owner": 4,
+      "covered": 1281,
+      "total": 3529,
+      "fraction": 0.36299234910739586
+    },
+    {
+      "tile": 8357,
+      "from": 1,
+      "owner": 4,
+      "covered": 1272,
+      "total": 3528,
+      "fraction": 0.36054421768707484
+    },
+    {
+      "tile": 8359,
+      "from": 1,
+      "owner": 4,
+      "covered": 1080,
+      "total": 3528,
+      "fraction": 0.30612244897959184
+    },
+    {
+      "tile": 8471,
+      "from": 1,
+      "owner": 4,
+      "covered": 1169,
+      "total": 3528,
+      "fraction": 0.33134920634920634
+    }
+  ],
+  "seaOverlapsPreserved": 88,
+  "minorLandOverlapsPreserved": 579
+}
