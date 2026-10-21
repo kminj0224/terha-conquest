@@ -1,0 +1,41 @@
+name: Align mountain artwork and gameplay tiles
+on:
+  push:
+    branches: [fix/mountain-tile-coverage]
+    paths: ['tools/align-mountain-tiles.cjs', 'qa/mountain-tile-alignment.cjs', 'game/assets/terrain-alignment.js', '.github/workflows/align-mountain-tiles.yml']
+permissions:
+  contents: write
+jobs:
+  align:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/mountain-tile-coverage
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Measure released mountain silhouettes and align land tiles
+        run: node tools/align-mountain-tiles.cjs --apply
+      - name: Check terrain and save migration
+        run: node qa/mountain-tile-alignment.cjs
+      - name: Full native Canvas regression
+        run: npm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mountain-alignment-review
+          path: |
+            previews/mountain-alignment.png
+            art/mountain-tile-alignment.json
+      - name: Save verified terrain correction
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add game/assets/mapdata.js art/mountain-tile-alignment.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Align mountain tiles with substantial illustrated mountain coverage'
+            git push origin HEAD:fix/mountain-tile-coverage
+          fi
