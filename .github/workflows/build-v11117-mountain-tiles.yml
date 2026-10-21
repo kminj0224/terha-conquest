@@ -1,0 +1,54 @@
+name: Build v1.11.17 mountain tile alignment
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/build-v11117-mountain-tiles.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: mountain-tiles-v11117
+  cancel-in-progress: false
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Mountain terrain and native regressions
+        run: |
+          mkdir -p previews
+          node qa/mountain-tile-alignment.cjs
+          npm test
+          python3 qa/verify-native.py
+      - name: Build and verify signed Android update
+        run: |
+          python3 build.py
+          python3 - <<'PY'
+          import zipfile,hashlib
+          from pathlib import Path
+          apk=Path('deliverables/Terha-Conquest-v1.11.17.apk')
+          with zipfile.ZipFile(apk) as z,zipfile.ZipFile('android/native-shell.zip') as shell:
+            assert z.testzip() is None
+            assert z.read('classes.dex')==shell.read('classes.dex')
+            for p in Path('game/assets').iterdir():
+              if p.is_file():assert z.read('assets/'+p.name)==p.read_bytes(),p
+          digest=hashlib.sha256(apk.read_bytes()).hexdigest()
+          Path('deliverables/SHA256SUMS.txt').write_text(digest+'  '+apk.name+'\n')
+          print('APK_SHA256',digest,'APK_BYTES',apk.stat().st_size)
+          PY
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.17.apk
+      - name: Publish downloadable APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.17 deliverables/Terha-Conquest-v1.11.17.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.17 — Mountain Tiles' --notes 'Correct 371 land tiles substantially covered by illustrated mountains. Keep all sea tiles and minor mountain overlaps unchanged. Apply corrected terrain to existing saves. Preserve original Android update signing and save compatibility. Android versionCode 162.'
