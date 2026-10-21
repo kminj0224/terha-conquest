@@ -19,7 +19,7 @@ sprite=function(u,p,now){
  const motion=movingAnimation(u.id);
  if(motion){const t=Math.max(0,Math.min(1,(now-motion.start)/motion.duration));p={x:motion.from.x+(motion.to.x-motion.from.x)*t,y:motion.from.y+(motion.to.y-motion.from.y)*t}}
  const art=danteFleetImages[u.type].idle;
- const width=u.type===25?132*NAVAL_VISUAL_SCALE:110*NAVAL_VISUAL_SCALE;
+ const width=u.type===25?132*NAVAL_VISUAL_SCALE*1.35:110*NAVAL_VISUAL_SCALE;
  const height=width*art.naturalHeight/art.naturalWidth;
  ctx.save();ctx.translate(p.x,p.y-3);
  ctx.fillStyle='#061c2866';ctx.beginPath();ctx.ellipse(0,12,width*.45,7*NAVAL_VISUAL_SCALE,0,0,Math.PI*2);ctx.fill();
@@ -36,3 +36,4 @@ sprite=function(u,p,now){
  }
 };
 Object.assign(window.Terha,{moveUnit,faceDanteFleet,danteFleetFacing,isDanteFleetArt});
+

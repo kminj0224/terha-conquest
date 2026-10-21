@@ -16,5 +16,7 @@ Object.assign(NAKWOL_INFANTRY_PROFILES,{
     // The centre gunner is ~8% shorter in source pixels than Baek's MG crew.
     // Enlarge by 8% to match SOLDIERS, not the tripod's complete silhouette.
     width:69,height:52,
-    muzzles:baekMuzzles([[23,601]]),burst:true}
+    // Source muzzle at (17,207) in the 768x576 image; use this crew's 69x52 draw size.
+    muzzles:[{x:(17/768-.5)*69,y:14-52+207/576*52}],burst:true}
 });
+

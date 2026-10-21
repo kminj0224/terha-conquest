@@ -31,7 +31,7 @@ module.exports=async function({run}){
   }
   ctx.drawImage=previous;
   check(observed.length>=3,'Dante custom ship renders missing: '+observed.length);
-  for(const [type,width] of [[25,132*NAVAL_VISUAL_SCALE],[24,110*NAVAL_VISUAL_SCALE],[23,110*NAVAL_VISUAL_SCALE]]){
+  for(const [type,width] of [[25,132*NAVAL_VISUAL_SCALE*1.35],[24,110*NAVAL_VISUAL_SCALE],[23,110*NAVAL_VISUAL_SCALE]]){
    const ship=observed.find(e=>e.type===type);
    check(!!ship,'Expected original Dante bitmap rendered for '+type);
    check(Math.abs(ship.width-width)<.05,'Dante width mismatch type '+type+': '+ship.width);
@@ -56,5 +56,6 @@ module.exports=async function({run}){
  assert(ground.includes("g.globalAlpha=.30;g.drawImage(territoryCanvas"),'v1.10.91 translucent territory overlay must be restored');
  assert(ground.includes('function terrainTintColor(f){const h=factions[f].color.slice(1)'),'v1.10.91 muted territory color function must be restored');
  assert(ground.includes("const g=canvas.getContext('2d'),m=mask.getContext('2d');g.drawImage(images[0],0,0);"),'v1.10.91 original terrain base render must be restored');
- console.log('PASS Dante fleet textures and sizing unchanged; v1.10.91 muted territory palette, baked relief, and translucent overlay restored:',rendered);
+ console.log('PASS Dante fleet textures and updated carrier sizing; v1.10.91 muted territory palette, baked relief, and translucent overlay restored:',rendered);
 };
+
