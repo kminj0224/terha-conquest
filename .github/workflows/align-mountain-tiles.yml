@@ -23,13 +23,12 @@ jobs:
         run: node qa/mountain-tile-alignment.cjs
       - name: Full native Canvas regression
         run: npm test
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: mountain-alignment-review
-          path: |
-            previews/mountain-alignment.png
-            art/mountain-tile-alignment.json
+      - name: Export visual review in job log
+        run: |
+          node - <<'JS'
+          const {loadImage,createCanvas}=require('@napi-rs/canvas');
+          (async()=>{const im=await loadImage('previews/mountain-alignment.png'),c=createCanvas(im.width,im.height);c.getContext('2d').drawImage(im,0,0);const s=c.encodeSync('jpeg',82).toString('base64');for(let i=0;i<s.length;i+=8000)console.log('MAP_PREVIEW '+s.slice(i,i+8000));})();
+          JS
       - name: Save verified terrain correction
         run: |
           git config user.name 'github-actions[bot]'
