@@ -12,7 +12,7 @@ function seedFrontlineReinforcements(){
  const fronts=new Map();
  for(const f of [2,0]){
   const front=reinforcementFrontDepth(f);fronts.set(f,front);if(!front.border.length)continue;
-  const composition=f===0?[[14,6],[1,10],[13,6],[2,6],[3,4],[9,24],[10,4],[0,4]]:[[14,6],[1,10],[13,6],[2,6],[3,4],[9,8],[10,6],[0,6]];
+  const composition=f===0?[[14,3],[1,3],[13,2],[2,2],[3,1],[9,6],[10,1],[0,2]]:[[14,3],[1,4],[13,2],[2,2],[3,1],[9,3],[10,2],[0,3]];
   const sites=tiles.map((t,i)=>i).filter(i=>front.depth[i]>=0&&!occupied.has(i)),crowding=new Float64Array(tiles.length);
   for(const [type,count]of composition)for(let n=0;n<count;n++){
    // Spread across the border, then fill its immediate supporting ranks.
