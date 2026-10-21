@@ -10,7 +10,7 @@ for(const r of audit.changes){assert(r.fraction>=.30);assert(r.covered/r.total==
 for(const t of geo.tiles){const a=b.map.tiles[t.id];if(t.owner<0&&a[0]<0)assert.equal(a[1],0);if(!changed.has(t.id)&&a[0]===t.owner)assert.equal(a[1],t.terrain,'unselected terrain changed at '+t.id);}
 // Exercise both new-game alignment and upgrading a saved game at the previous schema.
 const source=fs.readFileSync('game/assets/terrain-alignment.js','utf8');
-const ctx={MAP:b.map,tiles:b.map.tiles.map(a=>({owner:a[0],terrain:0})),cities:[],units:[],missileBases:[],buildRegions(){},cityProfile(){},setup(){},migrateArmy(){return 'loaded';},faceInitialArmy(){},save(){},updateHUD(){},refreshSelection(){},reach:new Map(),window:{Terha:{}}};
+const ctx={MAP:b.map,tiles:b.map.tiles.map(a=>({owner:a[0],terrain:0})),cities:[],units:[],missileBases:[],territoryDirty:false,buildRegions(){},cityProfile(){},setup(){},migrateArmy(){return 'loaded';},faceInitialArmy(){},save(){},updateHUD(){},refreshSelection(){},reach:new Map(),window:{Terha:{}}};
 vm.createContext(ctx);vm.runInContext(source,ctx);vm.runInContext('setup()',ctx);
 for(const id of changed)assert.equal(ctx.tiles[id].terrain,3);
 for(const t of ctx.tiles)t.terrain=0;
