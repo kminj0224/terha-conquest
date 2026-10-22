@@ -20,7 +20,7 @@ new Function('require','__dirname',source+`
   const north=units.filter(u=>u.northernFrontFleet);check(north.length===2&&north.some(u=>u.type===25)&&north.some(u=>u.type===23),'Northern fleet composition');
   const from=index(W+OCEAN_X-1,40),to=index(-OCEAN_X,40),ship=makeUnit(0,23,from,2);freshOrders(ship);
   check(reachable(ship).costs.has(to),'Seam must be navigable');check(moveCost({f:0,type:0},to)>=99999,'Infantry must not walk onto ocean');
-  check(moveUnit(ship,to,true),'Seam movement rejected');const m=moving.find(m=>m.id===ship.id);check(m&&Math.abs(m.to.x-m.from.x)<=S,'Seam animation crosses whole map');
+  check(moveUnit(ship,to,true),'Seam movement rejected');check(ship.destroyerFacing===1,'Eastward seam facing');const m=moving.find(m=>m.id===ship.id);check(m&&Math.abs(m.to.x-m.from.x)<=S,'Seam animation crosses whole map');
   units=units.filter(u=>u.id!==ship.id);moving=[];
   return{tiles:tiles.length,addedOcean:tiles.length-W*H,northernFleet:north.map(u=>u.type)};
  })()\`);

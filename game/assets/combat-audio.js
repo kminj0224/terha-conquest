@@ -39,7 +39,7 @@ function playCombatVoice(event,now){
  const sequence=combatAudio.variation++,variant=sequence%2,buffer=combatBuffer(event.name,variant);if(!buffer)return;
  const source=context.createBufferSource(),gain=context.createGain(),filter=context.createBiquadFilter();source.buffer=buffer;
  source.playbackRate.value=1+((sequence*17%11)-5)*.004;
- const viewWidth=Math.max(640,screenW/cam.z),dx=(event.position.x-cam.x)/viewWidth,dy=(event.position.y-cam.y)/viewWidth;
+ const viewWidth=Math.max(640,screenW/cam.z),dx=(nearWorldPoint(event.position,cam).x-cam.x)/viewWidth,dy=(event.position.y-cam.y)/viewWidth;
  const distance=event.ui?0:Math.hypot(dx,dy),attenuation=Math.max(.22,1/(1+distance*.65));
  filter.type='lowpass';filter.frequency.value=Math.max(1800,14500/(1+distance*.6));filter.Q.value=.5;
  gain.gain.value=event.loop?0:event.volume*attenuation;if(event.loop)gain.gain.setTargetAtTime(event.volume*attenuation,context.currentTime,.018);source.loop=!!event.loop;
@@ -105,3 +105,4 @@ document.addEventListener('pointerdown',()=>{if(sound)ensureCombatAudio()},{pass
 document.addEventListener('keydown',()=>{if(sound)ensureCombatAudio()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopCombatAudio();if(combatAudio.context?.state==='running')combatAudio.context.suspend().catch(()=>{})}});
 Object.assign(window.Terha,{launchShot,targetExplosions,setup,migrateArmy,enableAIFastForward,combatWeaponProfile,combatImpactProfile});
+

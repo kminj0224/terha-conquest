@@ -45,3 +45,13 @@ drawMini=function(){
 $('mini').onclick=e=>{const b=$('mini').getBoundingClientRect();cam.x=WORLD_LEFT+(e.clientX-b.left)/b.width*WORLD_WIDTH;cam.y=WORLD_TOP+(e.clientY-b.top)/b.height*WORLD_HEIGHT};
 $('mapbtn').onclick=()=>{$('mini').style.display=$('mini').style.display==='block'?'none':'block';cam.x=WORLD_LEFT+WORLD_WIDTH/2;cam.y=WORLD_TOP+WORLD_HEIGHT/2;cam.z=Math.min(screenW/WORLD_WIDTH,screenH/WORLD_HEIGHT)*.94};
 Object.assign(window.Terha,{drawMini,wrapWorldX,drawOceanBackground});
+// Every art wrapper receives the same short direction through the world seam.
+const oceanBeginAim=beginAim;beginAim=function(u,p,duration){return oceanBeginAim(u,nearWorldPoint(p,pxy(u.tile)),duration)};
+const oceanLaunchShot=launchShot;launchShot=function(u,p,...args){return oceanLaunchShot(u,nearWorldPoint(p,pxy(u.tile)),...args)};
+const oceanMoveUnit=moveUnit;moveUnit=function(u,i,ai=false){
+ const from=pxy(u.tile),target=pxy(i),to=nearWorldPoint(target,from),crosses=Math.abs(target.x-from.x)>WORLD_WIDTH/2;
+ const ok=oceanMoveUnit(u,i,ai);
+ if(ok&&crosses&&Math.abs(to.x-from.x)>.001){const facing=to.x>from.x?1:-1;u.carrierFacing=u.destroyerFacing=u.rifleFacing=u.tankFacing=u.artilleryFacing=u.devilFacing=facing;if(!ai)save()}
+ return ok;
+};
+Object.assign(window.Terha,{beginAim,launchShot,moveUnit});

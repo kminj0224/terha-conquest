@@ -48,7 +48,7 @@ function updateMovementAudio(now){
   const unit=units.find(u=>u.id===animation.id&&!u.carriedBy&&u.hp>0);if(!unit)continue;
   const p=unitVisualPosition(unit,now);let voice=movementVoices.get(animation);
   if(!voice){const profile=movementSoundProfile(unit);voice=playCombatVoice({name:profile.name,position:p,start:now,end:animation.start+animation.duration,volume:profile.volume,loop:true},now);if(voice)movementVoices.set(animation,voice)}
-  if(voice&&!voice.ended&&voice.panner){const width=Math.max(640,screenW/cam.z);voice.panner.pan.value=Math.max(-.7,Math.min(.7,(p.x-cam.x)/width*1.3))}
+  if(voice&&!voice.ended&&voice.panner){const width=Math.max(640,screenW/cam.z);voice.panner.pan.value=Math.max(-.7,Math.min(.7,(nearWorldPoint(p,cam).x-cam.x)/width*1.3))}
  }
 }
 const interactionStopAudio=stopCombatAudio;stopCombatAudio=function(includeUI=true){for(const voice of movementVoices.values())stopMovementVoice(voice);movementVoices.clear();return interactionStopAudio(includeUI)};
