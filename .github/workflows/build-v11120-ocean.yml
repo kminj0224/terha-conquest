@@ -28,8 +28,8 @@ jobs:
         run: |
           mkdir -p previews
           node qa/mountain-tile-alignment.cjs
-          npm test
           node qa/ocean-world-regression.cjs
+          npm test
           python3 qa/verify-native.py
       - name: Build signed Android update
         run: |

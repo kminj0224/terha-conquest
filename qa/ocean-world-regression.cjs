@@ -30,7 +30,8 @@ new Function('require','__dirname',source+`
  assert.equal(await drain(run('load(5)')),true);assert.equal(run('units.length'),run('savedFleetCount'));assert(run('tiles.slice(W*H).every(t=>t.owner===-1)'));
  run('save(5)');assert.equal(await drain(run('load(5)')),true);
  fs.mkdirSync(path.join(__dirname,'../previews'),{recursive:true});
- const views=[['ocean-world',3590,2340,.13],['ocean-left',0,2600,.8],['ocean-right',WW,2600,.8],['ocean-top',2900,0,.8],['ocean-bottom',2900,HH,.8],['ocean-seam',WORLD_LEFT,2600,.8]];
+ const [worldW,worldH,worldLeft]=JSON.parse(run('JSON.stringify([WW,HH,WORLD_LEFT])'));
+ const views=[['ocean-world',3590,2340,.13],['ocean-left',0,2600,.8],['ocean-right',worldW,2600,.8],['ocean-top',2900,0,.8],['ocean-bottom',2900,worldH,.8],['ocean-seam',worldLeft,2600,.8]];
  for(const [name,x,y,z]of views){run('cam.x='+x+';cam.y='+y+';cam.z='+z+';draw(20000)');await settle();run('draw(20000)');fs.writeFileSync(path.join(__dirname,'../previews/'+name+'.png'),main.toBuffer('image/png'))}
  // Rendering one circumference apart must be pixel-identical, including ships near the seam.
  run('cam.x=WORLD_LEFT;cam.y=2600;cam.z=.8;draw(20000)');await settle();run('draw(20000)');const first=main.toBuffer('image/png');
