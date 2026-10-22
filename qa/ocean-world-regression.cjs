@@ -3,6 +3,8 @@ new Function('require','__dirname',source+`
 (async()=>{
  await Promise.all(pending);
  run("player=0;setup();started=true;setAppScreen('game');menuMode=false;busy=false");await settle();
+ assert(fs.readFileSync(path.join(root,'ocean-material.png')).equals(fs.readFileSync(path.join(__dirname,'../art/terrain-materials/ocean-material.png'))),'Extended sea must use the unchanged original ocean material');
+ assert(run('oceanMaterial.idleReady&&oceanTexture().width===930'),'Original ocean scale must decode');
  const report=run(\`(()=>{
   const check=(ok,msg)=>{if(!ok)throw Error(msg)};
   check(tiles.length===WORLD_COLS*WORLD_ROWS,'Ocean ring missing');

@@ -29,7 +29,7 @@ let oceanMini=null,oceanMiniKey='';
 drawMini=function(){
  if($('mini').style.display!=='block')return;
  const m=$('mini');if(m.width!==166)m.width=166;if(m.height!==119)m.height=119;
- const key=[territoryGeneration,coastArtwork.ready,cities.map(q=>q.tile+':'+q.f).join('|')].join(':');
+ const key=[territoryGeneration,coastArtwork.ready,oceanMaterial.idleReady,cities.map(q=>q.tile+':'+q.f).join('|')].join(':');
  if(!oceanMini||oceanMiniKey!==key){refreshTerritory();oceanMiniKey=key;oceanMini??=document.createElement('canvas');oceanMini.width=166;oceanMini.height=119;const g=oceanMini.getContext('2d');g.scale(166/WORLD_WIDTH,119/WORLD_HEIGHT);g.translate(-WORLD_LEFT,-WORLD_TOP);
   // This small surface covers the full world, independent of the current camera.
   const source=coastArtwork.ready&&coastArtwork.natural?coastArtwork.image:worldImg;

@@ -38,7 +38,7 @@ function getGroundChunk(meta){
  entry={meta,bytes,generation:territoryGeneration,signature:groundSignature(meta),canvas:null,loading:false,disposed:false};groundChunks.set(meta.name,entry);groundBytes+=bytes;trimGroundCache();loadGroundChunk(entry);return null;
 }
 function drawNaturalGround(){
- const key=['natural2',cam.x,cam.y,cam.z,c.width,c.height,territoryGeneration,coastArtwork.maskReady,naturalDetailRevision,naturalDetailEnabled].join(':');
+ const key=['natural2',oceanMaterial.idleReady,cam.x,cam.y,cam.z,c.width,c.height,territoryGeneration,coastArtwork.maskReady,naturalDetailRevision,naturalDetailEnabled].join(':');
  if(!groundView||groundViewKey!==key){
   groundView??=document.createElement('canvas');
   const d=Math.min(c.width/screenW,Math.sqrt(6*1024*1024/(screenW*screenH)));
@@ -53,7 +53,7 @@ function drawNaturalGround(){
 function drawStaticGround(){
  refreshTerritory();
  if(coastArtwork.ready&&coastArtwork.natural)return drawNaturalGround();
- const key=[cam.x,cam.y,cam.z,c.width,c.height,coastArtwork.ready,territoryGeneration,groundRevision].join(':');
+ const key=[oceanMaterial.idleReady,cam.x,cam.y,cam.z,c.width,c.height,coastArtwork.ready,territoryGeneration,groundRevision].join(':');
  if(!groundView||groundViewKey!==key){
   const left=cam.x-screenW/2/cam.z,right=cam.x+screenW/2/cam.z,top=cam.y-screenH/2/cam.z,bottom=cam.y+screenH/2/cam.z;
   let visible=GROUND_DATA.chunks.filter(q=>q.x+q.w>left&&q.x<right&&q.y+q.h>top&&q.y<bottom);if(cam.z<.55||visible.length>14)visible=[groundOverview];
