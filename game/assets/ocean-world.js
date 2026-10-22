@@ -1,29 +1,28 @@
 'use strict';
 // Extend the existing painted sea without recoloring or rescaling the retained map.
-let oceanPatternCanvas=null,oceanPatternSource=null;
-function oceanTexture(source){
+const oceanMaterial=loadBaekArt('ocean-material.png');
+let oceanPatternCanvas=null,oceanSeamCanvas=null,oceanPatternSource=null;
+function oceanTexture(){
+ const source=oceanMaterial.idle;
+ if(!oceanMaterial.idleReady)return null;
  if(oceanPatternCanvas&&oceanPatternSource===source)return oceanPatternCanvas;
- const tile=document.createElement('canvas');tile.width=tile.height=512;
- const g=tile.getContext('2d'),sw=source.naturalWidth*256/WW,sh=source.naturalHeight*256/HH;
- // The northwest corner is open water. Mirrored quadrants make every repeat continuous.
- for(let y=0;y<2;y++)for(let x=0;x<2;x++){g.save();g.translate(x?512:0,y?512:0);g.scale(x?-1:1,y?-1:1);g.drawImage(source,0,0,sw,sh,0,0,256,256);g.restore()}
- oceanPatternCanvas=tile;oceanPatternSource=source;return tile;
+ // Exact source, scale, phase and tint used by tools/bake-aligned-map.cjs.
+ const period=930,tile=document.createElement('canvas');tile.width=tile.height=period;
+ const g=tile.getContext('2d');g.drawImage(source,0,0,period,period);g.fillStyle='#093a5b55';g.fillRect(0,0,period,period);
+ // Only the remote western ocean blends its phase to the east edge of the cylinder.
+ // Around the retained map, the painted waves match the original 930-unit pattern.
+ const seam=document.createElement('canvas');seam.width=256;seam.height=period;const p=seam.getContext('2d');p.save();p.translate(-WORLD_LEFT-WORLD_WIDTH,0);p.fillStyle=p.createPattern(tile,'repeat');p.fillRect(WORLD_LEFT+WORLD_WIDTH,0,256,period);p.restore();
+ const fade=p.createLinearGradient(0,0,256,0);fade.addColorStop(0,'#000');fade.addColorStop(1,'#0000');p.globalCompositeOperation='destination-in';p.fillStyle=fade;p.fillRect(0,0,256,period);
+ oceanPatternCanvas=tile;oceanSeamCanvas=seam;oceanPatternSource=source;return tile;
+}
+function paintOceanSurface(g,l,t,w,h){
+ const texture=oceanTexture();if(!texture)return;
+ g.save();g.fillStyle=g.createPattern(texture,'repeat');g.fillRect(l,t,w,h);
+ if(l<WORLD_LEFT+256&&l+w>WORLD_LEFT)for(let y=Math.floor(t/930);y<=Math.floor((t+h)/930);y++)g.drawImage(oceanSeamCanvas,WORLD_LEFT,y*930);
+ g.restore();
 }
 function drawOceanBackground(g){
- const source=coastArtwork.ready&&coastArtwork.natural?coastArtwork.image:worldImg;
- const l=cam.x-screenW/2/cam.z-2,t=cam.y-screenH/2/cam.z-2,w=screenW/cam.z+4,h=screenH/cam.z+4;
- if(!source.naturalWidth)return;
- g.save();g.fillStyle=g.createPattern(oceanTexture(source),'repeat');g.fillRect(l,t,w,h);
- // Continue each exact edge outward, then feather it into the same illustrated water.
- // The first strip is opaque at the join. No land pixels are sampled from the interior.
- const sw=source.naturalWidth,sh=source.naturalHeight,fade=128,step=4;
- for(let d=fade-step;d>=0;d-=step){const a=d/fade;g.globalAlpha=1-a*a*(3-2*a);
-  if(l<0)g.drawImage(source,0,0,1,sh,-d-step,0,step,HH);
-  if(l+w>WW)g.drawImage(source,sw-1,0,1,sh,WW+d,0,step,HH);
-  if(t<0)g.drawImage(source,0,0,sw,1,0,-d-step,WW,step);
-  if(t+h>HH)g.drawImage(source,0,sh-1,sw,1,0,HH+d,WW,step);
- }
- g.restore();
+ paintOceanSurface(g,cam.x-screenW/2/cam.z-2,cam.y-screenH/2/cam.z-2,screenW/cam.z+4,screenH/cam.z+4);
 }
 // The minimap describes the expanded ocean, including both sides of its wrap seam.
 let oceanMini=null,oceanMiniKey='';
@@ -34,7 +33,7 @@ drawMini=function(){
  if(!oceanMini||oceanMiniKey!==key){refreshTerritory();oceanMiniKey=key;oceanMini??=document.createElement('canvas');oceanMini.width=166;oceanMini.height=119;const g=oceanMini.getContext('2d');g.scale(166/WORLD_WIDTH,119/WORLD_HEIGHT);g.translate(-WORLD_LEFT,-WORLD_TOP);
   // This small surface covers the full world, independent of the current camera.
   const source=coastArtwork.ready&&coastArtwork.natural?coastArtwork.image:worldImg;
-  if(source.naturalWidth){g.fillStyle=g.createPattern(oceanTexture(source),'repeat');g.fillRect(WORLD_LEFT,WORLD_TOP,WORLD_WIDTH,WORLD_HEIGHT);g.drawImage(source,0,0,WW,HH)}
+  paintOceanSurface(g,WORLD_LEFT,WORLD_TOP,WORLD_WIDTH,WORLD_HEIGHT);if(source.naturalWidth)g.drawImage(source,0,0,WW,HH)
   if(territoryCanvas){g.save();g.globalAlpha=.5;g.drawImage(coastArtwork.natural&&naturalTerritory?naturalTerritory:territoryCanvas,0,0,WW,HH);g.restore()}
   for(const q of cities){const p=pxy(q.tile);g.fillStyle=factions[q.f].color;g.fillRect(p.x,p.y,WORLD_WIDTH/83,WORLD_HEIGHT/60)}
  }
