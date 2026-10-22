@@ -21,7 +21,7 @@ productionPanel=function(q){
  commandoProductionPanel(q);
  // The economy catalogue has its own special-unit list. Expose the new
  // special in that same list, not in the generic infantry catalogue.
- if(q.f!==5||!q.capital||q.origin!==5||q.f!==player)return;
+ if(q.f!==5||(!q.capital&&q.level<4)||q.f!==player)return;
  const cat=$('unitCatalogue');
  if(!cat)return;
  const group=document.createElement('div');group.className='unitGroup';
@@ -172,3 +172,4 @@ migrateArmy=function(s){
 };
 Object.assign(window.Terha,{NAKWOL_COMMANDO,FUEL_RESEARCH_COST,FUEL_RESEARCH_TURNS,damage,studyFuelEfficiency,
  fuelResearchReason,efficiencyCost,moveOil,attackOil,industryTurn,migrateArmy,setup,deploy,showPanel,productionPanel});
+

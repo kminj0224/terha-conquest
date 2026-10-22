@@ -57,13 +57,13 @@ function playCombatVoice(event,now){
 function combatWeaponProfile(u){
  const type=u.type,f=u.f;
  if(type===26)return null;
- if(type===17||type===18||f===2&&[1,13,14].includes(type))return{name:'laser',shots:1,step:0,volume:.66};
- const defs={0:['rifle',1,0,.62],6:['rifle',10,70,.32],8:['grenade_launch',1,0,.72],9:['rocket',1,0,.72],10:['machinegun',8,70,.38],11:['rifle',8,70,.34],12:['autocannon',6,70,.4],13:['light_cannon',1,0,.8],1:['tank',1,0,.86],14:['heavy_tank',1,0,.92],15:['mortar',1,0,.8],16:['artillery',1,0,.92],2:['artillery',1,0,.92],3:['rocket',f===0?5:6,f===0?120:95,.44],22:['autocannon',6,65,.4],5:['missile',1,0,.72],23:['missile',1,0,.76],24:['missile',1,0,.84],25:['jet',1,0,.58],4:['jet',1,0,.58],7:['jet',1,0,.66],19:['jet',1,0,.72],20:['autocannon',6,75,.34],21:['rocket',4,100,.42]};
+ if(type===18||f===2&&[1,13,14].includes(type))return{name:'laser',shots:1,step:0,volume:.66};
+ const defs={17:['rifle',8,70,.34],0:['rifle',1,0,.62],6:['rifle',10,70,.32],8:['grenade_launch',1,0,.72],9:['rocket',1,0,.72],10:['machinegun',8,70,.38],11:['rifle',8,70,.34],12:['autocannon',6,70,.4],13:['light_cannon',1,0,.8],1:['tank',1,0,.86],14:['heavy_tank',1,0,.92],15:['mortar',1,0,.8],16:['artillery',1,0,.92],2:['artillery',1,0,.92],3:['rocket',f===0?5:6,f===0?120:95,.44],22:['autocannon',6,65,.4],5:['missile',1,0,.72],23:['missile',1,0,.76],24:['missile',1,0,.84],25:['jet',1,0,.58],4:['jet',1,0,.58],7:['jet',1,0,.66],19:['jet',1,0,.72],20:['autocannon',6,75,.34],21:['rocket',4,100,.42]};
  const [name,shots,step,volume]=defs[type]||['rifle',1,0,.6];return{name,shots,step,volume};
 }
 function combatImpactProfile(u){
- if(u.type===17||u.type===18||u.f===2&&[1,13,14].includes(u.type))return'energy_hit';
- if([0,6,10,11,12,20,22].includes(u.type))return'bullet_hit';
+ if(u.type===18||u.f===2&&[1,13,14].includes(u.type))return'energy_hit';
+ if([0,6,10,11,12,17,20,22].includes(u.type))return'bullet_hit';
  if(u.type===8)return'explosion_small';
  if([9,15,3,21].includes(u.type))return'explosion_medium';
  return'explosion_heavy';
@@ -105,4 +105,5 @@ document.addEventListener('pointerdown',()=>{if(sound)ensureCombatAudio()},{pass
 document.addEventListener('keydown',()=>{if(sound)ensureCombatAudio()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopCombatAudio();if(combatAudio.context?.state==='running')combatAudio.context.suspend().catch(()=>{})}});
 Object.assign(window.Terha,{launchShot,targetExplosions,setup,migrateArmy,enableAIFastForward,combatWeaponProfile,combatImpactProfile});
+
 

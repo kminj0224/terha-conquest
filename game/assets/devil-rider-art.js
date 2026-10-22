@@ -1,15 +1,32 @@
 'use strict';
-const devilRiderArt=loadBaekArt('dante-devil-idle.png','dante-devil-fire.png');
-const DEVIL_RIDER_BOX={x:-22.5,y:-40,w:45,h:60,bottom:20};
-TYPES[17].range=3;TYPES[17].text+=' 마법봉의 붉은 레이저 · 사거리 3칸.';
+// Historical helper names remain for older renderer integrations; type 17 is now infantry.
+const devilRiderArt=loadBaekArt('dante-commando-idle.png','dante-commando-fire.png');
+const DEVIL_RIDER_BOX={x:-36,y:-40,w:72,h:54,bottom:14};
+const DANTE_COMMANDO_MUZZLES=[[565,240],[1013,248],[1440,261],[823,619],[1343,592]];
 function isDevilRider(u){return u.type===17&&u.f===1}
 function devilRiderFacing(u){return u.devilFacing===-1?-1:u.devilFacing===1?1:Number.isFinite(u.angle)&&Math.cos(u.angle)<0?-1:1}
 function faceDevilRider(u,from,to){if(isDevilRider(u)&&Math.abs(to.x-from.x)>.001)u.devilFacing=to.x>from.x?1:-1}
-function devilRiderMuzzle(u,p){return{x:p.x+devilRiderFacing(u)*(975/1086-.5)*45,y:p.y-3+DEVIL_RIDER_BOX.y+125/1448*60}}
+function danteCommandoMuzzles(u,p){return DANTE_COMMANDO_MUZZLES.map(([x,y])=>({x:p.x+devilRiderFacing(u)*(DEVIL_RIDER_BOX.x+x/1448*DEVIL_RIDER_BOX.w),y:p.y-3+DEVIL_RIDER_BOX.y+y/1086*DEVIL_RIDER_BOX.h}))}
+function devilRiderMuzzle(u,p){return danteCommandoMuzzles(u,p)[0]}
 const devilAim=beginAim;beginAim=function(u,p,d){faceDevilRider(u,pxy(u.tile),p);return devilAim(u,p,d)};
 const devilMove=moveUnit;moveUnit=function(u,i,ai=false){const from=pxy(u.tile),ok=devilMove(u,i,ai);if(ok&&isDevilRider(u)){faceDevilRider(u,from,pxy(i));if(!ai)save()}return ok};
-const devilLaunch=launchShot;launchShot=function(u,target,start=performance.now(),duration=520){if(!isDevilRider(u))return devilLaunch(u,target,start,duration);const p=pxy(u.tile);faceDevilRider(u,p,target);const m=devilRiderMuzzle(u,p);fireMotions.set(u.id,{start,duration:450,devil:true});fx.push({kind:'devilLaser',x:m.x,y:m.y,tx:target.x,ty:target.y-8,start,duration:300});return m};
-const devilImpact=targetExplosions;targetExplosions=function(u,p,d,now=performance.now(),...rest){if(!isDevilRider(u))return devilImpact(u,p,d,now,...rest);fx.push({kind:'devilImpact',x:p.x,y:p.y-8,damage:d,start:now,duration:650})};
-function drawDevilRiderEffect(e,t){ctx.save();ctx.globalAlpha=1-t;if(e.kind==='devilLaser'){const pulse=.8+.2*Math.sin(t*40);line(e.x,e.y,e.tx,e.ty,'#e6123955',8*pulse);line(e.x,e.y,e.tx,e.ty,'#ff294c',3*pulse);line(e.x,e.y,e.tx,e.ty,'#ffe2e8',1);circle(e.x,e.y,4*(1-t),'#ff5372');circle(e.tx,e.ty,5*(1-t),'#ffd1d9')}else{for(let j=0;j<10;j++){const a=j*2.399,r=t*(22+j%3*5);line(e.x+Math.cos(a)*r*.6,e.y+Math.sin(a)*r*.6,e.x+Math.cos(a)*r,e.y+Math.sin(a)*r,'#f13c59',1.6)}circle(e.x,e.y,12*(1-t),'#e21b4055');ctx.globalAlpha=1-t*.5;ctx.fillStyle='#ffe3e8';ctx.font='bold 14px Terha,sans-serif';ctx.textAlign='center';ctx.fillText('−'+e.damage,e.x,e.y-20-t*25)}ctx.restore()}
-const devilSprite=sprite;sprite=function(u,p,now){if(!isDevilRider(u)||!devilRiderArt.idleReady||!devilRiderArt.fireReady)return devilSprite(u,p,now);const move=movingAnimation(u.id);if(move){const t=Math.max(0,Math.min(1,(now-move.start)/move.duration));p={x:move.from.x+(move.to.x-move.from.x)*t,y:move.from.y+(move.to.y-move.from.y)*t}}const fire=fireMotions.get(u.id),elapsed=fire?now-fire.start:-1,firing=elapsed>=0&&elapsed<fire.duration;ctx.save();ctx.translate(p.x,p.y-3);ctx.globalAlpha=1;ctx.fillStyle="#0005";ctx.beginPath();ctx.ellipse(0,18,22,7,0,0,Math.PI*2);ctx.fill();beginLargeUnitBody(u,20);ctx.save();ctx.scale(devilRiderFacing(u),1);ctx.drawImage(devilRiderArt[firing?'fire':'idle'],DEVIL_RIDER_BOX.x,DEVIL_RIDER_BOX.y,DEVIL_RIDER_BOX.w,DEVIL_RIDER_BOX.h);ctx.restore();endLargeUnitBody();if(fire&&elapsed>=fire.duration)fireMotions.delete(u.id);if(cam.z>.55){ctx.font='bold 9px Terha,sans-serif';ctx.textAlign='center';ctx.lineWidth=2.5;ctx.strokeStyle='#10222b';ctx.strokeText(TYPES[u.type].name+' '+u.level,0,38);ctx.fillStyle='#eee7d2';ctx.fillText(TYPES[u.type].name+' '+u.level,0,38);rect(-25,21,50,5,'#12211c');rect(-24,22,48*Math.max(0,u.hp/unitMaxHp(u)),3,factions[u.f].color)}ctx.restore()};
-Object.assign(window.Terha,{moveUnit,devilRiderFacing,faceDevilRider,devilRiderMuzzle,drawDevilRiderEffect});
+const devilLaunch=launchShot;launchShot=function(u,target,start=performance.now(),duration=520){
+ if(!isDevilRider(u))return devilLaunch(u,target,start,duration);
+ const p=pxy(u.tile);faceDevilRider(u,p,target);const points=danteCommandoMuzzles(u,p);
+ fireMotions.set(u.id,{start,duration:600,burst:true});infantryHitTimes.set(u.id,start+600);
+ for(let j=0;j<8;j++)for(const m of points){const shotStart=start+j*70;
+  fx.push({kind:'infantryMuzzle',x:m.x,y:m.y,angle:devilRiderFacing(u)>0?0:Math.PI,start:shotStart,duration:55});
+  fx.push({kind:'shot',x:m.x,y:m.y,tx:target.x,ty:target.y-8,type:17,bullet:true,start:shotStart,duration:160});
+ }
+ return points[0];
+};
+const devilSprite=sprite;sprite=function(u,p,now){
+ if(!isDevilRider(u)||!devilRiderArt.idleReady||!devilRiderArt.fireReady)return devilSprite(u,p,now);
+ const move=movingAnimation(u.id);if(move){const t=Math.max(0,Math.min(1,(now-move.start)/move.duration));p={x:move.from.x+(move.to.x-move.from.x)*t,y:move.from.y+(move.to.y-move.from.y)*t}}
+ const fire=fireMotions.get(u.id),elapsed=fire?now-fire.start:-1,firing=elapsed>=0&&elapsed<fire.duration;
+ ctx.save();ctx.translate(p.x,p.y-3);ctx.globalAlpha=1;ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,14,30,7,0,0,Math.PI*2);ctx.fill();
+ ctx.save();ctx.scale(devilRiderFacing(u),1);ctx.drawImage(devilRiderArt[firing?'fire':'idle'],DEVIL_RIDER_BOX.x,DEVIL_RIDER_BOX.y,DEVIL_RIDER_BOX.w,DEVIL_RIDER_BOX.h);ctx.restore();
+ if(fire&&elapsed>=fire.duration)fireMotions.delete(u.id);
+ if(cam.z>.55){ctx.font='bold 9px Terha,sans-serif';ctx.textAlign='center';ctx.lineWidth=2.5;ctx.strokeStyle='#10222b';ctx.strokeText(TYPES[u.type].name+' '+u.level,0,38);ctx.fillStyle='#eee7d2';ctx.fillText(TYPES[u.type].name+' '+u.level,0,38);rect(-25,21,50,5,'#12211c');rect(-24,22,48*Math.max(0,u.hp/unitMaxHp(u)),3,factions[u.f].color)}ctx.restore();
+};
+Object.assign(window.Terha,{moveUnit,devilRiderFacing,faceDevilRider,devilRiderMuzzle,danteCommandoMuzzles});
