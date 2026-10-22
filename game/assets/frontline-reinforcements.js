@@ -34,9 +34,15 @@ function seedFrontlineReinforcements(){
   for(const type of ships){let tile=seas.find(i=>!occupied.has(i)&&placed.every(j=>distance(i,j)>=2));if(tile===undefined)tile=seas.find(i=>!occupied.has(i));if(tile===undefined)break;
    const u=makeUnit(0,type,tile,2);u.initialFrontlineReinforcement=true;u.westernFleet=true;occupied.add(tile);placed.push(tile);
   }
+  const northY=Math.min(...front.border.map(i=>tiles[i].y));
+  const northern=units.filter(u=>u.f===0&&u.initialFrontlineReinforcement&&isNaval(u)&&tiles[u.tile].y<northY);
+  const keep=new Set([northern.find(u=>u.type===25)?.id,northern.find(u=>u.type===23)?.id]);
+  units=units.filter(u=>!northern.includes(u)||keep.has(u.id));
+  for(const u of northern)if(keep.has(u.id))u.northernFrontFleet=true;
  }
  faceInitialArmy();danteFrontPlan=null;danteExpansionPlan=null;buildDanteFrontPlan();
 }
 const reinforcementSetup=setup;
 setup=function(){const result=reinforcementSetup();seedFrontlineReinforcements();save();updateHUD();refreshSelection();return result};
 Object.assign(window.Terha,{setup,reinforcementFrontDepth,seedFrontlineReinforcements});
+

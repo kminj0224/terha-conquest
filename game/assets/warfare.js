@@ -111,6 +111,7 @@ function cityBuildingLayout(q){
  buildings.push({x:0,y:2,size:scale,capital:q.capital});
  if(level>=5)buildings.push({x:-18,y:16,size:.39,capital:false},{x:19,y:17,size:.39,capital:false});
  const heights=[30,69,47,45,39,34,47],capitalHeights=[42,81,56,45,63,34,56];
+ for(const b of buildings){b.x*=1.15;b.y=10+(b.y-10)*1.15;b.size*=1.15}
  const top=Math.min(...buildings.map(b=>b.y-b.size*(b.capital?capitalHeights[q.origin]:heights[q.origin])));
  return{buildings,top,starY:top-3};
 }
@@ -134,3 +135,4 @@ function drawShip(u,angle,shotT){const f=factions[u.f];poly([[-29,4],[-21,16],[1
 Object.assign(window.Terha,{setup,attack,attackCity,moveUnit,endTurn,produce,cityMaxHp,unitMaxHp,damage,capture,canProduce});
 
 Object.assign(window.Terha,{aiBalance});
+

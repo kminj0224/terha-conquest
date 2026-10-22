@@ -13,13 +13,15 @@ module.exports=function({run}){
    summary[f]={land:added.length,elite:3,antitank:at};
   }
   const ships=units.filter(u=>u.f===0&&u.initialFrontlineReinforcement&&isNaval(u)),front=reinforcementFrontDepth(0);
-  check(ships.length===9,'Forward fleet missing');
-  for(const [type,count]of [[25,2],[24,3],[23,4]])check(ships.filter(u=>u.type===type).length===count,'Fleet composition '+type);
+  check(ships.length===5,'Forward fleet missing');
+  const northern=ships.filter(u=>tiles[u.tile].y<Math.min(...front.border.map(i=>tiles[i].y)));
+  check(northern.length===2&&northern.filter(u=>u.type===25).length===1&&northern.filter(u=>u.type===23).length===1,'Northern fleet must be exactly one carrier and one frigate');
+  for(const [type,count]of [[25,1],[24,2],[23,2]])check(ships.filter(u=>u.type===type).length===count,'Fleet composition '+type);
   check(ships.every(u=>tiles[u.tile].owner<0&&u.level===2&&u.westernFleet&&Math.min(...front.border.map(i=>distance(i,u.tile)))<=12),'Fleet too far from western front');
   check(ships.every(u=>units.filter(v=>!v.carriedBy&&v.hp>0&&v.tile===u.tile).length===1),'Fleet overlaps another unit');
   const before=units.filter(u=>u.initialFrontlineReinforcement).length;
   migrateArmy(snapshot());check(units.filter(u=>u.initialFrontlineReinforcement).length===before,'Save migration duplicates or removes grants');
-  setup();check(units.filter(u=>u.initialFrontlineReinforcement).length===49,'Restart duplicates grants');
+  setup();check(units.filter(u=>u.initialFrontlineReinforcement).length===45,'Restart duplicates grants');
   // Measure actual transformed paint calls, including the mirrored sprite.
   const originalImage=ctx.drawImage,originalPoly=poly,paint=[];let image=null;
   ctx.drawImage=function(img,...a){image={img,args:a,m:ctx.getTransform()};return originalImage(img,...a)};
@@ -41,3 +43,4 @@ module.exports=function({run}){
  assert.equal(report[0].land,20);assert.equal(report[2].land,20);
  console.log('PASS: frontline grants, forward fleet, save/restart stability, mirrored MG muzzle paint and 35% carrier scaling',report);
 };
+
