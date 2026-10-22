@@ -49,6 +49,7 @@ Object.assign(window.Terha,{drawMini,wrapWorldX,drawOceanBackground});
 const oceanBeginAim=beginAim;beginAim=function(u,p,duration){return oceanBeginAim(u,nearWorldPoint(p,pxy(u.tile)),duration)};
 const oceanLaunchShot=launchShot;launchShot=function(u,p,...args){return oceanLaunchShot(u,nearWorldPoint(p,pxy(u.tile)),...args)};
 const oceanMoveUnit=moveUnit;moveUnit=function(u,i,ai=false){
+ if(!tiles[i]||!tiles[u?.tile])return false;
  const from=pxy(u.tile),target=pxy(i),to=nearWorldPoint(target,from),crosses=Math.abs(target.x-from.x)>WORLD_WIDTH/2;
  const ok=oceanMoveUnit(u,i,ai);
  if(ok&&crosses&&Math.abs(to.x-from.x)>.001){const facing=to.x>from.x?1:-1;u.carrierFacing=u.destroyerFacing=u.rifleFacing=u.tankFacing=u.artilleryFacing=u.devilFacing=facing;if(!ai)save()}
