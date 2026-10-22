@@ -21,8 +21,8 @@ module.exports=async function({run}){
  spendShot(black);check(!mayFire(black)&&black.blackShots===0&&black.ap===0,'Third attack forbidden');
  freshOrders(black);check(black.blackShots===2&&mayFire(black),'Next-turn reset');
  const original=trooper.hp;trooper.hp=30;const old=snapshot();delete old.specialOperationsSchema;old.units=old.units.map(u=>({...u,hp:u.id===trooper.id?250:u.hp}));
- migrateArmy(old);check(trooper.hp===30,'Old 500 HP rider migrates proportionally to 60 HP');
- const current=snapshot();migrateArmy(current);check(trooper.hp===30,'Current save must not scale HP again');trooper.hp=original;
+ migrateArmy(old);check(units.find(u=>u.id===trooper.id)?.hp===30,'Old 500 HP rider migrates proportionally to 60 HP');
+ const current=snapshot();migrateArmy(current);check(units.find(u=>u.id===trooper.id)?.hp===30,'Current save must not scale HP again');trooper.hp=original;
  const own=cities.filter(q=>q.f===1);for(const q of own){q.level=5;q.produced=true;q.queue=null;q.nukeUntil=0;cityProfile(q)}
  const q=own.find(q=>!q.capital);q.level=3;q.produced=false;cityProfile(q);q.hp=cityMaxHp(q)-500;
  money[1]=UPGRADE_COSTS[3];food[1]=100000;
