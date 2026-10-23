@@ -3,25 +3,25 @@ module.exports=function({run}){
  const report=run(`(()=>{
   const check=(ok,msg)=>{if(!ok)throw Error(msg)},summary={};
   setup();
-  for(const [f,expected,at]of [[0,20,6],[2,20,3]]){
+  for(const [f,expected,at]of [[0,22,10],[2,20,3]]){
    const added=units.filter(u=>u.f===f&&u.initialFrontlineReinforcement&&!isNaval(u)),front=reinforcementFrontDepth(f);
    check(added.length===expected,'Wrong frontline grant '+f+': '+added.length);
-   check(added.filter(u=>u.type===14&&u.level===3).length===3,'Elite tanks missing '+f);
+   check(added.filter(u=>u.type===14&&u.level===3).length===(f===0?1:3),'Elite tanks missing '+f);
    check(added.filter(u=>u.type===9).length===at,'Antitank grant '+f);
    check(added.every(u=>tiles[u.tile].owner===f&&front.depth[u.tile]>=0&&front.depth[u.tile]<=4&&moveCost(u,u.tile)<99999),'Invalid land deployment '+f);
    check(added.every(u=>!missileBases.some(b=>b.tile===u.tile)&&units.filter(v=>!v.carriedBy&&v.hp>0&&v.tile===u.tile).length===1),'Occupied land deployment '+f);
-   summary[f]={land:added.length,elite:3,antitank:at};
+   summary[f]={land:added.length,elite:f===0?1:3,antitank:at};
   }
   const ships=units.filter(u=>u.f===0&&u.initialFrontlineReinforcement&&isNaval(u)),front=reinforcementFrontDepth(0);
-  check(ships.length===5,'Forward fleet missing');
+  check(ships.length===4,'Forward fleet missing');
   const northern=ships.filter(u=>tiles[u.tile].y<Math.min(...front.border.map(i=>tiles[i].y)));
   check(northern.length===2&&northern.filter(u=>u.type===25).length===1&&northern.filter(u=>u.type===23).length===1,'Northern fleet must be exactly one carrier and one frigate');
-  for(const [type,count]of [[25,1],[24,2],[23,2]])check(ships.filter(u=>u.type===type).length===count,'Fleet composition '+type);
+  for(const [type,count]of [[25,1],[24,1],[23,2]])check(ships.filter(u=>u.type===type).length===count,'Fleet composition '+type);
   check(ships.every(u=>tiles[u.tile].owner<0&&u.level===2&&u.westernFleet&&Math.min(...front.border.map(i=>distance(i,u.tile)))<=12),'Fleet too far from western front');
   check(ships.every(u=>units.filter(v=>!v.carriedBy&&v.hp>0&&v.tile===u.tile).length===1),'Fleet overlaps another unit');
   const before=units.filter(u=>u.initialFrontlineReinforcement).length;
   migrateArmy(snapshot());check(units.filter(u=>u.initialFrontlineReinforcement).length===before,'Save migration duplicates or removes grants');
-  setup();check(units.filter(u=>u.initialFrontlineReinforcement).length===45,'Restart duplicates grants');
+  setup();check(units.filter(u=>u.initialFrontlineReinforcement).length===46,'Restart duplicates grants');
   // Measure actual transformed paint calls, including the mirrored sprite.
   const originalImage=ctx.drawImage,originalPoly=poly,paint=[];let image=null;
   ctx.drawImage=function(img,...a){image={img,args:a,m:ctx.getTransform()};return originalImage(img,...a)};
@@ -40,7 +40,7 @@ module.exports=function({run}){
   }finally{ctx.drawImage=originalImage;poly=originalPoly}
   return summary;
  })()`);
- assert.equal(report[0].land,20);assert.equal(report[2].land,20);
+ assert.equal(report[0].land,22);assert.equal(report[2].land,20);
  console.log('PASS: frontline grants, forward fleet, save/restart stability, mirrored MG muzzle paint and 35% carrier scaling',report);
 };
 

@@ -1,9 +1,9 @@
 'use strict';
 // Keep type 17 stable so armies and queued production survive the replacement.
-const SPECIAL_OPERATIONS_SCHEMA=1;
+const SPECIAL_OPERATIONS_SCHEMA=2;
 const previousDanteSpecialHp=TYPES[17].hp;
-Object.assign(TYPES[17],{name:'특공군단',branch:'infantry',icon:'×',hp:60,atk:55,move:13,range:3,def:18,tank:false,
- text:'단테 제국 특수 보병. 1단계 기본 체력 60, 공격력 55, 이동력 13칸. 수도 또는 4레벨 이상 도시에서 생산. 소총 연발사격.'});
+Object.assign(TYPES[17],{name:'특공군단',branch:'infantry',icon:'×',hp:130,atk:55,move:13,range:3,def:18,tank:false,
+ text:'단테 제국 특수 보병. 1단계 기본 체력 130, 공격력 55, 이동력 13칸. 수도 또는 4레벨 이상 도시에서 생산. 소총 연발사격.'});
 delete TYPES[17].antiInfantry;delete TYPES[17].smallArms;
 UNIT_STORIES[17]='검은 전투복과 붉은 제국 표식을 갖춘 특공군단. 분대 단위로 기동하며 소총의 연발사격으로 목표를 제압합니다.';
 factions[1].bonus='기갑 공격 +20% · 특공군단';
@@ -55,7 +55,8 @@ const specialMigration=migrateArmy;
 migrateArmy=function(s){
  const health=new Map();
  for(const u of s.units||[])if(u.type===17){const current=s.specialOperationsSchema===SPECIAL_OPERATIONS_SCHEMA;
-  const oldMax=((current?60:previousDanteSpecialHp)+(s.tech?.[u.f]||0)*12)*tierMultiplier(u.level);
+  const oldBase=current?130:s.specialOperationsSchema===1?60:previousDanteSpecialHp;
+  const oldMax=(oldBase+(s.tech?.[u.f]||0)*12)*tierMultiplier(u.level);
   health.set(u.id,{hp:u.hp,ratio:Math.max(0,Math.min(1,u.hp/oldMax)),current});
  }
  const result=specialMigration(s);

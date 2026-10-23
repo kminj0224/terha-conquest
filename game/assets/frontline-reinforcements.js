@@ -12,7 +12,7 @@ function seedFrontlineReinforcements(){
  const fronts=new Map();
  for(const f of [2,0]){
   const front=reinforcementFrontDepth(f);fronts.set(f,front);if(!front.border.length)continue;
-  const composition=f===0?[[14,3],[1,3],[13,2],[2,2],[3,1],[9,6],[10,1],[0,2]]:[[14,3],[1,4],[13,2],[2,2],[3,1],[9,3],[10,2],[0,3]];
+  const composition=f===0?[[14,1],[1,3],[13,2],[2,2],[3,1],[9,10],[10,1],[0,2]]:[[14,3],[1,4],[13,2],[2,2],[3,1],[9,3],[10,2],[0,3]];
   const sites=tiles.map((t,i)=>i).filter(i=>front.depth[i]>=0&&!occupied.has(i)),crowding=new Float64Array(tiles.length);
   for(const [type,count]of composition)for(let n=0;n<count;n++){
    // Spread across the border, then fill its immediate supporting ranks.
@@ -39,6 +39,10 @@ function seedFrontlineReinforcements(){
   const keep=new Set([northern.find(u=>u.type===25)?.id,northern.find(u=>u.type===23)?.id]);
   units=units.filter(u=>!northern.includes(u)||keep.has(u.id));
   for(const u of northern)if(keep.has(u.id))u.northernFrontFleet=true;
+  // Retain one destroyer in the lower frontline group; the northern pair is unchanged.
+  const southernDestroyers=units.filter(u=>u.f===0&&u.initialFrontlineReinforcement&&u.type===24&&tiles[u.tile].y>=northY).sort((a,b)=>tiles[b.tile].y-tiles[a.tile].y||a.id-b.id);
+  const removed=new Set(southernDestroyers.slice(1).map(u=>u.id));
+  units=units.filter(u=>!removed.has(u.id));
  }
  faceInitialArmy();danteFrontPlan=null;danteExpansionPlan=null;buildDanteFrontPlan();
 }

@@ -1,7 +1,7 @@
 'use strict';
 // Historical helper names remain for older renderer integrations; type 17 is now infantry.
 const devilRiderArt=loadBaekArt('dante-commando-idle.png','dante-commando-fire.png');
-const DEVIL_RIDER_BOX={x:-36,y:-40,w:72,h:54,bottom:14};
+const DEVIL_RIDER_BOX={x:-28.8,y:-29.2,w:57.6,h:43.2,bottom:14};
 const DANTE_COMMANDO_MUZZLES=[[565,240],[1013,248],[1440,261],[823,619],[1343,592]];
 function isDevilRider(u){return u.type===17&&u.f===1}
 function devilRiderFacing(u){return u.devilFacing===-1?-1:u.devilFacing===1?1:Number.isFinite(u.angle)&&Math.cos(u.angle)<0?-1:1}
@@ -16,7 +16,6 @@ const devilLaunch=launchShot;launchShot=function(u,target,start=performance.now(
  fireMotions.set(u.id,{start,duration:600,burst:true});infantryHitTimes.set(u.id,start+600);
  for(let j=0;j<8;j++)for(const m of points){const shotStart=start+j*70;
   fx.push({kind:'infantryMuzzle',x:m.x,y:m.y,angle:devilRiderFacing(u)>0?0:Math.PI,start:shotStart,duration:55});
-  fx.push({kind:'shot',x:m.x,y:m.y,tx:target.x,ty:target.y-8,type:17,bullet:true,start:shotStart,duration:160});
  }
  return points[0];
 };
@@ -24,7 +23,7 @@ const devilSprite=sprite;sprite=function(u,p,now){
  if(!isDevilRider(u)||!devilRiderArt.idleReady||!devilRiderArt.fireReady)return devilSprite(u,p,now);
  const move=movingAnimation(u.id);if(move){const t=Math.max(0,Math.min(1,(now-move.start)/move.duration));p={x:move.from.x+(move.to.x-move.from.x)*t,y:move.from.y+(move.to.y-move.from.y)*t}}
  const fire=fireMotions.get(u.id),elapsed=fire?now-fire.start:-1,firing=elapsed>=0&&elapsed<fire.duration;
- ctx.save();ctx.translate(p.x,p.y-3);ctx.globalAlpha=1;ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,14,30,7,0,0,Math.PI*2);ctx.fill();
+ ctx.save();ctx.translate(p.x,p.y-3);ctx.globalAlpha=1;ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,14,24,5.6,0,0,Math.PI*2);ctx.fill();
  ctx.save();ctx.scale(devilRiderFacing(u),1);ctx.drawImage(devilRiderArt[firing?'fire':'idle'],DEVIL_RIDER_BOX.x,DEVIL_RIDER_BOX.y,DEVIL_RIDER_BOX.w,DEVIL_RIDER_BOX.h);ctx.restore();
  if(fire&&elapsed>=fire.duration)fireMotions.delete(u.id);
  if(cam.z>.55){ctx.font='bold 9px Terha,sans-serif';ctx.textAlign='center';ctx.lineWidth=2.5;ctx.strokeStyle='#10222b';ctx.strokeText(TYPES[u.type].name+' '+u.level,0,38);ctx.fillStyle='#eee7d2';ctx.fillText(TYPES[u.type].name+' '+u.level,0,38);rect(-25,21,50,5,'#12211c');rect(-24,22,48*Math.max(0,u.hp/unitMaxHp(u)),3,factions[u.f].color)}ctx.restore();
