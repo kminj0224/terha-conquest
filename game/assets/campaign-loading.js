@@ -3,6 +3,23 @@
 const campaignImages=new Set(),CampaignImage=window.Image;
 window.Image=new Proxy(CampaignImage,{construct(target,args){const image=Reflect.construct(target,args);campaignImages.add(image);return image}});
 let campaignLoading=false,campaignRenderedFrames=0;
+const CAMPAIGN_LOADING_ART=[
+ {src:'campaign-loading.png',position:'50% 50%'},
+ {src:'campaign-loading-baek.jpg',position:'50% 50%'},
+ {src:'campaign-loading-guerrillas.jpg',position:'50% 42%'},
+ {src:'campaign-loading-artillery.png',position:'50% 50%'},
+ {src:'campaign-loading-bomber.png',position:'50% 55%'}
+];
+const CAMPAIGN_LOADING_ART_KEY='terha-loading-art-next';
+let campaignLoadingArtNext=0;
+function selectCampaignLoadingArt(){
+ try{const stored=localStorage.getItem(CAMPAIGN_LOADING_ART_KEY);if(stored!==null){const n=Number(stored);if(Number.isSafeInteger(n)&&n>=0)campaignLoadingArtNext=n%CAMPAIGN_LOADING_ART.length}}catch{}
+ const art=CAMPAIGN_LOADING_ART[campaignLoadingArtNext],image=document.getElementById('campaignLoadingImage');
+ image.src=art.src;image.style.objectPosition=art.position;
+ campaignLoadingArtNext=(campaignLoadingArtNext+1)%CAMPAIGN_LOADING_ART.length;
+ try{localStorage.setItem(CAMPAIGN_LOADING_ART_KEY,String(campaignLoadingArtNext))}catch{}
+ return art;
+}
 const campaignFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve));
 async function decodeCampaignImage(image){
  if(!image.src)return;
@@ -26,6 +43,7 @@ async function runCampaignLoading(action){
  if(campaignLoading)return false;
  campaignLoading=true;const cover=document.getElementById('campaignLoading');cover.classList.add('active');cover.setAttribute('aria-hidden','false');
  try{
+  selectCampaignLoadingArt();
   setCampaignProgress(3,['작전 준비 중','Preparing operation']);
   await decodeCampaignImage(document.getElementById('campaignLoadingImage'));
   // Yield twice so the cover is painted before synchronous setup or save migration.
@@ -40,3 +58,4 @@ async function runCampaignLoading(action){
  }catch(error){console.error('Campaign loading failed',error);toast('작전을 불러오지 못했습니다');return false}
  finally{cover.classList.remove('active');cover.setAttribute('aria-hidden','true');campaignLoading=false}
 }
+

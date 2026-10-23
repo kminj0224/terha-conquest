@@ -67,3 +67,22 @@ setup=function(){const result=guerrillaSetup();seedRannaGuerrillas();faceInitial
 Object.assign(window.Terha,{setup,unitAttack,damage,moveCost,bombProtection,initialDiplomacy,aiProcure,
  DEKPHUING_GUERRILLA,isDekphuingGuerrilla,guerrillaTerrain,rannaTerrainProtection,seedRannaGuerrillas,
  infantryArtProfile,isStetopiaTank,isBaekArtillery,baekArtilleryProfile,isStetopiaCarrier});
+
+
+// AI Ranna expands the war after Nakwol loses its final city, regardless of conqueror.
+function rannaPostNakwolWar(){
+ if(player===4||!cities.some(q=>q.f===4)||cities.some(q=>q.f===5))return false;
+ let changed=false;
+ for(let f=0;f<factions.length;f++){
+  if(f===4||!cities.some(q=>q.f===f)||atWar(4,f))continue;
+  diplomacy[4][f]=diplomacy[f][4]='war';changed=true;
+  log(factions[4].name+' · '+factions[f].name+'에 선전포고');
+ }
+ if(changed){aiObjectives.fill(null);reach.clear()}
+ return changed;
+}
+const rannaWarCapture=capture;
+capture=function(...args){const result=rannaWarCapture(...args);rannaPostNakwolWar();return result};
+const rannaWarEndTurn=endTurn;
+endTurn=async function(...args){if(started&&!busy)rannaPostNakwolWar();return rannaWarEndTurn(...args)};
+Object.assign(window.Terha,{capture,endTurn,rannaPostNakwolWar});

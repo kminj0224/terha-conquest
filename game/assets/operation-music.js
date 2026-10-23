@@ -1,9 +1,8 @@
 'use strict';
 const OPERATION_MUSIC_TRACKS=[
  {src:'operation-music-1.mp3',name:'Shadow Pulse'},
- {src:'operation-music-2.mp3',name:'Tension Rising'},
- {src:'operation-music-3.mp3',name:'War-Drum Pulse'},
- {src:'operation-music-4.mp3',name:'Marcha de Tensión'},
+ {src:'operation-last-light.mp3',name:'Last light'},
+ {src:'operation-ghost-trail.mp3',name:'유령의 등산로'},
  {src:'operation-music-5.mp3',name:'Lopsided Pulse'}
 ];
 const OPERATION_MUSIC_GAP=4000;
@@ -70,3 +69,4 @@ runCampaignLoading=async function(...args){
  }
  return ok;
 };
+

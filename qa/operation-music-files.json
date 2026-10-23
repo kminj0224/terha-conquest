@@ -4,19 +4,15 @@
     "sha256": "de25b959d74495f3a940ed92d9c7bd82f7892afa44eed72704fc2cfc1673acf2"
   },
   {
-    "file": "operation-music-2.mp3",
-    "sha256": "d0f2487c5499f9a30a7a10951c0c1da6bf76ba54f88742eed4f2a7f99ff320f4"
-  },
-  {
-    "file": "operation-music-3.mp3",
-    "sha256": "c1d9fa1f5b69212422603499119d7eef45cd205fdf7105f972087be6de3d8629"
-  },
-  {
-    "file": "operation-music-4.mp3",
-    "sha256": "f49ca626b57269364526a09f905a69dc5d06d8d73b99ccebf068e70285eb5bf4"
-  },
-  {
     "file": "operation-music-5.mp3",
     "sha256": "356ec4d1ae8288e69dbe11166608ba68a69aa753146423aca0dcb0c6cd953efc"
+  },
+  {
+    "file": "operation-last-light.mp3",
+    "sha256": "e2e28da0eb8478edc3dd66099b42d06eb7ac601489fac078fcb24e32769ab65a"
+  },
+  {
+    "file": "operation-ghost-trail.mp3",
+    "sha256": "e1a71d615f69923bde193f3689110544bccd047ae471dc64d560d445c1e812de"
   }
 ]
