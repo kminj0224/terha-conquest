@@ -22,6 +22,10 @@ jobs:
         with:
           node-version: '20'
       - run: npm ci --no-audit --no-fund
+      - name: Install audio inspection tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
       - run: python3 tools/prepare_operation_music.py
       - run: node qa/operation-buffer-music-regression.cjs
       - name: Mortar, Ranna war and loading artwork regression checks
