@@ -1,0 +1,36 @@
+name: Build v1.11.23 special production and anchors
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-v11123-special-operations.yml'
+      - 'game/assets/special-operations.js'
+      - 'game/assets/rifle-art.js'
+      - 'qa/special-operations-regression.cjs'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inspect-art:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Inspect source artwork foot bounds
+        run: |
+          node - <<'JS'
+          const {createCanvas,loadImage}=require('@napi-rs/canvas');
+          (async()=>{
+            const out=createCanvas(960,360),g=out.getContext('2d');g.fillStyle='#526571';g.fillRect(0,0,960,360);
+            for(const [n,pose]of ['idle','fire'].entries()){
+              const img=await loadImage('game/assets/baek-black-'+pose+'.png'),c=createCanvas(img.width,img.height),ctx=c.getContext('2d');ctx.drawImage(img,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;
+              let bottom=-1;for(let y=c.height-1;y>=0&&bottom<0;y--)for(let x=0;x<c.width;x++)if(d[(y*c.width+x)*4+3]>=64){bottom=y;break}
+              console.log('BLACK_FOOT='+JSON.stringify({pose,width:c.width,height:c.height,bottomEdge:bottom+1,ratio:(bottom+1)/c.height}));
+              g.drawImage(img,n*480,0,480,360);
+            }
+            console.log('BLACK_ART_BASE64='+out.toBuffer('image/jpeg',85).toString('base64'));
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
