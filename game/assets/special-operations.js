@@ -29,18 +29,19 @@ function aiUpgradeCities(f,owned){
   const old=cityMaxHp(q);money[f]-=UPGRADE_COSTS[q.level];q.level++;q.hp=Math.min(cityMaxHp(q),q.hp+cityMaxHp(q)-old);cityProfile(q);
  }
 }
+const aiSpecialOrderTurns=Array(7).fill(-1);
 function aiOrderSpecials(f,owned){
+ if(aiSpecialOrderTurns[f]===turn)return 0;
  const pool=TYPES.map((t,k)=>k).filter(k=>TYPES[k].special===f);
  if(!pool.length)return 0;
- let count=0;
  for(const q of owned.filter(q=>q.f===f&&!q.queue&&!q.produced&&!(q.nukeUntil>turn)).sort((a,b)=>b.level-a.level||a.id-b.id)){
   // Tier one keeps a continuing supply affordable instead of exhausting food on one elite unit.
   const k=pool.find(k=>canProduce(q,k,1)&&food[f]>=unitPrice(k,1)&&money[f]>=navGoldCost(k,1)&&oil[f]>=unitOil(k,1));
   if(k===undefined)continue;
   food[f]-=unitPrice(k,1);money[f]-=navGoldCost(k,1);oil[f]-=unitOil(k,1);
-  q.queue={type:k,level:1,aa:false};q.produced=true;count++;
+  q.queue={type:k,level:1,aa:false};q.produced=true;aiSpecialOrderTurns[f]=turn;return 1;
  }
- return count;
+ return 0;
 }
 const specialAIProcure=aiProcure;
 aiProcure=function(f,owned){
@@ -49,8 +50,10 @@ aiProcure=function(f,owned){
  money[f]-=reserve;
  try{return specialAIProcure(f,owned)}finally{money[f]+=reserve}
 };
+const specialSetup=setup;
+setup=function(...args){aiSpecialOrderTurns.fill(-1);return specialSetup(...args)};
 const specialSnapshot=snapshot;
-snapshot=function(){return{...specialSnapshot(),specialOperationsSchema:SPECIAL_OPERATIONS_SCHEMA}};
+snapshot=function(){return{...specialSnapshot(),specialOperationsSchema:SPECIAL_OPERATIONS_SCHEMA,aiSpecialOrderTurns:[...aiSpecialOrderTurns]}};
 const specialMigration=migrateArmy;
 migrateArmy=function(s){
  const health=new Map();
@@ -60,9 +63,10 @@ migrateArmy=function(s){
   health.set(u.id,{hp:u.hp,ratio:Math.max(0,Math.min(1,u.hp/oldMax)),current});
  }
  const result=specialMigration(s);
+ for(let f=0;f<7;f++)aiSpecialOrderTurns[f]=Number.isInteger(s.aiSpecialOrderTurns?.[f])?s.aiSpecialOrderTurns[f]:-1;
  for(const u of units){const h=health.get(u.id);if(h)u.hp=h.current?Math.max(0,Math.min(unitMaxHp(u),h.hp)):Math.round(unitMaxHp(u)*h.ratio);
   if(u.type===6){u.blackShots=Number.isInteger(u.blackShots)?Math.max(0,Math.min(2,u.blackShots)):(u.attacked?0:2);u.attackReady=!!u.attackReady&&u.blackShots>0;syncOrders(u)}
  }
  return result;
 };
-Object.assign(window.Terha,{freshOrders,spendShot,mayFire,aiProcure,aiUpgradeCities,aiOrderSpecials,aiExpansionCandidates,aiUpgradeReserve,snapshot,migrateArmy});
+Object.assign(window.Terha,{setup,aiSpecialOrderTurns,freshOrders,spendShot,mayFire,aiProcure,aiUpgradeCities,aiOrderSpecials,aiExpansionCandidates,aiUpgradeReserve,snapshot,migrateArmy});

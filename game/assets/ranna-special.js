@@ -63,15 +63,7 @@ function seedRannaGuerrillas(){
 }
 const guerrillaSetup=setup;
 setup=function(){const result=guerrillaSetup();seedRannaGuerrillas();faceInitialArmy();reach.clear();save();updateHUD();refreshSelection();return result};
-// Give the AI the same capital recruitment opportunity as the other special units.
-const guerrillaAIProcure=aiProcure;
-aiProcure=function(f,owned){
- if(f===4&&(turn+f)%aiBalance().specialPeriod===0&&cities.some(q=>atWar(f,q.f))){
-  const q=owned.find(q=>q.f===f&&!q.queue&&!q.produced&&canProduce(q,DEKPHUING_GUERRILLA,1));
-  if(q&&food[f]>=unitPrice(DEKPHUING_GUERRILLA,1)){food[f]-=unitPrice(DEKPHUING_GUERRILLA,1);q.queue={type:DEKPHUING_GUERRILLA,level:1,aa:false};q.produced=true}
- }
- return guerrillaAIProcure(f,owned);
-};
+// Special procurement for every faction is centralized in special-operations.js.
 Object.assign(window.Terha,{setup,unitAttack,damage,moveCost,bombProtection,initialDiplomacy,aiProcure,
  DEKPHUING_GUERRILLA,isDekphuingGuerrilla,guerrillaTerrain,rannaTerrainProtection,seedRannaGuerrillas,
  infantryArtProfile,isStetopiaTank,isBaekArtillery,baekArtilleryProfile,isStetopiaCarrier});

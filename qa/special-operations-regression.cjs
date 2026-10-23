@@ -31,8 +31,23 @@ module.exports=async function({run}){
  aiProcure(1,[q]);check(q.level===4&&q.hp===cityMaxHp(q)-500,'AI upgrades at exact funds and keeps damage');
  check(q.queue?.type===17,'AI produces special immediately in upgraded city');check(money[1]===0,'AI cannot overspend gold');
  for(let n=0;n<3;n++){q.produced=false;q.queue=null;turn++;food[1]=10000;money[1]=1234;aiProcure(1,[q]);check(q.queue?.type===17,'Special must be ordered each turn');check(money[1]===1234,'Upgrade savings survive procurement')}
+ turn++;
  const q2=own.find(c=>c!==q&&!c.capital);q2.level=4;q2.produced=false;q2.queue=null;q.produced=false;q.queue=null;money[1]=0;food[1]=1200;
- aiProcure(1,[q,q2]);check(q.queue?.type===17&&q2.queue?.type===17&&food[1]===0,'Multiple affordable specials per turn');
+ aiProcure(1,[q,q2]);check([q,q2].filter(c=>c.queue?.type===17).length===1,'Only one special per faction per turn');
+ check([q,q2].some(c=>c.queue&&TYPES[c.queue.type].special===undefined),'Other city must recruit ordinary troops');
+ q.produced=false;q.queue=null;q2.produced=false;q2.queue=null;
+ check(aiOrderSpecials(1,[q,q2])===0&&!q.queue&&!q2.queue,'Repeated procurement cannot bypass per-turn cap');
+ const orderedSave=snapshot();migrateArmy(orderedSave);
+ check(aiOrderSpecials(1,[q,q2])===0,'Reload must preserve the special order limit');
+ for(const f of [0,1,2,4,5]){
+  turn++;const pair=cities.filter(c=>c.f===f).slice(0,2);for(const c of pair){c.level=5;c.nukeUntil=0;c.produced=false;c.queue=null;cityProfile(c)}
+  food[f]=100000;oil[f]=100000;money[f]=0;
+  aiProcure(f,pair);
+  check(pair.filter(c=>c.queue&&TYPES[c.queue.type].special===f).length===1,'Exactly one special in faction '+f);
+  check(pair.some(c=>c.queue&&TYPES[c.queue.type].special===undefined),'Ordinary production remains available in faction '+f);
+  check(aiOrderSpecials(f,pair)===0,'One-per-turn limit covers every faction');
+ }
+ turn++;
  q.produced=false;q.queue=null;food[1]=599;aiProcure(1,[q]);check(!q.queue||q.queue.type!==17,'No unaffordable special');
  const p=pxy(trooper.tile);fx=[];launchShot(trooper,{x:p.x+100,y:p.y},performance.now());
  const flashes=fx.filter(e=>e.kind==='infantryMuzzle');check(flashes.length===40,'Five muzzle positions times eight burst rounds');
@@ -45,10 +60,29 @@ module.exports=async function({run}){
  check(Math.abs(blackProfile.width-70.4*1.1)<.001&&Math.abs(blackProfile.height-52.8*1.1)<.001,'Black Legion art scales up 10%');
  const oldBlackMuzzles=baekMuzzles([[45,186],[466,172],[912,193],[168,451],[685,473]]).map(m=>({x:m.x*1.1,y:14+(m.y-14)*1.1}));
  check(blackProfile.muzzles.every((m,i)=>Math.abs(m.x-oldBlackMuzzles[i].x*1.1)<.001&&Math.abs(m.y-(14+(oldBlackMuzzles[i].y-14)*1.1))<.001),'Black muzzle coordinates scale with artwork');
+ const paintImage=ctx.drawImage,paintPoly=poly;let blackImage=null,blackFlashes=[];
+ ctx.drawImage=function(img,...args){if(img===blackProfile.art.idle||img===blackProfile.art.fire)blackImage={img,args,m:ctx.getTransform()};return paintImage(img,...args)};
+ poly=function(points,...args){if(args[0]==='#ffd470')blackFlashes.push(ctx.getTransform());return paintPoly(points,...args)};
+ ctx.save();ctx.setTransform(1,0,0,1,0,0);
+ try{for(const facing of [-1,1])for(const firing of [false,true]){
+  black.rifleFacing=facing;blackImage=null;blackFlashes=[];
+  if(firing)fireMotions.set(black.id,{start:1000,duration:700,burst:true});else fireMotions.delete(black.id);
+  const bp=pxy(black.tile);sprite(black,bp,1010);
+  check(!!blackImage,'Black Legion source artwork must render');
+  const [x,y,w,h]=blackImage.args,m=blackImage.m,foot=firing?blackProfile.fireFoot:blackProfile.idleFoot;
+  const footY=m.b*0+m.d*(y+h*foot)+m.f,hpTop=bp.y-3+21;
+  check(Math.abs(footY-(hpTop-1))<.001,'Front-row feet must sit one pixel above HP bar');
+  check(infantryArtBottom(blackProfile,firing)>14,'Black Legion image must move downward');
+  if(firing){check(blackFlashes.length===5,'All five muzzle flashes must paint');
+   for(let i=0;i<5;i++){const mx=blackProfile.muzzles[i].x,my=blackProfile.muzzles[i].y+infantryArtBottom(blackProfile,true)-14;
+    check(Math.hypot(blackFlashes[i].e-(m.a*mx+m.c*my+m.e),blackFlashes[i].f-(m.b*mx+m.d*my+m.f))<.001,'Flash must follow moved body');
+   }
+  }
+ }}finally{ctx.restore();ctx.drawImage=paintImage;poly=paintPoly;fireMotions.delete(black.id)}
  const points=danteCommandoMuzzles(trooper,p);faceDevilRider(trooper,p,{x:p.x-100,y:p.y});const mirrored=danteCommandoMuzzles(trooper,p);
  check(points.every((m,i)=>Math.abs(m.x+mirrored[i].x-2*p.x)<.001&&m.y===mirrored[i].y),'Muzzle mirroring matches sprite');
  check(devilRiderArt.idleReady&&devilRiderArt.fireReady,'Both supplied images decoded');
  setup();return true;
  })()`);
- console.log('PASS: special city eligibility, two Black Legion shots, commando replacement/migration/burst, AI upgrades/reserves and continuous multi-city special production');
+ console.log('PASS: special city eligibility, two Black Legion shots, commando replacement/migration/burst, AI upgrades/reserves and one special per faction per turn, ordinary recruitment and measured Black Legion boot/HP-bar alignment');
 };
