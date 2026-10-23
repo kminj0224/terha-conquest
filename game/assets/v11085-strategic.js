@@ -99,7 +99,7 @@ const previousNuclearImpact=nuclearImpact;
 nuclearImpact=function(i,air=false){
  const isHydrogen=activeNuclearImpact==='hydrogen';
  const affected=isHydrogen?new Set(nuclearTiles(i)):null;
- const remaining=isHydrogen?units.filter(u=>!u.carriedBy&&!escortProtected(u)&&affected.has(u.tile)).map(u=>({id:u.id,bonus:Math.round(unitMaxHp(u)*.1+1800)})):[];
+ const remaining=isHydrogen?units.filter(u=>!u.carriedBy&&!escortProtected(u)&&affected.has(u.tile)).map(u=>({id:u.id,bonus:Math.round((unitMaxHp(u)*.1+1800)*specialIncomingFactor(u))})):[];
  const result=previousNuclearImpact(i,air);
  if(isHydrogen){
   for(const {id,bonus}of remaining){const u=units.find(v=>v.id===id);if(u){u.hp-=bonus;if(u.hp<=0)kill(u)}}
@@ -158,7 +158,7 @@ launchStrategic=async function(q,kind,i){
   const u=unitAt(i),city=cityAt(i),facility=baseAt(i);
   if(facility&&atWar(q.f,facility.f)){facility.hp-=model.damage;if(facility.hp<=0)missileBases=missileBases.filter(v=>v!==facility)}
   let unitDamage=0;
-  if(u&&atWar(q.f,u.f)){unitDamage=escortProtected(u)?0:Math.round(model.damage*.08*(city?.f===u.f?.7:1));u.hp-=unitDamage;if(u.hp<=0)kill(u)}
+  if(u&&atWar(q.f,u.f)){unitDamage=escortProtected(u)?0:Math.round(model.damage*.08*(city?.f===u.f?.7:1)*specialIncomingFactor(u));u.hp-=unitDamage;if(u.hp<=0)kill(u)}
   const cityDamage=city&&atWar(q.f,city.f)?model.damage:0;
   if(cityDamage)damageCity(city,cityDamage);
   targetExplosions({type:3},b,cityDamage||unitDamage||model.damage);

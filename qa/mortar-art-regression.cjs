@@ -16,7 +16,7 @@ try{for(const f of [0,1]){
  const [x,y,w,h]=mortarPaint.args,foot=travel?a.mfoot/a.mh:a.foot/a.h;
  mortarCheck(Math.abs(y+h*foot-20)<.001,'Feet/tires above HP bar');
  mortarCheck(Math.abs(mortarPaint.m.a+facing)<.001,'Facing matches movement/aim');
- mortarCheck(travel?w===120:h===64,'Crew/vehicle size');
+ mortarCheck(travel?w===120:h===51.2,'Crew/vehicle size');
  }
  moving=[];fx=[];fireMotions.clear();const m=launchShot(u,{x:p.x+facing*100,y:p.y},1000);
  const shell=fx.find(e=>e.kind==='baekArtilleryShell');mortarCheck(shell&&Math.hypot(shell.x-m.x,shell.y-m.y)<.001,'Shell leaves muzzle');
