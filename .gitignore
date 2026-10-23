@@ -9,3 +9,4 @@ __pycache__/
 .DS_Store
 tools/android-stubs.jar
 tools/dx.jar
+game/assets/operation-music-data.js

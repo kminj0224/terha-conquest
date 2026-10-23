@@ -57,7 +57,7 @@ appUsesMenuMusic=function(){return !operationMusicActive&&operationAppUsesMenuMu
 const operationApplyAppAudio=applyAppAudio;
 // End the operation session before deciding whether front-screen music can start.
 applyAppAudio=function(){syncOperationMusic();operationApplyAppAudio()};
-document.addEventListener('visibilitychange',syncOperationMusic);
+document.addEventListener('visibilitychange',()=>syncOperationMusic());
 // The loading cover is removed only after the map has rendered successfully.
 const operationRunCampaignLoading=runCampaignLoading;
 runCampaignLoading=async function(...args){
@@ -69,4 +69,5 @@ runCampaignLoading=async function(...args){
  }
  return ok;
 };
+
 
