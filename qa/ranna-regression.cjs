@@ -22,7 +22,7 @@ module.exports=function({run}){
    RANNA_RIVER_TILES.delete(i);u.carriedBy=123;check(unitAttack(u)===14&&rannaTerrainProtection(u)===1,'Embarked guerrilla terrain bonus');delete u.carriedBy;
    const sea=tiles.findIndex(t=>t.owner<0);check(moveCost(u,sea)>=99999,'Guerrillas cannot walk on sea');
   }finally{RANNA_RIVER_TILES.delete(i);tiles[i].terrain=terrain;tech[4]=originalTech}
-  for(const k of [0,6,8,9,11]){const p=BAEK_ART_PROFILES[k];check(Math.abs(p.width-70.4)<1e-8&&Math.abs(p.height-52.8)<1e-8,'Baekyang single 10% scale')}
+  for(const k of [0,6,8,9,11]){const p=BAEK_ART_PROFILES[k],extra=k===6?1.1:1;check(Math.abs(p.width-70.4*extra)<1e-8&&Math.abs(p.height-52.8*extra)<1e-8,'Baekyang baseline scale with additional 10% Black Legion size')}
   check((BAEK_ART_PROFILES[10].width||64)===64&&(BAEK_ART_PROFILES[10].height||48)===48,'Machine gun size changed');
   check(NAKWOL_INFANTRY_SCALE===1.1,'Nakwol infantry scale');
   check(photoCityProfile({origin:5,name:'월항',capital:false,level:2}).art===NAKWOL_CITY_ART[2]&&photoCityProfile({origin:5,name:'낙월성',capital:true,level:5})===null,'Nakwol city art/capital exception');

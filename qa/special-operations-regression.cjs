@@ -42,8 +42,8 @@ module.exports=async function({run}){
  check(fx.some(e=>e.kind==='infantrySpark'&&e.damage===25),'Commando must use infantry hit animation');
  check(Math.abs(DEVIL_RIDER_BOX.w-72*.8)<.001&&Math.abs(DEVIL_RIDER_BOX.h-54*.8)<.001&&Math.abs(DEVIL_RIDER_BOX.y+DEVIL_RIDER_BOX.h-14)<.001,'Commando art scales down 20% at feet');
  const blackProfile=infantryArtProfile(black);
- check(Math.abs(blackProfile.width-64*1.1)<.001&&Math.abs(blackProfile.height-48*1.1)<.001,'Black Legion art scales up 10%');
- const oldBlackMuzzles=baekMuzzles([[45,186],[466,172],[912,193],[168,451],[685,473]]);
+ check(Math.abs(blackProfile.width-70.4*1.1)<.001&&Math.abs(blackProfile.height-52.8*1.1)<.001,'Black Legion art scales up 10%');
+ const oldBlackMuzzles=baekMuzzles([[45,186],[466,172],[912,193],[168,451],[685,473]]).map(m=>({x:m.x*1.1,y:14+(m.y-14)*1.1}));
  check(blackProfile.muzzles.every((m,i)=>Math.abs(m.x-oldBlackMuzzles[i].x*1.1)<.001&&Math.abs(m.y-(14+(oldBlackMuzzles[i].y-14)*1.1))<.001),'Black muzzle coordinates scale with artwork');
  const points=danteCommandoMuzzles(trooper,p);faceDevilRider(trooper,p,{x:p.x-100,y:p.y});const mirrored=danteCommandoMuzzles(trooper,p);
  check(points.every((m,i)=>Math.abs(m.x+mirrored[i].x-2*p.x)<.001&&m.y===mirrored[i].y),'Muzzle mirroring matches sprite');
