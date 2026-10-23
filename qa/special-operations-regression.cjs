@@ -24,7 +24,7 @@ module.exports=async function({run}){
  migrateArmy(old);check(units.find(u=>u.id===trooper.id)?.hp===65,'Old 500 HP rider migrates proportionally to 130 HP');
  const previous=snapshot();previous.specialOperationsSchema=1;previous.units=previous.units.map(u=>({...u,hp:u.id===trooper.id?30:u.hp}));
  migrateArmy(previous);check(units.find(u=>u.id===trooper.id)?.hp===65,'v1.11.21 half-health commandos migrate to 130 HP proportionally');
- const current=snapshot();migrateArmy(current);check(units.find(u=>u.id===trooper.id)?.hp===30,'Current save must not scale HP again');trooper.hp=original;
+ const current=snapshot();migrateArmy(current);check(units.find(u=>u.id===trooper.id)?.hp===65,'Current save must not scale HP again');trooper.hp=original;
  const own=cities.filter(q=>q.f===1);for(const q of own){q.level=5;q.produced=true;q.queue=null;q.nukeUntil=0;cityProfile(q)}
  const q=own.find(q=>!q.capital);q.level=3;q.produced=false;cityProfile(q);q.hp=cityMaxHp(q)-500;
  money[1]=UPGRADE_COSTS[3];food[1]=100000;
