@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm ci --no-audit --no-fund
-      - name: Mortar and dynamic special support regression checks
+      - name: Mortar, Ranna war and loading artwork regression checks
         run: |
           node - <<'JS'
           const fs=require('fs'),source=fs.readFileSync('qa/native-test.cjs','utf8'),cut=source.indexOf("\nassert.equal(run('appScreen'),'title')");
