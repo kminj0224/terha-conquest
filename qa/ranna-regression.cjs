@@ -45,7 +45,8 @@ module.exports=function({run}){
    check(fx.slice(savedFx).filter(e=>e.kind==='baekArtilleryShell').length===(type===3?5:1),'Ranna shell/rocket volley');
    fx.length=savedFx;fireMotions.delete(u.id);baekArtilleryShots.delete(u.id);
   }
-  check(!isBaekArtillery({f:4,type:1})&&!isBaekArtillery({f:3,type:2}),'Ranna artillery selector leaked to other units');
+  check(!isBaekArtillery({f:4,type:1})&&!isBaekArtillery({f:3,type:12}),'Artillery selector leaked to armor units');
+  for(const type of [2,3])check(isBaekArtillery({f:3,type})&&baekArtilleryProfile({f:3,type}).art===(type===2?ayriaSPArt:ayriaMLArt)&&baekArtilleryProfile({f:3,type}).art!==(type===2?rannaSPArt:rannaMLArt),'Ayria must use its separate desert artillery art');
   check(TOWED_ART[6]===TOWED_ART[2]&&isStetopiaCarrier({f:6,type:25}),'Sielun towed/carrier art');
   check(!isStetopiaTank({f:6,type:12})&&!infantryArtProfile({f:6,type:11}),'Missing art must preserve fallback');
   check(infantryArtProfile({f:4,type:27}).art===rannaGuerrillaArt&&rannaGuerrillaArt.idle.src==='ranna-guerrilla-idle.png'&&rannaGuerrillaArt.fire.src==='ranna-guerrilla-fire.png','Guerrilla art');
@@ -59,5 +60,6 @@ module.exports=function({run}){
  assert(report.initialGuerrillas>=16);
  console.log('PASS: v1.10.76 Ranna special and diplomacy, inland starting guards, Nakwol city art and infantry scale:',report);
 };
+
 
 

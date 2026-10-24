@@ -10,6 +10,7 @@ on:
       - 'game/assets/artillery-art.js'
       - 'game/assets/index.html'
       - 'qa/ayria-desert-regression.cjs'
+      - 'qa/ranna-regression.cjs'
       - 'game/assets/infantry-fire.js'
       - 'game/assets/saves.js'
       - 'game/assets/app-shell.js'
