@@ -21,7 +21,21 @@ const nakwolRifleArt=loadBaekArt('nakwol-rifle-idle.png','nakwol-rifle-fire.png'
 const NAKWOL_INFANTRY_PROFILES={0:{art:nakwolRifleArt,baseFacing:1,muzzles:rightInfantryMuzzles([[633,367],[1060,264],[1435,347]],1448,1086)}};
 const rannaRifleArt=loadBaekArt('ranna-rifle-idle.png','ranna-rifle-fire.png'),rannaGrenadierArt=loadBaekArt('ranna-grenadier-idle.png','ranna-grenadier-fire.png'),rannaAntitankArt=loadBaekArt('ranna-antitank-idle.png','ranna-antitank-fire.png'),rannaMachinegunArt=loadBaekArt('ranna-machinegun.png');
 const RANNA_INFANTRY_PROFILES={0:{art:rannaRifleArt,baseFacing:1,muzzles:rightInfantryMuzzles([[630,326],[1108,246],[1440,374]],1448,1086)},8:{art:rannaGrenadierArt,baseFacing:1,muzzles:rightInfantryMuzzles([[544,175],[1045,82],[1440,194]],1448,1086),projectile:'baekGrenade',flashAngle:.6},9:{art:rannaAntitankArt,baseFacing:1,muzzles:rightInfantryMuzzles([[618,277],[1048,206],[1475,290]],1484,1060),projectile:'baekRocket'},10:{art:rannaMachinegunArt,baseFacing:1,muzzles:rightInfantryMuzzles([[1430,280]],1448,1086),burst:true}};
-function infantryArtProfile(u){return u.f===0?BAEK_ART_PROFILES[u.type]:u.f===1?DANTE_ART_PROFILES[u.type]:u.f===2?STETOPIA_INFANTRY_PROFILES[u.type]:u.f===5?NAKWOL_INFANTRY_PROFILES[u.type]:u.f===4?RANNA_INFANTRY_PROFILES[u.type]:null}
+
+const ayriaRifleArt=loadBaekArt('ayria-rifle-idle.webp','ayria-rifle-fire.webp'),
+      ayriaGrenadierArt=loadBaekArt('ayria-grenadier-idle.webp','ayria-grenadier-fire.webp'),
+      ayriaMachinegunArt=loadBaekArt('ayria-machinegun.webp'),
+      ayriaAntitankArt=loadBaekArt('ayria-antitank.webp');
+// Ayria is faction 3. The transparent source artwork looks right; its three
+// rifle/grenadier soldiers and two heavy-weapon gunners are one squad sprite.
+// Muzzle coordinates are in each original illustration's coordinate system.
+const AYRIA_INFANTRY_PROFILES={
+  0:{art:ayriaRifleArt,baseFacing:1,muzzles:rightInfantryMuzzles([[596,260],[1082,236],[1515,264]],1536,1024)},
+  8:{art:ayriaGrenadierArt,baseFacing:1,muzzles:rightInfantryMuzzles([[583,82],[1045,70],[1516,60]],1536,1024),projectile:'baekGrenade',flashAngle:.65},
+  9:{art:ayriaAntitankArt,baseFacing:1,muzzles:rightInfantryMuzzles([[935,119],[1304,433]],1536,1024),projectile:'baekRocket'},
+ 10:{art:ayriaMachinegunArt,baseFacing:1,muzzles:rightInfantryMuzzles([[1173,140],[1520,445]],1536,1024),burst:true}
+};
+function infantryArtProfile(u){return u.f===0?BAEK_ART_PROFILES[u.type]:u.f===1?DANTE_ART_PROFILES[u.type]:u.f===2?STETOPIA_INFANTRY_PROFILES[u.type]:u.f===3?AYRIA_INFANTRY_PROFILES[u.type]:u.f===5?NAKWOL_INFANTRY_PROFILES[u.type]:u.f===4?RANNA_INFANTRY_PROFILES[u.type]:null}
 let baekImpactTimes=new Map();
 function isBaekRifle(u){return u.f===0&&u.type===0}
 function isBaekMachinegun(u){return u.f===0&&u.type===10}
