@@ -1,15 +1,16 @@
-name: Build v1.11.28 Ayria infantry APK
+name: Build v1.11.29 Ayria infantry APK
 on:
   push:
     branches: [main]
     paths:
       - 'game/assets/ayria-*.webp'
       - 'game/assets/rifle-art.js'
+      - 'game/assets/infantry-fire.js'
       - 'game/assets/saves.js'
       - 'game/assets/app-shell.js'
       - 'build.py'
       - 'qa/ayria-infantry-regression.cjs'
-      - '.github/workflows/build-v11128-ayria-infantry.yml'
+      - '.github/workflows/build-v11129-ayria-alignment.yml'
   workflow_dispatch:
 permissions:
   contents: write
@@ -41,16 +42,16 @@ jobs:
         run: |
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.28.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.29.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.28.apk > SHA256SUMS.txt
+          sha256sum Terha-Conquest-v1.11.29.apk > SHA256SUMS.txt
       - name: Upload APK
         uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: Terha-Conquest-v1.11.28
+          name: Terha-Conquest-v1.11.29
           path: |
-            deliverables/Terha-Conquest-v1.11.28.apk
+            deliverables/Terha-Conquest-v1.11.29.apk
             deliverables/SHA256SUMS.txt
           retention-days: 14
       - name: Publish signed APK
@@ -58,4 +59,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.28 deliverables/Terha-Conquest-v1.11.28.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.28' --notes 'Ayria (faction 3): new transparent rifleman, grenadier, heavy machine gunner and anti-tank infantry artwork. Two idle/firing frames each for riflemen and grenadiers; dedicated machine gun and anti-tank artwork. Existing gameplay, save compatibility and Android signing identity preserved. versionCode 173.'
+          gh release create v1.11.29 deliverables/Terha-Conquest-v1.11.29.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.29' --notes 'Ayria infantry fix: original-resolution lossless artwork, natural frame proportions, anchored boots, corrected rifle/grenade/machine gun muzzle flashes and anti-tank launch smoke. Existing gameplay, save compatibility and Android signing identity preserved. versionCode 174.'
+
