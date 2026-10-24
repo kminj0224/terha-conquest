@@ -1,16 +1,21 @@
-name: Build v1.11.30 Ayria infantry APK
+name: Build v1.11.31 Ayria infantry APK
 on:
   push:
     branches: [main]
     paths:
       - 'game/assets/ayria-*.webp'
       - 'game/assets/rifle-art.js'
+      - 'game/assets/ayria-desert-art.js'
+      - 'game/assets/dante-tank-art.js'
+      - 'game/assets/artillery-art.js'
+      - 'game/assets/index.html'
+      - 'qa/ayria-desert-regression.cjs'
       - 'game/assets/infantry-fire.js'
       - 'game/assets/saves.js'
       - 'game/assets/app-shell.js'
       - 'build.py'
       - 'qa/ayria-infantry-regression.cjs'
-      - '.github/workflows/build-v11130-ayria-size.yml'
+      - '.github/workflows/build-v11131-ayria-desert.yml'
   workflow_dispatch:
 permissions:
   contents: write
@@ -36,22 +41,23 @@ jobs:
         run: |
           python3 tools/prepare_operation_music.py
           node qa/ayria-infantry-regression.cjs
+          node qa/ayria-desert-regression.cjs
           npm test
           python3 qa/verify-native.py
       - name: Build and verify signed Android update
         run: |
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.30.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.31.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.30.apk > SHA256SUMS.txt
+          sha256sum Terha-Conquest-v1.11.31.apk > SHA256SUMS.txt
       - name: Upload APK
         uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: Terha-Conquest-v1.11.30
+          name: Terha-Conquest-v1.11.31
           path: |
-            deliverables/Terha-Conquest-v1.11.30.apk
+            deliverables/Terha-Conquest-v1.11.31.apk
             deliverables/SHA256SUMS.txt
           retention-days: 14
       - name: Publish signed APK
@@ -59,5 +65,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.30 deliverables/Terha-Conquest-v1.11.30.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.30' --notes 'Ayria rifleman/grenadier visual alignment: match helmet-to-boot figure size in idle and firing poses, excluding transparent padding and raised weapons; move both squads up six world pixels to the ordinary infantry ground baseline; retain aligned muzzle effects and original-resolution lossless artwork. Existing gameplay, save compatibility and Android signing identity preserved. versionCode 175.'
+          gh release create v1.11.31 deliverables/Terha-Conquest-v1.11.31.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.31' --notes 'Ayria idle rifle/grenade artwork replaced while preserving visible figure scale and ground position. Ayria standard/light/elite tanks, self-propelled guns, rocket artillery, towed guns and mortar crews reuse Dante geometry with cached desert ochre paint, including firing and travel frames. Existing gameplay, save compatibility and Android signing identity preserved. versionCode 176.'
 

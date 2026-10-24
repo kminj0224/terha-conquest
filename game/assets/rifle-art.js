@@ -34,14 +34,13 @@ const ayriaRifleArt=loadBaekArt('ayria-rifle-idle.webp','ayria-rifle-fire.webp')
 // Baek/Dante infantry. Heavy weapons keep their existing y=20 ground.
 // Mean HELMET-to-BOOT spans for the wolf/human/reptile figures, excluding
 // transparent padding, ears above helmets and projecting weapons:
-// rifle idle [897,945,896]/1086; grenade idle [907,964,905]/1024;
+// rifle and new grenade idle [897,945,896]/1086;
 // rifle fire [854,907,869]/1024; grenade fire [855,874,857]/1024.
 // Match each pose separately: the grenade firing canvas includes raised guns.
-const AYRIA_GRENADE_IDLE_SCALE=(2738/1086)/(2776/1024),
-      AYRIA_GRENADE_FIRE_SCALE=2630/2586;
+const AYRIA_GRENADE_FIRE_SCALE=2630/2586;
 const AYRIA_INFANTRY_PROFILES={
   0:{art:ayriaRifleArt,baseFacing:1,width:72,height:48,idleWidth:64,footY:14,idleFoot:1058/1086,fireFoot:973/1024,muzzles:rightInfantryMuzzles([[607,250],[1086,234],[1529,264]],1536,1024,72,48),highResolution:true},
-  8:{art:ayriaGrenadierArt,baseFacing:1,width:72*AYRIA_GRENADE_FIRE_SCALE,height:48*AYRIA_GRENADE_FIRE_SCALE,idleWidth:72*AYRIA_GRENADE_IDLE_SCALE,idleHeight:48*AYRIA_GRENADE_IDLE_SCALE,footY:14,idleFoot:1023/1024,fireFoot:1005/1024,muzzles:rightInfantryMuzzles([[571,94],[1037,77],[1524,88]],1536,1024,72*AYRIA_GRENADE_FIRE_SCALE,48*AYRIA_GRENADE_FIRE_SCALE),projectile:'baekGrenade',flashAngle:.6,highResolution:true},
+  8:{art:ayriaGrenadierArt,baseFacing:1,width:72*AYRIA_GRENADE_FIRE_SCALE,height:48*AYRIA_GRENADE_FIRE_SCALE,idleWidth:64,idleHeight:48,footY:14,idleFoot:1058/1086,fireFoot:1005/1024,muzzles:rightInfantryMuzzles([[571,94],[1037,77],[1524,88]],1536,1024,72*AYRIA_GRENADE_FIRE_SCALE,48*AYRIA_GRENADE_FIRE_SCALE),projectile:'baekGrenade',flashAngle:.6,highResolution:true},
   9:{art:ayriaAntitankArt,baseFacing:1,width:72,height:48,idleFoot:1023/1024,fireFoot:1023/1024,muzzles:rightInfantryMuzzles([[951,149],[1294,433]],1536,1024,72,48),projectile:'baekRocket',highResolution:true},
  10:{art:ayriaMachinegunArt,baseFacing:1,width:72,height:48,idleFoot:1023/1024,fireFoot:1023/1024,muzzles:rightInfantryMuzzles([[1173,133],[1527,415]],1536,1024,72,48),burst:true,highResolution:true}
 };
@@ -65,4 +64,5 @@ const rifleSprite=sprite;sprite=function(u,p,now){const profile=isBaekInfantryAr
 const rifleArtSetup=setup;setup=function(){baekImpactTimes.clear();return rifleArtSetup()};
 const rifleArtMigration=migrateArmy;migrateArmy=function(s){baekImpactTimes.clear();return rifleArtMigration(s)};
 Object.assign(window.Terha,{setup,migrateArmy,moveUnit,baekRifleFacing,faceBaekRifle,baekProjectilePosition,drawBaekProjectile});
+
 
