@@ -1,7 +1,7 @@
-name: Build v1.11.38 battery focus coastal balance and pathfinding APK
+name: Build v1.11.39 transport artwork and occupied-city routes APK
 on:
   push:
-    branches: [main, codex/coastal-focus-performance]
+    branches: [main, codex/transport-routes]
     paths:
       - 'game/assets/**'
       - 'qa/**'
@@ -38,19 +38,20 @@ jobs:
           npm test
           python3 qa/verify-native.py
           node qa/supply-routes-regression.cjs
+          node qa/transport-art-regression.cjs
       - name: Build and verify signed Android update
         run: |
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.38.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.39.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.38.apk > SHA256SUMS.txt
+          sha256sum Terha-Conquest-v1.11.39.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: Terha-Conquest-v1.11.38
+          name: Terha-Conquest-v1.11.39
           path: |
-            deliverables/Terha-Conquest-v1.11.38.apk
+            deliverables/Terha-Conquest-v1.11.39.apk
             deliverables/SHA256SUMS.txt
           retention-days: 14
       - name: Publish signed APK
@@ -58,4 +59,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.38 deliverables/Terha-Conquest-v1.11.38.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.38' --notes '포대 선택 초점·선택음, 단테 남부 함대 26척에서 13척 감축, 스테토피아 남해안 포대 3개 및 구축함 2척·호위함 2척 추가, 이동 범위 검색 최적화. versionCode 183.'
+          gh release create v1.11.39 deliverables/Terha-Conquest-v1.11.39.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.39' --notes '국가별 수송선 이미지 교체, 30타일 이내 1턴 수송, 본토 육로와 단절된 내륙 점령도시 생산요청 제한. versionCode 184.'
+

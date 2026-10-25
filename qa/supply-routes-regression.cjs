@@ -15,7 +15,7 @@ const s={console,Set,Map,Math,Number,window:{Terha:{}},document:{addEventListene
  TYPES:[{name:'Infantry',branch:'infantry'},{name:'Ship',branch:'navy'}],
  isNaval:u=>u.type===1,unitPrice:()=>100,unitOil:()=>40,navGoldCost:k=>k===1?60:0,aaCost:()=>20,
  food:[1000],oil:[1000],money:[1000],toast:noop,showPanel:noop,updateHUD:noop,save:noop,
- cam:{x:0,y:0,z:.3},pxy:i=>({x:i*10,y:i*20})};
+ distance:()=>31,cam:{x:0,y:0,z:.3},pxy:i=>({x:i*10,y:i*20})};
 s.cities=[{id:0,tile:0,f:0,origin:0,level:2,name:'Home',nukeUntil:0},
  {id:1,tile:2,f:0,origin:1,level:3,name:'Target',nukeUntil:0},
  {id:2,tile:3,f:0,origin:1},{id:3,tile:4,f:0,origin:0}];
@@ -28,6 +28,7 @@ assert.equal(run('supplyTurns(cities[0],cities[1],1)'),2,'naval sea transport fi
 assert(run('supplySeaAccess(cities[1])'),'inland target linked through occupied and homeland regions');
 s.cities[2].f=1;s.tiles[3].owner=1;
 assert(!run('supplySeaAccess(cities[1])'),'foreign region breaks sea access');
+assert.equal(run('supplyReason(cities[1],cities[0],0)'), '육로 수송로에 연결되지 않은 도시입니다.');
 const before=[...s.food,...s.oil,...s.money];
 assert(!run('requestSupply(cities[1],cities[0],0,1,false)'),'blocked route rejected at purchase');
 assert.deepEqual([...s.food,...s.oil,...s.money],before,'rejected route never charges');
@@ -66,3 +67,38 @@ const painted=[];s.ctx={save(){},restore(){},translate(){},strokeText:text=>pain
 run('drawCityForeground(cities[1],{x:0,y:0})');assert.deepEqual(painted,['⚙ Infantry2 - Home']);
 s.cities[0].queue=null;assert.equal(run('supplyProductionLabel(cities[1])'),'');painted.length=0;run('drawCityForeground(cities[1],{x:0,y:0})');assert.equal(painted.length,0);
 console.log('PASS: naval-only departure/berthing text, land transport wording, occupied-city gear label and queue cleanup');
+
+// An inland region may cross several friendly occupied regions to ANY homeland region.
+assert(run('supplyHomelandConnected(cities[1])'));
+s.cities[3].origin=1;
+assert(run('supplySeaAccess(cities[1])'),'a friendly coast beyond another region still exists');
+assert(!run('supplyCoastalCity(cities[1])'),'that coast does not make this inland region coastal');
+assert.equal(run('supplyReason(cities[1],cities[0],0)'), '육로 수송로에 연결되지 않은 도시입니다.');
+s.cities[3].origin=0;s.cities[2].f=1;
+assert(!run('supplyHomelandConnected(cities[1])'),'region ownership blocks even stale friendly tiles');
+s.cities[2].f=0;s.tiles[3].owner=1;
+assert(!run('supplyHomelandConnected(cities[1])'),'foreign land breaks the chain');
+s.tiles[3].owner=0;
+assert(run('supplyHomelandConnected(cities[1])'));
+for(const d of [29,30,31])for(const k of [0,1]){
+ s.distance=()=>d;s.cities[0].queue=null;s.cities[0].produced=false;
+ s.food[0]=s.oil[0]=s.money[0]=1000;
+ assert(run('requestSupply(cities[1],cities[0],'+k+',1,false)'));
+ assert.equal(s.cities[0].queue.total,d<=30?1:2,'distance threshold applies to land and naval orders');
+}
+s.cities[0].queue=null;s.cities[0].produced=false;s.distance=()=>30;
+assert(run('requestSupply(cities[1],cities[0],0,1,false)'));
+const savedOrder=JSON.parse(JSON.stringify(s.cities[0].queue));
+run('migrateArmy({cities})');assert.deepEqual(s.cities[0].queue,savedOrder,'one-turn order survives migration');
+s.unitAt=()=>null;s.units=[];s.makeUnit=(f,type,tile,level)=>{const u={f,type,tile,level};s.units.push(u);return u};
+run('deploy(cities[0]);deploy(cities[0])');assert.equal(s.units.length,0);
+s.turn++;run('deploy(cities[0]);deploy(cities[0])');assert.equal(s.units.length,1);assert.equal(s.cities[0].queue,null);
+s.cities[0].queue={...savedOrder,total:2,remaining:1};run('migrateArmy({cities})');assert.equal(s.cities[0].queue.remaining,1);
+s.cities[0].queue={...savedOrder,total:3,remaining:2};run('migrateArmy({cities})');assert.equal(s.cities[0].queue.total,2);assert.equal(s.cities[0].queue.remaining,1);
+// Use the game's actual wrapped hex distance at the threshold, including the world seam.
+const geometry={tiles:[{x:99,y:0},{x:29,y:0},{x:30,y:0}],WORLD_COLS:100,Math};vm.createContext(geometry);
+const game=fs.readFileSync(path.join(root,'game.js'),'utf8');
+vm.runInContext(game.slice(game.indexOf('function distance('),game.indexOf('\n',game.indexOf('function distance('))),geometry);
+assert.equal(vm.runInContext('distance(0,1)',geometry),30);assert.equal(vm.runInContext('distance(0,2)',geometry),31);
+console.log('PASS: inland homeland chains, disconnected coastal bridge rejection, foreign blockers, 30-tile inclusive threshold, one-turn delivery, queue round trips and wrapped hex distance');
+

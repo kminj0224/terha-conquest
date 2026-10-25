@@ -4,7 +4,24 @@ let supplyChoice=null;
 function occupiedCity(q){return !!q&&q.origin!==q.f}
 function homelandSources(q){return cities.filter(s=>s.f===q.f&&s.origin===q.f&&s.level<=q.level)}
 function supplySource(q){return cities.find(s=>s.queue?.transportTo===q.id)}
-function supplyTurns(){return 2}
+function supplyTurns(source,target){return distance(source.tile,target.tile)<=30?1:2}
+function supplyCoastalCity(target){
+ // Coast belongs to this city's region, not a different occupied region.
+ return tiles.some((t,i)=>t.region===target.id&&t.owner===target.f&&neighbors(i).some(j=>tiles[j].owner<0));
+}
+function supplyHomelandConnected(target){
+ const seen=new Set([target.tile]),queue=[target.tile];
+ for(let n=0;n<queue.length;n++){
+  const tile=tiles[queue[n]],region=cities[tile.region];
+  if(tile.owner!==target.f||region?.f!==target.f)continue;
+  if(region.origin===target.f)return true;
+  for(const i of neighbors(queue[n])){
+   const next=tiles[i],owner=cities[next.region];
+   if(next.owner===target.f&&owner?.f===target.f&&!seen.has(i)){seen.add(i);queue.push(i)}
+  }
+ }
+ return false;
+}
 function supplyLandConnected(source,target){
  // Use geographic land, including foreign territory, with wrapped neighbors.
  const seen=new Set([source.tile]),queue=[source.tile];
@@ -38,6 +55,7 @@ function supplyReason(target,source,k,l=productionTier,aa=productionAA,ai=false)
  if(supplySource(target)||target.queue)return'현재 병력의 수송과 배치가 끝날 때까지 기다리세요.';
  if(!source||source.f!==target.f||source.origin!==target.f||source.level>target.level)return'점령도시와 레벨이 같거나 낮은 아군 본토 도시를 선택하세요.';
  cityProfile(source);
+ if(!supplyCoastalCity(target)&&!supplyHomelandConnected(target))return'육로 수송로에 연결되지 않은 도시입니다.';
  if(!supplyLandConnected(source,target)&&!supplySeaAccess(target))return'해상 수송로에 연결되지 않은 도시입니다.';
  if(isNaval({type:k})&&!target.harbor)return'함정을 받을 점령도시에 항구가 필요합니다.';
  if(ai){
@@ -96,7 +114,7 @@ unitPage=function(q){
   productionPanel(home);return;
  }
  supplyChoice=null;
- box.innerHTML='<p>병력을 훈련할 본토 도시를 선택하세요. '+q.level+'레벨 이하 도시만 표시됩니다.</p>';
+ box.innerHTML='<p>병력을 훈련할 본토 도시를 선택하세요. '+q.level+'레벨 이하 도시만 표시됩니다.</p><p>거리가 가까울수록 빨리 수송됩니다.</p>';
  const sources=homelandSources(q).sort((a,b)=>b.level-a.level||a.id-b.id);
  if(!sources.length){const p=document.createElement('p');p.textContent='조건에 맞는 아군 본토 도시가 없습니다.';box.appendChild(p)}
  for(const home of sources){
@@ -154,7 +172,7 @@ migrateArmy=function(s){
  const orders=s.cities.filter(q=>q.queue?.transportTo!==undefined).map(q=>({id:q.id,order:q.queue}));
  for(const {id}of orders)s.cities.find(q=>q.id===id).queue=null;
  const result=supplyMigration(s);supplyChoice=null;
- for(const {id,order}of orders){const source=cities.find(q=>q.id===id);if(source&&TYPES[order.type]&&[2,3].includes(order.total)&&Number.isFinite(order.remaining)&&Number.isFinite(order.lastTick)){const elapsed=order.total-order.remaining;order.total=2;order.remaining=Math.max(0,Math.min(2,2-elapsed));source.queue=order}}
+ for(const {id,order}of orders){const source=cities.find(q=>q.id===id);if(source&&TYPES[order.type]&&[1,2,3].includes(order.total)&&Number.isFinite(order.remaining)&&Number.isFinite(order.lastTick)){const elapsed=order.total-order.remaining;order.total=Math.min(2,order.total);order.remaining=Math.max(0,Math.min(order.total,order.total-elapsed));source.queue=order}}
  pruneSupplies();return result;
 };
 // Incoming orders live on the homeland queue; show them at the receiving city too.
@@ -174,5 +192,6 @@ document.addEventListener('click',event=>{
  const link=event.target?.closest?.('[data-supply-city]');
  if(link)focusSupplyCity(Number(link.getAttribute('data-supply-city')));
 });
-Object.assign(window.Terha,{supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
+Object.assign(window.Terha,{supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,supplyCoastalCity,supplyHomelandConnected,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
  industryTurn,capture,nuclearImpact,migrateArmy,occupiedCity,homelandSources,supplyTurns,requestSupply,supplySource});
+
