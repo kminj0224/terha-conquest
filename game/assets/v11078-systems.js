@@ -138,6 +138,8 @@ tap=function(sx,sy){
  if(i<0)return defenseInteractionTap(sx,sy);
  const b=baseAt(i);
  if(!coastBuildMode&&!airTarget&&!strategicTarget&&!navalMode&&b&&b.f===player&&!unitAt(i)){
+  defenseFocusId=b.id;unitFocusId=null;
+  playInterfaceSound('ui_select',.38);
   selectedDefenseId=b.id;
   selected=null;panelOpen=false;reach.clear();
   navalMode=b.kind!=='sam'&&readyDefense(b)&&b.lastShot!==turn&&oil[player]>=8?
