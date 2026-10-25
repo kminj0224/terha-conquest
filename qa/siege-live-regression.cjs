@@ -55,13 +55,15 @@ module.exports=async function({run}){
    units=[];q.f=0;q.level=5;q.hp=1000;for(const i of regionTiles[q.id])tiles[i].owner=0;
    const home=cities.find(v=>v.f===0&&v.origin===0);home.level=5;home.queue=null;home.produced=false;home.nukeUntil=0;cityProfile(home);
    check(requestSupply(q,home,1,1,false),'Other troop requested from homeland');
-   const start=turn;turn=start+1;deploy(home);check(home.queue?.remaining===1,'Homeland transport waits one turn');
-   turn=start+2;deploy(home);check(!home.queue&&unitAt(q.tile)?.type===1,'Non-rifle transport can deploy onto own occupied city');
-   return {floor:1,actualDamage:damage.slice(0,2),rifleCapture:true,entryMessage:true,friendlyArmor:true,transportTurns:2};
+   const start=turn,total=supplyTurns(home,q);turn=start+1;deploy(home);
+   if(total===2)check(home.queue?.remaining===1,'Long-distance homeland transport waits another turn');
+   turn=start+total;deploy(home);check(!home.queue&&unitAt(q.tile)?.type===1,'Non-rifle transport can deploy onto own occupied city');
+   return {floor:1,actualDamage:damage.slice(0,2),rifleCapture:true,entryMessage:true,friendlyArmor:true,transportTurns:total};
   }finally{
    ({delay,finishMovingBeforeFire,beginAim,launchShot,targetExplosions}=old);
    const state=JSON.parse(original);({units,cities,money,tech,food,oil,turn,player,difficulty,uid,cam}=state);tiles.forEach((t,i)=>t.owner=state.owners[i]);migrateArmy(state);busy=false;selected=null;panelOpen=false;save();
   }
  })()`);
- assert.equal(report.floor,1);assert.equal(report.transportTurns,2);console.log('PASS live world siege/capture and friendly deployment:',report);
+ assert.equal(report.floor,1);assert([1,2].includes(report.transportTurns));console.log('PASS live world siege/capture and friendly deployment:',report);
 };
+

@@ -5,7 +5,7 @@ const {transportStripePixel,factionPalette}=require('../tools/prepare-transport-
 const root=path.join(__dirname,'../game/assets');
 (async()=>{
  const original=fs.readFileSync(path.join(root,'transport-ship.png'));
- assert.equal(crypto.createHash('sha256').update(original).digest('hex'),'SOURCE_HASH');
+ assert.equal(crypto.createHash('sha256').update(original).digest('hex'),'6aa94ff46a4358d1c03cee2d2ba7f66bcab4a9c50703fed90554143b169cdb0c');
  const factions=factionPalette(),images=await Promise.all(factions.map((_,f)=>loadImage(path.join(root,f?'transport-ship-'+f+'.png':'transport-ship.png'))));
  const [w,h]=[images[0].width,images[0].height],canvas=createCanvas(w,h),ctx=canvas.getContext('2d');
  const pixels=image=>{ctx.clearRect(0,0,w,h);ctx.drawImage(image,0,0);return ctx.getImageData(0,0,w,h).data};

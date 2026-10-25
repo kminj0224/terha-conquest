@@ -70,8 +70,8 @@ async function main(){
  b.units=[];b.cities[0].queue=null;b.cities[0].produced=false;b.cities[1].produced=false;b.cities[0].level=3;b.cities[1].level=3;
  b.money[2]=b.food[2]=b.oil[2]=10000;const playerResources=[b.money[0],b.food[0],b.oil[0]];
  assert(!run('canProduce(cities[1],0,1)'),'no AI direct occupied production');run('aiProcure(2,cities.filter(q=>q.f===2))');
- assert.equal(b.cities[0].queue.transportTo,1);assert.equal(b.cities[0].queue.owner,2);assert.equal(b.cities[0].queue.type,0);assert.equal(b.cities[0].queue.remaining,2);assert.equal(b.food[2],9900);assert.deepEqual(legacyOrders.at(-1),[0]);assert.deepEqual([b.money[0],b.food[0],b.oil[0]],playerResources);
- b.turn++;run('deploy(cities[0])');assert.equal(b.cities[0].queue.remaining,1);b.turn++;run('deploy(cities[0])');assert.equal(b.cities[0].queue,null);assert(b.units.some(u=>u.type===0&&u.f===2&&u.tile===3),'AI rifle arrives on own occupied city in 2 turns');
+ assert.equal(b.cities[0].queue.transportTo,1);assert.equal(b.cities[0].queue.owner,2);assert.equal(b.cities[0].queue.type,0);assert.equal(b.cities[0].queue.remaining,1);assert.equal(b.food[2],9900);assert.deepEqual(legacyOrders.at(-1),[0]);assert.deepEqual([b.money[0],b.food[0],b.oil[0]],playerResources);
+ b.turn++;run('deploy(cities[0])');assert.equal(b.cities[0].queue,null);assert(b.units.some(u=>u.type===0&&u.f===2&&u.tile===3),'AI rifle arrives on own occupied city in 1 turn');
  b.cities[0].produced=false;b.cities[0].level=4;assert(!run('requestSupply(cities[1],cities[0],0,1,false,true)'),'AI respects homeland level limit');b.cities[0].level=3;
  // AI conventional missiles use the same eligibility/cost/actual-damage code and keep busy/camera.
  b.cities[0].level=4;b.cities[0].launcher=true;b.cities[0].lastMissileTurn=-1;b.busy=true;b.cities[2].hp=1;b.units=[];
@@ -82,7 +82,7 @@ async function main(){
  // Existing paid local AI queues migrate without charging twice; impossible ones refund once.
  b.cities[0].level=3;b.cities[0].queue=null;b.cities[0].produced=false;b.cities[1].queue={type:0,level:1,aa:true};
  const paid=[b.food[2],b.oil[2],b.money[2]];run('migrateArmy({cities,units})');
- assert.equal(b.cities[1].queue,null);assert.equal(b.cities[0].queue.transportTo,1);assert.equal(b.cities[0].queue.remaining,2);assert(b.cities[0].queue.aa);assert.deepEqual([b.food[2],b.oil[2],b.money[2]],paid);
+ assert.equal(b.cities[1].queue,null);assert.equal(b.cities[0].queue.transportTo,1);assert.equal(b.cities[0].queue.remaining,1);assert(b.cities[0].queue.aa);assert.deepEqual([b.food[2],b.oil[2],b.money[2]],paid);
  b.cities[0].queue.remaining=2;b.cities[0].queue.total=3;run('migrateArmy({cities,units})');assert.equal(b.cities[0].queue.total,2);assert.equal(b.cities[0].queue.remaining,1,'legacy 3-turn transport preserves elapsed progress');
  b.cities[0].queue=null;b.cities[0].level=4;b.cities[1].queue={type:0,level:1,aa:true};const refund=[b.food[2],b.money[2]];run('migrateArmy({cities,units})');
  assert.equal(b.cities[1].queue,null);assert.equal(b.food[2],refund[0]+100);assert.equal(b.money[2],refund[1]+10);
@@ -90,3 +90,4 @@ async function main(){
  console.log('PASS: actual artillery/air/naval/missile and garrison floors/popups, nuclear exemption, rifle and eligible national special capture/movement/toast, friendly-city access, AI remote procurement/deployment/costs/level restrictions, AI rifle capture and waste-free missile/air targeting');
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
+
