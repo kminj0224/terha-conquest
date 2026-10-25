@@ -5,6 +5,9 @@ on:
     paths:
       - 'game/assets/*motorized*'
       - 'qa/motorized-art-regression.cjs'
+      - 'qa/ranna-regression.cjs'
+      - 'qa/native-test.cjs'
+      - 'build.py'
       - '.github/workflows/build-v11132-motorized.yml'
   workflow_dispatch:
 permissions:
