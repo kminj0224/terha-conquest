@@ -37,8 +37,7 @@ sprite=function(u,p,now){
  ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,12,38,9,0,0,Math.PI*2);ctx.fill();
  ctx.save();if(profile.flip)ctx.scale(-1,1);ctx.drawImage(image,...crop,-w/2,14-h,w,h);ctx.restore();
  if(cam.z>.55){
-  ctx.font='bold 9px Terha,sans-serif';ctx.textAlign='center';ctx.lineWidth=2.5;ctx.strokeStyle='#10222b';
-  ctx.strokeText(TYPES[u.type].name+' '+u.level,0,38);ctx.fillStyle='#eee7d2';ctx.fillText(TYPES[u.type].name+' '+u.level,0,38);
+  // The shared foreground pass paints the unit name above this health meter.
   rect(-25,21,50,5,'#12211c');rect(-24,22,48*Math.max(0,u.hp/unitMaxHp(u)),3,factions[u.f].color);
  }
  ctx.restore();
