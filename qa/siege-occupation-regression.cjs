@@ -14,7 +14,7 @@ const b={console,Set,Map,Number,Math,Int32Array,performance:{now:()=>1000},windo
  cityProfile:noop,canProduce:(q,k,l)=>l<=4&&q.level>=1&&!b.isAircraft({type:k}),productionReason:()=>'',produce:noop,unitPage:noop,cityCommandOpen:noop,cityOverview:()=>'',drawCityForeground:noop,progressCard:(a,c)=>a+c,
  deploy:noop,industryTurn:noop,nuclearImpact:i=>{b.cityAt(i).hp=0},migrateArmy:noop,moveCost:()=>1,landingTiles:()=>[3,7],
  unitPrice:(k,l=1)=>100*l,unitOil:k=>k===0?0:20,navGoldCost:k=>b.isNaval({type:k})?40:0,aaCost:()=>10,
- aiProcure:(f,owned)=>legacyOrders.push(owned.map(q=>q.id)),aiObjectives:[null,null,null],aiUpgradeReserve:()=>0,strategicResearch:[{}, {},{ballistic:true}],
+ transportCandidate:()=>false,hasAttackTarget:()=>false,aiProcure:(f,owned)=>legacyOrders.push(owned.map(q=>q.id)),aiObjectives:[null,null,null],aiUpgradeReserve:()=>0,strategicResearch:[{}, {},{ballistic:true}],
  MISSILE_MODELS:{short:{range:20,damage:1000,gold:90,oil:4,name:'Missile'}},FACILITIES:{launcher:{cost:100}},
  canAirStrike:()=>true,airStrike:noop,airDropTileAvailable:()=>false,landUnit:noop,kill:u=>{b.units=b.units.filter(v=>v!==u)},log:noop,toast:s=>messages.push(s),tap:()=>messages.push('fallback'),pickedNavalTile:()=>7,
  canAttack:(u,v)=>u.attackReady&&u.f!==v.f&&Math.abs(u.tile-v.tile)<=b.TYPES[u.type].range,mayMove:u=>u.moveAllowed&&!u.moved,mayFire:u=>u.attackReady&&u.hp>0,

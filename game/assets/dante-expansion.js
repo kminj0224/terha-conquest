@@ -40,7 +40,7 @@ const expansionLanding=transportLanding;transportLanding=function(ship){if(ship.
  }if(best)transportLandings.set(ship.id,best);return best;
 };
 function danteShipOperation(ship){const front=danteAssignedFront(ship);if(!front)return aiShipOperation(ship);
- if(!cargoUnits(ship).length){const candidates=units.filter(u=>u.f===1&&u.danteFront===front.name&&transportCandidate(u)&&boardableShips(u).includes(ship)).sort((a,b)=>distance(a.tile,ship.tile)-distance(b.tile,ship.tile));for(const u of candidates){if(cargoUnits(ship).length>=20)break;boardUnit(u,ship,true)}}
+ if(!cargoUnits(ship).length){const candidates=units.filter(u=>u.f===1&&u.danteFront===front.name&&transportCandidate(u)&&boardableShips(u).includes(ship)).sort((a,b)=>(a.type===0?0:1)-(b.type===0?0:1)||distance(a.tile,ship.tile)-distance(b.tile,ship.tile));for(const u of candidates){if(cargoUnits(ship).length>=20)break;boardUnit(u,ship,true)}}
  if(cargoUnits(ship).length){const goal=transportLanding(ship);if(!goal)return null;for(const u of cargoUnits(ship).slice()){const sites=landingTiles(ship,u).filter(i=>atWar(1,tiles[i].owner)).sort((a,b)=>distance(a,goal.land)-distance(b,goal.land));if(sites.length)landUnit(ship,u,sites[0],true)}if(cargoUnits(ship).length)return transportSail(ship,goal.sea)}
  const berth=danteLoadingSea(front,ship);return berth>=0?transportSail(ship,berth):null;
 }

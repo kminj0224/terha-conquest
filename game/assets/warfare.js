@@ -11,7 +11,7 @@ TYPES.push(
 {name:'유탄수',cost:125,hp:95,atk:38,range:2,move:3,def:7,branch:'infantry',icon:'×',splash:.15,text:'유탄 발사기. 사거리 2, 주변 적에게 15% 광역 피해.'},
 {name:'대전차보병',cost:150,hp:100,atk:35,range:2,move:3,def:9,branch:'infantry',icon:'×',antiArmor:1.9,text:'대전차 로켓. 기갑 대상 피해 +90%.'},
 {name:'중기관총병',cost:140,hp:125,atk:35,range:2,move:2,def:13,branch:'infantry',icon:'×',antiInfantry:1.6,text:'지속 사격. 보병 대상 피해 +60%.'},
-{name:'차량화보병',cost:185,hp:130,atk:33,range:1,move:5,def:12,branch:'infantry',icon:'×',text:'수송 트럭과 보병 분대. 빠른 기동과 점령에 적합.'},
+{name:'차량화보병',cost:185,hp:130,atk:33,range:1,move:5,def:12,branch:'infantry',icon:'×',text:'수송 트럭과 보병 분대. 빠른 기동과 전선 지원에 적합.'},
 {name:'장갑차',cost:170,hp:135,atk:34,range:1,move:5,def:17,branch:'armor',icon:'▰',antiInfantry:1.35,text:'차륜 장갑차. 보병 대상 피해 +35%.'},
 {name:'경전차',cost:190,hp:135,atk:43,range:1,move:5,def:17,branch:'armor',tank:true,icon:'▰',text:'빠른 기갑 정찰과 돌파. 격파 시 추가 공격.'},
 {name:'정예전차',cost:370,hp:210,atk:69,range:2,move:4,def:30,branch:'armor',tank:true,icon:'▰',text:'정예 중전차. 사거리 2와 강력한 장갑. 격파 시 추가 공격.'},

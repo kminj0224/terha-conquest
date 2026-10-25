@@ -104,6 +104,7 @@ aiStep=function(u,targets){
   if(breach)return {move:breach.tile};
   const goal=aiRifleGoal(u,targets);
   if(goal){
+   if(!unitAt(goal.tile)&&canAttackCity(u,goal)&&goal.hp<=siegeDamage(u,goal))return {city:goal};
    if(units.some(v=>canAttack(u,v)))return siegeAIStep(u,targets);
    if(canAttackCity(u,goal))return {city:goal};
    const route=rifleRoute(u.f,goal),before=route[u.tile];
@@ -122,6 +123,14 @@ aiStep=function(u,targets){
  const action=siegeAIStep(u,useful);
  if(action?.city&&cityDamageFloor(u)&&action.city.hp<=1)return null;
  return action;
+};
+const rifleTransportCandidate=transportCandidate;
+transportCandidate=function(u){
+ if(u.type===0&&!u.carriedBy&&mayMove(u)&&!hasAttackTarget(u)){
+  const goal=aiObjectives[u.f];
+  if(goal&&atWar(u.f,goal.f)&&rifleRoute(u.f,goal)[u.tile]<0)return true;
+ }
+ return rifleTransportCandidate(u);
 };
 async function aiStrategicOperations(f,owned){
  const model=MISSILE_MODELS.short;if(!strategicResearch[f].ballistic)return 0;
@@ -149,11 +158,11 @@ migrateArmy=function(s){
  const result=siegeMigration(s);aiRifleOrderTurn.fill(-1);captureRouteCache.clear();captureRouteStamp='';
  for(const {id,order}of legacy){
   const target=cities.find(q=>q.id===id);if(!target||!TYPES[order.type])continue;
-  const source=homelandSources(target).find(q=>!q.queue&&canProduce(q,order.type,order.level||1)&&(!isNaval({type:order.type})||target.harbor)&&(supplyLandConnected(q,target)||supplySeaAccess(target)));
+  const source=!(target.nukeUntil>turn)&&homelandSources(target).find(q=>!q.queue&&canProduce(q,order.type,order.level||1)&&(!isNaval({type:order.type})||target.harbor)&&(supplyLandConnected(q,target)||supplySeaAccess(target)));
   if(source){source.queue={...order,level:order.level||1,transportTo:target.id,owner:target.f,sourceName:source.name,total:2,remaining:2,lastTick:turn};source.produced=true}
   else {food[target.f]+=unitPrice(order.type,order.level||1);oil[target.f]+=unitOil(order.type,order.level||1);money[target.f]+=navGoldCost(order.type,order.level||1)+(order.aa?aaCost(order.level||1):0)}
  }
  return result;
 };
 Object.assign(window.Terha,{cityDamageFloor,usefulConventionalTarget,canProduce,capture,moveCost,tap,landingTiles,canAirStrike,
- aiQueueUnit,aiNeedsRifles,aiProcure,aiStep,rifleRoute,aiRifleGoal,aiStrategicOperations,migrateArmy});
+ aiQueueUnit,aiNeedsRifles,aiProcure,aiStep,transportCandidate,rifleRoute,aiRifleGoal,aiStrategicOperations,migrateArmy});
