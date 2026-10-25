@@ -48,7 +48,8 @@ module.exports=function({run}){
   check(!isBaekArtillery({f:4,type:1})&&!isBaekArtillery({f:3,type:12}),'Artillery selector leaked to armor units');
   for(const type of [2,3])check(isBaekArtillery({f:3,type})&&baekArtilleryProfile({f:3,type}).art===(type===2?ayriaSPArt:ayriaMLArt)&&baekArtilleryProfile({f:3,type}).art!==(type===2?rannaSPArt:rannaMLArt),'Ayria must use its separate desert artillery art');
   check(TOWED_ART[6]===TOWED_ART[2]&&isStetopiaCarrier({f:6,type:25}),'Sielun towed/carrier art');
-  check(!isStetopiaTank({f:6,type:12})&&!infantryArtProfile({f:6,type:11}),'Missing art must preserve fallback');
+  check(!isStetopiaTank({f:6,type:12})&&!infantryArtProfile({f:6,type:12}),'Missing armor art must preserve fallback');
+  check(infantryArtProfile({f:6,type:11}).art===STETOPIA_INFANTRY_PROFILES[0].art&&infantryArtProfile({f:6,type:11}).burst,'Sielun motorized infantry must use rifle burst art');
   check(infantryArtProfile({f:4,type:27}).art===rannaGuerrillaArt&&rannaGuerrillaArt.idle.src==='ranna-guerrilla-idle.png'&&rannaGuerrillaArt.fire.src==='ranna-guerrilla-fire.png','Guerrilla art');
   const capital=cities.find(q=>q.f===4&&q.capital);check(canProduce(capital,27,1)&&!canProduce(cities.find(q=>q.f===5&&q.capital),27,1),'Special unit production country');
   check(unitPrice(27,1)===30&&navGoldCost(27,1)===0&&unitOil(27,1)===0,'Cheap production resources');
