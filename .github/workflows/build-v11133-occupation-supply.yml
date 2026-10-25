@@ -1,11 +1,5 @@
 name: Build v1.11.33 occupation supply APK
 on:
-  push:
-    branches: [main, codex/occupation-supply]
-    paths:
-      - 'game/assets/occupation-supply.js'
-      - 'qa/occupation-supply-regression.cjs'
-      - '.github/workflows/build-v11133-occupation-supply.yml'
   workflow_dispatch:
 permissions:
   contents: write

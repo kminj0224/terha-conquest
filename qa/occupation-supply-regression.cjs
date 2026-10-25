@@ -23,6 +23,11 @@ module.exports=async function({run}){
    run("$('supplyHome'+supplyHome.id).onclick()");
    assert(run("!!$('production')&&$('supplyHomeName').textContent.includes(supplyHome.name)"),'source catalogue opens inside destination');
    assert.equal(run('selected.id'),run('supplyTarget.id'));
+   run("$('supplyHomeName').onclick()");assert.equal(run('cam.x'),run('pxy(supplyHome.tile).x'));assert.equal(run('cam.y'),run('pxy(supplyHome.tile).y'));
+   run("$('cityNameFocus').onclick()");assert.equal(run('cam.x'),run('pxy(supplyTarget.tile).x'));
+   run("globalThis.supplyNukeCount=supplyHome.nukes;supplyHome.nukes=1;showNuclearOverview();$('nuclearCity'+supplyHome.id).onclick();supplyHome.nukes=supplyNukeCount");
+   assert.equal(run('cam.x'),run('pxy(supplyHome.tile).x'));assert.equal(run('menuMode'),false);assert.equal(run('selected.id'),run('supplyHome.id'));
+   run("selectCity(supplyTarget,true);cityCommandOpen('units');$('supplyHome'+supplyHome.id).onclick()");
   }
   assert(run('requestSupply(supplyTarget,supplyHome,0,2,true)'));
   assert.equal(run('supplyHome.queue.remaining'),2);assert.equal(run('supplyTarget.queue'),null);
@@ -45,7 +50,7 @@ module.exports=async function({run}){
   assert.equal(run('supplyHome.queue'),null);assert.equal(run('delivered.type'),0);assert.equal(run('delivered.level'),2);
   assert(run('delivered.aa&&delivered.fuelEfficient&&delivered.producedAtCityId===supplyHome.id'));
   assert(run('supplySites.has(delivered.tile)'),'delivered near destination');
-  run('supplyHome.produced=false;globalThis.islandTarget=cities.find(q=>q.id!==supplyHome.id&&supplyTurns(supplyHome,q)===3);if(!islandTarget)throw Error("Missing sea delivery fixture");islandTarget.f=player;islandTarget.origin=(player+1)%7;islandTarget.level=5;islandTarget.queue=null;islandTarget.nukeUntil=0;for(const i of regionTiles[islandTarget.id])tiles[i].owner=player');
+  run('supplyHome.produced=false;globalThis.islandTarget=cities.find(q=>q.id!==supplyHome.id&&supplyTurns(supplyHome,q)===3&&regionTiles[q.id].some(i=>neighbors(i).some(j=>tiles[j].owner<0)));if(!islandTarget)throw Error("Missing sea delivery fixture");islandTarget.f=player;islandTarget.origin=(player+1)%7;islandTarget.level=5;islandTarget.queue=null;islandTarget.nukeUntil=0;for(const i of regionTiles[islandTarget.id])tiles[i].owner=player');
   assert(run('requestSupply(islandTarget,supplyHome,0,1,false)'));assert.equal(run('supplyHome.queue.remaining'),3);
   run('turn++;deploy(supplyHome);turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue.remaining'),1);
   run('globalThis.seaSites=new Set([islandTarget.tile,...neighbors(islandTarget.tile),...neighbors(islandTarget.tile).flatMap(neighbors)]);units=units.filter(u=>!seaSites.has(u.tile));turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue'),null,'sea delivery after exactly 3 turns');
