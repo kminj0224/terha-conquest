@@ -1,5 +1,6 @@
 'use strict';
-// Final rules are shared by human and AI orders; type 0 remains the saved rifle ID.
+// Shared capture eligibility keeps movement, landing and AI consistent with saved type IDs.
+function canCaptureCityUnit(u){return !!u&&(u.type===0||[0,1,4,5].includes(TYPES[u.type]?.special))}
 function cityDamageFloor(u){return ['artillery','navy'].includes(TYPES[u.type]?.branch)||isAircraft(u)||isHelicopter(u)||[5,23,24,25].includes(u.type)?1:0}
 function usefulConventionalTarget(f,i){
  const u=unitAt(i),q=cityAt(i),b=baseAt(i);
@@ -8,20 +9,20 @@ function usefulConventionalTarget(f,i){
 const occupationCanProduce=canProduce;
 canProduce=function(q,k,l=1){return !occupiedCity(q)&&occupationCanProduce(q,k,l)};
 const rifleCapture=capture;
-capture=function(u){if(!u||u.type!==0||u.carriedBy||u.hp<=0)return;return rifleCapture(u)};
+capture=function(u){if(!u||!canCaptureCityUnit(u)||u.carriedBy||u.hp<=0)return;return rifleCapture(u)};
 const rifleMoveCost=moveCost;
-moveCost=function(u,i){const q=cityAt(i);if(q&&q.f!==u.f&&u.type!==0)return 99999;return rifleMoveCost(u,i)};
+moveCost=function(u,i){const q=cityAt(i);if(q&&q.f!==u.f&&!canCaptureCityUnit(u))return 99999;return rifleMoveCost(u,i)};
 const rifleEntryTap=tap;
 tap=function(sx,sy){
  if(started&&!busy&&!menuMode&&!airTarget&&!strategicTarget&&!coastBuildMode){
   const u=navalMode?.kind==='land'?units.find(v=>v.id===navalMode.unit):!navalMode&&selected?.kind==='unit'?units.find(v=>v.id===selected.id):null;
   const i=pickedNavalTile(sx,sy),q=i>=0?cityAt(i):null;
-  if(u?.f===player&&u.type!==0&&q&&q.hp<=0&&atWar(u.f,q.f)&&!unitAt(i)){toast('소총수만 점령할 수 있습니다');return}
+  if(u?.f===player&&!canCaptureCityUnit(u)&&q&&q.hp<=0&&atWar(u.f,q.f)&&!unitAt(i)){toast('소총수와 란나·백양·단테·낙월 특수유닛만 점령할 수 있습니다');return}
  }
  return rifleEntryTap(sx,sy);
 };
 const rifleLandingTiles=landingTiles;
-landingTiles=function(ship,u){return rifleLandingTiles(ship,u).filter(i=>{const q=cityAt(i);return !q||q.f===u.f||u.type===0})};
+landingTiles=function(ship,u){return rifleLandingTiles(ship,u).filter(i=>{const q=cityAt(i);return !q||q.f===u.f||canCaptureCityUnit(u)})};
 const efficientAirEligibility=canAirStrike;
 canAirStrike=function(q,type,i){
  if(q.f!==player&&type!=='transport'&&!usefulConventionalTarget(q.f,i))return false;
@@ -45,7 +46,7 @@ function aiEnemyCities(f){return cities.filter(q=>atWar(f,q.f)&&!(q.nukeUntil>tu
 function aiFrontDistance(q,fronts){return fronts.length?Math.min(...fronts.map(v=>distance(q.tile,v.tile))):Infinity}
 function aiNeedsRifles(f,fronts=aiEnemyCities(f)){
  if(!fronts.length)return false;
- const troops=units.filter(u=>u.f===f&&u.type===0&&u.hp>0);
+ const troops=units.filter(u=>u.f===f&&canCaptureCityUnit(u)&&u.hp>0);
  if(!troops.length)return true;
  const forward=fronts.filter(q=>cities.some(home=>home.f===f&&distance(home.tile,q.tile)<=14)||units.some(u=>u.f===f&&!u.carriedBy&&distance(u.tile,q.tile)<=6));
  return forward.some(q=>!troops.some(u=>!u.carriedBy&&distance(u.tile,q.tile)<=8));
@@ -64,7 +65,7 @@ aiProcure=function(f,owned){
  let remote=0;
  for(const q of destinations){
   if(!occupiedCity(q)||!fronts.length||remote>=2||aiFrontDistance(q,fronts)>18)continue;
-  const rifles=units.filter(u=>u.f===f&&u.type===0&&!u.carriedBy&&distance(u.tile,q.tile)<=8).length;
+  const rifles=units.filter(u=>u.f===f&&canCaptureCityUnit(u)&&!u.carriedBy&&distance(u.tile,q.tile)<=8).length;
   const pool=rifles<2?[0]:[9,10,1,15,0];
   if(pool.some(k=>aiQueueUnit(f,q,k,1)))remote++;
  }
@@ -97,7 +98,7 @@ function aiRifleGoal(u,targets){
 const siegeAIStep=aiStep;
 aiStep=function(u,targets){
  if(u.f===player||u.carriedBy||u.hp<=0)return siegeAIStep(u,targets);
- if(u.type===0){
+ if(canCaptureCityUnit(u)){
   const at=cityAt(u.tile);if(at&&atWar(u.f,at.f)&&at.hp<=0)capture(u);
   const reachableTiles=reachable(u).costs;
   const breach=targets.filter(q=>atWar(u.f,q.f)&&q.hp<=0&&!(q.nukeUntil>turn)&&!unitAt(q.tile)&&reachableTiles.has(q.tile)).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
@@ -126,7 +127,7 @@ aiStep=function(u,targets){
 };
 const rifleTransportCandidate=transportCandidate;
 transportCandidate=function(u){
- if(u.type===0&&!u.carriedBy&&mayMove(u)&&!hasAttackTarget(u)){
+ if(canCaptureCityUnit(u)&&!u.carriedBy&&mayMove(u)&&!hasAttackTarget(u)){
   const goal=aiObjectives[u.f];
   if(goal&&atWar(u.f,goal.f)&&rifleRoute(u.f,goal)[u.tile]<0)return true;
  }
@@ -142,7 +143,7 @@ async function aiStrategicOperations(f,owned){
   const sites=new Set([...units.filter(u=>u.hp>0&&!u.carriedBy&&atWar(f,u.f)).map(u=>u.tile),...aiEnemyCities(f).filter(v=>v.hp>1).map(v=>v.tile),...missileBases.filter(b=>b.hp>0&&atWar(f,b.f)).map(b=>b.tile)]);
   const targets=[...sites].filter(i=>usefulConventionalTarget(f,i)&&missileCanFire(q,'missile',i,true));
   targets.sort((a,b)=>{
-   const score=i=>{const city=cityAt(i),u=unitAt(i);return (u?Math.min(u.hp,model.damage*.08):0)+(city?Math.min(Math.max(0,city.hp-1),model.damage)*(units.some(v=>v.f===f&&v.type===0&&distance(v.tile,i)<=8)?1:.25):0)};
+   const score=i=>{const city=cityAt(i),u=unitAt(i);return (u?Math.min(u.hp,model.damage*.08):0)+(city?Math.min(Math.max(0,city.hp-1),model.damage)*(units.some(v=>v.f===f&&canCaptureCityUnit(v)&&distance(v.tile,i)<=8)?1:.25):0)};
    return score(b)-score(a);
   });
   if(targets.length&&await launchStrategic(q,'missile',targets[0],true))fired++;
@@ -164,5 +165,5 @@ migrateArmy=function(s){
  }
  return result;
 };
-Object.assign(window.Terha,{cityDamageFloor,usefulConventionalTarget,canProduce,capture,moveCost,tap,landingTiles,canAirStrike,
+Object.assign(window.Terha,{canCaptureCityUnit,cityDamageFloor,usefulConventionalTarget,canProduce,capture,moveCost,tap,landingTiles,canAirStrike,
  aiQueueUnit,aiNeedsRifles,aiProcure,aiStep,transportCandidate,rifleRoute,aiRifleGoal,aiStrategicOperations,migrateArmy});

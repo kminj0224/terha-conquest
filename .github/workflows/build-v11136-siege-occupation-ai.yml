@@ -1,12 +1,5 @@
 name: Build v1.11.36 siege capture and occupation AI APK
 on:
-  push:
-    branches: [main, codex/siege-occupation-ai]
-    paths:
-      - 'game/assets/**'
-      - 'qa/**'
-      - 'build.py'
-      - '.github/workflows/build-v11136-siege-occupation-ai.yml'
   workflow_dispatch:
 permissions:
   contents: write

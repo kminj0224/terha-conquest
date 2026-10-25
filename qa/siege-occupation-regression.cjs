@@ -37,6 +37,7 @@ run(segment('orders.js','async function attackCity(','function canCounterattack(
 run(segment('orders.js','async function attack(u,','const beforeLaunch='));
 run(segment('orders.js','async function airStrike(','function drawCitySelection('));
 run(read('occupation-supply.js'));
+Object.assign(b.TYPES[6],{special:0});Object.assign(b.TYPES[17],{special:1});Object.assign(b.TYPES[27],{special:4});Object.assign(b.TYPES[28],{special:5});Object.assign(b.TYPES[18],{special:2});
 run(read('siege-occupation.js'));
 run(segment('v11085-strategic.js','function missileCanFire(','Object.assign(window.Terha'));
 function unit(type,tile=6,f=2){return {id:b.uid++,f,type,tile,level:1,hp:100,ap:2,moveAllowed:true,attackReady:true,xp:0}}
@@ -51,10 +52,18 @@ async function main(){
  b.units=[];b.cities[2].hp=500;shown.length=0;assert(await run("airStrike(cities[0],'fighter',7,true)"));assert.equal(b.cities[2].hp,1);assert.equal(shown.at(-1),499);
  const resources=[b.money[2],b.oil[2]];assert(!run("canAirStrike(cities[0],'fighter',7)"));assert(!await run("airStrike(cities[0],'fighter',7,true)"));assert.deepEqual([b.money[2],b.oil[2]],resources,'no wasted air sortie');
  b.cities[2].hp=0;run('damageCity(cities[2],1000,1)');assert.equal(b.cities[2].hp,0,'never heal a breached city');
+ // Legacy/indirect callers cannot accidentally omit the minimum durability rule.
+ b.cities[2].hp=500;assert.equal(run('damageCity(cities[2],1000)'),499);assert.equal(b.cities[2].hp,1);
+ for(const type of [6,17,27,28]){
+  b.cities[2].f=0;b.cities[2].hp=0;b.u=unit(type,6);b.units=[b.u];
+  assert(run('canCaptureCityUnit(u)'));assert(run('reachable(u).costs.has(7)'));
+  assert.equal(run('aiStep(u,cities).move'),7);assert(run('moveUnit(u,7,true)'));assert.equal(b.cities[2].f,2);
+ }
+ b.cities[2].f=0;b.cities[2].hp=0;b.u=unit(18,6);b.units=[b.u];assert(!run('canCaptureCityUnit(u)'));assert(!run('reachable(u).costs.has(7)'));
  // Only rifles enter/capture enemy cities; friendly home and occupied city access stays legal.
  b.u=unit(1,6);b.units=[b.u];assert(!run('reachable(u).costs.has(7)'));assert(run('reachable(u).costs.has(3)'));
  b.u.tile=7;run('capture(u)');assert.equal(b.cities[2].f,0);b.u.tile=6;
- b.player=2;b.selected={kind:'unit',id:b.u.id};run('tap(0,0)');assert.equal(messages.at(-1),'소총수만 점령할 수 있습니다');b.player=0;
+ b.player=2;b.selected={kind:'unit',id:b.u.id};run('tap(0,0)');assert.equal(messages.at(-1),'소총수와 란나·백양·단테·낙월 특수유닛만 점령할 수 있습니다');b.player=0;
  b.u=unit(0,6);b.units=[b.u];assert(run('reachable(u).costs.has(7)'));assert.equal(run('aiStep(u,cities).move'),7);assert(run('moveUnit(u,7,true)'));assert.equal(b.cities[2].f,2);assert(b.cities[2].hp>0);
  b.cities[2].f=0;b.cities[2].hp=1;b.u=unit(2,6);b.units=[b.u];assert.equal(run('aiStep(u,cities)'),null,'no artillery waste on 1 HP empty city');
  // Use the real shared occupied-city ordering/deployment flow on an AI-owned front.
@@ -78,6 +87,6 @@ async function main(){
  b.cities[0].queue=null;b.cities[0].level=4;b.cities[1].queue={type:0,level:1,aa:true};const refund=[b.food[2],b.money[2]];run('migrateArmy({cities,units})');
  assert.equal(b.cities[1].queue,null);assert.equal(b.food[2],refund[0]+100);assert.equal(b.money[2],refund[1]+10);
 
- console.log('PASS: actual artillery/air/naval/missile and garrison floors/popups, nuclear exemption, rifle-only capture/movement/toast, friendly-city access, AI remote procurement/deployment/costs/level restrictions, AI rifle capture and waste-free missile/air targeting');
+ console.log('PASS: actual artillery/air/naval/missile and garrison floors/popups, nuclear exemption, rifle and eligible national special capture/movement/toast, friendly-city access, AI remote procurement/deployment/costs/level restrictions, AI rifle capture and waste-free missile/air targeting');
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
