@@ -19,7 +19,8 @@ function halveSouthernDanteFleet(){
   for(const u of group.slice(0,n))keep.add(u.id);
   if(group.length%2)remainders.push(group[n]);
  }
- remainders.sort((a,b)=>a.type-b.type||a.id-b.id);
+ // Preserve a sole carrier when rounding a class with an odd ship count.
+ remainders.sort((a,b)=>Number(b.type===25)-Number(a.type===25)||a.type-b.type||a.id-b.id);
  for(const u of remainders)if(keep.size<target)keep.add(u.id);
  const removed=new Set(fleet.filter(u=>!keep.has(u.id)).map(u=>u.id));
  units=units.filter(u=>!removed.has(u.id));
