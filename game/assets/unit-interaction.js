@@ -1,6 +1,7 @@
 'use strict';
 // Inspection focus is independent of orders, allegiance, AP and the command panel.
 let unitFocusId=null;
+let defenseFocusId=null;
 const movementVoices=new Map();
 function focusedUnit(){
  const unit=units.find(u=>u.id===unitFocusId&&!u.carriedBy&&u.hp>0);
@@ -17,6 +18,30 @@ function drawUnitFocus(u,p,now){
  hex(p,radius);ctx.strokeStyle='#15242ced';ctx.lineWidth=width+Math.max(2,1/cam.z);ctx.stroke();
  ctx.strokeStyle='#ffe6a0';ctx.lineWidth=width;ctx.stroke();ctx.restore();
 }
+// Fortifications share the same inspection focus as units, without changing orders.
+function focusedDefense(){
+ const base=missileBases.find(b=>b.id===defenseFocusId&&b.hp>0);
+ if(!base)defenseFocusId=null;
+ return base;
+}
+function drawDefenseFocus(b,p){
+ if(b.id!==defenseFocusId||b.hp<=0)return;
+ ctx.save();
+ const radius=Math.max(34,9/cam.z),width=Math.max(2.8,1.6/cam.z);
+ hex(p,radius);
+ ctx.strokeStyle='#15242ced';
+ ctx.lineWidth=width+Math.max(2,1/cam.z);
+ ctx.stroke();
+ ctx.strokeStyle='#ffe6a0';
+ ctx.lineWidth=width;
+ ctx.stroke();
+ ctx.restore();
+}
+const preFocusDefenseSprite=defenseSprite;
+defenseSprite=function(b,p){
+ drawDefenseFocus(b,p);
+ return preFocusDefenseSprite(b,p);
+};
 function playInterfaceSound(name,volume=.36){
  if(!sound||document.hidden)return;
  const context=ensureCombatAudio();if(!context)return;
@@ -71,15 +96,16 @@ const interactionTap=tap;tap=function(sx,sy){
  const attackOrder=normal&&prior?.f===player&&(hit&&canAttack(prior,hit)||!hit&&city&&canAttackCity(prior,city)||!hit&&base&&canAttackDefense(prior,base));
  // An attack click is a command; a click used to inspect any unit sets its focus.
  unitFocusId=normal&&hit&&!attackOrder?hit.id:null;
- if(hit)playInterfaceSound('ui_select',.38);
- try{return interactionTap(sx,sy)}finally{focusedUnit()}
+ defenseFocusId=normal&&base&&!hit&&!attackOrder?base.id:null;
+ if(hit||normal&&(base||city)&&!attackOrder)playInterfaceSound('ui_select',.38);
+ try{return interactionTap(sx,sy)}finally{focusedUnit();focusedDefense()}
 };
 const interactionNextUnit=nextUnit;nextUnit=function(){const previous=selected,result=interactionNextUnit();if(selected?.kind==='unit'&&selected!==previous)unitFocusId=selected.id;return result};$('next').onclick=nextUnit;
 const interactionKill=kill;kill=function(u){if(unitFocusId===u.id)unitFocusId=null;return interactionKill(u)};
-const interactionEndTurn=endTurn;endTurn=function(...args){if(!busy&&started)unitFocusId=null;return interactionEndTurn(...args)};$('turn').onclick=endTurn;
-const interactionSetup=setup;setup=function(...args){unitFocusId=null;return interactionSetup(...args)};
-const interactionMigration=migrateArmy;migrateArmy=function(...args){unitFocusId=null;return interactionMigration(...args)};
-const interactionDraw=draw;draw=function(now){focusedUnit();updateMovementAudio(now);return interactionDraw(now)};
+const interactionEndTurn=endTurn;endTurn=function(...args){if(!busy&&started){unitFocusId=null;defenseFocusId=null}return interactionEndTurn(...args)};$('turn').onclick=endTurn;
+const interactionSetup=setup;setup=function(...args){unitFocusId=null;defenseFocusId=null;return interactionSetup(...args)};
+const interactionMigration=migrateArmy;migrateArmy=function(...args){unitFocusId=null;defenseFocusId=null;return interactionMigration(...args)};
+const interactionDraw=draw;draw=function(now){focusedUnit();focusedDefense();updateMovementAudio(now);return interactionDraw(now)};
 // Capture handles current and dynamically created buttons, including nested SVGs,
 // close buttons, command-center controls and keyboard-generated clicks, once each.
 document.addEventListener('click',event=>{
@@ -87,4 +113,4 @@ document.addEventListener('click',event=>{
  if(!button||button.disabled||button.getAttribute?.('aria-disabled')==='true')return;
  if(button.id==='sound'&&!sound){queueMicrotask(()=>{if(sound)playInterfaceSound('ui_click',.34)})}else playInterfaceSound('ui_click',.34);
 },true);
-Object.assign(window.Terha,{tap,moveUnit,attack,attackCity,attackDefense,launchShot,spendShot,kill,endTurn,nextUnit,setup,migrateArmy,draw,drawUnitFocus,unitFocusVisible,movementSoundProfile});
+Object.assign(window.Terha,{tap,moveUnit,attack,attackCity,attackDefense,launchShot,spendShot,kill,endTurn,nextUnit,setup,migrateArmy,draw,drawUnitFocus,drawDefenseFocus,unitFocusVisible,movementSoundProfile});
