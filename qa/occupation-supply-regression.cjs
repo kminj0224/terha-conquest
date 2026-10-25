@@ -11,6 +11,7 @@ module.exports=async function({run}){
  globalThis.supplyBefore=units.length;globalThis.supplyFood=food[player];globalThis.supplyStart=turn;
  `);
  try{
+  assert.equal(run('TYPES[11].atk'),33);assert.equal(run('TYPES[18].atk'),96);assert.equal(run('TYPES[18].branch'),'armor');assert(run('TYPES[18].tank'));assert.equal(run('unitPrice(18,1)'),1000);assert.equal(run('unitOil(18,1)'),40);
   assert(run('homelandSources(supplyTarget).some(q=>q.id===supplyHome.id)'),'lower level homeland included');
   run('supplyHome.level=3');assert(run('homelandSources(supplyTarget).includes(supplyHome)'),'equal level included');
   run('supplyHome.level=4');assert(!run('homelandSources(supplyTarget).includes(supplyHome)'),'higher level excluded');
@@ -26,7 +27,7 @@ module.exports=async function({run}){
   assert(run('requestSupply(supplyTarget,supplyHome,0,2,true)'));
   assert.equal(run('supplyHome.queue.remaining'),2);assert.equal(run('supplyTarget.queue'),null);
   if(run("typeof document!=='undefined'")){
-   assert(run("$('cityCommandContent').textContent.includes('에서 훈련 후 수송 중입니다')"),'incoming status shown');
+   assert(run("$('cityCommandContent').textContent.includes('에서 출항 후 도착 예정입니다')"),'incoming status shown');
    assert(run("$('cityCommandContent').textContent.includes(TYPES[0].name)"),'unit name shown');
    assert(run("$('cityCommandContent').innerHTML.includes('meter')"),'remaining turns bar shown');
   }
@@ -44,7 +45,7 @@ module.exports=async function({run}){
   assert.equal(run('supplyHome.queue'),null);assert.equal(run('delivered.type'),0);assert.equal(run('delivered.level'),2);
   assert(run('delivered.aa&&delivered.fuelEfficient&&delivered.producedAtCityId===supplyHome.id'));
   assert(run('supplySites.has(delivered.tile)'),'delivered near destination');
-  run('supplyHome.produced=false;globalThis.islandTarget=cities.find(q=>q.id!==supplyHome.id&&supplyTurns(supplyHome,q)===3);if(!islandTarget)throw Error("Missing sea delivery fixture");islandTarget.f=player;islandTarget.origin=(player+1)%7;islandTarget.level=5;islandTarget.queue=null;islandTarget.nukeUntil=0;tiles[islandTarget.tile].owner=player');
+  run('supplyHome.produced=false;globalThis.islandTarget=cities.find(q=>q.id!==supplyHome.id&&supplyTurns(supplyHome,q)===3);if(!islandTarget)throw Error("Missing sea delivery fixture");islandTarget.f=player;islandTarget.origin=(player+1)%7;islandTarget.level=5;islandTarget.queue=null;islandTarget.nukeUntil=0;for(const i of regionTiles[islandTarget.id])tiles[i].owner=player');
   assert(run('requestSupply(islandTarget,supplyHome,0,1,false)'));assert.equal(run('supplyHome.queue.remaining'),3);
   run('turn++;deploy(supplyHome);turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue.remaining'),1);
   run('globalThis.seaSites=new Set([islandTarget.tile,...neighbors(islandTarget.tile),...neighbors(islandTarget.tile).flatMap(neighbors)]);units=units.filter(u=>!seaSites.has(u.tile));turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue'),null,'sea delivery after exactly 3 turns');
@@ -52,10 +53,11 @@ module.exports=async function({run}){
   run('islandTarget.f=(player+1)%7;deploy(supplyHome)');assert.equal(run('supplyHome.queue'),null,'lost destination cancels');
   run('islandTarget.f=player;supplyHome.produced=false');assert(run('requestSupply(islandTarget,supplyHome,0,1,false)'));
   run('supplyHome.f=(player+1)%7;deploy(supplyHome)');assert.equal(run('supplyHome.queue'),null,'lost training city cancels');
-  run('globalThis.supplyRepairUnit=units.find(u=>u.f===player&&!u.carriedBy);supplyRepairUnit.hp=1;supplyRepairUnit.repairUsed=true;globalThis.repairGold=money[player]');
-  assert(run('repair(supplyRepairUnit)'));assert(run('repair(supplyRepairUnit)'));
-  assert.equal(run('money[player]'),run('repairGold-130'),'each repeat supply charged');
-  run('money[player]=64');assert(!run('repair(supplyRepairUnit)'),'no free supply');
+  run('globalThis.supplyRepairUnit=units.find(u=>u.f===player&&!u.carriedBy);supplyRepairUnit.hp=1;supplyRepairUnit.repairUsed=true;globalThis.repairGold=money[player];globalThis.repairFood=food[player];globalThis.repairOil=oil[player];globalThis.repairCost=resupplyCost(supplyRepairUnit)');
+  assert(run('repair(supplyRepairUnit)'));assert.equal(run('supplyRepairUnit.hp'),run('unitMaxHp(supplyRepairUnit)'));run('supplyRepairUnit.hp=1');assert(run('repair(supplyRepairUnit)'));
+  assert.equal(run('money[player]'),run('repairGold-2*repairCost.gold'),'each repeat supply charged');
+  assert.equal(run('food[player]'),run('repairFood-2*repairCost.food'));assert.equal(run('oil[player]'),run('repairOil-2*repairCost.oil'));
+  run('food[player]=repairCost.food-1');assert(!run('repair(supplyRepairUnit)'),'no free supply');
  }finally{
   run('globalThis.supplyRestore=JSON.parse(supplyFixture);({units,cities,money,tech,food,oil,turn,player,difficulty,uid,cam}=supplyRestore);tiles.forEach((t,i)=>t.owner=supplyRestore.owners[i]);migrateArmy(supplyRestore);selected=null;panelOpen=false;supplyChoice=null;save()');
  }

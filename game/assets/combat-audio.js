@@ -28,9 +28,9 @@ function stopCombatAudio(includeUI=true){
  for(const voice of [...combatAudio.voices]){if(!includeUI&&voice.ui)continue;try{if(context){voice.gain.gain.cancelScheduledValues(context.currentTime);voice.gain.gain.setTargetAtTime(0,context.currentTime,.008);voice.source.stop(context.currentTime+.04)}}catch(error){}}
  combatAudio.voices=includeUI?[]:combatAudio.voices.filter(v=>v.ui);
 }
-function queueCombatSound(name,position,start=performance.now(),volume=1){
+function queueCombatSound(name,position,start=performance.now(),volume=1,playbackRate=1){
  if(!sound||document.hidden||!combatAudio.enabled||skipAIAnimations()||!COMBAT_SOUND_BANK[name])return;
- combatAudio.queue.push({name,position:{x:position.x,y:position.y},start,volume});
+ combatAudio.queue.push({name,position:{x:position.x,y:position.y},start,volume,playbackRate});
  // A corrupt or very old FX list cannot accumulate an unbounded sound backlog.
  if(combatAudio.queue.length>96)combatAudio.queue.splice(0,combatAudio.queue.length-96);
 }
@@ -38,7 +38,7 @@ function playCombatVoice(event,now){
  const context=ensureCombatAudio();if(!context||context.state!=='running')return;
  const sequence=combatAudio.variation++,variant=sequence%2,buffer=combatBuffer(event.name,variant);if(!buffer)return;
  const source=context.createBufferSource(),gain=context.createGain(),filter=context.createBiquadFilter();source.buffer=buffer;
- source.playbackRate.value=1+((sequence*17%11)-5)*.004;
+ source.playbackRate.value=(event.playbackRate||1)*(1+((sequence*17%11)-5)*.004);
  const viewWidth=Math.max(640,screenW/cam.z),dx=(nearWorldPoint(event.position,cam).x-cam.x)/viewWidth,dy=(event.position.y-cam.y)/viewWidth;
  const distance=event.ui?0:Math.hypot(dx,dy),attenuation=Math.max(.22,1/(1+distance*.65));
  filter.type='lowpass';filter.frequency.value=Math.max(1800,14500/(1+distance*.6));filter.Q.value=.5;
@@ -57,7 +57,8 @@ function playCombatVoice(event,now){
 function combatWeaponProfile(u){
  const type=u.type,f=u.f;
  if(type===26)return null;
- if(type===18||f===2&&[1,13,14].includes(type))return{name:'laser',shots:1,step:0,volume:.66};
+ if(type===18)return{name:'laser',shots:5,step:260,volume:.58,playbackRate:.65};
+ if(f===2&&[1,13,14].includes(type))return{name:'laser',shots:1,step:0,volume:.66};
  const defs={17:['rifle',8,70,.34],0:['rifle',1,0,.62],6:['rifle',10,70,.32],8:['grenade_launch',1,0,.72],9:['rocket',1,0,.72],10:['machinegun',8,70,.38],11:['rifle',8,70,.34],12:['autocannon',6,70,.4],13:['light_cannon',1,0,.8],1:['tank',1,0,.86],14:['heavy_tank',1,0,.92],15:['mortar',1,0,.8],16:['artillery',1,0,.92],2:['artillery',1,0,.92],3:['rocket',f===0?5:6,f===0?120:95,.44],22:['autocannon',6,65,.4],5:['missile',1,0,.72],23:['missile',1,0,.76],24:['missile',1,0,.84],25:['jet',1,0,.58],4:['jet',1,0,.58],7:['jet',1,0,.66],19:['jet',1,0,.72],20:['autocannon',6,75,.34],21:['rocket',4,100,.42]};
  const [name,shots,step,volume]=defs[type]||['rifle',1,0,.6];return{name,shots,step,volume};
 }
@@ -72,7 +73,7 @@ const combatLaunchShot=launchShot;
 launchShot=function(u,target,start=performance.now(),duration=520){
  const before=fx.length,result=combatLaunchShot(u,target,start,duration);
  for(const event of fx.slice(before))combatAudio.seen.add(event);
- const profile=combatWeaponProfile(u);if(profile)for(let j=0;j<profile.shots;j++)queueCombatSound(profile.name,pxy(u.tile),start+j*profile.step,profile.volume);
+ const profile=combatWeaponProfile(u);if(profile)for(let j=0;j<profile.shots;j++)queueCombatSound(profile.name,pxy(u.tile),start+j*profile.step,profile.volume,profile.playbackRate||1);
  return result;
 };
 const combatTargetExplosions=targetExplosions;

@@ -15,7 +15,7 @@ q.harbor=neighbors(q.tile).some(i=>MAP.tiles[i][0]<0);q.aa=!!q.aa;q.lab=!!q.lab;
 function cityYield(q,level=q.level){if(q.nukeUntil>turn)return{money:0,oil:0};const multiplier=.9+(mixSeed((q.seedId??q.id)*491+77)%21)/100;const m=Math.round([0,35,85,185,410,950][level]*multiplier*(q.capital?1.2:1)*(q.f===3?1.15:1));return{money:m,oil:Math.round([0,1,3,6,12,24][level]*(.8+(mixSeed((q.seedId??q.id)+144)%5)*.1))}}
 function income(f){return cities.filter(q=>q.f===f).reduce((n,q)=>n+cityYield(q).money,0)}
 function oilIncome(f){return cities.filter(q=>q.f===f).reduce((n,q)=>n+cityYield(q).oil,0)}
-function unitOil(k,level=1){const t=TYPES[k];if(t.branch==='infantry'&&k!==11)return 0;return Math.ceil(({11:4,12:6,13:9,1:14,14:21,15:2,16:3,2:10,3:12,4:18,7:24,5:20,17:12,18:16,19:45,20:10,21:16}[k]||0)*tierMultiplier(level))}
+function unitOil(k,level=1){const t=TYPES[k];if(t.branch==='infantry'&&k!==11)return 0;return Math.ceil(({11:4,12:6,13:9,1:14,14:21,15:2,16:3,2:10,3:12,4:18,7:24,5:20,17:12,18:40,19:45,20:10,21:16}[k]||0)*tierMultiplier(level))}
 function moveOil(u){if(u.f!==player)return 0;return unitOil(u.type)>0?Math.max(1,Math.ceil(unitOil(u.type)/10)):0}
 function attackOil(u){return unitOil(u.type)>0?Math.max(1,Math.ceil(unitOil(u.type)/12)):0}
 function isAircraft(u){return u.type===4||u.type===7||u.type===19}
