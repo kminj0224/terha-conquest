@@ -4,15 +4,15 @@ let supplyChoice=null;
 function occupiedCity(q){return !!q&&q.origin!==q.f}
 function homelandSources(q){return cities.filter(s=>s.f===q.f&&s.origin===q.f&&s.level<=q.level)}
 function supplySource(q){return cities.find(s=>s.queue?.transportTo===q.id)}
-function supplyTurns(source,target,k=null){
- if(k!==null&&isNaval({type:k}))return 2;
+function supplyTurns(){return 2}
+function supplyLandConnected(source,target){
  // Use geographic land, including foreign territory, with wrapped neighbors.
  const seen=new Set([source.tile]),queue=[source.tile];
  for(let n=0;n<queue.length;n++){
-  if(queue[n]===target.tile)return 2;
+  if(queue[n]===target.tile)return true;
   for(const i of neighbors(queue[n]))if(tiles[i].owner>=0&&!seen.has(i)){seen.add(i);queue.push(i)}
  }
- return 3;
+ return false;
 }
 function supplySeaAccess(target){
  const seen=new Set([target.tile]),queue=[target.tile];
@@ -31,14 +31,21 @@ function supplyContext(q){
  return supplyChoice&&selected?.kind==='city'&&selected.id===supplyChoice.target&&q.id===supplyChoice.source
   ?cities.find(c=>c.id===supplyChoice.target):null;
 }
-function supplyReason(target,source,k,l=productionTier,aa=productionAA){
- if(!target||target.f!==player||!occupiedCity(target))return'아군 점령도시를 선택하세요.';
+function supplyReason(target,source,k,l=productionTier,aa=productionAA,ai=false){
+ const f=target?.f;
+ if(!target||target.f!==player&&!ai||!occupiedCity(target))return'아군 점령도시를 선택하세요.';
  if(target.nukeUntil>turn)return'피폭 지역 통제가 끝난 뒤 요청하세요.';
  if(supplySource(target)||target.queue)return'현재 병력의 수송과 배치가 끝날 때까지 기다리세요.';
  if(!source||source.f!==target.f||source.origin!==target.f||source.level>target.level)return'점령도시와 레벨이 같거나 낮은 아군 본토 도시를 선택하세요.';
  cityProfile(source);
- if(supplyTurns(source,target)===3&&!supplySeaAccess(target))return'해상 수송로에 연결되지 않은 도시입니다.';
+ if(!supplyLandConnected(source,target)&&!supplySeaAccess(target))return'해상 수송로에 연결되지 않은 도시입니다.';
  if(isNaval({type:k})&&!target.harbor)return'함정을 받을 점령도시에 항구가 필요합니다.';
+ if(ai){
+  if(source.queue||source.produced)return '생산 대기열 사용 중';
+  if(!canProduce(source,k,l))return '본토 생산 조건 불충족';
+  if(food[f]<unitPrice(k,l)||oil[f]<unitOil(k,l)||money[f]<navGoldCost(k,l)+(aa?aaCost(l):0))return '생산 자원 부족';
+  return '';
+ }
  return homelandProductionReason(source,k,l,aa);
 }
 const homelandProductionReason=productionReason;
@@ -48,18 +55,18 @@ productionReason=function(q,k,l=productionTier,aa=productionAA){
  if(occupiedCity(q)&&q.f===player)return'본토 도시를 선택하여 병력을 요청하세요.';
  return homelandProductionReason(q,k,l,aa);
 };
-function requestSupply(target,source,k,l=productionTier,aa=productionAA){
- const why=supplyReason(target,source,k,l,aa);
- if(why){toast(why);return false}
+function requestSupply(target,source,k,l=productionTier,aa=productionAA,ai=false){
+ const why=supplyReason(target,source,k,l,aa,ai);
+ if(why){if(!ai)toast(why);return false}
  // Charge once, against the source's production rules and facilities.
- food[player]-=unitPrice(k,l);oil[player]-=unitOil(k,l);
- money[player]-=navGoldCost(k,l)+(aa?aaCost(l):0);
+ const f=target.f;food[f]-=unitPrice(k,l);oil[f]-=unitOil(k,l);
+ money[f]-=navGoldCost(k,l)+(aa?aaCost(l):0);
  const total=supplyTurns(source,target,k);
- source.queue={type:k,level:l,aa:!!aa,transportTo:target.id,owner:player,
+ source.queue={type:k,level:l,aa:!!aa,transportTo:target.id,owner:f,
   sourceName:source.name,total,remaining:total,lastTick:turn};
  source.produced=true;
- toast(isNaval({type:k})?'본토 '+source.name+'에서 출항 후 입항 예정입니다':TYPES[k].name+' · '+source.name+'에서 훈련 후 '+target.name+' 수송 · '+total+'턴');
- showPanel();updateHUD();save();return true;
+ if(!ai){toast(isNaval({type:k})?'본토 '+source.name+'에서 출항 후 입항 예정입니다':TYPES[k].name+' · '+source.name+'에서 훈련 후 '+target.name+' 수송 · '+total+'턴');
+ showPanel();updateHUD();save()}return true;
 }
 const homelandProduce=produce;
 produce=function(q,k,l=productionTier,aa=productionAA){
@@ -147,7 +154,7 @@ migrateArmy=function(s){
  const orders=s.cities.filter(q=>q.queue?.transportTo!==undefined).map(q=>({id:q.id,order:q.queue}));
  for(const {id}of orders)s.cities.find(q=>q.id===id).queue=null;
  const result=supplyMigration(s);supplyChoice=null;
- for(const {id,order}of orders){const source=cities.find(q=>q.id===id);if(source&&TYPES[order.type]&&[2,3].includes(order.total)&&Number.isFinite(order.remaining)&&Number.isFinite(order.lastTick)){source.queue=order;order.remaining=Math.max(0,Math.min(order.total,order.remaining))}}
+ for(const {id,order}of orders){const source=cities.find(q=>q.id===id);if(source&&TYPES[order.type]&&[2,3].includes(order.total)&&Number.isFinite(order.remaining)&&Number.isFinite(order.lastTick)){const elapsed=order.total-order.remaining;order.total=2;order.remaining=Math.max(0,Math.min(2,2-elapsed));source.queue=order}}
  pruneSupplies();return result;
 };
 // Incoming orders live on the homeland queue; show them at the receiving city too.
@@ -167,5 +174,5 @@ document.addEventListener('click',event=>{
  const link=event.target?.closest?.('[data-supply-city]');
  if(link)focusSupplyCity(Number(link.getAttribute('data-supply-city')));
 });
-Object.assign(window.Terha,{supplyProductionLabel,drawCityForeground,focusSupplyCity,supplySeaAccess,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
+Object.assign(window.Terha,{supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
  industryTurn,capture,nuclearImpact,migrateArmy,occupiedCity,homelandSources,supplyTurns,requestSupply,supplySource});

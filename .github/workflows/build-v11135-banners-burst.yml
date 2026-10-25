@@ -1,12 +1,5 @@
 name: Build v1.11.35 banners, burst audio and Ayria art APK
 on:
-  push:
-    branches: [main, codex/banners-burst]
-    paths:
-      - 'game/assets/**'
-      - 'qa/**'
-      - 'build.py'
-      - '.github/workflows/build-v11135-banners-burst.yml'
   workflow_dispatch:
 permissions:
   contents: write

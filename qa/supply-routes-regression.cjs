@@ -23,7 +23,7 @@ s.tiles=[{owner:0,region:0},{owner:-1},{owner:0,region:1},{owner:0,region:2},{ow
 const edges=[[1],[0,5],[3],[2,4],[3,5],[1,4]];s.neighbors=i=>edges[i];
 vm.createContext(s);vm.runInContext(fs.readFileSync(path.join(root,'occupation-supply.js'),'utf8'),s);
 const run=code=>vm.runInContext(code,s);
-assert.equal(run('supplyTurns(cities[0],cities[1])'),3);
+assert.equal(run('supplyTurns(cities[0],cities[1])'),2);assert.equal(run('supplyLandConnected(cities[0],cities[1])'),false);
 assert.equal(run('supplyTurns(cities[0],cities[1],1)'),2,'naval sea transport fixed at 2');
 assert(run('supplySeaAccess(cities[1])'),'inland target linked through occupied and homeland regions');
 s.cities[2].f=1;s.tiles[3].owner=1;
@@ -37,7 +37,7 @@ assert(run('requestSupply(cities[1],cities[0],1,1,false)'));
 assert.equal(s.cities[0].queue.remaining,2);
 s.cities[0].queue=null;s.cities[0].produced=false;
 assert(run('requestSupply(cities[1],cities[0],0,1,false)'));
-assert.equal(s.cities[0].queue.remaining,3,'land unit still takes 3 turns across sea');
+assert.equal(s.cities[0].queue.remaining,2,'land unit also takes 2 turns across sea');
 edges[0].push(2);assert.equal(run('supplyTurns(cities[0],cities[1],0)'),2);assert.equal(run('supplyTurns(cities[0],cities[1],1)'),2);
 run('focusSupplyCity(1)');assert.deepEqual(s.cam,{x:20,y:40,z:.85});
 const orders=fs.readFileSync(path.join(root,'orders.js'),'utf8');

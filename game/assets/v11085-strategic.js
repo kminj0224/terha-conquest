@@ -119,12 +119,12 @@ function selectedStrategicPayload(q,bomber=false){
  const a=bomber?armedBomber:armedMissile;
  return a?.city===q.id?a.payload:null;
 }
-function missileCanFire(q,kind,i){
- const bomber=kind==='nuclearBomber',model=MISSILE_MODELS[strategicTarget?.city===q.id?strategicTarget.missileKey:'short']||MISSILE_MODELS.short;
+function missileCanFire(q,kind,i,ai=false){
+ const bomber=kind==='nuclearBomber',model=MISSILE_MODELS[!ai&&strategicTarget?.city===q.id?strategicTarget.missileKey:'short']||MISSILE_MODELS.short;
  const target=unitAt(i),city=cityAt(i),base=baseAt(i);
  const enemy=[target,city,base].some(v=>v&&atWar(q.f,v.f))||(tiles[i]?.owner>=0&&atWar(q.f,tiles[i].owner));
- if(!enemy||q.f!==player||q.nukeUntil>turn||busy||escortProtected(target))return false;
- const warhead=strategicTarget?.city===q.id?strategicTarget.payload:null;
+ if(!enemy||q.f!==player&&!ai||q.nukeUntil>turn||busy&&!ai||escortProtected(target))return false;
+ const warhead=!ai&&strategicTarget?.city===q.id?strategicTarget.payload:null;
  if(warhead&&(!NUCLEAR_WARHEADS[warhead]||!strategicResearch[q.f].nuclear||warheadStock(q)[warhead]<1))return false;
  if(kind!=='missile'&& !warhead)return false;
  if(bomber)return q.level===5&&q.airport&&!!strategicBomber(q)&&distance(q.tile,i)<=30&&oil[q.f]>=18&&money[q.f]>=600;
@@ -140,31 +140,30 @@ function prepareStrategicLaunch(q,modelKey='short',payload=null,bomber=false){
  refreshSelection();return true;
 }
 selectStrategic=function(q,kind){return prepareStrategicLaunch(q,'short',kind==='missile'?null:'atomic',kind==='nuclearBomber')};
-launchStrategic=async function(q,kind,i){
- if(!missileCanFire(q,kind,i))return false;
- const target=strategicTarget?.city===q.id?{...strategicTarget}:{missileKey:'short',payload:null};
+launchStrategic=async function(q,kind,i,ai=false){
+ if(!missileCanFire(q,kind,i,ai)||ai&&!usefulConventionalTarget(q.f,i))return false;
+ const target=!ai&&strategicTarget?.city===q.id?{...strategicTarget}:{missileKey:'short',payload:null};
  const bomber=kind==='nuclearBomber',model=MISSILE_MODELS[target.missileKey]||MISSILE_MODELS.short;
  const payload=target.payload,nuclear=!!payload;
  money[q.f]-=bomber?600:model.gold;oil[q.f]-=bomber?18:model.oil;
  if(nuclear){warheadStock(q)[payload]--;syncWarheads(q)}
  if(bomber)q.airTurn=turn;else q.lastMissileTurn=turn;
- busy=true;strategicTarget=null;refreshSelection();updateHUD();
+ const previousBusy=busy;if(!ai){busy=true;strategicTarget=null;refreshSelection();updateHUD();}
  const a=pxy(q.tile),b=pxy(i);
  addAirRaid({kind:bomber?'airraid':'missile',x:a.x,y:a.y,tx:b.x,ty:b.y,f:q.f,type:'bomber',start:performance.now(),duration:bomber?2800:1000});
  audioShot(3);await delay(bomber?1568:700);
- cam.x=b.x;cam.y=b.y;cam.z=Math.max(.85,cam.z);
+ if(!ai){cam.x=b.x;cam.y=b.y;cam.z=Math.max(.85,cam.z);}
  if(nuclear){activeNuclearImpact=payload;try{nuclearImpact(i,bomber)}finally{activeNuclearImpact=null}}
  else {
   const u=unitAt(i),city=cityAt(i),facility=baseAt(i);
   if(facility&&atWar(q.f,facility.f)){facility.hp-=model.damage;if(facility.hp<=0)missileBases=missileBases.filter(v=>v!==facility)}
   let unitDamage=0;
   if(u&&atWar(q.f,u.f)){unitDamage=escortProtected(u)?0:Math.round(model.damage*.08*(city?.f===u.f?.7:1)*specialIncomingFactor(u));u.hp-=unitDamage;if(u.hp<=0)kill(u)}
-  const cityDamage=city&&atWar(q.f,city.f)?model.damage:0;
-  if(cityDamage)damageCity(city,cityDamage);
-  targetExplosions({type:3},b,cityDamage||unitDamage||model.damage);
+  const cityDamage=city&&atWar(q.f,city.f)?damageCity(city,model.damage,1):0;
+  targetExplosions({type:3},b,cityDamage||unitDamage||(facility?model.damage:0));
  }
  log(q.name+' · '+(nuclear?NUCLEAR_WARHEADS[payload].name:model.name)+' 발사');
- busy=false;refreshSelection();updateHUD();save();checkEnd();return true;
+ busy=previousBusy;if(!ai){refreshSelection();updateHUD();save();checkEnd()}return true;
 };
 Object.assign(window.Terha,{MISSILE_MODELS,NUCLEAR_WARHEADS,warheadStock,syncWarheads,prepareStrategicLaunch,
  localResearchJob,studyReason,fuelResearchReason,research,setup,migrateArmy,industryTurn,nuclearImpact,nuclearTiles,

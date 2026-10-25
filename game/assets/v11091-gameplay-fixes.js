@@ -31,9 +31,9 @@ cancelAirTarget=function(){
 };
 $('selectionAirCancel').onclick=()=>cancelAirTarget();
 const firePriorStrategic=launchStrategic;
-launchStrategic=async function(q,kind,i){
+launchStrategic=async function(q,kind,i,...args){
  const wasAiming=!!strategicTarget;
- const result=await firePriorStrategic(q,kind,i);
+ const result=await firePriorStrategic(q,kind,i,...args);
  if(result&&wasAiming)clearMountedWarheads();
  return result;
 };

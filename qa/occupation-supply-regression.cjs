@@ -3,7 +3,7 @@ const assert=require('assert');
 module.exports=async function({run}){
  run(`globalThis.supplyFixture=JSON.stringify(snapshot());busy=false;selected=null;supplyChoice=null;
  globalThis.supplyHomes=cities.filter(q=>q.origin===player&&q.f===player);
- globalThis.supplyHome=supplyHomes.find(h=>cities.some(q=>q.id!==h.id&&supplyTurns(h,q)===2));globalThis.supplyTarget=cities.find(q=>q.id!==supplyHome.id&&supplyTurns(supplyHome,q)===2);
+ globalThis.supplyHome=supplyHomes.find(h=>cities.some(q=>q.id!==h.id&&supplyLandConnected(h,q)));globalThis.supplyTarget=cities.find(q=>q.id!==supplyHome.id&&supplyLandConnected(supplyHome,q));
  if(!supplyTarget)throw Error('Missing mainland delivery fixture');
  supplyHome.queue=null;supplyHome.produced=false;supplyHome.level=2;supplyHome.nukeUntil=0;
  supplyTarget.origin=(player+1)%7;supplyTarget.f=player;supplyTarget.level=3;supplyTarget.queue=null;supplyTarget.nukeUntil=0;tiles[supplyTarget.tile].owner=player;
@@ -50,10 +50,10 @@ module.exports=async function({run}){
   assert.equal(run('supplyHome.queue'),null);assert.equal(run('delivered.type'),0);assert.equal(run('delivered.level'),2);
   assert(run('delivered.aa&&delivered.fuelEfficient&&delivered.producedAtCityId===supplyHome.id'));
   assert(run('supplySites.has(delivered.tile)'),'delivered near destination');
-  run('supplyHome.produced=false;globalThis.islandTarget=cities.find(q=>q.id!==supplyHome.id&&supplyTurns(supplyHome,q)===3&&regionTiles[q.id].some(i=>neighbors(i).some(j=>tiles[j].owner<0)));if(!islandTarget)throw Error("Missing sea delivery fixture");islandTarget.f=player;islandTarget.origin=(player+1)%7;islandTarget.level=5;islandTarget.queue=null;islandTarget.nukeUntil=0;for(const i of regionTiles[islandTarget.id])tiles[i].owner=player');
-  assert(run('requestSupply(islandTarget,supplyHome,0,1,false)'));assert.equal(run('supplyHome.queue.remaining'),3);
-  run('turn++;deploy(supplyHome);turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue.remaining'),1);
-  run('globalThis.seaSites=new Set([islandTarget.tile,...neighbors(islandTarget.tile),...neighbors(islandTarget.tile).flatMap(neighbors)]);units=units.filter(u=>!seaSites.has(u.tile));turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue'),null,'sea delivery after exactly 3 turns');
+  run('supplyHome.produced=false;globalThis.islandTarget=cities.find(q=>q.id!==supplyHome.id&&!supplyLandConnected(supplyHome,q)&&regionTiles[q.id].some(i=>neighbors(i).some(j=>tiles[j].owner<0)));if(!islandTarget)throw Error("Missing sea delivery fixture");islandTarget.f=player;islandTarget.origin=(player+1)%7;islandTarget.level=5;islandTarget.queue=null;islandTarget.nukeUntil=0;for(const i of regionTiles[islandTarget.id])tiles[i].owner=player');
+  assert(run('requestSupply(islandTarget,supplyHome,0,1,false)'));assert.equal(run('supplyHome.queue.remaining'),2);
+  run('turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue.remaining'),1);
+  run('globalThis.seaSites=new Set([islandTarget.tile,...neighbors(islandTarget.tile),...neighbors(islandTarget.tile).flatMap(neighbors)]);units=units.filter(u=>!seaSites.has(u.tile));turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue'),null,'sea delivery after exactly 2 turns');
   run('supplyHome.produced=false');assert(run('requestSupply(islandTarget,supplyHome,0,1,false)'));
   run('islandTarget.f=(player+1)%7;deploy(supplyHome)');assert.equal(run('supplyHome.queue'),null,'lost destination cancels');
   run('islandTarget.f=player;supplyHome.produced=false');assert(run('requestSupply(islandTarget,supplyHome,0,1,false)'));
@@ -66,5 +66,5 @@ module.exports=async function({run}){
  }finally{
   run('globalThis.supplyRestore=JSON.parse(supplyFixture);({units,cities,money,tech,food,oil,turn,player,difficulty,uid,cam}=supplyRestore);tiles.forEach((t,i)=>t.owner=supplyRestore.owners[i]);migrateArmy(supplyRestore);selected=null;panelOpen=false;supplyChoice=null;save()');
  }
- console.log('PASS: occupied-city homeland level filtering, source costs/queue, 2/3-turn delivery, repeated tick guard, save migration, blocked delivery, source research, capture cancellation and repeat resupply');
+ console.log('PASS: occupied-city homeland level filtering, source costs/queue, uniform 2-turn delivery, repeated tick guard, save migration, blocked delivery, source research, capture cancellation and repeat resupply');
 };

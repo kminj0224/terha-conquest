@@ -12,7 +12,7 @@ module.exports=async function({run}){
   const f=TYPES[k].special,q=cities.find(q=>q.f===f&&!q.capital);q.queue=null;q.produced=false;q.nukeUntil=0;
   for(const level of [3,4,5]){q.level=level;cityProfile(q);check(canProduce(q,k,1)===(level>=4),'Special level '+level+' type '+k)}
   const owner=q.f;q.f=(f+1)%7;check(!canProduce(q,k,1),'Wrong faction can produce special');q.f=owner;
-  q.origin=(f+1)%7;check(canProduce(q,k,1),'Captured level 5 city should use current owner special');q.origin=f;
+  q.origin=(f+1)%7;check(!canProduce(q,k,1),'Captured city must request its owner special from a homeland city');q.origin=f;
  }
  const black=makeUnit(0,6,cities.find(q=>q.f===0).tile,1);freshOrders(black);
  check(mayFire(black)&&black.blackShots===2,'Black starts with two shots');spendShot(black);
@@ -28,12 +28,12 @@ module.exports=async function({run}){
  const own=cities.filter(q=>q.f===1);for(const q of own){q.level=5;q.produced=true;q.queue=null;q.nukeUntil=0;cityProfile(q)}
  const q=own.find(q=>!q.capital);q.level=3;q.produced=false;cityProfile(q);q.hp=cityMaxHp(q)-500;
  money[1]=UPGRADE_COSTS[3];food[1]=100000;
- aiProcure(1,[q]);check(q.level===4&&q.hp===cityMaxHp(q)-500,'AI upgrades at exact funds and keeps damage');
+ siegeAIProcure(1,[q]);check(q.level===4&&q.hp===cityMaxHp(q)-500,'AI upgrades at exact funds and keeps damage');
  check(q.queue?.type===17,'AI produces special immediately in upgraded city');check(money[1]===0,'AI cannot overspend gold');
- for(let n=0;n<3;n++){q.produced=false;q.queue=null;turn++;food[1]=10000;money[1]=1234;aiProcure(1,[q]);check(q.queue?.type===17,'Special must be ordered each turn');check(money[1]===1234,'Upgrade savings survive procurement')}
+ for(let n=0;n<3;n++){q.produced=false;q.queue=null;turn++;food[1]=10000;money[1]=1234;siegeAIProcure(1,[q]);check(q.queue?.type===17,'Special must be ordered each turn');check(money[1]===1234,'Upgrade savings survive procurement')}
  turn++;
  const q2=own.find(c=>c!==q&&!c.capital);q2.level=4;q2.produced=false;q2.queue=null;q.produced=false;q.queue=null;money[1]=0;food[1]=1200;
- aiProcure(1,[q,q2]);check([q,q2].filter(c=>c.queue?.type===17).length===1,'Only one special per faction per turn');
+ siegeAIProcure(1,[q,q2]);check([q,q2].filter(c=>c.queue?.type===17).length===1,'Only one special per faction per turn');
  check([q,q2].some(c=>c.queue&&TYPES[c.queue.type].special===undefined),'Other city must recruit ordinary troops');
  q.produced=false;q.queue=null;q2.produced=false;q2.queue=null;
  check(aiOrderSpecials(1,[q,q2])===0&&!q.queue&&!q2.queue,'Repeated procurement cannot bypass per-turn cap');
@@ -42,13 +42,13 @@ module.exports=async function({run}){
  for(const f of [0,1,2,4,5]){
   turn++;const pair=cities.filter(c=>c.f===f).slice(0,2);for(const c of pair){c.level=5;c.nukeUntil=0;c.produced=false;c.queue=null;cityProfile(c)}
   food[f]=100000;oil[f]=100000;money[f]=0;
-  aiProcure(f,pair);
+  siegeAIProcure(f,pair);
   check(pair.filter(c=>c.queue&&TYPES[c.queue.type].special===f).length===1,'Exactly one special in faction '+f);
   check(pair.some(c=>c.queue&&TYPES[c.queue.type].special===undefined),'Ordinary production remains available in faction '+f);
   check(aiOrderSpecials(f,pair)===0,'One-per-turn limit covers every faction');
  }
  turn++;
- q.produced=false;q.queue=null;food[1]=599;aiProcure(1,[q]);check(!q.queue||q.queue.type!==17,'No unaffordable special');
+ q.produced=false;q.queue=null;food[1]=599;siegeAIProcure(1,[q]);check(!q.queue||q.queue.type!==17,'No unaffordable special');
  const p=pxy(trooper.tile);fx=[];launchShot(trooper,{x:p.x+100,y:p.y},performance.now());
  const flashes=fx.filter(e=>e.kind==='infantryMuzzle');check(flashes.length===40,'Five muzzle positions times eight burst rounds');
  check(new Set(flashes.map(e=>e.start)).size===8&&!fx.some(e=>e.kind==='devilLaser'),'Burst timing and no old laser');
