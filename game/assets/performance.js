@@ -5,7 +5,17 @@ const renderUnitLookup=unitAt;unitAt=function(i){return renderIndex&&units===ren
 const renderBaseLookup=baseAt;baseAt=function(i){return renderIndex&&missileBases===renderIndex.basesSource?renderIndex.bases.get(i):renderBaseLookup(i)};
 function movingAnimation(id){return renderIndex&&moving===renderIndex.movingSource?renderIndex.moves.get(id):moving.find(m=>m.id===id)}
 const renderVisualPosition=unitVisualPosition;unitVisualPosition=function(u,now){if(!renderIndex)return renderVisualPosition(u,now);let p=renderIndex.positions.get(u.id);if(!p){p=renderVisualPosition(u,now);renderIndex.positions.set(u.id,p)}return p};
+// The Android WebView spends most frame time repainting large map layers and
+// transparent unit sprites. Cap the expensive world pass at 30 FPS there,
+// while leaving desktop rendering and turn simulation at their original rate.
+const androidFrameInterval=typeof navigator!=='undefined'&&/Android/i.test(navigator.userAgent||'')?1000/30:0;
+let lastWorldPaint=-Infinity;
 const indexedDraw=draw;draw=function(now){
+ if(androidFrameInterval&&now>=lastWorldPaint&&now-lastWorldPaint<androidFrameInterval){
+  requestAnimationFrame(draw);
+  return;
+ }
+ lastWorldPaint=now;
  const unitsByTile=new Map(),basesByTile=new Map(),movesById=new Map();
  for(const u of units)if(!u.carriedBy&&u.hp>0&&!unitsByTile.has(u.tile))unitsByTile.set(u.tile,u);
  for(const b of missileBases)if(!basesByTile.has(b.tile))basesByTile.set(b.tile,b);
