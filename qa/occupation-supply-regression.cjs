@@ -16,8 +16,20 @@ module.exports=async function({run}){
   run('supplyHome.level=4');assert(!run('homelandSources(supplyTarget).includes(supplyHome)'),'higher level excluded');
   assert(!run('requestSupply(supplyTarget,supplyHome,0,1,false)'),'reject bypassed level');run('supplyHome.level=2');
   assert(!run('produce(supplyTarget,0,1,false)'),'no local occupied production');
+  if(run("typeof document!=='undefined'")){
+   run("selectCity(supplyTarget,true);cityCommandOpen('units')");
+   assert(run("!!$('supplyHome'+supplyHome.id)"),'homeland picker opens');
+   run("$('supplyHome'+supplyHome.id).onclick()");
+   assert(run("!!$('production')&&$('supplyHomeName').textContent.includes(supplyHome.name)"),'source catalogue opens inside destination');
+   assert.equal(run('selected.id'),run('supplyTarget.id'));
+  }
   assert(run('requestSupply(supplyTarget,supplyHome,0,2,true)'));
   assert.equal(run('supplyHome.queue.remaining'),2);assert.equal(run('supplyTarget.queue'),null);
+  if(run("typeof document!=='undefined'")){
+   assert(run("$('cityCommandContent').textContent.includes('에서 훈련 후 수송 중입니다')"),'incoming status shown');
+   assert(run("$('cityCommandContent').textContent.includes(TYPES[0].name)"),'unit name shown');
+   assert(run("$('cityCommandContent').innerHTML.includes('meter')"),'remaining turns bar shown');
+  }
   assert.equal(run('food[player]'),run('supplyFood-unitPrice(0,2)'));
   assert(!run('requestSupply(supplyTarget,supplyHomes.find(q=>q.id!==supplyHome.id),0,1,false)'),'one incoming order');
   run('deploy(supplyHome);turn++;deploy(supplyHome);deploy(supplyHome)');
