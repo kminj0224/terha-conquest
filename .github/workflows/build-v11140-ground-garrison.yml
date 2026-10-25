@@ -1,0 +1,62 @@
+name: Build v1.11.40 transport artwork and occupied-city routes APK
+on:
+  push:
+    branches: [main, codex/ground-garrison-breach]
+    paths:
+      - 'game/assets/**'
+      - 'qa/**'
+      - 'build.py'
+      - '.github/workflows/build-v11140-ground-garrison.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Install audio dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Run game and native shell regression checks
+        run: |
+          python3 tools/prepare_operation_music.py
+          node qa/burst-audio-regression.cjs
+          node qa/ayria-infantry-regression.cjs
+          node qa/siege-occupation-regression.cjs
+          node qa/android-frame-budget-regression.cjs
+          npm test
+          python3 qa/verify-native.py
+          node qa/supply-routes-regression.cjs
+          node qa/transport-art-regression.cjs
+      - name: Build and verify signed Android update
+        run: |
+          python3 build.py
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.40.apk
+          cd deliverables
+          sha256sum Terha-Conquest-v1.11.40.apk > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: Terha-Conquest-v1.11.40
+          path: |
+            deliverables/Terha-Conquest-v1.11.40.apk
+            deliverables/SHA256SUMS.txt
+          retention-days: 14
+      - name: Publish signed APK
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.40 deliverables/Terha-Conquest-v1.11.40.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.40' --notes '전차·보병의 주둔 유닛 공격으로 도시 내구도 0까지 감소하도록 수정. 포병·항공·해군·비핵 미사일 하한 1과 특수유닛 점령 규칙 유지. versionCode 185.'

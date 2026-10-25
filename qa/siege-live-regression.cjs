@@ -23,13 +23,13 @@ module.exports=async function({run}){
    check(await attackCity(artillery,q,true),'Live artillery attack');check(q.hp===1&&damage.at(-1)===499,'Live 500-to-1 clamp and popup');
    freshOrders(artillery);check(await attackCity(artillery,q,true),'Live 1 HP artillery attack');check(q.hp===1&&damage.at(-1)===0,'Live 1-to-1 and zero popup');
    // Exercise the final wrapped unit-target attack, including a surviving and killed garrison.
-   for(const type of [2,3,4,7,19,20,21,5,22,23,24,25])for(const hp of [1,500])for(const lethal of [false,true]){
+   for(const type of [0,1,6,8,9,10,11,12,13,14,17,18,DEKPHUING_GUERRILLA,NAKWOL_COMMANDO,2,3,4,7,19,20,21,5,22,23,24,25])for(const hp of [1,500])for(const lethal of [false,true]){
     units=[];q.hp=hp;fx=[];
     const attacker=makeUnit(0,type,from,1),defender=makeUnit(enemy,0,q.tile,1);freshOrders(attacker);
     defender.hp=lethal?1:100000;
-    const expected=Math.min(Math.max(0,hp-1),siegeDamage(attacker,q)),before=defender.hp;
+    const expected=Math.min(Math.max(0,hp-cityDamageFloor(attacker)),siegeDamage(attacker,q)),before=defender.hp;
     check(await attack(attacker,defender,true),'Wrapped garrison attack type '+type);
-    check(q.hp===hp-expected&&q.hp>=1,'Garrison city floor type '+type+' hp '+hp);
+    check(q.hp===hp-expected&&q.hp>=cityDamageFloor(attacker),'Garrison city floor type '+type+' hp '+hp);
     check(defender.hp<before,'Garrison unit still takes damage type '+type);
     check(fx.some(e=>e.kind==='blast'&&e.damage===expected),'Actual garrison city damage popup type '+type);
    }
@@ -66,4 +66,5 @@ module.exports=async function({run}){
  })()`);
  assert.equal(report.floor,1);assert([1,2].includes(report.transportTurns));console.log('PASS live world siege/capture and friendly deployment:',report);
 };
+
 

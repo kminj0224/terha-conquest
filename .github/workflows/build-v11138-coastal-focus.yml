@@ -1,12 +1,5 @@
 name: Build v1.11.39 transport artwork and occupied-city routes APK
 on:
-  push:
-    branches: [main, codex/transport-routes]
-    paths:
-      - 'game/assets/**'
-      - 'qa/**'
-      - 'build.py'
-      - '.github/workflows/build-v11138-coastal-focus.yml'
   workflow_dispatch:
 permissions:
   contents: write
@@ -60,4 +53,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create v1.11.39 deliverables/Terha-Conquest-v1.11.39.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.39' --notes '국가별 수송선 이미지 교체, 30타일 이내 1턴 수송, 본토 육로와 단절된 내륙 점령도시 생산요청 제한. versionCode 184.'
+
 

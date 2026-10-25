@@ -49,6 +49,15 @@ async function main(){
   u.attackReady=true;u.moveAllowed=true;shown.length=0;assert(await run('attackCity(u,cities[2],true)'));assert.equal(b.cities[2].hp,1);assert.equal(shown.at(-1),0);
  }
  b.units=[unit(2),unit(0,7,0)];b.u=b.units[0];b.v=b.units[1];b.cities[2].hp=500;await run('attack(u,v,true)');assert.equal(b.cities[2].hp,1,'garrison collateral floor');assert.equal(b.v.hp,70,'garrison still takes unit damage');assert(b.fx.some(e=>e.damage===499));
+ // Ground fire can breach a garrisoned city, with the same floor as direct city fire.
+ for(const type of [0,1,6,8,9,10,11,12,13,14,17,18,27,28,2,3,4,7,19,20,21,5,22,23,24,25])for(const hp of [1,500])for(const lethal of [false,true]){
+  b.units=[unit(type),unit(0,7,0)];b.u=b.units[0];b.v=b.units[1];b.v.hp=lethal?1:100;b.cities[2].hp=hp;b.fx=[];
+  const floor=run('cityDamageFloor(u)'),expected=Math.min(hp-floor,1000);
+  assert(await run('attack(u,v,true)'));assert.equal(b.cities[2].hp,hp-expected,'garrison floor type '+type);
+  assert.equal(b.v.hp,(lethal?1:100)-30);assert(b.fx.some(e=>e.damage===expected),'garrison actual damage type '+type);
+  b.units=[unit(type)];b.u=b.units[0];b.cities[2].hp=hp;shown.length=0;
+  assert(await run('attackCity(u,cities[2],true)'));assert.equal(b.cities[2].hp,hp-expected,'direct matches garrison type '+type);assert.equal(shown.at(-1),expected);
+ }
  b.units=[];b.cities[2].hp=500;shown.length=0;assert(await run("airStrike(cities[0],'fighter',7,true)"));assert.equal(b.cities[2].hp,1);assert.equal(shown.at(-1),499);
  const resources=[b.money[2],b.oil[2]];assert(!run("canAirStrike(cities[0],'fighter',7)"));assert(!await run("airStrike(cities[0],'fighter',7,true)"));assert.deepEqual([b.money[2],b.oil[2]],resources,'no wasted air sortie');
  b.cities[2].hp=0;run('damageCity(cities[2],1000,1)');assert.equal(b.cities[2].hp,0,'never heal a breached city');
@@ -90,4 +99,5 @@ async function main(){
  console.log('PASS: actual artillery/air/naval/missile and garrison floors/popups, nuclear exemption, rifle and eligible national special capture/movement/toast, friendly-city access, AI remote procurement/deployment/costs/level restrictions, AI rifle capture and waste-free missile/air targeting');
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
+
 
