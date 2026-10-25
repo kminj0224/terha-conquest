@@ -100,7 +100,7 @@ const interactionTap=tap;tap=function(sx,sy){
  if(hit||normal&&(base||city)&&!attackOrder)playInterfaceSound('ui_select',.38);
  try{return interactionTap(sx,sy)}finally{focusedUnit();focusedDefense()}
 };
-const interactionNextUnit=nextUnit;nextUnit=function(){const previous=selected,result=interactionNextUnit();if(selected?.kind==='unit'&&selected!==previous)unitFocusId=selected.id;return result};$('next').onclick=nextUnit;
+const interactionNextUnit=nextUnit;nextUnit=function(){const previous=selected,result=interactionNextUnit();if(selected?.kind==='unit'&&selected!==previous){unitFocusId=selected.id;defenseFocusId=null}return result};$('next').onclick=nextUnit;
 const interactionKill=kill;kill=function(u){if(unitFocusId===u.id)unitFocusId=null;return interactionKill(u)};
 const interactionEndTurn=endTurn;endTurn=function(...args){if(!busy&&started){unitFocusId=null;defenseFocusId=null}return interactionEndTurn(...args)};$('turn').onclick=endTurn;
 const interactionSetup=setup;setup=function(...args){unitFocusId=null;defenseFocusId=null;return interactionSetup(...args)};
