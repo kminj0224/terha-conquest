@@ -3,7 +3,7 @@
 const ARTILLERY_BALANCE_43={
  15:{atk:48,cost:150,range:1},16:{atk:50,cost:240,range:2},
  3:{atk:52,cost:340,range:2},2:{atk:82,cost:450,range:2},
- 18:{atk:55,cost:400,range:2}
+ 18:{atk:96,cost:1000,range:2,branch:'armor',tank:true}
 };
 for(const [key,stats]of Object.entries(ARTILLERY_BALANCE_43)){
  const type=TYPES[Number(key)];Object.assign(type,stats);

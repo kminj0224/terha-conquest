@@ -2,6 +2,12 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert'),path=require('path');
 const root=path.join(__dirname,'../game/assets');
 const noop=()=>{};
+const balance={TYPES:Array.from({length:30},()=>({hp:100,atk:1,cost:1,text:''})),migrateArmy:noop,ARTILLERY:[],window:{Terha:{}}};
+vm.createContext(balance);
+for(const [,file]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^"]+)"/g))
+ if(['unit-balance.js','artillery-balance.js'].includes(file))vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),balance);
+assert.equal(balance.TYPES[11].atk,33);assert.equal(balance.TYPES[18].atk,96);assert.equal(balance.TYPES[18].cost,1000);assert.equal(balance.TYPES[18].branch,'armor');assert(balance.TYPES[18].tank);
+
 const s={console,Set,Map,Math,Number,window:{Terha:{}},document:{addEventListener:noop},
  $:()=>({}),productionReason:()=>'',produce:noop,unitPage:noop,cityCommandOpen:noop,cityOverview:()=>'',deploy:noop,
  industryTurn:noop,capture:noop,nuclearImpact:noop,migrateArmy:noop,selected:null,
