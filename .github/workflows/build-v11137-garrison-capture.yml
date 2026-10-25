@@ -1,12 +1,5 @@
 name: Build v1.11.37 siege capture and occupation AI APK
 on:
-  push:
-    branches: [main, codex/garrison-capture-fix]
-    paths:
-      - 'game/assets/**'
-      - 'qa/**'
-      - 'build.py'
-      - '.github/workflows/build-v11137-garrison-capture.yml'
   workflow_dispatch:
 permissions:
   contents: write
@@ -58,3 +51,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create v1.11.37 deliverables/Terha-Conquest-v1.11.37.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.37' --notes '주둔 유닛 공격 시 도시 내구도 1 하한 보장, 간접 도시 피해 기본 하한 통일, 백양·단테·란나·낙월 특수유닛 이동·상륙·점령 및 AI 대응. versionCode 182.'
+

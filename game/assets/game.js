@@ -103,7 +103,7 @@ const showGrid=actionGridVisible();if(showGrid)for(let y=ymin;y<=ymax;y++)for(le
 const visible=i=>{let t=tiles[i];return t.x>=xmin&&t.x<=xmax&&t.y>=ymin&&t.y<=ymax};cities.filter(q=>visible(q.tile)).forEach(q=>{drawCitySelection(q,pxy(q.tile),now);scene.push({kind:'city',entity:q,id:q.id,p:pxy(q.tile),paint:()=>citySprite(q,pxy(q.tile))})});let sel=selected?.kind==='unit'?units.find(u=>u.id===selected.id):null;
 if(sel&&sel.f===player&&!sel.carriedBy){for(const b of missileBases){if(visible(b.tile)&&canAttackDefense(sel,b)){drawAttackTargetTile(b.tile)}}}
 if(sel){cities.filter(q=>visible(q.tile)&&!unitAt(q.tile)&&canAttackCity(sel,q)).forEach(q=>{drawAttackTargetTile(q.tile)})}units.filter(u=>!u.carriedBy&&visible(u.tile)).forEach(u=>{const p=pxy(u.tile);drawReadyTile(u,p,now);if(sel&&canAttack(sel,u)){drawAttackTargetTile(u.tile)}drawUnitFocus(u,p,now);scene.push({kind:'unit',entity:u,id:u.id,p:unitVisualPosition(u,now),paint:()=>{if(cam.z>.38)sprite(u,p,now);else drawOverviewUnit(u,p,now)}})});
-for(const b of missileBases){if(b.hp<=0)continue;const p=pxy(b.tile);if(Math.abs(p.x-cam.x)>screenW/2/cam.z+110||Math.abs(p.y-cam.y)>screenH/2/cam.z+150)continue;scene.push({kind:'defense',entity:b,id:b.id,p,paint:()=>defenseSprite(b,p)})}
+for(const b of missileBases){if(b.hp<=0)continue;const p=pxy(b.tile);if(Math.abs(p.x-cam.x)>screenW/2/cam.z+110||Math.abs(p.y-cam.y)>screenH/2/cam.z+150)continue;drawDefenseFocus(b,p);scene.push({kind:'defense',entity:b,id:b.id,p,paint:()=>defenseSprite(b,p)})}
 // Ground anchors, rather than image tops, determine which object is in front.
 addAmbientScene(scene,now);
 const depthRank={scenery:0,city:1,defense:2,unit:3,whale:3,ghost:4};

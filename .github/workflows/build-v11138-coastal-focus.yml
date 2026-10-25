@@ -1,0 +1,61 @@
+name: Build v1.11.38 battery focus coastal balance and pathfinding APK
+on:
+  push:
+    branches: [main, codex/coastal-focus-performance]
+    paths:
+      - 'game/assets/**'
+      - 'qa/**'
+      - 'build.py'
+      - '.github/workflows/build-v11138-coastal-focus.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Install audio dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Run game and native shell regression checks
+        run: |
+          python3 tools/prepare_operation_music.py
+          node qa/burst-audio-regression.cjs
+          node qa/ayria-infantry-regression.cjs
+          node qa/siege-occupation-regression.cjs
+          node qa/android-frame-budget-regression.cjs
+          npm test
+          python3 qa/verify-native.py
+          node qa/supply-routes-regression.cjs
+      - name: Build and verify signed Android update
+        run: |
+          python3 build.py
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.38.apk
+          cd deliverables
+          sha256sum Terha-Conquest-v1.11.38.apk > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: Terha-Conquest-v1.11.38
+          path: |
+            deliverables/Terha-Conquest-v1.11.38.apk
+            deliverables/SHA256SUMS.txt
+          retention-days: 14
+      - name: Publish signed APK
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.38 deliverables/Terha-Conquest-v1.11.38.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.38' --notes '포대 선택 초점·선택음, 단테 남부 함대 26척에서 13척 감축, 스테토피아 남해안 포대 3개 및 구축함 2척·호위함 2척 추가, 이동 범위 검색 최적화. versionCode 183.'
