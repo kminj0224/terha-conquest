@@ -71,7 +71,7 @@ showPanel=function(){
  const pageNames={overview:'',facilities:'시설 건설',science:'과학·군사 연구',units:'부대 생산',air:'공항 작전',nuclear:'핵탄두 제작',missiles:'탄도미사일'};
  const panel=$('panel');panel.style.display='block';
  // Title + colored faction + city level share the same header.
- const title='<div class="cityNameHeader"><h2 class="cityName"><button id="cityNameFocus" class="cityNameFocus">'+q.name+'</button></h2>'+
+ const title='<div class="cityNameHeader"><h2 class="cityName">'+q.name+'</h2>'+
   '<span class="cityHeadMeta"><span class="cityCountryName" style="color:'+factions[q.f].color+'">'+factions[q.f].name+'</span>'+
   '<span class="cityHeadLevel">'+q.level+'레벨'+(q.capital?' · 수도':'')+'</span></span></div>';
  const expand=(own&&cityCommandTab==='overview')?
@@ -81,7 +81,6 @@ showPanel=function(){
   :'<section class="citySection cityCommandCompact"><h3>'+pageNames[cityCommandTab]+'</h3><div id="cityCommandContent"></div></section>';
  panel.innerHTML='<button class="close" id="close" aria-label="닫기">×</button>'+title+expand+body;
  $('close').onclick=()=>{panelOpen=false;refreshSelection()};
- $('cityNameFocus').onclick=()=>focusSupplyCity(q.id);
  if(!own)return;
  if(cityCommandTab==='overview'){
   const button=$('cityExpandGold');button.disabled=q.level>=5;

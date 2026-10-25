@@ -1,12 +1,5 @@
 name: Build v1.11.34 resupply and transport APK
 on:
-  push:
-    branches: [main, codex/resupply-balance]
-    paths:
-      - 'game/assets/**'
-      - 'qa/**'
-      - 'build.py'
-      - '.github/workflows/build-v11134-resupply-balance.yml'
   workflow_dispatch:
 permissions:
   contents: write

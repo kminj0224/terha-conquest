@@ -20,19 +20,19 @@ module.exports=async function({run}){
   if(run("typeof document!=='undefined'")){
    run("selectCity(supplyTarget,true);cityCommandOpen('units')");
    assert(run("!!$('supplyHome'+supplyHome.id)"),'homeland picker opens');
-   run("$('supplyHome'+supplyHome.id).onclick()");
+   run("globalThis.supplyCameraBefore={...cam};$('supplyHome'+supplyHome.id).onclick()");
    assert(run("!!$('production')&&$('supplyHomeName').textContent.includes(supplyHome.name)"),'source catalogue opens inside destination');
    assert.equal(run('selected.id'),run('supplyTarget.id'));
-   run("$('supplyHomeName').onclick()");assert.equal(run('cam.x'),run('pxy(supplyHome.tile).x'));assert.equal(run('cam.y'),run('pxy(supplyHome.tile).y'));
-   run("$('cityNameFocus').onclick()");assert.equal(run('cam.x'),run('pxy(supplyTarget.tile).x'));
+   assert.equal(run('JSON.stringify(cam)'),run('JSON.stringify(supplyCameraBefore)'),'source choice keeps camera unchanged');
    run("globalThis.supplyNukeCount=supplyHome.nukes;supplyHome.nukes=1;showNuclearOverview();$('nuclearCity'+supplyHome.id).onclick();supplyHome.nukes=supplyNukeCount");
    assert.equal(run('cam.x'),run('pxy(supplyHome.tile).x'));assert.equal(run('menuMode'),false);assert.equal(run('selected.id'),run('supplyHome.id'));
    run("selectCity(supplyTarget,true);cityCommandOpen('units');$('supplyHome'+supplyHome.id).onclick()");
   }
   assert(run('requestSupply(supplyTarget,supplyHome,0,2,true)'));
+  assert.equal(run('supplyProductionLabel(supplyTarget)'),run("'⚙ '+TYPES[0].name+'2 - '+supplyHome.name"));
   assert.equal(run('supplyHome.queue.remaining'),2);assert.equal(run('supplyTarget.queue'),null);
   if(run("typeof document!=='undefined'")){
-   assert(run("$('cityCommandContent').textContent.includes('에서 출항 후 도착 예정입니다')"),'incoming status shown');
+   assert(run("$('cityCommandContent').textContent.includes('에서 훈련 후 수송 중입니다')"),'incoming status shown');
    assert(run("$('cityCommandContent').textContent.includes(TYPES[0].name)"),'unit name shown');
    assert(run("$('cityCommandContent').innerHTML.includes('meter')"),'remaining turns bar shown');
   }

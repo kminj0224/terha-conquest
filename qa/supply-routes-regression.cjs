@@ -10,7 +10,7 @@ assert.equal(balance.TYPES[11].atk,33);assert.equal(balance.TYPES[18].atk,96);as
 
 const s={console,Set,Map,Math,Number,window:{Terha:{}},document:{addEventListener:noop},
  $:()=>({}),productionReason:()=>'',produce:noop,unitPage:noop,cityCommandOpen:noop,cityOverview:()=>'',deploy:noop,
- industryTurn:noop,capture:noop,nuclearImpact:noop,migrateArmy:noop,selected:null,
+ drawCityForeground:noop,industryTurn:noop,capture:noop,nuclearImpact:noop,migrateArmy:noop,selected:null,
  player:0,turn:1,productionTier:1,productionAA:false,busy:false,cityProfile:noop,
  TYPES:[{name:'Infantry',branch:'infantry'},{name:'Ship',branch:'navy'}],
  isNaval:u=>u.type===1,unitPrice:()=>100,unitOil:()=>40,navGoldCost:k=>k===1?60:0,aaCost:()=>20,
@@ -56,3 +56,13 @@ vm.runInContext(audio.slice(audio.indexOf('function combatWeaponProfile('),audio
 const profile=run('combatWeaponProfile({type:18,f:2})');assert.equal(profile.shots,5);assert.equal(profile.step,260);assert(profile.playbackRate<1);
 assert.equal(run('combatWeaponProfile({type:1,f:2}).shots'),1,'other laser profiles preserved');
 console.log('PASS: coastal region chains, foreign blockage, atomic rejection, naval fixed turns, camera focus, full resupply resource charges and extended laser salvo');
+// Incoming banners pan only through their explicit city buttons.
+s.progressCard=(title,detail)=>title+' '+detail;
+s.cities[0].queue={type:1,level:2,sourceName:'Home',transportTo:1,remaining:2,total:2};
+let card=run('supplyCard(cities[0])');assert(card.includes('에서 출항 후 입항 예정입니다'));assert(card.includes('입항 도시:'));assert(!card.includes('도착'));
+s.cities[0].queue.type=0;card=run('supplyCard(cities[0])');assert(card.includes('에서 훈련 후 수송 중입니다'));assert(!card.includes('출항'));
+assert.equal(run('supplyProductionLabel(cities[1])'),'⚙ Infantry2 - Home');
+const painted=[];s.ctx={save(){},restore(){},translate(){},strokeText:text=>painted.push(text),fillText(){}};s.cam.z=1;
+run('drawCityForeground(cities[1],{x:0,y:0})');assert.deepEqual(painted,['⚙ Infantry2 - Home']);
+s.cities[0].queue=null;assert.equal(run('supplyProductionLabel(cities[1])'),'');painted.length=0;run('drawCityForeground(cities[1],{x:0,y:0})');assert.equal(painted.length,0);
+console.log('PASS: naval-only departure/berthing text, land transport wording, occupied-city gear label and queue cleanup');

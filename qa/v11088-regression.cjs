@@ -12,7 +12,7 @@ module.exports=async function({run}){
   function checkTitle(tab){
    cityCommandOpen(tab);
    const html=$('panel').innerHTML;
-   check($('cityNameFocus')?.textContent===q.name,'Missing city name on '+tab);
+   check($('panel').innerHTML.includes('<h2 class="cityName">'+q.name+'</h2>'),'Missing city name on '+tab);
    check(html.includes('class="cityCountryName"')&&html.includes(factions[q.f].name),'Missing colored faction in header on '+tab);
    const countryPos=html.indexOf('class="cityCountryName"');
    check(countryPos>=0&&countryPos<html.indexOf('class="cityHeadLevel"'),'Faction name must be left of city level on '+tab);

@@ -58,7 +58,7 @@ function requestSupply(target,source,k,l=productionTier,aa=productionAA){
  source.queue={type:k,level:l,aa:!!aa,transportTo:target.id,owner:player,
   sourceName:source.name,total,remaining:total,lastTick:turn};
  source.produced=true;
- toast('본토 '+source.name+'에서 출항 후 도착 예정입니다');
+ toast(isNaval({type:k})?'본토 '+source.name+'에서 출항 후 입항 예정입니다':TYPES[k].name+' · '+source.name+'에서 훈련 후 '+target.name+' 수송 · '+total+'턴');
  showPanel();updateHUD();save();return true;
 }
 const homelandProduce=produce;
@@ -70,9 +70,10 @@ produce=function(q,k,l=productionTier,aa=productionAA){
 };
 function supplyCard(source){
  const j=source.queue,target=cities.find(q=>q.id===j.transportTo);
- const detail='본토 <button class="supplyCityLink" data-supply-city="'+source.id+'">'+(j.sourceName||source.name)+'</button>에서 출항 후 도착 예정입니다';
+ const naval=isNaval({type:j.type});
+ const detail='본토 <button class="supplyCityLink" data-supply-city="'+source.id+'">'+(j.sourceName||source.name)+'</button>'+(naval?'에서 출항 후 입항 예정입니다':'에서 훈련 후 수송 중입니다');
  return progressCard(TYPES[j.type].name+' · '+j.level+'단계'+(j.aa?' · 대공방어 추가':''),
-  detail+'<br>도착 도시: '+(target?'<button class="supplyCityLink" data-supply-city="'+target.id+'">'+target.name+'</button>':'')+(j.remaining===0?'<br>수송 완료 · 도착 도시의 배치 공간을 기다리는 중입니다.':''),j.remaining,j.total);
+  detail+'<br>'+(naval?'입항 도시: ':'도착 도시: ')+(target?'<button class="supplyCityLink" data-supply-city="'+target.id+'">'+target.name+'</button>':'')+(j.remaining===0?'<br>'+(naval?'입항 대기 · 입항':'수송 완료 · 도착')+' 도시의 배치 공간을 기다리는 중입니다.':''),j.remaining,j.total);
 }
 const homelandUnitPage=unitPage;
 unitPage=function(q){
@@ -82,9 +83,8 @@ unitPage=function(q){
  const box=$('cityCommandContent');
  const home=supplyChoice?.target===q.id?cities.find(s=>s.id===supplyChoice.source):null;
  if(home&&homelandSources(q).includes(home)){
-  box.innerHTML='<button id="supplyBack">본토 도시 목록</button><button id="supplyHomeName"></button><div id="production"></div>';
+  box.innerHTML='<button id="supplyBack">본토 도시 목록</button><p id="supplyHomeName"></p><div id="production"></div>';
   $('supplyHomeName').textContent='본토 '+home.name+' · '+home.level+'레벨';
-  $('supplyHomeName').onclick=()=>focusSupplyCity(home.id);
   $('supplyBack').onclick=()=>{supplyChoice=null;showPanel()};
   productionPanel(home);return;
  }
@@ -95,7 +95,7 @@ unitPage=function(q){
  for(const home of sources){
   const b=document.createElement('button');b.id='supplyHome'+home.id;
   b.textContent=home.name+' · '+home.level+'레벨 · '+supplyTurns(home,q)+'턴'+(home.queue?' · 생산 중':home.produced?' · 이번 턴 생산 완료':'');
-  b.onclick=()=>{focusSupplyCity(home.id);supplyChoice={target:q.id,source:home.id};showPanel()};box.appendChild(b);
+  b.onclick=()=>{supplyChoice={target:q.id,source:home.id};showPanel()};box.appendChild(b);
  }
 };
 const supplyCommandOpen=cityCommandOpen;
@@ -133,7 +133,7 @@ deploy=function(source){
  const u=makeUnit(j.owner,j.type,site,j.level);u.aa=!!j.aa;
  u.producedAtCityId=source.id;u.fuelEfficient=!!source.fuelEfficiency&&!source.fuelResearchJob;
  source.queue=null;
- if(target.f===player)toast(target.name+'에 '+TYPES[j.type].name+' 수송 완료');
+ if(target.f===player)toast(target.name+'에 '+TYPES[j.type].name+(isNaval({type:j.type})?' 입항 완료':' 수송 완료'));
 };
 const supplyIndustryTurn=industryTurn;
 industryTurn=async function(...args){await supplyIndustryTurn(...args);pruneSupplies();for(const source of cities)if(source.queue?.transportTo!==undefined)deploy(source)};
@@ -150,9 +150,22 @@ migrateArmy=function(s){
  for(const {id,order}of orders){const source=cities.find(q=>q.id===id);if(source&&TYPES[order.type]&&[2,3].includes(order.total)&&Number.isFinite(order.remaining)&&Number.isFinite(order.lastTick)){source.queue=order;order.remaining=Math.max(0,Math.min(order.total,order.remaining))}}
  pruneSupplies();return result;
 };
+// Incoming orders live on the homeland queue; show them at the receiving city too.
+function supplyProductionLabel(q){
+ const source=supplySource(q);if(!source)return '';
+ const j=source.queue;return '⚙ '+TYPES[j.type].name+(j.level||1)+' - '+(j.sourceName||source.name);
+}
+const supplyCityForeground=drawCityForeground;
+drawCityForeground=function(q,p){
+ supplyCityForeground(q,p);
+ if(cam.z<=.45||q.queue)return;
+ const text=supplyProductionLabel(q);if(!text)return;
+ ctx.save();ctx.translate(p.x,p.y);ctx.font=(q.capital?'bold ':'')+'11px Terha,sans-serif';ctx.textAlign='center';ctx.lineWidth=3;
+ ctx.strokeStyle='#10212e';ctx.strokeText(text,0,47);ctx.fillStyle='#e6ca7f';ctx.fillText(text,0,47);ctx.restore();
+};
 document.addEventListener('click',event=>{
  const link=event.target?.closest?.('[data-supply-city]');
  if(link)focusSupplyCity(Number(link.getAttribute('data-supply-city')));
 });
-Object.assign(window.Terha,{focusSupplyCity,supplySeaAccess,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
+Object.assign(window.Terha,{supplyProductionLabel,drawCityForeground,focusSupplyCity,supplySeaAccess,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
  industryTurn,capture,nuclearImpact,migrateArmy,occupiedCity,homelandSources,supplyTurns,requestSupply,supplySource});
