@@ -53,12 +53,10 @@ sciencePage=function(q){
   ()=>research(),'군사 연구','부대 공격력 +5 · 최대 체력 +12 (단계당)', '골드 '+cost.toLocaleString()+' · 2턴');
  for(const [key,d] of Object.entries(RESEARCH_DEFS)){
   addCityRow(box,d.name+' 연구'+(r[key]?' · 완료':''),studyReason(q,key),()=>study(q,key),d.name+' 연구',
-   key==='ballistic'?'탄도미사일 운용 기술 · 미사일 발사대 및 4종 탄도미사일 해금':'핵물질 가공 기술 · 원자폭탄·수소폭탄 및 핵 탑재 무기 해금',
-   '골드 '+d.cost.toLocaleString()+' · '+d.turns+'턴');
+   d.description,
+   '골드 '+d.cost.toLocaleString()+(d.oil?' · 석유 '+d.oil.toLocaleString():'')+' · '+d.turns+'턴');
  }
- addCityRow(box,'연비 개선'+(q.fuelEfficiency?' · 완료':''),fuelResearchReason(q),()=>studyFuelEfficiency(q),'연비 개선',
-  '보병·기갑·포병 석유 소모량 0 · 해군 석유 소모량 50% 감소',
-  '골드 '+FUEL_RESEARCH_COST.toLocaleString()+' · '+FUEL_RESEARCH_TURNS+'턴');
+
 };
 facilityPage=function(q,box=$('cityCommandContent')){
  for(const [key,d]of Object.entries(FACILITIES)){
@@ -153,3 +151,4 @@ showPanel=function(){
  refreshCityCommandButtons();
 };
 Object.assign(window.Terha,{cityInfo,showPanel,refreshCityCommandButtons});
+

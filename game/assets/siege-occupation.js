@@ -1,6 +1,6 @@
 'use strict';
 // Shared capture eligibility keeps movement, landing and AI consistent with saved type IDs.
-function canCaptureCityUnit(u){return !!u&&(u.type===0||[0,1,4,5].includes(TYPES[u.type]?.special))}
+function canCaptureCityUnit(u){return !!u&&(u.type===0||[0,1,4,5,6].includes(TYPES[u.type]?.special))}
 function cityDamageFloor(u){return ['artillery','navy'].includes(TYPES[u.type]?.branch)||isAircraft(u)||isHelicopter(u)||[5,23,24,25].includes(u.type)?1:0}
 function usefulConventionalTarget(f,i){
  const u=unitAt(i),q=cityAt(i),b=baseAt(i);
@@ -17,7 +17,7 @@ tap=function(sx,sy){
  if(started&&!busy&&!menuMode&&!airTarget&&!strategicTarget&&!coastBuildMode){
   const u=navalMode?.kind==='land'?units.find(v=>v.id===navalMode.unit):!navalMode&&selected?.kind==='unit'?units.find(v=>v.id===selected.id):null;
   const i=pickedNavalTile(sx,sy),q=i>=0?cityAt(i):null;
-  if(u?.f===player&&!canCaptureCityUnit(u)&&q&&q.hp<=0&&atWar(u.f,q.f)&&!unitAt(i)){toast('소총수와 란나·백양·단테·낙월 특수유닛만 점령할 수 있습니다');return}
+  if(u?.f===player&&!canCaptureCityUnit(u)&&q&&q.hp<=0&&atWar(u.f,q.f)&&!unitAt(i)){toast('소총수와 란나·백양·단테·낙월·시엘룬 특수유닛만 점령할 수 있습니다');return}
  }
  return rifleEntryTap(sx,sy);
 };
@@ -168,6 +168,7 @@ migrateArmy=function(s){
 };
 Object.assign(window.Terha,{canCaptureCityUnit,cityDamageFloor,usefulConventionalTarget,canProduce,capture,moveCost,tap,landingTiles,canAirStrike,
  aiQueueUnit,aiNeedsRifles,aiProcure,aiStep,transportCandidate,rifleRoute,aiRifleGoal,aiStrategicOperations,migrateArmy});
+
 
 
 

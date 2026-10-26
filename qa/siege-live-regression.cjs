@@ -13,7 +13,7 @@ module.exports=async function({run}){
    const armor=makeUnit(0,1,from,1);freshOrders(armor);
    check(!reachable(armor).costs.has(q.tile),'Armor must not enter unclaimed breached city');
    selectUnit(armor);const p=pxy(q.tile);cam.x=p.x;cam.y=p.y;tap(screenW/2,screenH/2);
-   check($('toast').textContent==='소총수와 란나·백양·단테·낙월 특수유닛만 점령할 수 있습니다','Exact rifle-only entry message');
+   check($('toast').textContent==='소총수와 란나·백양·단테·낙월·시엘룬 특수유닛만 점령할 수 있습니다','Exact rifle-only entry message');
    const enemy=q.f;armor.tile=q.tile;capture(armor);check(q.f===enemy,'Armor direct capture rejected');armor.tile=from;
    const rifle=makeUnit(0,0,q.tile,1);capture(rifle);check(q.f===0,'Rifle capture through real wrappers');units=units.filter(u=>u!==rifle);
    check(reachable(armor).costs.has(q.tile),'Other troop can enter friendly occupied city');
@@ -66,5 +66,6 @@ module.exports=async function({run}){
  })()`);
  assert.equal(report.floor,1);assert([1,2].includes(report.transportTurns));console.log('PASS live world siege/capture and friendly deployment:',report);
 };
+
 
 

@@ -2,7 +2,7 @@
 const assert=require('assert');
 module.exports=async function({run,nodes,click,settle}){
  run(`player=3;setup();started=true;setAppScreen('game');tech[3]=0;units=[];food[3]=5000;oil[3]=0;money[3]=100000;
- if(SAPROS!==29||TYPES.length!==30||DEKPHUING_GUERRILLA!==27||NAKWOL_COMMANDO!==28)throw Error('Appended Sapros changed existing IDs');
+ if(SAPROS!==29||TYPES.length<31||DEKPHUING_GUERRILLA!==27||NAKWOL_COMMANDO!==28)throw Error('Appended Sapros changed existing IDs');
  const saprosCapital=cities.find(q=>q.origin===3&&q.capital);saprosCapital.produced=false;saprosCapital.queue=null;
  if(!produce(saprosCapital,SAPROS,1,false))throw Error('Sapros production failed');
  if(food[3]!==4033||oil[3]!==0)throw Error('Sapros production cost');
@@ -45,4 +45,5 @@ module.exports=async function({run,nodes,click,settle}){
  }finally{ctx.drawImage=saprosPaint}`);
  console.log('PASS: real Sapros production/deployment/save round-trip, support, actual attack/VFX/corpse art, homeland harbor list, linked window heading and naval port validation');
 };
+
 

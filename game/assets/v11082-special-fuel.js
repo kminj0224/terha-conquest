@@ -70,6 +70,8 @@ sprite=function(u,p,now){
 };
 const FUEL_RESEARCH_COST=50000,FUEL_RESEARCH_TURNS=2;
 Object.assign(RESEARCH_DEFS,{
+ ballistic:{...RESEARCH_DEFS.ballistic,description:'국가 전체에서 미사일 발사대 건설과 단거리·중거리·장거리·대륙간 탄도미사일 운용을 해금합니다. 발사에는 해당 도시의 미사일 발사대가 필요합니다.'},
+ nuclear:{...RESEARCH_DEFS.nuclear,description:'국가 전체에서 원자폭탄·수소폭탄 제작과 핵탄두를 장착한 탄도미사일·전략폭격기 공격을 해금합니다. 핵탄두는 도시별로 제작·보관하며, 공격 방식에 맞는 시설과 운용 조건이 필요합니다.'},
  fuelEfficiency:{name:'연비 개선',cost:FUEL_RESEARCH_COST,turns:FUEL_RESEARCH_TURNS,description:'국가 전체 적용. 기존·신규 보병·기갑·포병의 이동·공격 석유 소모가 없어지며, 해군의 이동·공격 석유 소모는 절반으로 감소합니다(소수점 버림).'},
  supplyRoutes:{name:'수송로 개선',cost:63000,oil:450,turns:4,description:'국가 전체 적용. 연결된 본토 도시에서 점령도시로 보내는 유닛은 거리와 무관하게 1턴 만에 도착합니다.'}
 });
@@ -107,3 +109,4 @@ migrateArmy=function(s){
 };
 Object.assign(window.Terha,{NAKWOL_COMMANDO,FUEL_RESEARCH_COST,FUEL_RESEARCH_TURNS,damage,studyFuelEfficiency,
  fuelResearchReason,efficiencyCost,moveOil,attackOil,migrateArmy,deploy,productionPanel});
+
