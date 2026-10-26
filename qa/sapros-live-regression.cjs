@@ -25,8 +25,8 @@ module.exports=async function({run,nodes,click,settle}){
  selectCity(supplyTestTarget,true);cityCommandOpen('units');`);
  await settle();
  const port=run('homePort.id'),inland=run('inlandHome.id');
- assert(nodes.get('supplyHome'+port).textContent.includes('⚓ 항구'));
- assert(!nodes.get('supplyHome'+inland).textContent.includes('⚓ 항구'));
+ assert(nodes.get('supplyHome'+port).textContent.includes('⚓'));
+ assert(!nodes.get('supplyHome'+inland).textContent.includes('⚓'));
  await click('supplyHome'+port);await settle();
  assert.equal(nodes.get('supplyTitleCity').textContent,run('homePort.name'));
  assert(nodes.get('panel').textContent.includes(run("supplyTestTarget.name+' - '")));

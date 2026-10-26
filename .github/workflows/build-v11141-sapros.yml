@@ -36,6 +36,7 @@ jobs:
           node qa/ayria-infantry-regression.cjs
           node qa/siege-occupation-regression.cjs
           node qa/android-frame-budget-regression.cjs
+          node qa/sapros-native-regression.cjs
           npm test
           python3 qa/verify-native.py
       - name: Build and verify signed Android update
