@@ -34,6 +34,8 @@ jobs:
           python3 qa/verify-native.py
       - name: Build and verify signed Android update
         run: |
+          node qa/armored-car-defense-clock.cjs
+          node qa/armored-car-audio-clock.cjs
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
           java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.50.apk
