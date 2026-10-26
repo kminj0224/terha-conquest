@@ -28,8 +28,8 @@ module.exports=async function({run,nodes,click,settle}){
  assert(nodes.get('supplyHome'+port).textContent.includes('⚓'));
  assert(!nodes.get('supplyHome'+inland).textContent.includes('⚓'));
  await click('supplyHome'+port);await settle();
- assert.equal(nodes.get('supplyTitleCity').textContent,run('homePort.name'));
- assert(nodes.get('panel').textContent.includes(run("supplyTestTarget.name+' - '")));
+ assert.equal(nodes.get('supplyTitleCity').textContent,run('englishAppText(homePort.name)'));
+ assert(nodes.get('panel').textContent.includes(run("englishAppText(supplyTestTarget.name)+' - '")));
  const selected=run('selected.id');await click('supplyTitleCity');
  assert.equal(run('selected.id'),selected);assert.equal(run('cam.x'),run('pxy(homePort.tile).x'));assert.equal(run('cam.y'),run('pxy(homePort.tile).y'));
  assert.equal(run('supplyReason(supplyTestTarget,inlandHome,23,1,false)'),'본토 도시에 출항할 항구가 없습니다');
