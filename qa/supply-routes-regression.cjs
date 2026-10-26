@@ -84,14 +84,14 @@ for(const ai of [false,true]){
 }
 s.cities[0].queue=null;s.cities[0].produced=false;
 // Remove the distant coast: the exact same inland component must now be blocked.
-edges[4]=[3];edges[5]=[1];
+edges[0]=[1];edges[4]=[3];edges[5]=[1];run('supplyTopology=null');
 assert(!run('supplySeaAccess(cities[1])'));assert(!run('supplyHomelandConnected(cities[1])'));
 for(const ai of [false,true]){
  const resources=[...s.food,...s.oil,...s.money];
  assert(!run('requestSupply(cities[1],cities[0],0,1,false,'+ai+')'),'isolated inland request rejected');
  assert.deepEqual([...s.food,...s.oil,...s.money],resources,'rejected request never charges');
 }
-edges[4]=[3,5];edges[5]=[1,4];
+edges[0]=[1,2];edges[4]=[3,5];edges[5]=[1,4];run('supplyTopology=null');
 s.cities[3].origin=0;s.cities[2].f=1;
 assert(!run('supplyHomelandConnected(cities[1])'),'region ownership blocks even stale friendly tiles');
 s.cities[2].f=0;s.tiles[3].owner=1;
@@ -119,6 +119,7 @@ const game=fs.readFileSync(path.join(root,'game.js'),'utf8');
 vm.runInContext(game.slice(game.indexOf('function distance('),game.indexOf('\n',game.indexOf('function distance('))),geometry);
 assert.equal(vm.runInContext('distance(0,1)',geometry),30);assert.equal(vm.runInContext('distance(0,2)',geometry),31);
 console.log('PASS: inland homeland chains, occupied coastal chains and isolated inland rejection, foreign blockers, 30-tile inclusive threshold, one-turn delivery, queue round trips and wrapped hex distance');
+
 
 
 

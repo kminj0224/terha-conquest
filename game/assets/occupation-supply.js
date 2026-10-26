@@ -1,8 +1,33 @@
 'use strict';
 // Homeland training queues deliver to occupied cities; IDs remain save-compatible.
 let supplyChoice=null;
+// Exact topology snapshots avoid rebuilding a whole network for every catalogue button.
+let supplyTopology=null;
+function supplyNetwork(f){
+ const blocked=new Set(typeof hansaBridges==='undefined'?[]:hansaBridges.filter(b=>b.transition).flatMap(b=>b.deck));
+ let changed=!supplyTopology||supplyTopology.owners.length!==tiles.length||supplyTopology.factions.length!==cities.length||blocked.size!==supplyTopology.blocked.size;
+ if(!changed)for(const i of blocked)if(!supplyTopology.blocked.has(i)){changed=true;break}
+ if(!changed)for(let i=0;i<cities.length;i++)if(supplyTopology.factions[i]!==cities[i].f){changed=true;break}
+ if(!changed)for(let i=0;i<tiles.length;i++)if(supplyTopology.owners[i]!==tiles[i].owner||supplyTopology.regions[i]!==tiles[i].region){changed=true;break}
+ if(changed)supplyTopology={owners:tiles.map(t=>t.owner),regions:tiles.map(t=>t.region),factions:cities.map(q=>q.f),blocked,networks:new Map()};
+ if(supplyTopology.networks.has(f))return supplyTopology.networks.get(f);
+ const ids=new Int32Array(tiles.length).fill(-1),queue=[];
+ const passable=i=>!blocked.has(i)&&(tiles[i].owner<0||tiles[i].owner===f&&cities[tiles[i].region]?.f===f);
+ let component=0;
+ for(let start=0;start<tiles.length;start++){
+  if(ids[start]>=0||!passable(start))continue;
+  queue.length=0;queue.push(start);ids[start]=component;
+  for(let n=0;n<queue.length;n++)for(const i of neighbors(queue[n]))if(ids[i]<0&&passable(i)){ids[i]=component;queue.push(i)}
+  component++;
+ }
+ supplyTopology.networks.set(f,ids);return ids;
+}
+function supplyRouteConnected(source,target){
+ if(!source||!target||source.f!==target.f||tiles[source.tile]?.owner!==source.f||tiles[target.tile]?.owner!==target.f)return false;
+ const ids=supplyNetwork(source.f);return ids[source.tile]>=0&&ids[source.tile]===ids[target.tile];
+}
 function occupiedCity(q){return !!q&&q.origin!==q.f}
-function homelandSources(q){return cities.filter(s=>s.f===q.f&&s.origin===q.f&&s.level<=q.level)}
+function homelandSources(q){return cities.filter(s=>s.f===q.f&&s.origin===q.f&&s.level<=q.level&&supplyRouteConnected(s,q))}
 function supplySource(q){return cities.find(s=>s.queue?.transportTo===q.id)}
 function supplyTurns(source,target){return distance(source.tile,target.tile)<=30?1:2}
 function supplyCoastalCity(target){
@@ -59,8 +84,7 @@ function supplyReason(target,source,k,l=productionTier,aa=productionAA,ai=false)
   if(!isAircraft({type:k})&&!isHelicopter({type:k})&&!hansaBridgeConnected())return'한사특별도 교각 연결 필요';
  }
  cityProfile(source);
- if(!supplySeaAccess(target)&&!supplyHomelandConnected(target))return'수송로에 연결되지 않은 도시입니다.';
- if(!supplyLandConnected(source,target)&&!supplySeaAccess(target))return'해상 수송로에 연결되지 않은 도시입니다.';
+ if(!supplyRouteConnected(source,target))return'수송로에 연결되지 않은 도시입니다.';
  if(isNaval({type:k})&&!source.harbor)return'본토 도시에 출항할 항구가 없습니다';
  if(isNaval({type:k})&&!target.harbor)return'함정을 받을 점령도시에 항구가 필요합니다.';
  if(ai){
@@ -86,7 +110,7 @@ function requestSupply(target,source,k,l=productionTier,aa=productionAA,ai=false
  money[f]-=navGoldCost(k,l)+(aa?aaCost(l):0);
  const total=supplyTurns(source,target,k);
  source.queue={type:k,level:l,aa:!!aa,transportTo:target.id,owner:f,
-  sourceName:source.name,total,remaining:total,lastTick:turn};
+  sourceName:source.name,total,remaining:total,lastTick:turn,routeBlocked:false};
  source.produced=true;
  if(!ai){toast(isNaval({type:k})?'본토 '+source.name+'에서 출항 후 입항 예정입니다':TYPES[k].name+' · '+source.name+'에서 훈련 후 '+target.name+' 수송 · '+total+'턴');
  showPanel();updateHUD();save()}return true;
@@ -100,10 +124,11 @@ produce=function(q,k,l=productionTier,aa=productionAA){
 };
 function supplyCard(source){
  const j=source.queue,target=cities.find(q=>q.id===j.transportTo);
+ j.routeBlocked=!target||!supplyRouteConnected(source,target);
  const naval=isNaval({type:j.type});
  const detail='본토 <button class="supplyCityLink" data-supply-city="'+source.id+'">'+(j.sourceName||source.name)+'</button>'+(naval?'에서 출항 후 입항 예정입니다':'에서 훈련 후 수송 중입니다');
  return progressCard(TYPES[j.type].name+' · '+j.level+'단계'+(j.aa?' · 대공방어 추가':''),
-  detail+'<br>'+(naval?'입항 도시: ':'도착 도시: ')+(target?'<button class="supplyCityLink" data-supply-city="'+target.id+'">'+target.name+'</button>':'')+(j.remaining===0?'<br>'+(naval?'입항 대기 · 입항':'수송 완료 · 도착')+' 도시의 배치 공간을 기다리는 중입니다.':''),j.remaining,j.total);
+  detail+'<br>'+(naval?'입항 도시: ':'도착 도시: ')+(target?'<button class="supplyCityLink" data-supply-city="'+target.id+'">'+target.name+'</button>':'')+(j.routeBlocked?'<br>수송로 단절 · 연결 대기':j.remaining===0?'<br>'+(naval?'입항 대기 · 입항':'수송 완료 · 도착')+' 도시의 배치 공간을 기다리는 중입니다.':''),j.remaining,j.total);
 }
 const homelandUnitPage=unitPage;
 unitPage=function(q){
@@ -121,7 +146,7 @@ unitPage=function(q){
  supplyChoice=null;
  box.innerHTML='<p>병력을 훈련할 본토 도시를 선택하세요. '+q.level+'레벨 이하 도시만 표시됩니다.</p><p>거리가 가까울수록 빨리 수송됩니다.</p>';
  const sources=homelandSources(q).sort((a,b)=>b.level-a.level||a.id-b.id);
- if(!sources.length){const p=document.createElement('p');p.textContent='조건에 맞는 아군 본토 도시가 없습니다.';box.appendChild(p)}
+ if(!sources.length){const p=document.createElement('p');p.textContent='수송로로 연결된 조건에 맞는 아군 본토 도시가 없습니다.';box.appendChild(p)}
  for(const home of sources){
   cityProfile(home);
   const b=document.createElement('button');b.id='supplyHome'+home.id;
@@ -148,15 +173,17 @@ function validSupply(source){
  return !!j&&!!target&&source.f===j.owner&&source.origin===j.owner&&target.f===j.owner
   &&source.nukeUntil<=turn&&target.nukeUntil<=turn;
 }
-function pruneSupplies(){for(const source of cities)if(source.queue?.transportTo!==undefined&&!validSupply(source))source.queue=null}
+function pruneSupplies(){for(const source of cities)if(source.queue?.transportTo!==undefined){if(!validSupply(source))source.queue=null;else source.queue.routeBlocked=!supplyRouteConnected(source,cities.find(q=>q.id===source.queue.transportTo))}}
 const supplyDeploy=deploy;
 deploy=function(source){
  const j=source.queue;
  if(j?.transportTo===undefined)return supplyDeploy(source);
  if(!validSupply(source)){source.queue=null;return}
+ const target=cities.find(q=>q.id===j.transportTo);
+ j.routeBlocked=!supplyRouteConnected(source,target);
+ if(j.routeBlocked){j.lastTick=turn;return}
  j.remaining=Math.max(0,j.remaining-Math.max(0,turn-j.lastTick));j.lastTick=turn;
  if(j.remaining>0)return;
- const target=cities.find(q=>q.id===j.transportTo);
  const sites=isNaval({type:j.type})?tiles.map((t,i)=>i).filter(i=>tiles[i].owner<0&&distance(target.tile,i)<=3).sort((a,b)=>distance(a,target.tile)-distance(b,target.tile))
   :[target.tile,...neighbors(target.tile),...neighbors(target.tile).flatMap(neighbors)];
  const site=sites.find(i=>!unitAt(i)&&(isNaval({type:j.type})?tiles[i].owner<0:tiles[i].owner===target.f));
@@ -198,8 +225,9 @@ document.addEventListener('click',event=>{
  const link=event.target?.closest?.('[data-supply-city]');
  if(link)focusSupplyCity(Number(link.getAttribute('data-supply-city')));
 });
-Object.assign(window.Terha,{supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,supplyCoastalCity,supplyHomelandConnected,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
+Object.assign(window.Terha,{supplyRouteConnected,supplyNetwork,supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,supplyCoastalCity,supplyHomelandConnected,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
  industryTurn,capture,nuclearImpact,migrateArmy,occupiedCity,homelandSources,supplyTurns,requestSupply,supplySource});
+
 
 
 

@@ -16,7 +16,7 @@ module.exports=async function({run}){
     if(q.origin===0||coastal.has(q.id))continue;
     const port=[...adj[q.id]].map(id=>cities[id]).find(v=>v.origin!==0&&coastal.has(v.id));
     if(!port)continue;
-    const source=cities.find(v=>v.origin===0&&v.id!==q.id&&v.id!==port.id&&!adj[q.id].has(v.id)&&!adj[port.id].has(v.id)&&!(typeof isHansaSupplyCity==='function'&&isHansaSupplyCity(v)));
+    const source=cities.find(v=>v.origin===0&&coastal.has(v.id)&&v.id!==q.id&&v.id!==port.id&&!adj[q.id].has(v.id)&&!adj[port.id].has(v.id)&&!(typeof isHansaSupplyCity==='function'&&isHansaSupplyCity(v)));
     if(source){target=q;coast=port;home=source;break}
    }
    check(target&&coast&&home,'Actual map must contain adjacent inland/coastal regions and a separate homeland');
