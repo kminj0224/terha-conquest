@@ -35,17 +35,18 @@ function stopCombatAudio(includeUI=true){
  for(const voice of [...combatAudio.voices]){if(!includeUI&&voice.ui)continue;try{if(context){voice.gain.gain.cancelScheduledValues(context.currentTime);voice.gain.gain.setTargetAtTime(0,context.currentTime,.008);voice.source.stop(context.currentTime+.04)}}catch(error){}}
  combatAudio.voices=includeUI?[]:combatAudio.voices.filter(v=>v.ui);
 }
-function queueCombatSound(name,position,start=performance.now(),volume=1,playbackRate=1,echo=false){
+function queueCombatSound(name,position,start=performance.now(),volume=1,playbackRate=1,echo=false,options={}){
  if(!sound||document.hidden||!combatAudio.enabled||skipAIAnimations()||!COMBAT_SOUND_BANK[name])return;
- combatAudio.queue.push({name,position:{x:position.x,y:position.y},start,volume,playbackRate,echo});
+ const event={name,position:{x:position.x,y:position.y},start,volume,playbackRate,echo,...options};combatAudio.queue.push(event);
  // A corrupt or very old FX list cannot accumulate an unbounded sound backlog.
  if(combatAudio.queue.length>96)combatAudio.queue.splice(0,combatAudio.queue.length-96);
+ return event;
 }
 function playCombatVoice(event,now){
  const context=ensureCombatAudio();if(!context||context.state!=='running')return;
  const sequence=combatAudio.variation++,variant=sequence%2,buffer=combatBuffer(event.name,variant,!!event.echo);if(!buffer)return;
  const source=context.createBufferSource(),gain=context.createGain(),filter=context.createBiquadFilter();source.buffer=buffer;
- source.playbackRate.value=(event.playbackRate||1)*(1+((sequence*17%11)-5)*.004);
+ source.playbackRate.value=(event.playbackRate||1)*(event.fixedRate?1:1+((sequence*17%11)-5)*.004);
  const viewWidth=Math.max(640,screenW/cam.z),dx=(nearWorldPoint(event.position,cam).x-cam.x)/viewWidth,dy=(event.position.y-cam.y)/viewWidth;
  const distance=event.ui?0:Math.hypot(dx,dy),attenuation=Math.max(.22,1/(1+distance*.65));
  filter.type='lowpass';filter.frequency.value=Math.max(1800,14500/(1+distance*.6));filter.Q.value=.5;
@@ -64,6 +65,7 @@ function playCombatVoice(event,now){
 function combatWeaponProfile(u){
  const type=u.type,f=u.f;
  if(type===26)return null;
+ if(type===12)return{name:'armored_autocannon',shots:1,step:0,volume:.78,fixedRate:true,duration:1500};
  if(type===0)return{name:'rifle',shots:3,step:90,volume:.53,echo:true};
  if(type===18)return{name:'laser',shots:5,step:260,volume:.58,playbackRate:.65};
  if(f===2&&[1,13,14].includes(type))return{name:'laser',shots:1,step:0,volume:.66};
@@ -71,6 +73,7 @@ function combatWeaponProfile(u){
  const [name,shots,step,volume]=defs[type]||['rifle',1,0,.6];return{name,shots,step,volume};
 }
 function combatImpactProfile(u){
+ if(u.type===12)return'armored_autocannon_hit';
  if(u.type===18||u.f===2&&[1,13,14].includes(u.type))return'energy_hit';
  if([0,6,10,11,12,17,20,22].includes(u.type))return'bullet_hit';
  if(u.type===8)return'explosion_small';
@@ -81,7 +84,7 @@ const combatLaunchShot=launchShot;
 launchShot=function(u,target,start=performance.now(),duration=520){
  const before=fx.length,result=combatLaunchShot(u,target,start,duration);
  for(const event of fx.slice(before))combatAudio.seen.add(event);
- const profile=combatWeaponProfile(u);if(profile)for(let j=0;j<profile.shots;j++)queueCombatSound(profile.name,pxy(u.tile),start+j*profile.step,profile.volume,profile.playbackRate||1,!!profile.echo);
+ const profile=combatWeaponProfile(u);if(profile)for(let j=0;j<profile.shots;j++)queueCombatSound(profile.name,pxy(u.tile),start+j*profile.step,profile.volume,profile.playbackRate||1,!!profile.echo,{fixedRate:!!profile.fixedRate,...(profile.duration?{end:start+profile.duration}:{})});
  return result;
 };
 const combatTargetExplosions=targetExplosions;
@@ -114,5 +117,6 @@ document.addEventListener('pointerdown',()=>{if(sound)ensureCombatAudio()},{pass
 document.addEventListener('keydown',()=>{if(sound)ensureCombatAudio()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopCombatAudio();if(combatAudio.context?.state==='running')combatAudio.context.suspend().catch(()=>{})}});
 Object.assign(window.Terha,{launchShot,targetExplosions,setup,migrateArmy,enableAIFastForward,combatWeaponProfile,combatImpactProfile});
+
 
 
