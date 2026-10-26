@@ -1,0 +1,50 @@
+name: Hansa bridges v1.11.43 signed APK
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/build-v11143-hansa.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify-build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Set up FFmpeg and FFprobe
+        uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
+        timeout-minutes: 3
+      - name: Verify real bridge interactions and Sapros
+        run: |
+          python3 tools/prepare_operation_music.py
+          node qa/hansa-bridges-native.cjs
+          node qa/sapros-native-regression.cjs
+          node qa/sapros-regression.cjs
+          node qa/supply-routes-regression.cjs
+      - name: Verify full game and native shell
+        run: |
+          npm test
+          python3 qa/verify-native.py
+      - name: Render final bridge preview
+        run: node qa/hansa-bridges-preview.cjs
+      - name: Build and verify signed Android update
+        run: |
+          python3 build.py
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.43.apk
+          cd deliverables
+          sha256sum Terha-Conquest-v1.11.43.apk > SHA256SUMS.txt
+      - name: Publish APK and preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.43 deliverables/Terha-Conquest-v1.11.43.apk deliverables/SHA256SUMS.txt previews/Hansa-v1.11.43.png --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.43 · 한사특별도 교각' --notes '한사특별도 4개 교각의 차단·재연결과 분할 수납 애니메이션, 방향별 교각 제어 건물, 서쪽 섬측 건물 하단 확장. 연결된 교각의 육지 통행과 차단 후 바다 복원, 아군 유닛 차단 방지 및 적군 무효과 제거, 백양 AI 위협 대응, 한사특별도 본토 병력 요청 제한. 사프로스 장갑 0과 중복 설명 제거 포함. 실제 Canvas/DOM 및 저장 호환·전체 게임 회귀·서명 검증 완료.'
