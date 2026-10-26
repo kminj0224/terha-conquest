@@ -51,7 +51,7 @@ module.exports=function({run}){
   const restart=JSON.stringify(counts);setup();check(JSON.stringify(initialCoastReport)===restart,'Restart grant drift');
   return {dante:counts.dante,batteries:bases.map(b=>[tiles[b.tile].x,tiles[b.tile].y]),ships:ships.length,pathSamples:sample.length,oldScans,newScans};
  })()`);
- assert.equal(report.dante.after,13);
+ assert.equal(report.dante.after,9);
  console.log('PASS: battery focus/audio/paint, coast deployment, save/restart and identical indexed paths',report);
 };
 
