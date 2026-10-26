@@ -6,6 +6,7 @@ new Function('require','__dirname',source.slice(0,at)+`
  console.log('Loading images');await Promise.all(pending);console.log('Images ready');run('player=0;setup();started=true;setAppScreen("game");aiFastForward=true');
  const report=await run(\`(async()=>{
  console.log('Balance and descriptions');const check=(v,m)=>{if(!v)throw Error(m)};
+ check(!TYPES[22].text.includes('사거리'),'Fast craft duplicate range removed');
  check(unitPrice(6,1)===780,'Black Legion food');
  check(TYPES[SAPROS].hp===520&&TYPES[SAPROS].move===2,'Sapros baseline');
  check(!TYPES[9].antiArmor,'Anti-tank multiplier removed');

@@ -23,6 +23,8 @@ for(const t of TYPES){
   .replace(/Range \d+[.;] ?/gi,'').replace(/ with range \d+ and strong armor/g,'')
   .replace(/; anti-ship range \d+/g,'').replace(/ Costs \d+ food, no gold or oil\./g,'');
 }
+TYPES[22].text=TYPES[22].text.replace(/ 지상 병력 사거리 3칸\./g,'');
+APP_EN[TYPES[22].text]='Fast coastal vessel with repeated cannon fire.';
 TYPES[9].text='대전차 로켓. 적 전차 군종을 공격할 때 장갑을 무시합니다.';
 TYPES[DEKPHUING_GUERRILLA].text='란나 특수 보병. 산·숲·강 타일에서 공격력 100% 증가, 장갑 무시, 받는 공격 피해 30% 감소. 해당 지형의 이동력 감소를 무시합니다.';
 TYPES[SAPROS].text='아이리아 제국 특수 유닛. 수도 또는 4레벨 이상 본토 도시에서 생산. 석유를 소비하지 않으며, 이동할 때마다 식량 18, 공격할 때마다 식량 16을 소비합니다(1단계 기준, 편제 단계 배율 적용). 전차 특성: 격파 후 추가 공격, 이동을 쓰지 않았다면 이동 가능. 3타일 이내 아군 보병 공격력 +45%. 같은 지원 효과는 중첩되지 않습니다.';
