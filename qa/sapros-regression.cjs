@@ -4,7 +4,7 @@ const root=path.resolve(__dirname,'../game/assets'),noop=()=>{};
 let clock=1000;const draws=[],waits=[];
 const images=new Map(['idle','windup','strike','dead','effects'].map(p=>['sapros-'+p+'.webp',{src:p,naturalWidth:p==='effects'?1536:576,naturalHeight:768}]));
 const b={console,Map,Set,Math,Number,window:{Terha:{}},S:64,player:3,productionTier:1,productionAA:false,
- TYPES:Array.from({length:28},(_,i)=>({branch:i===11||i===0?'infantry':i===2?'artillery':'armor',atk:20,hp:100,text:''})),UNIT_STORIES:{},factions:Array.from({length:7},()=>({bonus:'',name:'Nation',color:'#abc'})),units:[],tiles:Array.from({length:20},()=>({owner:3})),fx:[],fireMotions:new Map(),
+ TYPES:Array.from({length:29},(_,i)=>({branch:i===11||i===0?'infantry':i===2?'artillery':'armor',atk:20,hp:100,text:''})),UNIT_STORIES:{},factions:Array.from({length:7},()=>({bonus:'',name:'Nation',color:'#abc'})),units:[],tiles:Array.from({length:20},()=>({owner:3})),fx:[],fireMotions:new Map(),
  loadBaekArt:name=>({idle:images.get(name),idleReady:true}),unitAttack:()=>20,unitOil:()=>12,moveOil:()=>2,attackOil:()=>1,productionPanel:noop,launchShot:noop,sprite:noop,targetExplosions:()=>b.fx.push({kind:'blast'}),
  kill:u=>{b.units=b.units.filter(v=>v!==u);b.fx.push({kind:'wreck'})},
  $:()=>null,document:{createElement:()=>({})},unitPrice:(k,l=1)=>Math.ceil(b.TYPES[k].cost*(1+(l-1)*.25)),aaCost:()=>0,productionReason:()=>'',produce:noop,showProductionInfo:noop,
@@ -18,7 +18,7 @@ vm.createContext(b);const run=s=>vm.runInContext(s,b);
 const orders=fs.readFileSync(path.join(root,'orders.js'),'utf8');
 run(orders.slice(orders.indexOf('async function attackCity('),orders.indexOf('const beforeLaunch=')));
 run(fs.readFileSync(path.join(root,'sapros.js'),'utf8'));
-const k=run('SAPROS');assert.equal(k,28);assert.deepEqual([b.TYPES[k].cost,b.TYPES[k].atk,b.TYPES[k].hp,b.TYPES[k].range],[967,97,989,2]);assert(b.TYPES[k].tank);assert.equal(b.TYPES[k].special,3);
+const k=run('SAPROS');assert.equal(k,29);assert.deepEqual([b.TYPES[k].cost,b.TYPES[k].atk,b.TYPES[k].hp,b.TYPES[k].range],[967,97,989,2]);assert(b.TYPES[k].tank);assert.equal(b.TYPES[k].special,3);
 for(let l=1;l<=4;l++){assert.equal(run(`unitOil(SAPROS,${l})`),0);assert.equal(run(`attackOil({type:SAPROS,level:${l}})`),0);assert.equal(run(`moveOil({type:SAPROS,level:${l}})`),0)}assert.equal(run('unitOil(1)'),12);
 b.units=[{id:1,type:k,f:3,tile:0,hp:989},{id:2,type:0,f:3,tile:3,hp:500}];
 assert.equal(run('unitAttack(units[1])'),29,'45% within exactly three tiles');

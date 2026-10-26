@@ -3,7 +3,7 @@ module.exports=async function({run}){
  await run(`(async()=>{
  const check=(v,m)=>{if(!v)throw Error(m)};
  setup();busy=false;player=0;tech.fill(0);money.fill(0);oil.fill(100000);food.fill(100000);
- check(TYPES.length===29&&TYPES[17].name==='특공군단'&&TYPES[17].branch==='infantry','Replacement ID/category');
+ check(TYPES.length>=29&&TYPES[17].name==='특공군단'&&TYPES[17].branch==='infantry','Replacement ID/category');
  const trooper=makeUnit(1,17,cities.find(q=>q.f===1).tile,1);
  check(unitMaxHp(trooper)===130&&unitAttack(trooper)===55&&TYPES[17].move===13,'Commando stats');
  check(!TYPES[17].tank&&!TYPES[17].smallArms&&!TYPES[17].antiInfantry,'Legacy armor effects removed');
@@ -86,3 +86,4 @@ module.exports=async function({run}){
  })()`);
  console.log('PASS: special city eligibility, two Black Legion shots, commando replacement/migration/burst, AI upgrades/reserves and one special per faction per turn, ordinary recruitment and measured Black Legion boot/HP-bar alignment');
 };
+

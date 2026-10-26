@@ -29,7 +29,7 @@ All city tiers retain their relative sizes and grow by 15%. New campaigns retain
 
 ## v1.11.41 · Sapros and homeland production
 
-- Ayria special Sapros appends type 28: food 967, HP 989, attack 97, range 2 at tier one; tank traits and zero production/movement/attack oil. Living friendly infantry within three tiles receive +45% attack without stacking.
+- Ayria special Sapros appends type 29: food 967, HP 989, attack 97, range 2 at tier one; tank traits and zero production/movement/attack oil. Living friendly infantry within three tiles receive +45% attack without stacking.
 - Supplied idle, windup, strike and corpse illustrations; approximately two tiles tall, 1,200 ms windup before damage, illustrated blood/spark atlas effects.
 - Occupied-city production headings link the selected homeland city. Harbor markers and source-port error text are displayed in the homeland catalogue.
 - Run `node qa/sapros-regression.cjs` and `npm test`; the latter covers real production, deployment, save compatibility, Canvas artwork and linked city headings. Physical Android installation/performance remains outside automated coverage.

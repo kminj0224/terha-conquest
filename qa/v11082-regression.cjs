@@ -2,7 +2,7 @@ const assert=require('assert');
 module.exports=async function({run}){
  const report=await run(`(async()=>{
  const check=(v,m)=>{if(!v)throw Error(m)};
- check(NAKWOL_COMMANDO===28&&TYPES.length===29,'New Nakwol special ID must append to original 28 types');
+ check(NAKWOL_COMMANDO===28&&TYPES.length>=29,'New Nakwol special ID must append to original 28 types');
  const t=TYPES[NAKWOL_COMMANDO];
  check(t.name==='낙월 특공대'&&t.hp===170&&t.atk===52&&t.range===2&&t.special===5,'Incorrect commando level-one stats');
  for(const [name,img,w,h] of [
@@ -76,3 +76,4 @@ module.exports=async function({run}){
  assert.equal(report.commandoId,28);
  console.log('PASS v1.10.82 Nakwol commando/Mecha sprite, capital recruitment, city-only 20k two-turn fuel research and saved fuel bonuses:',report);
 };
+

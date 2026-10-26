@@ -2,7 +2,7 @@ const assert=require('assert');
 module.exports=function({run}){
  const report=run(`(()=>{
   const check=(ok,message)=>{if(!ok)throw Error(message)};
-  check(DEKPHUING_GUERRILLA===27&&TYPES.length===29,'Existing unit IDs changed');
+  check(DEKPHUING_GUERRILLA===27&&TYPES.length>=29,'Existing unit IDs changed');
   const initial=units.filter(u=>u.rannaGuerrillaInitial),regionCount=new Set(initial.map(u=>tiles[u.tile].region)).size;
   check(initial.length>=16&&initial.length<=32,'Guerrilla initial army size');
   check(regionCount>=8,'Guerrillas must be spread across Ranna');
@@ -61,6 +61,7 @@ module.exports=function({run}){
  assert(report.initialGuerrillas>=16);
  console.log('PASS: v1.10.76 Ranna special and diplomacy, inland starting guards, Nakwol city art and infantry scale:',report);
 };
+
 
 
 
