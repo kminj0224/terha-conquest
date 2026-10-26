@@ -59,7 +59,9 @@ await require('./coastal-supply-live.cjs')({run});
 require('./attack-helicopter-scale-live.cjs')({run});
 require('./coastal-balance-regression.cjs')({run});
 await require('./sapros-live-regression.cjs')({run,nodes,click,settle});
+await require('./release-v11149-regression.cjs')({run,nodes,click});
 console.log('PASS: compact status with icon metrics and fixed footer, Yes/No-only confirmations, live hamburger status, menu settings/exit, fixed close headers, defense placement, live Home retention without automatic disk recovery, confirmed native exit, immediate title, illustrated hub, country/records full-page markup, music continuity/restart/mute, difficulty and legacy records, title/hub/country/help/settings, audio levels, English, loading progress, save overwrite/delete yes/no, hardware Back yes/no, continue, Hansa island/water, Dante range/capture/fade/two ghosts, infantry remains, victory deduplication/sorting, corrupt save failure; runtime pixel reads=0');fs.writeFileSync(path.resolve(__dirname,'results.txt'),'All native tests passed.\n');process.exit(0)})().catch(e=>{console.error(e);process.exit(1)});
+
 
 
 
