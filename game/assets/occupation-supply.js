@@ -27,7 +27,7 @@ function supplyRouteConnected(source,target){
  const ids=supplyNetwork(source.f);return ids[source.tile]>=0&&ids[source.tile]===ids[target.tile];
 }
 function occupiedCity(q){return !!q&&q.origin!==q.f}
-function homelandSources(q){return cities.filter(s=>s.f===q.f&&s.origin===q.f&&s.level<=q.level&&supplyRouteConnected(s,q))}
+function homelandSources(q){return cities.filter(s=>s.f===q.f&&s.origin===q.f&&s.level<=q.level)}
 function supplySource(q){return cities.find(s=>s.queue?.transportTo===q.id)}
 function supplyTurns(source,target){return distance(source.tile,target.tile)<=30?1:2}
 function supplyCoastalCity(target){
@@ -146,11 +146,11 @@ unitPage=function(q){
  supplyChoice=null;
  box.innerHTML='<p>병력을 훈련할 본토 도시를 선택하세요. '+q.level+'레벨 이하 도시만 표시됩니다.</p><p>거리가 가까울수록 빨리 수송됩니다.</p>';
  const sources=homelandSources(q).sort((a,b)=>b.level-a.level||a.id-b.id);
- if(!sources.length){const p=document.createElement('p');p.textContent='수송로로 연결된 조건에 맞는 아군 본토 도시가 없습니다.';box.appendChild(p)}
+ if(!sources.length){const p=document.createElement('p');p.textContent='조건에 맞는 아군 본토 도시가 없습니다.';box.appendChild(p)}
  for(const home of sources){
   cityProfile(home);
   const b=document.createElement('button');b.id='supplyHome'+home.id;
-  b.textContent=home.name+(home.harbor?' · ⚓ 항구':'')+' · '+home.level+'레벨 · '+supplyTurns(home,q)+'턴'+(home.queue?' · 생산 중':home.produced?' · 이번 턴 생산 완료':'');
+  b.textContent=home.name+(home.harbor?' · ⚓ 항구':'')+' · '+home.level+'레벨 · '+supplyTurns(home,q)+'턴'+(supplyRouteConnected(home,q)?'':' · 수송로 단절')+(home.queue?' · 생산 중':home.produced?' · 이번 턴 생산 완료':'');
   b.onclick=()=>{supplyChoice={target:q.id,source:home.id};showPanel()};box.appendChild(b);
  }
 };

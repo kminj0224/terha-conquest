@@ -12,7 +12,7 @@ module.exports=function({run}){
    const width=images.at(-1)?.[2],muzzleX=muzzle.x-p.x,muzzleY=muzzle.y-p.y;
    sprite({...u,id:-47,f:1},p,1000);
    return {width,muzzleX,muzzleY,procedural:scales.some(v=>v[0]===1.3&&v[1]===1.3),lightScale:largeUnitVisual({type:20}),heavyScale:unitBodyVisualScale({type:1}),rockets:fx.filter(e=>e.baekHelicopterRocket&&e.kind==='baekRocket').length};
-  }finally{ctx.drawImage=draw;ctx.scale=scale;fx=originalFx;skipAIAnimations=oldSkip}
+  }finally{ctx.drawImage=draw;ctx.scale=scale;fx=originalFx;fireMotions.delete(-46);fireMotions.delete(-47);skipAIAnimations=oldSkip}
  })()`);
  assert(Math.abs(report.width-96*1.3)<1e-8);assert(Math.abs(report.muzzleX-23*1.3)<1e-8);assert(Math.abs(report.muzzleY+6*1.3)<1e-8);
  assert(report.procedural);assert(!report.lightScale);assert.equal(report.heavyScale,1.4);assert.equal(report.rockets,8);

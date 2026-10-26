@@ -48,6 +48,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.46 deliverables/Terha-Conquest-v1.11.46.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.46' --notes '本토·점령지 양쪽의 아군 통제 육지와 연결된 바다로 수송 경로 통일. 고립 본토 출발 차단, 적지 경유 차단, 경로 단절 시 대기·복구 후 재개, AI·저장 호환. 공격헬기 전 국가 기체 30% 확대 및 발사 위치 정렬. versionCode 191.'
+          gh release create v1.11.46 deliverables/Terha-Conquest-v1.11.46.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.46' --notes '본토·점령지 양쪽의 아군 통제 육지와 연결된 바다로 수송 경로 통일. 고립 본토 출발 차단, 적지 경유 차단, 경로 단절 시 대기·복구 후 재개, AI·저장 호환. 공격헬기 전 국가 기체 30% 확대 및 발사 위치 정렬. versionCode 191.'
 
 

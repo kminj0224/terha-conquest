@@ -18,7 +18,7 @@ b.neighbors=i=>edges[i];vm.createContext(b);const run=s=>vm.runInContext(s,b);
 vm.runInContext(fs.readFileSync(path.join(root,'occupation-supply.js'),'utf8'),b);
 const siege=fs.readFileSync(path.join(root,'siege-occupation.js'),'utf8');
 vm.runInContext(siege.slice(siege.indexOf('function aiUnitAffordable('),siege.indexOf('function aiEnemyCities(')),b);
-assert.deepEqual(Array.from(run('homelandSources(cities[7]).map(q=>q.name)')),['c','d','e','g'],'exact a-g answer');
+assert.deepEqual(Array.from(run('homelandSources(cities[7]).filter(q=>supplyRouteConnected(q,cities[7])).map(q=>q.name)')),['c','d','e','g'],'exact a-g answer');
 for(const ai of [false,true])for(let i=0;i<7;i++){
  for(const q of b.cities){q.queue=null;q.produced=false}
  const before=[...b.food,...b.oil,...b.money],allowed=[2,3,4,6].includes(i);
