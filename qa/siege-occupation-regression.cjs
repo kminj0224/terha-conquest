@@ -2,7 +2,7 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
 const root=path.join(__dirname,'../game/assets'),read=n=>fs.readFileSync(path.join(root,n),'utf8'),noop=()=>{};
 const messages=[],shown=[],legacyOrders=[];
-const b={console,Set,Map,Number,Math,Int32Array,performance:{now:()=>1000},window:{Terha:{}},document:{addEventListener:noop},$:()=>({}),
+const b={aiOrderSpecials:()=>0,aiDiversePool:(f,p)=>p,console,Set,Map,Number,Math,Int32Array,performance:{now:()=>1000},window:{Terha:{}},document:{addEventListener:noop},$:()=>({}),
  player:0,turn:10,productionTier:1,productionAA:false,busy:false,started:true,menuMode:false,airTarget:null,strategicTarget:null,coastBuildMode:false,navalMode:null,selected:null,
  cam:{x:10,y:20,z:1},food:[10000,10000,10000],money:[10000,10000,10000],oil:[10000,10000,10000],tech:[0,0,0],
  cities:[{id:0,tile:0,f:2,origin:2,name:'Home',level:3,nukeUntil:0,harbor:true,airport:true,lab:true},{id:1,tile:3,f:2,origin:1,name:'Forward',level:3,nukeUntil:0,harbor:true},{id:2,tile:7,f:0,origin:0,name:'Enemy',level:3,nukeUntil:0,hp:500}],
@@ -99,5 +99,6 @@ async function main(){
  console.log('PASS: actual artillery/air/naval/missile and garrison floors/popups, nuclear exemption, rifle and eligible national special capture/movement/toast, friendly-city access, AI remote procurement/deployment/costs/level restrictions, AI rifle capture and waste-free missile/air targeting');
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
+
 
 

@@ -36,7 +36,7 @@ function supplyTransportConnected(source,target,type){
 function occupiedCity(q){return !!q&&q.origin!==q.f}
 function homelandSources(q){return cities.filter(s=>s.f===q.f&&s.origin===q.f&&s.level<=q.level)}
 function supplySource(q){return cities.find(s=>s.queue?.transportTo===q.id)}
-function supplyTurns(source,target){return distance(source.tile,target.tile)<=30?1:2}
+function supplyTurns(source,target){return strategicResearch[source.f]?.supplyRoutes||distance(source.tile,target.tile)<=30?1:2}
 function supplyCoastalCity(target){
  // Coast belongs to this city's region, not a different occupied region.
  return tiles.some((t,i)=>t.region===target.id&&t.owner===target.f&&neighbors(i).some(j=>tiles[j].owner<0));
@@ -151,7 +151,7 @@ unitPage=function(q){
   productionPanel(home);return;
  }
  supplyChoice=null;
- box.innerHTML='<p>병력을 훈련할 본토 도시를 선택하세요. '+q.level+'레벨 이하 도시만 표시됩니다.</p><p>거리가 가까울수록 빨리 수송됩니다.</p>';
+ box.innerHTML='<p>병력을 훈련할 본토 도시를 선택하세요. '+q.level+'레벨 이하 도시만 표시됩니다.</p><p>'+(strategicResearch[q.f]?.supplyRoutes?'수송로 개선 · 거리와 무관하게 1턴 수송':'거리가 가까울수록 빨리 수송됩니다.')+'</p>';
  const sources=homelandSources(q).sort((a,b)=>b.level-a.level||a.id-b.id);
  if(!sources.length){const p=document.createElement('p');p.textContent='조건에 맞는 아군 본토 도시가 없습니다.';box.appendChild(p)}
  for(const home of sources){
@@ -234,6 +234,7 @@ document.addEventListener('click',event=>{
 });
 Object.assign(window.Terha,{supplyTransportConnected,supplyRouteConnected,supplyNetwork,supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,supplyCoastalCity,supplyHomelandConnected,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
  industryTurn,capture,nuclearImpact,migrateArmy,occupiedCity,homelandSources,supplyTurns,requestSupply,supplySource});
+
 
 
 

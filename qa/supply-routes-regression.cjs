@@ -8,7 +8,7 @@ for(const [,file]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAl
  if(['unit-balance.js','artillery-balance.js'].includes(file))vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),balance);
 assert.equal(balance.TYPES[11].atk,33);assert.equal(balance.TYPES[18].atk,96);assert.equal(balance.TYPES[18].cost,1000);assert.equal(balance.TYPES[18].branch,'armor');assert(balance.TYPES[18].tank);
 
-const s={console,Set,Map,Math,Number,window:{Terha:{}},document:{addEventListener:noop},
+const s={strategicResearch:Array.from({length:7},()=>({})),console,Set,Map,Math,Number,window:{Terha:{}},document:{addEventListener:noop},
  $:()=>({}),canProduce:()=>true,productionReason:()=>'',produce:noop,unitPage:noop,cityCommandOpen:noop,cityOverview:()=>'',deploy:noop,
  drawCityForeground:noop,industryTurn:noop,capture:noop,nuclearImpact:noop,migrateArmy:noop,selected:null,
  player:0,turn:1,productionTier:1,productionAA:false,busy:false,cityProfile:noop,
@@ -119,6 +119,7 @@ const game=fs.readFileSync(path.join(root,'game.js'),'utf8');
 vm.runInContext(game.slice(game.indexOf('function distance('),game.indexOf('\n',game.indexOf('function distance('))),geometry);
 assert.equal(vm.runInContext('distance(0,1)',geometry),30);assert.equal(vm.runInContext('distance(0,2)',geometry),31);
 console.log('PASS: inland homeland chains, occupied coastal chains and isolated inland rejection, foreign blockers, 30-tile inclusive threshold, one-turn delivery, queue round trips and wrapped hex distance');
+
 
 
 

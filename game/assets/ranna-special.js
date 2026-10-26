@@ -8,9 +8,9 @@ UNIT_STORIES[DEKPHUING_GUERRILLA]='덱푸잉 게릴라는 란나의 산길과 �
 const RANNA_RIVER_TILES=new Set(RIVER_NETWORK.reaches.flatMap(reach=>reach.nodes));
 function isDekphuingGuerrilla(u){return u?.type===DEKPHUING_GUERRILLA}
 function guerrillaTerrain(u){const t=tiles[u?.tile];return !!t&&!u.carriedBy&&t.owner>=0&&(t.terrain===2||t.terrain===3||RANNA_RIVER_TILES.has(u.tile))}
-function rannaTerrainProtection(u){return isDekphuingGuerrilla(u)&&guerrillaTerrain(u) ? .25 : 1}
+function rannaTerrainProtection(u){return isDekphuingGuerrilla(u)&&guerrillaTerrain(u) ? .7 : 1}
 const guerrillaUnitAttack=unitAttack;
-unitAttack=function(u){return guerrillaUnitAttack(u)*(isDekphuingGuerrilla(u)&&guerrillaTerrain(u)?5:1)};
+unitAttack=function(u){return guerrillaUnitAttack(u)*(isDekphuingGuerrilla(u)&&guerrillaTerrain(u)?2:1)};
 const guerrillaDamage=damage;
 damage=function(u,v){const d=guerrillaDamage(u,v);return Math.round(d*(isAircraft(u)||isHelicopter(u)?1:rannaTerrainProtection(v)))};
 const guerrillaBombProtection=bombProtection;
@@ -86,3 +86,4 @@ capture=function(...args){const result=rannaWarCapture(...args);rannaPostNakwolW
 const rannaWarEndTurn=endTurn;
 endTurn=async function(...args){if(started&&!busy)rannaPostNakwolWar();return rannaWarEndTurn(...args)};
 Object.assign(window.Terha,{capture,endTurn,rannaPostNakwolWar});
+

@@ -8,13 +8,13 @@ module.exports=async function({run,nodes,click,settle}){
  if(food[3]!==4033||oil[3]!==0)throw Error('Sapros production cost');
  deploy(saprosCapital);
  const liveSapros=units.find(u=>u.type===SAPROS);
- if(!liveSapros||liveSapros.hp!==989||unitAttack(liveSapros)!==97)throw Error('Sapros deployed stats');
+ if(!liveSapros||liveSapros.hp!==520||unitAttack(liveSapros)!==97)throw Error('Sapros deployed stats');
  if(moveOil(liveSapros)||attackOil(liveSapros)||unitOil(SAPROS,4))throw Error('Sapros oil use');
  const infantryTile=tiles.findIndex((t,i)=>t.owner>=0&&distance(liveSapros.tile,i)===3);
  const supportedInf=makeUnit(3,0,infantryTile,1);
  if(!saprosSupported(supportedInf)||unitAttack(supportedInf)!==Math.round(saprosUnitAttack(supportedInf)*1.45))throw Error('Sapros support missing');
  const savedSapros=JSON.parse(JSON.stringify(snapshot()));units=savedSapros.units;cities=savedSapros.cities;migrateArmy(savedSapros);
- if(!units.some(u=>u.type===SAPROS&&u.hp===989))throw Error('Sapros save migration');
+ if(!units.some(u=>u.type===SAPROS&&u.hp===520))throw Error('Sapros save migration');
  const homePort=cities.find(q=>q.f===3&&q.origin===3&&q.harbor);
  const inlandHome=cities.find(q=>q.f===3&&q.origin===3&&!q.harbor);
  const supplyTestTarget=cities.find(q=>q.origin!==3&&q.harbor&&!q.capital);
@@ -45,3 +45,4 @@ module.exports=async function({run,nodes,click,settle}){
  }finally{ctx.drawImage=saprosPaint}`);
  console.log('PASS: real Sapros production/deployment/save round-trip, support, actual attack/VFX/corpse art, homeland harbor list, linked window heading and naval port validation');
 };
+

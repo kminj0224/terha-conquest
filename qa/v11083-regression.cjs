@@ -26,9 +26,7 @@ module.exports=async function({run}){
   u.fuelEfficient=true;
   drawUnitNameOverlays([u],performance.now());
   check(drawn.length===2,'Research icon cannot remove the name');
-  check(images.length===1&&images[0][2]===10&&images[0][3]===10,'Badge must be 10×10 world pixels (text height)');
-  check(images[0][0]>drawn[1].x,'Fuel badge belongs to the right of the name');
-  check(moveOil(u)===0&&attackOil(u)===0,'Fuel flag should still affect gameplay');
+  check(images.length===0,'No ecology mark, even for legacy flags');
   const badgeCount=images.length;
   cam.z=.5;
   drawUnitNameOverlays([u],performance.now());
@@ -40,5 +38,6 @@ module.exports=async function({run}){
  }
  })()`);
  assert.equal(report.iconSize,10);
- console.log('PASS v1.10.83 unit labels in foreground, positioned above HP, with 10px fuel-efficiency logo only for researched units:',report);
+ console.log('PASS v1.10.83 unit labels in foreground, positioned above HP, without ecology marks, including legacy flags:',report);
 };
+

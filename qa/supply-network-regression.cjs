@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('assert');
 const root=path.join(__dirname,'../game/assets'),noop=()=>{};
-const b={console,Set,Map,Math,Number,Int32Array,window:{Terha:{}},document:{addEventListener:noop},$:()=>({}),
+const b={strategicResearch:Array.from({length:7},()=>({})),console,Set,Map,Math,Number,Int32Array,window:{Terha:{}},document:{addEventListener:noop},$:()=>({}),
  player:0,turn:1,productionTier:1,productionAA:false,busy:false,selected:null,
  cities:Array.from({length:9},(_,id)=>({id,tile:id===8?11:id,name:'abcdefghX'[id],f:id===8?6:0,origin:id===7?2:id===8?6:0,level:id===7?5:1,nukeUntil:0,queue:null,produced:false,harbor:[3,6,7].includes(id)})),
  tiles:Array.from({length:12},(_,i)=>({owner:[8,9,10].includes(i)?-1:i===11?6:0,region:i<8?i:i===11?8:-1})),
@@ -51,3 +51,4 @@ b.isHansaSupplyCity=q=>q?.id===3;b.isAircraft=u=>u.type===2;b.isHelicopter=u=>u.
 assert(!run('supplyTransportConnected(cities[3],cities[7],0)'));assert(run('supplyTransportConnected(cities[3],cities[7],2)'));assert(run('supplyTransportConnected(cities[3],cities[7],3)'));
 b.hansaBridgeConnected=()=>true;assert(run('supplyTransportConnected(cities[3],cities[7],0)'));assert(!run('supplyTransportConnected(cities[3],cities[7],1)'));
 console.log('PASS: exact a-g/H eligibility, human/AI charges, friendly-only land, connected seas, land transshipment, symmetric endpoints, route pauses/save/resume and bridge invalidation');
+

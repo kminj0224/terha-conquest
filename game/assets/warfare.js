@@ -32,7 +32,7 @@ function aaCost(level=1){return tierCost(150,level)}
 function unitMaxHp(u){return Math.round((TYPES[u.type].hp+tech[u.f]*12)*tierMultiplier(u.level))}
 function unitPrice(k,level=1){return tierCost(TYPES[k].cost,level)}
 function unitHealthFactor(u){if(u.hp===undefined)return 1;if(u.hp<=0)return 0;const max=unitMaxHp(u);if(u.hp>=max*.5)return 1;if(u.hp>max*.4)return .8;if(u.hp>max*.2)return .6;return .4}
-function counterattackDamage(defender,attacker,hpBeforeHit){return Math.round(damage({...defender,hp:hpBeforeHit},attacker)*.4*(attacker.type===6?.5:1))}
+function counterattackDamage(defender,attacker,hpBeforeHit){return Math.round(damage({...defender,hp:hpBeforeHit},attacker)*.5*(attacker.type===6?.5:1))}
 function unitAttack(u){const base=Math.round((TYPES[u.type].atk+tech[u.f]*5)*tierMultiplier(u.level,.15));return unitHealthFactor(u)>0&&base>0?Math.max(1,Math.round(base*unitHealthFactor(u))):0}
 function canProduce(q,k,level=1){const t=TYPES[k];return !!t&&Number.isInteger(level)&&level>=1&&level<=4&&(t.special===undefined||((q.capital||q.level>=4)&&t.special===q.f))&&(!isAircraft({type:k})||q.airport)&&(k!==5||neighbors(q.tile).some(i=>tiles[i].owner<0))}
 function makeUnit(f,type,tile,level=1){const u={id:uid++,f,type,tile,level:Math.max(1,Math.min(4,level)),ap:2,attacked:false,xp:0,moved:false};u.hp=unitMaxHp(u);units.push(u);return u}
@@ -51,7 +51,7 @@ showPanel=function(){basePanel();if(!panelOpen||busy||!selected)return;if(select
 function promote(u){if(busy||u.f!==player||u.level>=4||money[player]<TYPES[u.type].cost)return;const oldMax=unitMaxHp(u);money[player]-=TYPES[u.type].cost;u.level++;u.hp+=unitMaxHp(u)-oldMax;selectUnit(u,true);updateHUD();save()}
 function repair(u){if(busy||u.f!==player||u.ap<1||money[player]<65)return;money[player]-=65;u.hp=Math.min(unitMaxHp(u),u.hp+Math.ceil(unitMaxHp(u)*.3));u.ap--;selectUnit(u,true);updateHUD();save()}
 function upgradeCity(q){const cost=q.level*170;if(busy||q.f!==player||q.level>=5||money[player]<cost)return;const old=cityMaxHp(q);money[player]-=cost;q.level++;q.hp+=cityMaxHp(q)-old;showPanel();updateHUD();save()}
-function damage(u,v){const t=TYPES[u.type],d=TYPES[v.type];let atk=unitAttack(u),def=unitArmor(v);if(u.f===1&&t.branch==='armor')atk*=1.2;if(u.f===6&&t.branch==='artillery')atk*=1.2;if(u.f===5&&t.branch==='navy')atk*=1.2;if(d.branch==='armor'&&t.antiArmor)atk*=t.antiArmor;if(d.branch==='infantry'&&t.antiInfantry)atk*=t.antiInfantry;if(v.f===0&&d.branch==='infantry')def*=1.2;if(v.f===2&&d.branch==='armor')def*=1.2;if(tiles[v.tile].terrain===2){def+=8;if(v.type===6)def+=18}if(cityAt(v.tile))def+=cityAt(v.tile).level*4;if(u.type===6)def*=.7;if(u.type===18)def*=.5;return Math.max(u.hp>0?Math.max(1,Math.round(9*unitHealthFactor(u))):0,Math.round(atk-def*.55))}
+function damage(u,v){const t=TYPES[u.type],d=TYPES[v.type];let atk=unitAttack(u),def=ignoresUnitArmor(u,v)?0:unitArmor(v);if(u.f===1&&t.branch==='armor')atk*=1.2;if(u.f===6&&t.branch==='artillery')atk*=1.2;if(u.f===5&&t.branch==='navy')atk*=1.2;if(d.branch==='armor'&&t.antiArmor)atk*=t.antiArmor;if(d.branch==='infantry'&&t.antiInfantry)atk*=t.antiInfantry;if(v.f===0&&d.branch==='infantry')def*=1.2;if(v.f===2&&d.branch==='armor')def*=1.2;if(tiles[v.tile].terrain===2){def+=8;if(v.type===6)def+=18}if(cityAt(v.tile))def+=cityAt(v.tile).level*4;if(u.type===6)def*=.7;if(u.type===18)def*=.5;return Math.max(u.hp>0?Math.max(1,Math.round(9*unitHealthFactor(u))):0,Math.round(atk-def*.55))}
 function siegeDamage(u,q){const t=TYPES[u.type];return Math.round(unitAttack(u)*(t.branch==='artillery'?240:t.branch==='air'?210:t.branch==='armor'?150:90)*(u.f===1&&t.branch==='armor'?1.2:1)*(u.f===6&&t.branch==='artillery'?1.2:1))}
 async function attackCity(u,q,ai=false){if(!canAttackCity(u,q))return;await finishMovingBeforeFire(u,ai);u.ap--;u.attacked=true;const b=pxy(q.tile),d=siegeDamage(u,q);beginAim(u,b,ai?25:180);await delay(ai?25:180);launchShot(u,b,performance.now(),ai?140:520);audioShot(u.type);await delay(ai?20:300);q.hp=Math.max(0,q.hp-d);u.chargeUsed=true;fx.push({kind:'blast',x:b.x,y:b.y,start:performance.now(),duration:650,damage:d});if(!q.hp)log(q.name+' 요새 무력화');if(!ai){selectUnit(u);save()}}
 async function attack(u,v,ai=false){if(!canAttack(u,v))return;await finishMovingBeforeFire(u,ai);u.ap--;u.attacked=true;const A=pxy(u.tile),B=pxy(v.tile),d=damage(u,v);beginAim(u,B,ai?25:180);await delay(ai?25:180);launchShot(u,B,performance.now(),ai?140:520);audioShot(u.type);await delay(ai?20:300);const counterHp=v.hp;v.hp-=d;u.chargeUsed=true;fx.push({kind:'blast',x:B.x,y:B.y,start:performance.now(),duration:650,damage:d});u.xp+=d;const splash=u.type===3?.25:u.type===18?.2:TYPES[u.type].splash||0;let killed=v.hp<=0;if(splash)units.filter(a=>a.f!==u.f&&a.id!==v.id&&distance(v.tile,a.tile)<=1).slice().forEach(a=>{a.hp-=Math.round(d*splash);if(a.hp<=0){killed=true;kill(a)}});if(v.hp<=0){kill(v);log(factions[u.f].name+' · '+TYPES[v.type].name+' 격파')}else if(distance(u.tile,v.tile)<=1&&TYPES[v.type].branch!=='artillery'){const retaliation=counterattackDamage(v,u,counterHp);beginAim(v,A,110);launchShot(v,A,performance.now()+110,85);u.hp-=retaliation;fx.push({kind:'blast',x:A.x,y:A.y,start:performance.now()+160,duration:550,damage:retaliation});if(u.hp<=0)kill(u)}if(killed&&TYPES[u.type].tank&&units.includes(u)){u.attacked=false;u.ap=Math.min(2,u.ap+1);fx.push({kind:'rally',x:A.x,y:A.y,start:performance.now(),duration:850});if(!ai)toast('격파 돌파 · 추가 공격 가능')}if(!ai){if(units.includes(u))selectUnit(u);updateHUD();save()}}
@@ -76,7 +76,7 @@ function aiProcure(f,owned){
    const choices=[];
    for(const k of pool){if(heavy(k)&&heavyOrders>=4)continue;
     for(let l=preferred;l>=1;l--){const cost=unitPrice(k,l);
-     if(canProduce(q,k,l)&&cost<=food[f]&&(!heavy(k)||cost<=heavyBudget)&&navGoldCost(k,l)<=money[f]&&unitOil(k,l)<=oil[f]){choices.push({k,l,rank:force.filter(u=>u.type===k).length+rnd()*2});break}
+     if(canProduce(q,k,l)&&cost<=food[f]&&(!heavy(k)||cost<=heavyBudget)&&navGoldCost(k,l)<=money[f]&&unitOil(k,l)<=oil[f]){choices.push({k,l,rank:force.filter(u=>u.type===k).length+rnd()*.25});break}
     }
    }
    if(!choices.length)continue;
@@ -135,6 +135,7 @@ function drawShip(u,angle,shotT){const f=factions[u.f];poly([[-29,4],[-21,16],[1
 Object.assign(window.Terha,{setup,attack,attackCity,moveUnit,endTurn,produce,cityMaxHp,unitMaxHp,damage,capture,canProduce});
 
 Object.assign(window.Terha,{aiBalance});
+
 
 
 

@@ -1,7 +1,7 @@
 'use strict';
 // Append the type: every existing army and production queue keeps its saved ID.
 const SAPROS=TYPES.length,SAPROS_WINDUP=1200,SAPROS_RECOVERY=360;
-TYPES.push({name:'사프로스',cost:967,hp:989,atk:97,range:2,move:4,def:0,
+TYPES.push({name:'사프로스',cost:967,hp:520,atk:97,range:2,move:2,def:0,
  branch:'armor',tank:true,special:3,icon:'▰',attackWindup:SAPROS_WINDUP,
  text:'아이리아 제국 특수 유닛. 수도 또는 4레벨 이상 본토 도시에서 생산. 생산·이동·공격에 석유를 소비하지 않습니다. 전차 특성: 격파 후 추가 공격, 이동을 쓰지 않았다면 이동 가능. 3타일 이내 아군 보병 공격력 +45%. 같은 지원 효과는 중첩되지 않습니다.'});
 UNIT_STORIES[SAPROS]='낡은 천과 붕대 아래로 거대한 몸체가 움직입니다. 웃는 가면을 쓴 사프로스는 아이리아의 보병 대열 위로 머리를 드러냅니다.';
@@ -115,4 +115,5 @@ function drawSaprosEffect(e,t){
 }
 Object.assign(window.Terha,{SAPROS,SAPROS_WINDUP,isSapros,saprosSupported,saprosPose,saprosImpactKind,drawSaprosEffect,
  unitAttack,unitOil,moveOil,attackOil,productionPanel,launchShot,sprite,targetExplosions,kill});
+
 

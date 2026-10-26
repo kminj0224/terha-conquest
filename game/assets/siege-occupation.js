@@ -55,6 +55,7 @@ const aiRifleOrderTurn=Array(7).fill(-1);
 const siegeAIProcure=aiProcure;
 aiProcure=function(f,owned){
  if(f===player)return siegeAIProcure(f,owned);
+ aiOrderSpecials(f,owned);
  const fronts=aiEnemyCities(f),homes=owned.filter(q=>q.f===f&&!occupiedCity(q));
  const destinations=owned.filter(q=>q.f===f&&!(q.nukeUntil>turn)).sort((a,b)=>aiFrontDistance(a,fronts)-aiFrontDistance(b,fronts)||a.id-b.id);
  // Fund a capture-capable formation before elites, fleets and discretionary orders.
@@ -66,7 +67,7 @@ aiProcure=function(f,owned){
  for(const q of destinations){
   if(!occupiedCity(q)||!fronts.length||remote>=2||aiFrontDistance(q,fronts)>18)continue;
   const rifles=units.filter(u=>u.f===f&&canCaptureCityUnit(u)&&!u.carriedBy&&distance(u.tile,q.tile)<=8).length;
-  const pool=rifles<2?[0]:[9,10,1,15,0];
+  const pool=rifles<2?[0]:aiDiversePool(f,[9,10,1,15,0]);
   if(pool.some(k=>aiQueueUnit(f,q,k,1)))remote++;
  }
  // Legacy procurement cannot put a local queue directly on a captured city.
@@ -167,6 +168,7 @@ migrateArmy=function(s){
 };
 Object.assign(window.Terha,{canCaptureCityUnit,cityDamageFloor,usefulConventionalTarget,canProduce,capture,moveCost,tap,landingTiles,canAirStrike,
  aiQueueUnit,aiNeedsRifles,aiProcure,aiStep,transportCandidate,rifleRoute,aiRifleGoal,aiStrategicOperations,migrateArmy});
+
 
 
 

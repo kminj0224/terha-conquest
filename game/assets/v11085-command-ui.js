@@ -99,14 +99,11 @@ function sciencePage(q){
  for(const [key,d] of Object.entries(RESEARCH_DEFS)){
   const running=researchJobs(r).find(j=>j.key===key);
   const why=studyReason(q,key);
-  addCityRow(box,d.name+' 연구 · 골드 '+d.cost+' · '+d.turns+'턴'+(r[key]?' · 완료':''),
+  addCityRow(box,d.name+' 연구 · 골드 '+d.cost+(d.oil?' · 석유 '+d.oil:'')+' · '+d.turns+'턴'+(r[key]?' · 완료':''),
    why,()=>study(q,key),d.name+' 연구',
-   key==='ballistic'?'탄도미사일 발사대를 해금하고 단·중·장거리 및 대륙간 미사일을 사용할 수 있습니다. 기간 '+d.turns+'턴.':'핵탄두 제작과 핵 장착 탄도미사일·전략폭격기를 해금합니다. 기간 '+d.turns+'턴.');
+   d.description||(key==='ballistic'?'탄도미사일 발사대를 해금하고 단·중·장거리 및 대륙간 미사일을 사용할 수 있습니다. 기간 '+d.turns+'턴.':'핵탄두 제작과 핵 장착 탄도미사일·전략폭격기를 해금합니다. 기간 '+d.turns+'턴.'));
  }
- const why=fuelResearchReason(q);
- addCityRow(box,'연비 개선 · 골드 '+FUEL_RESEARCH_COST+' · '+FUEL_RESEARCH_TURNS+'턴'+(q.fuelEfficiency?' · 완료':''),
-  why,()=>studyFuelEfficiency(q),'연비 개선',
-  '해당 도시에서 연구 완료 후 생산한 보병·기갑·포병은 이동과 공격 석유 소모 0. 해군은 이동·공격 석유 절반(소수점 버림, 1→0). 기존 유닛이나 다른 도시 생산 유닛에는 소급 적용되지 않습니다.');
+
 }
 function facilityPage(q,box=$('cityCommandContent')){
  for(const [key,d] of Object.entries(FACILITIES)){
@@ -219,3 +216,4 @@ drawTerritories=function(){
 };
 Object.assign(window.Terha,{cityCommandOpen,cityCommandTab,cityInfo,showPanel,cityOverview,refreshSelection,
  selectCity,drawTerritories,chooseWarhead});
+

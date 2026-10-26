@@ -33,23 +33,23 @@ module.exports=async function({run}){
   const oldUnit=makeUnit(5,1,q.tile,1),beforeCost=attackOil(oldUnit);
   const balance=money[5],startTurn=turn;
   check(studyFuelEfficiency(q),'Research could not start');
-  check(money[5]===balance-20000&&q.fuelResearchJob?.remaining===2&&!q.fuelEfficiency,'Fuel research must cost 20k and take two turns');
+  check(money[5]===balance-50000&&researchJobs(strategicResearch[5]).find(j=>j.key==='fuelEfficiency')?.remaining===2&&!strategicResearch[5].fuelEfficiency,'Fuel research must cost 50k and take two turns');
   let progress=cityOverview(q);
   check(progress.includes('<div class="progressCard">')&&progress.includes('<b>연비 개선 연구</b>')&&progress.includes('<span>2턴 남음</span>'),'Fuel project must appear inside ongoing tasks progress banner');
   check(progress.includes('width:0%')&&!progress.includes('진행 중인 작업이 없습니다.'),'Fuel progress banner must start at 0% and replace empty placeholder');
   turn++;await industryTurn();
-  check(q.fuelResearchJob?.remaining===1&&!q.fuelEfficiency,'Fuel research finished too early');
+  check(researchJobs(strategicResearch[5]).find(j=>j.key==='fuelEfficiency')?.remaining===1&&!strategicResearch[5].fuelEfficiency,'Fuel research finished too early');
   progress=cityOverview(q);
   check(progress.includes('<span>1턴 남음</span>')&&progress.includes('width:50%'),'Fuel progress banner must update after one turn');
   turn++;await industryTurn();
-  check(q.fuelEfficiency&&!q.fuelResearchJob,'Fuel research must finish on turn 2');
+  check(strategicResearch[5].fuelEfficiency&&!researchJobs(strategicResearch[5]).some(j=>j.key==='fuelEfficiency'),'Fuel research must finish on turn 2');
   progress=cityOverview(q);
-  check(!progress.includes('<b>연비 개선 연구</b>')&&progress.includes('연비 개선 완료'),'Finished research must remove progress banner and mark city complete');
-  check(attackOil(oldUnit)===beforeCost,'Existing unit must not gain new fuel bonus retroactively');
+  check(!progress.includes('<b>연비 개선 연구</b>'),'Finished research must remove progress banner and mark city complete');
+  check(attackOil(oldUnit)===0,'Existing unit must gain national efficiency');
   units=[];q.queue={type:1,level:1,aa:false};
   deploy(q);
   const newUnit=units.find(v=>v.type===1&&v.f===5);
-  check(newUnit&&newUnit.fuelEfficient&&newUnit.producedAtCityId===q.id,'Unit must inherit efficiency from source city');
+  check(newUnit&&strategicResearch[5].fuelEfficiency&&newUnit.producedAtCityId===q.id,'Unit must inherit efficiency from source city');
   check(moveOil(newUnit)===0&&attackOil(newUnit)===0,'Ground units must move and fire for zero oil');
   for(const type of [0,8,9,10,11,12,13,1,14,15,16,2,3,18,NAKWOL_COMMANDO]){
    const test={type,level:1,f:5,tile:q.tile,hp:100,fuelEfficient:true};
@@ -62,10 +62,10 @@ module.exports=async function({run}){
   }
   check(efficiencyCost(newUnit,1)===0&&efficiencyCost({...newUnit,type:25},1)===0,'One oil must round to zero');
   const saved=snapshot();
-  check(saved.cities[q.id].fuelEfficiency&&saved.units.some(v=>v.fuelEfficient),'Research and production flags must survive save');
+  check(saved.strategicResearch[5].fuelEfficiency,'Research and production flags must survive save');
   // Reload through the real migration pipeline, including the new source-city tags.
   migrateArmy(saved);
-  check(cities[q.id].fuelEfficiency&&units.some(v=>v.fuelEfficient),'Fuel flags lost in load migration');
+  check(strategicResearch[5].fuelEfficiency,'Fuel flags lost in load migration');
   return{commandoId:NAKWOL_COMMANDO,artSize:[480,360],mechaSize:[480,288],fuelCost:FUEL_RESEARCH_COST,researchTurns:2};
  }finally{
   tech[5]=savedTech;
@@ -74,6 +74,7 @@ module.exports=async function({run}){
  }
  })()`);
  assert.equal(report.commandoId,28);
- console.log('PASS v1.10.82 Nakwol commando/Mecha sprite, capital recruitment, city-only 20k two-turn fuel research and saved fuel bonuses:',report);
+ console.log('PASS v1.10.82 Nakwol commando/Mecha sprite, capital recruitment, nationwide 50k two-turn fuel research and saved fuel bonuses:',report);
 };
+
 

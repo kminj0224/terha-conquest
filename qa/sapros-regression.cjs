@@ -18,13 +18,13 @@ vm.createContext(b);const run=s=>vm.runInContext(s,b);
 const orders=fs.readFileSync(path.join(root,'orders.js'),'utf8');
 run(orders.slice(orders.indexOf('async function attackCity('),orders.indexOf('const beforeLaunch=')));
 run(fs.readFileSync(path.join(root,'sapros.js'),'utf8'));
-const k=run('SAPROS');assert.equal(k,29);assert.deepEqual([b.TYPES[k].cost,b.TYPES[k].atk,b.TYPES[k].hp,b.TYPES[k].range],[967,97,989,2]);assert(b.TYPES[k].tank);assert.equal(b.TYPES[k].special,3);
+const k=run('SAPROS');assert.equal(k,29);assert.deepEqual([b.TYPES[k].cost,b.TYPES[k].atk,b.TYPES[k].hp,b.TYPES[k].range],[967,97,520,2]);assert(b.TYPES[k].tank);assert.equal(b.TYPES[k].special,3);
 for(let l=1;l<=4;l++){assert.equal(run(`unitOil(SAPROS,${l})`),0);assert.equal(run(`attackOil({type:SAPROS,level:${l}})`),0);assert.equal(run(`moveOil({type:SAPROS,level:${l}})`),0)}assert.equal(run('unitOil(1)'),12);
-b.units=[{id:1,type:k,f:3,tile:0,hp:989},{id:2,type:0,f:3,tile:3,hp:500}];
+b.units=[{id:1,type:k,f:3,tile:0,hp:520},{id:2,type:0,f:3,tile:3,hp:500}];
 assert.equal(run('unitAttack(units[1])'),29,'45% within exactly three tiles');
 b.units[1].tile=4;assert.equal(run('unitAttack(units[1])'),20);b.units[1].tile=3;b.units.push({...b.units[0],id:3});assert.equal(run('unitAttack(units[1])'),29,'No stacking');
 b.units[0].tile=b.units[2].tile=15;assert.equal(run('unitAttack(units[1])'),20,'Source movement uses live positions');b.units[0].tile=b.units[2].tile=0;
-b.units[0].hp=b.units[2].hp=0;assert.equal(run('unitAttack(units[1])'),20,'Dead sources immediately stop supporting');b.units[0].hp=b.units[2].hp=989;
+b.units[0].hp=b.units[2].hp=0;assert.equal(run('unitAttack(units[1])'),20,'Dead sources immediately stop supporting');b.units[0].hp=b.units[2].hp=520;
 b.units[1].f=0;assert.equal(run('unitAttack(units[1])'),20);b.units[1].f=3;for(const s of b.units.filter(u=>u.type===k))s.carriedBy=99;assert.equal(run('unitAttack(units[1])'),20);for(const s of b.units)s.carriedBy=null;
 assert.equal(run('saprosImpactKind({type:0})'),'saprosBlood');assert.equal(run('saprosImpactKind({type:11})'),null);assert.equal(run('saprosImpactKind({type:1})'),'saprosSparks');assert.equal(run('saprosImpactKind({type:2})'),'saprosSparks');
 run('launchShot(units[0],{x:10,y:10},1000)');assert.equal(run('saprosPose(units[0],2199).idle.src'),'windup');assert.equal(run('saprosPose(units[0],2200).idle.src'),'strike');assert.equal(run('saprosPose(units[0],2560).idle.src'),'idle');
@@ -36,3 +36,4 @@ run(`drawSaprosEffect({kind:'saprosBlood',x:0,y:0,damage:97},.4);drawSaprosEffec
  const u=b.units[0];b.fx=[];run('kill(units[0])');assert(!b.units.includes(u));assert.equal(b.fx.length,1);assert.equal(b.fx[0].kind,'saprosRemains');run('drawSaprosEffect(fx[0],.1)');assert.equal(draws.at(-1).src,'dead');
  console.log('PASS: append-only type, food 967, stats, zero oil, three-tile non-stacking living/friendly support, 1.2s attack damage, sequential poses, two-tile height, illustrated impact classification and corpse');
 })().catch(e=>{console.error(e);process.exit(1)});
+

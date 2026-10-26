@@ -49,7 +49,7 @@ function drawUnitNameOverlays(visibleUnits,now){
   const baseline=p.y+14;
   const label=TYPES[u.type].name+' '+u.level;
   const width=ctx.measureText?ctx.measureText(label).width:label.length*5.5;
-  const mark=!!u.fuelEfficient;
+  const mark=false;
   const size=10,gap=2;
   const groupWidth=width+(mark?size+gap:0);
   const left=p.x-groupWidth/2;
@@ -62,3 +62,4 @@ function drawUnitNameOverlays(visibleUnits,now){
  ctx.restore();
 }
 Object.assign(window.Terha,{drawUnitNameOverlays,fuelBadgeArt});
+

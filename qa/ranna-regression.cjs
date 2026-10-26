@@ -16,9 +16,9 @@ module.exports=function({run}){
   const u={type:27,f:4,level:1,hp:90,tile:i},enemy={type:1,f:5,level:1,hp:unitMaxHp({type:1,f:5,level:1}),tile:i};
   try{
    tiles[i].terrain=1;check(unitAttack(u)===14&&unitMaxHp(u)===90,'Plain baseline');check(rannaTerrainProtection(u)===1,'Plain protection');
-   for(const t of [2,3]){tiles[i].terrain=t;check(unitAttack(u)===70,'Terrain attack ×5');check(moveCost(u,i)===1,'Terrain movement');check(damage(enemy,u)===Math.round(guerrillaDamage(enemy,u)*.25),'75% direct damage reduction');check(bombProtection(u,null)===guerrillaBombProtection(u,null)*.25,'75% bombing reduction');for(const type of [20,21]){const heli={...enemy,type};check(damage(heli,u)===guerrillaDamage(heli,u),'Helicopter protection must apply once')}}
-   tiles[i].terrain=1;RANNA_RIVER_TILES.add(i);check(unitAttack(u)===70&&moveCost(u,i)===1&&rannaTerrainProtection(u)===.25,'River rules');
-   tiles[i].terrain=3;check(unitAttack(u)===70,'Overlapping river/mountain must not stack');
+   for(const t of [2,3]){tiles[i].terrain=t;check(unitAttack(u)===28,'Terrain attack +100%');check(moveCost(u,i)===1,'Terrain movement');check(damage(enemy,u)===Math.round(guerrillaDamage(enemy,u)*.7),'30% direct damage reduction');check(bombProtection(u,null)===guerrillaBombProtection(u,null)*.7,'30% bombing reduction');for(const type of [20,21]){const heli={...enemy,type};check(damage(heli,u)===guerrillaDamage(heli,u),'Helicopter protection must apply once')}}
+   tiles[i].terrain=1;RANNA_RIVER_TILES.add(i);check(unitAttack(u)===28&&moveCost(u,i)===1&&rannaTerrainProtection(u)===.7,'River rules');
+   tiles[i].terrain=3;check(unitAttack(u)===28,'Overlapping river/mountain must not stack');
    RANNA_RIVER_TILES.delete(i);u.carriedBy=123;check(unitAttack(u)===14&&rannaTerrainProtection(u)===1,'Embarked guerrilla terrain bonus');delete u.carriedBy;
    const sea=tiles.findIndex(t=>t.owner<0);check(moveCost(u,sea)>=99999,'Guerrillas cannot walk on sea');
   }finally{RANNA_RIVER_TILES.delete(i);tiles[i].terrain=terrain;tech[4]=originalTech}
@@ -61,6 +61,7 @@ module.exports=function({run}){
  assert(report.initialGuerrillas>=16);
  console.log('PASS: v1.10.76 Ranna special and diplomacy, inland starting guards, Nakwol city art and infantry scale:',report);
 };
+
 
 
 
