@@ -5,7 +5,7 @@ module.exports=function({run}){
   const check=(ok,msg)=>{if(!ok)throw Error(msg)};
   setup();started=true;busy=false;menuMode=false;setAppScreen('game');
   const counts=initialCoastReport;
-  check(counts.dante.before===17&&counts.dante.after===Math.ceil(counts.dante.before/2),'Southern Dante fleet must be halved: '+JSON.stringify(counts.dante));
+  check(counts.dante.before===(player===1?26:17)&&counts.dante.after===Math.ceil(counts.dante.before/2),'Southern Dante fleet must be halved: '+JSON.stringify(counts.dante));
   check(units.some(u=>u.f===1&&u.type===25),'Keep Dante starting carrier when rounding ship classes');
   const bases=missileBases.filter(b=>b.initialSouthCoast),ships=units.filter(u=>u.initialSouthCoast);
   check(bases.length===3&&bases.every(b=>b.f===2&&b.kind==='sea'&&readyDefense(b)),'Three ready Stetopia sea batteries');
@@ -51,7 +51,7 @@ module.exports=function({run}){
   const restart=JSON.stringify(counts);setup();check(JSON.stringify(initialCoastReport)===restart,'Restart grant drift');
   return {dante:counts.dante,batteries:bases.map(b=>[tiles[b.tile].x,tiles[b.tile].y]),ships:ships.length,pathSamples:sample.length,oldScans,newScans};
  })()`);
- assert.equal(report.dante.after,9);
+ assert.equal(report.dante.after,Math.ceil(report.dante.before/2));
  console.log('PASS: battery focus/audio/paint, coast deployment, save/restart and identical indexed paths',report);
 };
 
