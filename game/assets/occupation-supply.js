@@ -57,6 +57,7 @@ function supplyReason(target,source,k,l=productionTier,aa=productionAA,ai=false)
  cityProfile(source);
  if(!supplyCoastalCity(target)&&!supplyHomelandConnected(target))return'육로 수송로에 연결되지 않은 도시입니다.';
  if(!supplyLandConnected(source,target)&&!supplySeaAccess(target))return'해상 수송로에 연결되지 않은 도시입니다.';
+ if(isNaval({type:k})&&!source.harbor)return'본토 도시에 출항할 항구가 없습니다';
  if(isNaval({type:k})&&!target.harbor)return'함정을 받을 점령도시에 항구가 필요합니다.';
  if(ai){
   if(source.queue||source.produced)return '생산 대기열 사용 중';
@@ -118,8 +119,9 @@ unitPage=function(q){
  const sources=homelandSources(q).sort((a,b)=>b.level-a.level||a.id-b.id);
  if(!sources.length){const p=document.createElement('p');p.textContent='조건에 맞는 아군 본토 도시가 없습니다.';box.appendChild(p)}
  for(const home of sources){
+  cityProfile(home);
   const b=document.createElement('button');b.id='supplyHome'+home.id;
-  b.textContent=home.name+' · '+home.level+'레벨 · '+supplyTurns(home,q)+'턴'+(home.queue?' · 생산 중':home.produced?' · 이번 턴 생산 완료':'');
+  b.textContent=home.name+(home.harbor?' · ⚓ 항구':'')+' · '+home.level+'레벨 · '+supplyTurns(home,q)+'턴'+(home.queue?' · 생산 중':home.produced?' · 이번 턴 생산 완료':'');
   b.onclick=()=>{supplyChoice={target:q.id,source:home.id};showPanel()};box.appendChild(b);
  }
 };
@@ -194,4 +196,5 @@ document.addEventListener('click',event=>{
 });
 Object.assign(window.Terha,{supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,supplyCoastalCity,supplyHomelandConnected,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
  industryTurn,capture,nuclearImpact,migrateArmy,occupiedCity,homelandSources,supplyTurns,requestSupply,supplySource});
+
 
