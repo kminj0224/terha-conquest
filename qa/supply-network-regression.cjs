@@ -47,4 +47,7 @@ assert(run('supplyCard(cities[2])').includes('수송로 단절 · 연결 대기'
 b.tiles[10]={owner:-1,region:-1};b.turn++;run('deploy(cities[2]);deploy(cities[2])');assert.equal(b.units.length,1);assert.equal(b.cities[2].queue,null);assert.equal(b.food[0],paid);
 // Moving bridges are blocked in both directions, and resume without a stale cache.
 b.hansaBridges=[{transition:{},deck:[10]}];assert(!run('supplyRouteConnected(cities[3],cities[7])'));b.hansaBridges[0].transition=null;assert(run('supplyRouteConnected(cities[3],cities[7])'));
+b.isHansaSupplyCity=q=>q?.id===3;b.isAircraft=u=>u.type===2;b.isHelicopter=u=>u.type===3;b.hansaBridgeConnected=()=>false;
+assert(!run('supplyTransportConnected(cities[3],cities[7],0)'));assert(run('supplyTransportConnected(cities[3],cities[7],2)'));assert(run('supplyTransportConnected(cities[3],cities[7],3)'));
+b.hansaBridgeConnected=()=>true;assert(run('supplyTransportConnected(cities[3],cities[7],0)'));assert(!run('supplyTransportConnected(cities[3],cities[7],1)'));
 console.log('PASS: exact a-g/H eligibility, human/AI charges, friendly-only land, connected seas, land transshipment, symmetric endpoints, route pauses/save/resume and bridge invalidation');

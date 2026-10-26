@@ -26,6 +26,13 @@ function supplyRouteConnected(source,target){
  if(!source||!target||source.f!==target.f||tiles[source.tile]?.owner!==source.f||tiles[target.tile]?.owner!==target.f)return false;
  const ids=supplyNetwork(source.f);return ids[source.tile]>=0&&ids[source.tile]===ids[target.tile];
 }
+function supplyTransportConnected(source,target,type){
+ if(typeof isHansaSupplyCity==='function'&&isHansaSupplyCity(source)){
+  const u={type};
+  if(isNaval(u)||!isAircraft(u)&&!isHelicopter(u)&&!hansaBridgeConnected())return false;
+ }
+ return supplyRouteConnected(source,target);
+}
 function occupiedCity(q){return !!q&&q.origin!==q.f}
 function homelandSources(q){return cities.filter(s=>s.f===q.f&&s.origin===q.f&&s.level<=q.level)}
 function supplySource(q){return cities.find(s=>s.queue?.transportTo===q.id)}
@@ -124,7 +131,7 @@ produce=function(q,k,l=productionTier,aa=productionAA){
 };
 function supplyCard(source){
  const j=source.queue,target=cities.find(q=>q.id===j.transportTo);
- j.routeBlocked=!target||!supplyRouteConnected(source,target);
+ j.routeBlocked=!target||!supplyTransportConnected(source,target,j.type);
  const naval=isNaval({type:j.type});
  const detail='본토 <button class="supplyCityLink" data-supply-city="'+source.id+'">'+(j.sourceName||source.name)+'</button>'+(naval?'에서 출항 후 입항 예정입니다':'에서 훈련 후 수송 중입니다');
  return progressCard(TYPES[j.type].name+' · '+j.level+'단계'+(j.aa?' · 대공방어 추가':''),
@@ -173,14 +180,14 @@ function validSupply(source){
  return !!j&&!!target&&source.f===j.owner&&source.origin===j.owner&&target.f===j.owner
   &&source.nukeUntil<=turn&&target.nukeUntil<=turn;
 }
-function pruneSupplies(){for(const source of cities)if(source.queue?.transportTo!==undefined){if(!validSupply(source))source.queue=null;else source.queue.routeBlocked=!supplyRouteConnected(source,cities.find(q=>q.id===source.queue.transportTo))}}
+function pruneSupplies(){for(const source of cities)if(source.queue?.transportTo!==undefined){if(!validSupply(source))source.queue=null;else source.queue.routeBlocked=!supplyTransportConnected(source,cities.find(q=>q.id===source.queue.transportTo),source.queue.type)}}
 const supplyDeploy=deploy;
 deploy=function(source){
  const j=source.queue;
  if(j?.transportTo===undefined)return supplyDeploy(source);
  if(!validSupply(source)){source.queue=null;return}
  const target=cities.find(q=>q.id===j.transportTo);
- j.routeBlocked=!supplyRouteConnected(source,target);
+ j.routeBlocked=!supplyTransportConnected(source,target,j.type);
  if(j.routeBlocked){j.lastTick=turn;return}
  j.remaining=Math.max(0,j.remaining-Math.max(0,turn-j.lastTick));j.lastTick=turn;
  if(j.remaining>0)return;
@@ -225,7 +232,7 @@ document.addEventListener('click',event=>{
  const link=event.target?.closest?.('[data-supply-city]');
  if(link)focusSupplyCity(Number(link.getAttribute('data-supply-city')));
 });
-Object.assign(window.Terha,{supplyRouteConnected,supplyNetwork,supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,supplyCoastalCity,supplyHomelandConnected,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
+Object.assign(window.Terha,{supplyTransportConnected,supplyRouteConnected,supplyNetwork,supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,supplyCoastalCity,supplyHomelandConnected,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
  industryTurn,capture,nuclearImpact,migrateArmy,occupiedCity,homelandSources,supplyTurns,requestSupply,supplySource});
 
 
