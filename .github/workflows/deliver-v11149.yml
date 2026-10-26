@@ -1,0 +1,29 @@
+name: Deliver v1.11.49 APK
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/deliver-v11149.yml']
+permissions:
+  contents: read
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare release file transfer metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import os, urllib.request, urllib.error, base64
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self,*args,**kwargs): return None
+          request=urllib.request.Request('https://api.github.com/repos/kminj0224/terha-conquest/releases/assets/678573991',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/octet-stream','User-Agent':'Terha-Conquest-delivery'})
+          try:
+              urllib.request.build_opener(NoRedirect).open(request)
+              raise RuntimeError('Expected an asset redirect')
+          except urllib.error.HTTPError as response:
+              assert response.code==302, response.code
+              url=response.headers['Location']
+              assert url.startswith('https://release-assets.githubusercontent.com/')
+              print('APK_FILE_TRANSFER_B64='+base64.b64encode(url.encode()).decode())
+          PY
