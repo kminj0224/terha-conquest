@@ -16,7 +16,7 @@ const b={console,Map,Set,Math,Number,window:{Terha:{}},S:64,player:3,productionT
  log:noop,selectUnit:noop,updateHUD:noop,save:noop,killReward:u=>{u.attackReady=true},toast:noop,isFlashInfantry:()=>false,isCannonTank:()=>false,isBaekArtillery:()=>false,isTowedArtillery:()=>false};
 vm.createContext(b);const run=s=>vm.runInContext(s,b);
 const orders=fs.readFileSync(path.join(root,'orders.js'),'utf8');
-run(orders.slice(orders.indexOf('function shotImpactDelay('),orders.indexOf('const beforeLaunch=')));
+run(orders.slice(orders.indexOf('async function attackCity('),orders.indexOf('const beforeLaunch=')));
 run(fs.readFileSync(path.join(root,'sapros.js'),'utf8'));
 const k=run('SAPROS');assert.equal(k,28);assert.deepEqual([b.TYPES[k].cost,b.TYPES[k].atk,b.TYPES[k].hp,b.TYPES[k].range],[967,97,989,2]);assert(b.TYPES[k].tank);assert.equal(b.TYPES[k].special,3);
 for(let l=1;l<=4;l++){assert.equal(run(`unitOil(SAPROS,${l})`),0);assert.equal(run(`attackOil({type:SAPROS,level:${l}})`),0);assert.equal(run(`moveOil({type:SAPROS,level:${l}})`),0)}assert.equal(run('unitOil(1)'),12);
