@@ -33,7 +33,7 @@ module.exports=async function({run}){
     check(defender.hp<before,'Garrison unit still takes damage type '+type);
     check(fx.some(e=>e.kind==='blast'&&e.damage===expected),'Actual garrison city damage popup type '+type);
    }
-   const airHome=cities.find(v=>v.f===0);airHome.tile=from;airHome.airport=true;airHome.level=5;airHome.nukeUntil=0;
+   const airHome={...cities.find(v=>v.f===0)};airHome.tile=from;airHome.airport=true;airHome.level=5;airHome.nukeUntil=0;
    for(const type of ['fighter','bomber','strategic'])for(const hp of [1,500])for(const lethal of [false,true]){
     units=[];q.hp=hp;fx=[];const defender=makeUnit(enemy,0,q.tile,1);defender.hp=lethal?1:100000;
     const before=defender.hp;check(await airStrike(airHome,type,q.tile,true),'Wrapped garrison air mission '+type);

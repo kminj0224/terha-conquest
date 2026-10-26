@@ -26,6 +26,7 @@ jobs:
       - name: Verify real bridge interactions and Sapros
         run: |
           python3 tools/prepare_operation_music.py
+          node qa/supply-network-native.cjs
           node qa/fixes-v11144-native.cjs
           node qa/sapros-native-regression.cjs
           node qa/sapros-regression.cjs

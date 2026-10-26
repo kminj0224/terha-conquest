@@ -50,7 +50,7 @@ module.exports=async function({run}){
   assert.equal(run('supplyHome.queue'),null);assert.equal(run('delivered.type'),0);assert.equal(run('delivered.level'),2);
   assert(run('delivered.aa&&delivered.fuelEfficient&&delivered.producedAtCityId===supplyHome.id'));
   assert(run('supplySites.has(delivered.tile)'),'delivered near destination');
-  run('supplyHome.produced=false;globalThis.islandTarget=cities.find(q=>q.id!==supplyHome.id&&distance(supplyHome.tile,q.tile)>30&&!supplyLandConnected(supplyHome,q)&&regionTiles[q.id].some(i=>neighbors(i).some(j=>tiles[j].owner<0)));if(!islandTarget)throw Error("Missing sea delivery fixture");islandTarget.f=player;islandTarget.origin=(player+1)%7;islandTarget.level=5;islandTarget.queue=null;islandTarget.nukeUntil=0;for(const i of regionTiles[islandTarget.id])tiles[i].owner=player');
+  run('supplyHome.produced=false;globalThis.islandTarget=null;for(const q of cities.filter(q=>q.id!==supplyHome.id&&distance(supplyHome.tile,q.tile)>30&&!supplyLandConnected(supplyHome,q)&&regionTiles[q.id].some(i=>neighbors(i).some(j=>tiles[j].owner<0)))){const oldF=q.f,oldOwners=regionTiles[q.id].map(i=>[i,tiles[i].owner]);q.f=player;for(const i of regionTiles[q.id])tiles[i].owner=player;if(supplyRouteConnected(supplyHome,q)){islandTarget=q;break}q.f=oldF;for(const [i,f]of oldOwners)tiles[i].owner=f}if(!islandTarget)throw Error("Missing sea delivery fixture");islandTarget.f=player;islandTarget.origin=(player+1)%7;islandTarget.level=5;islandTarget.queue=null;islandTarget.nukeUntil=0;for(const i of regionTiles[islandTarget.id])tiles[i].owner=player');
   assert(run('requestSupply(islandTarget,supplyHome,0,1,false)'));assert.equal(run('supplyHome.queue.remaining'),2);
   run('turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue.remaining'),1);
   run('globalThis.seaSites=new Set([islandTarget.tile,...neighbors(islandTarget.tile),...neighbors(islandTarget.tile).flatMap(neighbors)]);units=units.filter(u=>!seaSites.has(u.tile));turn++;deploy(supplyHome)');assert.equal(run('supplyHome.queue'),null,'sea delivery after exactly 2 turns');
@@ -68,4 +68,5 @@ module.exports=async function({run}){
  }
  console.log('PASS: occupied-city homeland level filtering, source costs/queue, long-distance 2-turn delivery, repeated tick guard, save migration, blocked delivery, source research, capture cancellation and repeat resupply');
 };
+
 
