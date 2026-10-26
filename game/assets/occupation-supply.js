@@ -54,6 +54,10 @@ function supplyReason(target,source,k,l=productionTier,aa=productionAA,ai=false)
  if(target.nukeUntil>turn)return'피폭 지역 통제가 끝난 뒤 요청하세요.';
  if(supplySource(target)||target.queue)return'현재 병력의 수송과 배치가 끝날 때까지 기다리세요.';
  if(!source||source.f!==target.f||source.origin!==target.f||source.level>target.level)return'점령도시와 레벨이 같거나 낮은 아군 본토 도시를 선택하세요.';
+ if(typeof isHansaSupplyCity==='function'&&isHansaSupplyCity(source)){
+  if(isNaval({type:k}))return'한사특별도에는 해상수송로가 없습니다';
+  if(!isAircraft({type:k})&&!isHelicopter({type:k})&&!hansaBridgeConnected())return'한사특별도 교각 연결 필요';
+ }
  cityProfile(source);
  if(!supplyCoastalCity(target)&&!supplyHomelandConnected(target))return'육로 수송로에 연결되지 않은 도시입니다.';
  if(!supplyLandConnected(source,target)&&!supplySeaAccess(target))return'해상 수송로에 연결되지 않은 도시입니다.';
@@ -196,5 +200,6 @@ document.addEventListener('click',event=>{
 });
 Object.assign(window.Terha,{supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,supplyCoastalCity,supplyHomelandConnected,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
  industryTurn,capture,nuclearImpact,migrateArmy,occupiedCity,homelandSources,supplyTurns,requestSupply,supplySource});
+
 
 
