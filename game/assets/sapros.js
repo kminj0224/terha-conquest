@@ -8,9 +8,18 @@ UNIT_STORIES[SAPROS]='낡은 천과 붕대 아래로 거대한 몸체가 움직�
 factions[3].bonus+=' · 사프로스';
 const saprosArt={idle:loadBaekArt('sapros-idle.webp'),windup:loadBaekArt('sapros-windup.webp'),strike:loadBaekArt('sapros-strike.webp'),dead:loadBaekArt('sapros-dead.webp'),effects:loadBaekArt('sapros-effects.webp')};
 function isSapros(u){return u?.type===SAPROS}
+// Retain live object references, rebuilding only when the army roster changes.
+// Movement, HP, faction and transport status are checked live on those objects.
+let saprosSupportArmy=null,saprosSupportCount=-1,saprosSupportRoster=[];
+function saprosSupportUnits(){
+ if(saprosSupportArmy!==units||saprosSupportCount!==units.length){
+  saprosSupportArmy=units;saprosSupportCount=units.length;saprosSupportRoster=units.filter(isSapros);
+ }
+ return saprosSupportRoster;
+}
 function saprosSupported(u){
  return !!u&&TYPES[u.type]?.branch==='infantry'&&Number.isInteger(u.tile)&&!!tiles[u.tile]&&u.hp>0&&!u.carriedBy&&
-  units.some(s=>isSapros(s)&&s.f===u.f&&s.hp>0&&!s.carriedBy&&distance(s.tile,u.tile)<=3);
+  saprosSupportUnits().some(s=>s.f===u.f&&s.hp>0&&!s.carriedBy&&distance(s.tile,u.tile)<=3);
 }
 const saprosUnitAttack=unitAttack;
 unitAttack=function(u){return Math.round(saprosUnitAttack(u)*(saprosSupported(u)?1.45:1))};

@@ -27,7 +27,7 @@ module.exports=async function({run,nodes,click,settle}){
  const port=run('homePort.id'),inland=run('inlandHome.id');
  assert(nodes.get('supplyHome'+port).textContent.includes('⚓'));
  assert(!nodes.get('supplyHome'+inland).textContent.includes('⚓'));
- await click('supplyHome'+port);await settle();
+ await click('supplyHome'+port);await settle();run('translateAppDOM()');
  assert.equal(nodes.get('supplyTitleCity').textContent,run('englishAppText(homePort.name)'));
  assert(nodes.get('panel').textContent.includes(run("englishAppText(supplyTestTarget.name)+' - '")));
  const selected=run('selected.id');await click('supplyTitleCity');

@@ -23,6 +23,8 @@ for(let l=1;l<=4;l++){assert.equal(run(`unitOil(SAPROS,${l})`),0);assert.equal(r
 b.units=[{id:1,type:k,f:3,tile:0,hp:989},{id:2,type:0,f:3,tile:3,hp:500}];
 assert.equal(run('unitAttack(units[1])'),29,'45% within exactly three tiles');
 b.units[1].tile=4;assert.equal(run('unitAttack(units[1])'),20);b.units[1].tile=3;b.units.push({...b.units[0],id:3});assert.equal(run('unitAttack(units[1])'),29,'No stacking');
+b.units[0].tile=b.units[2].tile=15;assert.equal(run('unitAttack(units[1])'),20,'Source movement uses live positions');b.units[0].tile=b.units[2].tile=0;
+b.units[0].hp=b.units[2].hp=0;assert.equal(run('unitAttack(units[1])'),20,'Dead sources immediately stop supporting');b.units[0].hp=b.units[2].hp=989;
 b.units[1].f=0;assert.equal(run('unitAttack(units[1])'),20);b.units[1].f=3;for(const s of b.units.filter(u=>u.type===k))s.carriedBy=99;assert.equal(run('unitAttack(units[1])'),20);for(const s of b.units)s.carriedBy=null;
 assert.equal(run('saprosImpactKind({type:0})'),'saprosBlood');assert.equal(run('saprosImpactKind({type:11})'),null);assert.equal(run('saprosImpactKind({type:1})'),'saprosSparks');assert.equal(run('saprosImpactKind({type:2})'),'saprosSparks');
 run('launchShot(units[0],{x:10,y:10},1000)');assert.equal(run('saprosPose(units[0],2199).idle.src'),'windup');assert.equal(run('saprosPose(units[0],2200).idle.src'),'strike');assert.equal(run('saprosPose(units[0],2560).idle.src'),'idle');
