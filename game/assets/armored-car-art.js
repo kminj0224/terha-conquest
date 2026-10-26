@@ -75,5 +75,5 @@ sprite=function(u,p,now){
 };
 const armoredCarSetup=setup;setup=function(...args){armoredCarBursts.clear();return armoredCarSetup(...args)};
 const armoredCarMigration=migrateArmy;migrateArmy=function(...args){armoredCarBursts.clear();return armoredCarMigration(...args)};
-Object.assign(window.Terha,{sprite,moveUnit,isArmoredCar,faceArmoredCar,armoredCarMuzzle,armoredCarFlash,drawArmoredCarEffect,targetExplosions,setup,migrateArmy});
+Object.assign(window.Terha,{sprite,launchShot,moveUnit,isArmoredCar,faceArmoredCar,armoredCarMuzzle,armoredCarFlash,drawArmoredCarEffect,targetExplosions,setup,migrateArmy});
 
