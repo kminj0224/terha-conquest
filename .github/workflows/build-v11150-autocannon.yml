@@ -26,6 +26,7 @@ jobs:
         if: github.ref != 'refs/heads/main'
         run: |
           python3 tools/prepare_operation_music.py
+          node qa/armored-car-defense-clock.cjs
           node qa/armored-car-audio-clock.cjs
           node qa/burst-audio-regression.cjs
           node qa/armored-car-native.cjs
