@@ -36,9 +36,9 @@ module.exports=async function({run,nodes,click,settle,drain}){
  const button=nodes.get('unitCatalogue').querySelectorAll('button').find(b=>b.title==='한사특별도 교각 연결 필요');assert(button,'blocked unit is still clickable');button.onclick();assert.equal(run('bridgeToasts.at(-1)'),'한사특별도 교각 연결 필요');
  run(`setHansaBridge(hansaBridges[0],true,20000);updateHansaBridges(23000)`);assert.notEqual(run('supplyReason(bridgeTarget,hansaSource,0,1,false)'),'한사특별도 교각 연결 필요');
  // AI reacts to actual enemies within wrapped radius five and restores afterwards.
- run(`setup();started=true;setAppScreen('game');player=1;units=[];var aiHansa=hansaBridgeCity();var threatTile=tiles.findIndex((t,i)=>t.owner>=0&&distance(i,aiHansa.tile)===5);var bridgeThreat=makeUnit(1,0,threatTile,1);updateHansaBridgeAI(30000,true)`);
- assert(run('hansaBridges.every(b=>b.transition&&b.target===false)'));run('updateHansaBridges(33000)');assert(run('hansaBridges.every(b=>!b.open)'));
- run('units=[];updateHansaBridgeAI(34000,true);updateHansaBridges(37000)');assert(run('hansaBridges.every(b=>b.open)'));
+ run(`setup();started=true;setAppScreen('game');player=1;units=[];var aiHansa=hansaBridgeCity();var threatTile=tiles.findIndex((t,i)=>t.owner>=0&&distance(i,aiHansa.tile)===5);var bridgeThreat=makeUnit(1,0,threatTile,1);busy=true;aiTurnActive=true;`);
+ await run('runHansaBridgeAITurn(0)');assert(run('hansaBridges.every(b=>!b.open)'));
+ run('units=[]');await run('runHansaBridgeAITurn(0)');run('busy=false;aiTurnActive=false');assert(run('hansaBridges.every(b=>b.open)'));
  run('player=0;var legacyBridgeSave=snapshot();delete legacyBridgeSave.hansaBridges;delete legacyBridgeSave.hansaBridgeSchema;migrateArmy(legacyBridgeSave)');assert(run('hansaBridges.every(b=>b.open)'));
  run('for(const b of hansaBridges){b.open=false;b.target=false}setup();started=true;setAppScreen("game")');assert(run('hansaBridges.every(b=>b.open)'));
  // Actual Canvas emits two independently retracting half-spans and all eight sprites.
@@ -47,3 +47,4 @@ module.exports=async function({run,nodes,click,settle,drain}){
  run('toast=bridgeToastOriginal;kill=bridgeKillOriginal');await settle();
  console.log('PASS: four logical decks, unchanged lake, upper western hexes, real confirmation/click, allied blockers, silent enemy removal, durations/reverse animation, save/load/legacy/new campaign, source-specific supply messages, AI radius and actual Canvas sprites/spans');
 };
+

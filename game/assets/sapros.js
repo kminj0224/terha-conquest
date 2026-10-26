@@ -76,7 +76,8 @@ targetExplosions=function(u,p,d,now=performance.now(),city=false,target=null){
  if(skipAIAnimations())return;
  const kind=!city&&saprosImpactKind(target);
  if(!kind)return saprosTargetExplosions(u,p,d,now,city,target);
- fx.push({kind,x:p.x,y:p.y,damage:d,start:now,duration:kind==='saprosBlood'?800:600});
+ const depth=target?unitVisualPosition(target,now):p;
+ fx.push({kind,x:p.x,y:p.y,depthX:depth.x,depthY:depth.y,targetId:target?.id,damage:d,start:now,duration:kind==='saprosBlood'?800:600});
 };
 const saprosKill=kill;
 kill=function(u){
@@ -88,6 +89,15 @@ kill=function(u){
  if(show)fx.push({kind:'saprosRemains',x:p.x,y:p.y,angle:u.angle,start:performance.now(),duration:8000});
  return result;
 };
+function addSaprosDepthEffects(scene,now){
+ for(let i=0;i<fx.length;i++){
+  const e=fx[i];if(e.kind!=='saprosBlood'&&e.kind!=='saprosSparks')continue;
+  const t=(now-e.start)/e.duration;if(t<0||t>=1)continue;
+  const p={x:e.depthX??e.x,y:e.depthY??e.y};
+  if(Math.abs(p.x-cam.x)>screenW/2/cam.z+150||Math.abs(p.y-cam.y)>screenH/2/cam.z+150)continue;
+  scene.push({kind:'saprosImpact',id:1000000+i,p,paint:()=>drawSaprosEffect(e,t)});
+ }
+}
 function drawSaprosEffect(e,t){
  ctx.save();
  if(e.kind==='saprosRemains'){
@@ -105,3 +115,4 @@ function drawSaprosEffect(e,t){
 }
 Object.assign(window.Terha,{SAPROS,SAPROS_WINDUP,isSapros,saprosSupported,saprosPose,saprosImpactKind,drawSaprosEffect,
  unitAttack,unitOil,moveOil,attackOil,productionPanel,launchShot,sprite,targetExplosions,kill});
+

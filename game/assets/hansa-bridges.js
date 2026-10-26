@@ -1,8 +1,8 @@
 'use strict';
 // Dynamic decks are a movement overlay; the painted lake and MAP water stay intact.
-const HANSA_BRIDGE_VERSION=1;
+const HANSA_BRIDGE_VERSION=2;
 const HANSA_BRIDGE_WEST_CROP=[70,7,577.5,497.5],HANSA_BRIDGE_WEST_MOUTH=.62;
-let hansaBridges=[],hansaBridgeRestoring=false,hansaBridgeSetupRunning=false,hansaBridgeAICheck=-Infinity;
+let hansaBridges=[],hansaBridgeRestoring=false,hansaBridgeSetupRunning=false;
 const hansaBridgeAtlas=loadBaekArt('hansa-bridge-directions.webp');
 const hansaBridgeWestArt=loadBaekArt('hansa-bridge-west-island.webp');
 const HANSA_BRIDGE_CROPS=[[0,13.5,313.5,300],[313.5,13.5,299.5,300],[0,313.5,313.5,301.5],[318,313.5,291,301.5]];
@@ -44,6 +44,7 @@ function applyHansaBridgeTerrain(){
 }
 function hansaBridgeFriendly(u){return u.f===0||diplomacy[0]?.[u.f]==='ally'}
 function hansaBridgePassengers(b){return units.filter(u=>u.hp>0&&!u.carriedBy&&b.deck.includes(u.tile))}
+function hansaBridgeConnectReason(b){return hansaBridgePassengers(b).some(isNaval)?'연결 불가 : 해군 유닛 존재':''}
 function hansaBridgeBlockReason(b){return hansaBridgePassengers(b).some(hansaBridgeFriendly)?'차단 불가 : 아군 유닛 존재':''}
 function eraseHansaBridgeEnemies(b){
  const ids=new Set(hansaBridgePassengers(b).filter(u=>atWar(0,u.f)).map(u=>u.id));
@@ -56,7 +57,9 @@ function eraseHansaBridgeEnemies(b){
 }
 function setHansaBridge(b,open,now=performance.now(),ai=false){
  if(!b||b.transition||b.open===open)return false;
- if(!open){const why=hansaBridgeBlockReason(b);if(why){if(!ai)toast(why);return false}eraseHansaBridgeEnemies(b)}
+ const why=open?hansaBridgeConnectReason(b):hansaBridgeBlockReason(b);
+ if(why){if(!ai)toast(why);return false}
+ if(!open)eraseHansaBridgeEnemies(b);
  b.target=open;b.transition={start:now,from:b.open?1:0,to:open?1:0};
  // A moving deck cannot be entered. It becomes sea only after retraction ends.
  reach.clear();invalidateActionVisuals();save();refreshSelection();return true;
@@ -65,17 +68,36 @@ function updateHansaBridges(now){
  let changed=false;
  for(const b of hansaBridges){if(!b.transition||now-b.transition.start<b.duration)continue;
   // Recheck in case an external operation placed a friendly unit during animation.
-  if(!b.target&&hansaBridgeBlockReason(b)){b.target=true;b.transition=null;continue}
+  if(b.target&&hansaBridgeConnectReason(b)){b.target=false;b.transition=null;changed=true;continue}
+  if(!b.target&&hansaBridgeBlockReason(b)){b.target=true;b.transition=null;changed=true;continue}
   if(!b.target)eraseHansaBridgeEnemies(b);
   b.open=b.target;b.transition=null;changed=true;
  }
  if(changed){applyHansaBridgeTerrain();save();updateHUD();refreshSelection()}
 }
-function updateHansaBridgeAI(now=performance.now(),force=false){
- if(hansaBridgeSetupRunning||!started||player===0||hansaBridgeCity()?.f!==0)return;
- if(!force&&now-hansaBridgeAICheck<250)return;hansaBridgeAICheck=now;
- const city=hansaBridgeCity(),threat=units.some(u=>u.hp>0&&!u.carriedBy&&atWar(0,u.f)&&distance(city.tile,u.tile)<=5);
- for(const b of hansaBridges)setHansaBridge(b,!threat,now,true);
+// This hook is called only inside faction zero's actual AI turn, never by rendering.
+async function runHansaBridgeAITurn(f){
+ if(f!==0||!busy||!aiTurnActive||hansaBridgeSetupRunning||!started||player===0||hansaBridgeCity()?.f!==0)return;
+ const now=performance.now(),city=hansaBridgeCity();
+ const threat=units.some(u=>u.hp>0&&!u.carriedBy&&atWar(0,u.f)&&distance(city.tile,u.tile)<=5);
+ let duration=0;
+ for(const b of hansaBridges)if(setHansaBridge(b,!threat,now,true))duration=Math.max(duration,b.duration);
+ if(duration){await delay(duration);updateHansaBridges(Math.max(performance.now(),now+duration))}
+}
+function relocateHansaDeckShips(){
+ const deck=new Set(hansaBridges.filter(b=>b.open).flatMap(b=>b.deck));
+ for(const u of units){
+  if(!isNaval(u)||u.carriedBy||!deck.has(u.tile))continue;
+  const seen=new Set([u.tile]),queue=[u.tile];let destination=-1;
+  for(let n=0;n<queue.length&&destination<0;n++)for(const i of neighbors(queue[n])){
+   if(seen.has(i))continue;seen.add(i);
+   if(tiles[i].owner<0&&!unitAt(i)&&!baseAt(i)&&!cityAt(i)){destination=i;break}
+   queue.push(i);
+  }
+  if(destination<0)continue;
+  u.tile=destination;for(const cargo of units)if(cargo.carriedBy===u.id)cargo.tile=destination;
+  moving=moving.filter(m=>m.id!==u.id);
+ }
 }
 function hansaBridgeAmount(b,now){if(!b.transition)return b.open?1:0;const t=Math.max(0,Math.min(1,(now-b.transition.start)/b.duration));return b.transition.from+(b.transition.to-b.transition.from)*t}
 function drawHansaBridgeSpan(b,now){
@@ -100,7 +122,7 @@ function drawHansaBridgeBuilding(b,island){
 }
 async function askHansaBridge(b){
  if(player!==0||hansaBridgeCity()?.f!==0||busy||b.transition)return;
- if(b.open){const why=hansaBridgeBlockReason(b);if(why){toast(why);return}}
+ const why=b.open?hansaBridgeBlockReason(b):hansaBridgeConnectReason(b);if(why){toast(why);return}
  const open=!b.open;if(!await askApp(open?'연결하시겠습니까?':'교각을 차단하시겠습니까?'))return;
  if(player!==0||hansaBridgeCity()?.f!==0||busy||b.transition)return;
  setHansaBridge(b,open);
@@ -134,7 +156,7 @@ const hansaBridgeTap=tap;tap=function(sx,sy){
  return hansaBridgeTap(sx,sy);
 };
 const hansaBridgeWorld=drawWorld;drawWorld=function(now,backgroundOnly=false){
- updateHansaBridges(now);updateHansaBridgeAI(now);
+ updateHansaBridges(now);
  if(!backgroundOnly&&hansaBridges.length){ctx.save();ctx.translate(screenW/2,screenH/2);ctx.scale(cam.z,cam.z);ctx.translate(-cam.x,-cam.y);for(const b of hansaBridges)drawHansaBridgeSpan(b,now);ctx.restore()}
  return hansaBridgeWorld(now,backgroundOnly);
 };
@@ -143,17 +165,16 @@ const hansaBridgeScene=addAmbientScene;addAmbientScene=function(scene,now){
  for(const b of hansaBridges)for(const island of [true,false]){const p=island?b.a:b.z,box=hansaBridgeBuildingBox(b,island);scene.push({kind:'scenery',id:id++,p:{x:p.x,y:p.y+Math.max(0,box.y+box.h)},paint:()=>drawHansaBridgeBuilding(b,island)})}
 };
 const hansaBridgeMoveCost=moveCost;moveCost=function(u,i){if(hansaBridges.some(b=>b.transition&&b.deck.includes(i)))return 99999;return hansaBridgeMoveCost(u,i)};
-const hansaBridgeMove=moveUnit;moveUnit=function(...args){const result=hansaBridgeMove(...args);if(result)updateHansaBridgeAI(performance.now(),true);return result};
-const hansaBridgeEndTurn=endTurn;endTurn=async function(...args){updateHansaBridgeAI(performance.now(),true);const result=await hansaBridgeEndTurn(...args);updateHansaBridgeAI(performance.now(),true);return result};$('turn').onclick=endTurn;
 const hansaBridgeSnapshot=snapshot;snapshot=function(...args){return {...hansaBridgeSnapshot(...args),hansaBridgeSchema:HANSA_BRIDGE_VERSION,hansaBridges:Object.fromEntries(hansaBridges.map(b=>[b.name,b.target]))}};
 const hansaBridgeSetup=setup;setup=function(...args){
- hansaBridgeSetupRunning=true;hansaBridges=[];hansaBridgeAICheck=-Infinity;
- try{const result=hansaBridgeSetup(...args);hansaBridges=createHansaBridges();applyHansaBridgeTerrain();save();return result}finally{hansaBridgeSetupRunning=false}
+ hansaBridgeSetupRunning=true;hansaBridges=[];
+ try{const result=hansaBridgeSetup(...args);hansaBridges=createHansaBridges();applyHansaBridgeTerrain();relocateHansaDeckShips();save();return result}finally{hansaBridgeSetupRunning=false}
 };
 const hansaBridgeMigration=migrateArmy;migrateArmy=function(s,...args){
  hansaBridgeRestoring=true;hansaBridges=createHansaBridges(s.hansaBridges);
- try{const result=hansaBridgeMigration(s,...args);hansaBridges=createHansaBridges(s.hansaBridges);applyHansaBridgeTerrain();hansaBridgeAICheck=-Infinity;return result}finally{hansaBridgeRestoring=false}
+ try{const result=hansaBridgeMigration(s,...args);hansaBridges=createHansaBridges(s.hansaBridges);applyHansaBridgeTerrain();relocateHansaDeckShips();return result}finally{hansaBridgeRestoring=false}
 };
-Object.assign(window.Terha,{setup,migrateArmy,snapshot,tap,moveUnit,moveCost,endTurn,drawWorld,hansaBridgeConnected,setHansaBridge,updateHansaBridges,updateHansaBridgeAI});
+Object.assign(window.Terha,{setup,migrateArmy,snapshot,tap,moveUnit,moveCost,endTurn,drawWorld,hansaBridgeConnected,setHansaBridge,updateHansaBridges,runHansaBridgeAITurn,relocateHansaDeckShips});
 
-Object.assign(APP_EN,{'교각차단':'Block bridge','교각연결':'Connect bridge','교각을 차단하시겠습니까?':'Block this bridge?','연결하시겠습니까?':'Reconnect this bridge?','차단 불가 : 아군 유닛 존재':'Cannot block: friendly units present','한사특별도 교각 연결 필요':'Hansa bridge connection required','한사특별도에는 해상수송로가 없습니다':'Hansa has no sea transport route'});
+Object.assign(APP_EN,{'연결 불가 : 해군 유닛 존재':'Cannot connect: naval units present','교각차단':'Block bridge','교각연결':'Connect bridge','교각을 차단하시겠습니까?':'Block this bridge?','연결하시겠습니까?':'Reconnect this bridge?','차단 불가 : 아군 유닛 존재':'Cannot block: friendly units present','한사특별도 교각 연결 필요':'Hansa bridge connection required','한사특별도에는 해상수송로가 없습니다':'Hansa has no sea transport route'});
+
