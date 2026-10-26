@@ -1,0 +1,51 @@
+name: Connected coastal occupation supply v1.11.45 APK
+on:
+  push:
+    branches: [main, codex/coastal-region-supply]
+    paths: ['game/assets/**', 'qa/**', 'build.py', '.github/workflows/build-v11145-coastal-supply.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify-build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - name: Set up FFmpeg and FFprobe
+        uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
+        timeout-minutes: 3
+      - name: Verify real bridge interactions and Sapros
+        run: |
+          python3 tools/prepare_operation_music.py
+          node qa/fixes-v11144-native.cjs
+          node qa/sapros-native-regression.cjs
+          node qa/sapros-regression.cjs
+          node qa/supply-routes-regression.cjs
+          node qa/siege-occupation-regression.cjs
+      - name: Verify full game and native shell
+        run: |
+          npm test
+          python3 qa/verify-native.py
+      - name: Build and verify signed Android update
+        run: |
+          python3 build.py
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.45.apk
+          cd deliverables
+          sha256sum Terha-Conquest-v1.11.45.apk > SHA256SUMS.txt
+      - name: Publish APK
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.11.45 deliverables/Terha-Conquest-v1.11.45.apk deliverables/SHA256SUMS.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.45' --notes '내륙 점령도시가 아군 점령·본토 권역을 통해 해안에 연결되면 생산 허용. 해안·본토 육로 모두 없는 고립 내륙만 차단. AI 생산·기존 주문 이전에 동일 조건 적용. versionCode 190.'
+

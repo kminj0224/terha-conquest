@@ -159,7 +159,7 @@ migrateArmy=function(s){
  const result=siegeMigration(s);aiRifleOrderTurn.fill(-1);captureRouteCache.clear();captureRouteStamp='';
  for(const {id,order}of legacy){
   const target=cities.find(q=>q.id===id);if(!target||!TYPES[order.type])continue;
-  const source=!(target.nukeUntil>turn)&&(supplyCoastalCity(target)||supplyHomelandConnected(target))&&homelandSources(target).find(q=>!q.queue&&canProduce(q,order.type,order.level||1)&&(!isNaval({type:order.type})||target.harbor)&&(supplyLandConnected(q,target)||supplySeaAccess(target)));
+  const source=!(target.nukeUntil>turn)&&(supplySeaAccess(target)||supplyHomelandConnected(target))&&homelandSources(target).find(q=>!q.queue&&canProduce(q,order.type,order.level||1)&&(!isNaval({type:order.type})||target.harbor)&&(supplyLandConnected(q,target)||supplySeaAccess(target)));
   if(source){const total=supplyTurns(source,target);source.queue={...order,level:order.level||1,transportTo:target.id,owner:target.f,sourceName:source.name,total,remaining:total,lastTick:turn};source.produced=true}
   else {food[target.f]+=unitPrice(order.type,order.level||1);oil[target.f]+=unitOil(order.type,order.level||1);money[target.f]+=navGoldCost(order.type,order.level||1)+(order.aa?aaCost(order.level||1):0)}
  }
@@ -167,4 +167,5 @@ migrateArmy=function(s){
 };
 Object.assign(window.Terha,{canCaptureCityUnit,cityDamageFloor,usefulConventionalTarget,canProduce,capture,moveCost,tap,landingTiles,canAirStrike,
  aiQueueUnit,aiNeedsRifles,aiProcure,aiStep,transportCandidate,rifleRoute,aiRifleGoal,aiStrategicOperations,migrateArmy});
+
 

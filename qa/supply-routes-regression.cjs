@@ -9,7 +9,7 @@ for(const [,file]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAl
 assert.equal(balance.TYPES[11].atk,33);assert.equal(balance.TYPES[18].atk,96);assert.equal(balance.TYPES[18].cost,1000);assert.equal(balance.TYPES[18].branch,'armor');assert(balance.TYPES[18].tank);
 
 const s={console,Set,Map,Math,Number,window:{Terha:{}},document:{addEventListener:noop},
- $:()=>({}),productionReason:()=>'',produce:noop,unitPage:noop,cityCommandOpen:noop,cityOverview:()=>'',deploy:noop,
+ $:()=>({}),canProduce:()=>true,productionReason:()=>'',produce:noop,unitPage:noop,cityCommandOpen:noop,cityOverview:()=>'',deploy:noop,
  drawCityForeground:noop,industryTurn:noop,capture:noop,nuclearImpact:noop,migrateArmy:noop,selected:null,
  player:0,turn:1,productionTier:1,productionAA:false,busy:false,cityProfile:noop,
  TYPES:[{name:'Infantry',branch:'infantry'},{name:'Ship',branch:'navy'}],
@@ -28,7 +28,7 @@ assert.equal(run('supplyTurns(cities[0],cities[1],1)'),2,'naval sea transport fi
 assert(run('supplySeaAccess(cities[1])'),'inland target linked through occupied and homeland regions');
 s.cities[2].f=1;s.tiles[3].owner=1;
 assert(!run('supplySeaAccess(cities[1])'),'foreign region breaks sea access');
-assert.equal(run('supplyReason(cities[1],cities[0],0)'), '육로 수송로에 연결되지 않은 도시입니다.');
+assert.equal(run('supplyReason(cities[1],cities[0],0)'), '수송로에 연결되지 않은 도시입니다.');
 const before=[...s.food,...s.oil,...s.money];
 assert(!run('requestSupply(cities[1],cities[0],0,1,false)'),'blocked route rejected at purchase');
 assert.deepEqual([...s.food,...s.oil,...s.money],before,'rejected route never charges');
@@ -75,7 +75,23 @@ assert(run('supplyHomelandConnected(cities[1])'));
 s.cities[3].origin=1;
 assert(run('supplySeaAccess(cities[1])'),'a friendly coast beyond another region still exists');
 assert(!run('supplyCoastalCity(cities[1])'),'that coast does not make this inland region coastal');
-assert.equal(run('supplyReason(cities[1],cities[0],0)'), '육로 수송로에 연결되지 않은 도시입니다.');
+assert(!run('supplyHomelandConnected(cities[1])'),'entire receiving component consists of occupied regions');
+assert.equal(run('supplyReason(cities[1],cities[0],0)'), '', 'coast through occupied regions permits inland production without homeland land access');
+for(const ai of [false,true]){
+ s.cities[0].queue=null;s.cities[0].produced=false;s.food[0]=s.oil[0]=s.money[0]=1000;
+ assert(run('requestSupply(cities[1],cities[0],0,1,false,'+ai+')'),'human and AI use the connected occupied coast');
+ assert.equal(s.cities[0].queue.transportTo,1);assert.equal(s.food[0],900);assert.equal(s.oil[0],960);
+}
+s.cities[0].queue=null;s.cities[0].produced=false;
+// Remove the distant coast: the exact same inland component must now be blocked.
+edges[4]=[3];edges[5]=[1];
+assert(!run('supplySeaAccess(cities[1])'));assert(!run('supplyHomelandConnected(cities[1])'));
+for(const ai of [false,true]){
+ const resources=[...s.food,...s.oil,...s.money];
+ assert(!run('requestSupply(cities[1],cities[0],0,1,false,'+ai+')'),'isolated inland request rejected');
+ assert.deepEqual([...s.food,...s.oil,...s.money],resources,'rejected request never charges');
+}
+edges[4]=[3,5];edges[5]=[1,4];
 s.cities[3].origin=0;s.cities[2].f=1;
 assert(!run('supplyHomelandConnected(cities[1])'),'region ownership blocks even stale friendly tiles');
 s.cities[2].f=0;s.tiles[3].owner=1;
@@ -102,6 +118,7 @@ const geometry={tiles:[{x:99,y:0},{x:29,y:0},{x:30,y:0}],WORLD_COLS:100,Math};vm
 const game=fs.readFileSync(path.join(root,'game.js'),'utf8');
 vm.runInContext(game.slice(game.indexOf('function distance('),game.indexOf('\n',game.indexOf('function distance('))),geometry);
 assert.equal(vm.runInContext('distance(0,1)',geometry),30);assert.equal(vm.runInContext('distance(0,2)',geometry),31);
-console.log('PASS: inland homeland chains, disconnected coastal bridge rejection, foreign blockers, 30-tile inclusive threshold, one-turn delivery, queue round trips and wrapped hex distance');
+console.log('PASS: inland homeland chains, occupied coastal chains and isolated inland rejection, foreign blockers, 30-tile inclusive threshold, one-turn delivery, queue round trips and wrapped hex distance');
+
 
 

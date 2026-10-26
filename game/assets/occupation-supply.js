@@ -59,7 +59,7 @@ function supplyReason(target,source,k,l=productionTier,aa=productionAA,ai=false)
   if(!isAircraft({type:k})&&!isHelicopter({type:k})&&!hansaBridgeConnected())return'한사특별도 교각 연결 필요';
  }
  cityProfile(source);
- if(!supplyCoastalCity(target)&&!supplyHomelandConnected(target))return'육로 수송로에 연결되지 않은 도시입니다.';
+ if(!supplySeaAccess(target)&&!supplyHomelandConnected(target))return'수송로에 연결되지 않은 도시입니다.';
  if(!supplyLandConnected(source,target)&&!supplySeaAccess(target))return'해상 수송로에 연결되지 않은 도시입니다.';
  if(isNaval({type:k})&&!source.harbor)return'본토 도시에 출항할 항구가 없습니다';
  if(isNaval({type:k})&&!target.harbor)return'함정을 받을 점령도시에 항구가 필요합니다.';
@@ -200,6 +200,7 @@ document.addEventListener('click',event=>{
 });
 Object.assign(window.Terha,{supplyProductionLabel,drawCityForeground,focusSupplyCity,supplyLandConnected,supplySeaAccess,supplyCoastalCity,supplyHomelandConnected,produce,productionReason,unitPage,cityCommandOpen,cityOverview,deploy,
  industryTurn,capture,nuclearImpact,migrateArmy,occupiedCity,homelandSources,supplyTurns,requestSupply,supplySource});
+
 
 
 
