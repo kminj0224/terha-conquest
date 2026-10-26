@@ -71,7 +71,8 @@ showPanel=function(){
  const pageNames={overview:'',facilities:'시설 건설',science:'과학·군사 연구',units:'부대 생산',air:'공항 작전',nuclear:'핵탄두 제작',missiles:'탄도미사일'};
  const panel=$('panel');panel.style.display='block';
  // Title + colored faction + city level share the same header.
- const title='<div class="cityNameHeader"><h2 class="cityName">'+q.name+'</h2>'+
+ const supplyHome=cityCommandTab==='units'&&supplyChoice?.target===q.id?homelandSources(q).find(s=>s.id===supplyChoice.source):null;
+ const title='<div class="cityNameHeader"><h2 class="cityName">'+(supplyHome?'<span>'+q.name+'</span> - <button id="supplyTitleCity" class="supplyTitleCity" title="본토 도시로 이동">'+supplyHome.name+'</button>':q.name)+'</h2>'+
   '<span class="cityHeadMeta"><span class="cityCountryName" style="color:'+factions[q.f].color+'">'+factions[q.f].name+'</span>'+
   '<span class="cityHeadLevel">'+q.level+'레벨'+(q.capital?' · 수도':'')+'</span></span></div>';
  const expand=(own&&cityCommandTab==='overview')?
@@ -92,6 +93,8 @@ showPanel=function(){
  else if(cityCommandTab==='air')airPage(q);
  else if(cityCommandTab==='nuclear')nuclearPage(q);
  else if(cityCommandTab==='missiles')missilePage(q);
+ if($('supplyTitleCity'))$('supplyTitleCity').onclick=()=>focusSupplyCity(supplyHome.id);
  refreshCityCommandButtons();
 };
 Object.assign(window.Terha,{showPanel,airPage,refreshCityCommandButtons});
+

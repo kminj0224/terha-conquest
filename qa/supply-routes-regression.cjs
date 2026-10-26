@@ -34,6 +34,8 @@ assert(!run('requestSupply(cities[1],cities[0],0,1,false)'),'blocked route rejec
 assert.deepEqual([...s.food,...s.oil,...s.money],before,'rejected route never charges');
 edges[2].push(5);assert(run('supplySeaAccess(cities[1])'),'direct coast allowed without harbor');edges[2].pop();
 s.cities[2].f=0;s.tiles[3].owner=0;s.cities[1].harbor=true;
+assert.equal(run('supplyReason(cities[1],cities[0],1)'), '본토 도시에 출항할 항구가 없습니다');
+s.cities[0].harbor=true;
 assert(run('requestSupply(cities[1],cities[0],1,1,false)'));
 assert.equal(s.cities[0].queue.remaining,2);
 s.cities[0].queue=null;s.cities[0].produced=false;
@@ -101,4 +103,5 @@ const game=fs.readFileSync(path.join(root,'game.js'),'utf8');
 vm.runInContext(game.slice(game.indexOf('function distance('),game.indexOf('\n',game.indexOf('function distance('))),geometry);
 assert.equal(vm.runInContext('distance(0,1)',geometry),30);assert.equal(vm.runInContext('distance(0,2)',geometry),31);
 console.log('PASS: inland homeland chains, disconnected coastal bridge rejection, foreign blockers, 30-tile inclusive threshold, one-turn delivery, queue round trips and wrapped hex distance');
+
 

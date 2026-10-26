@@ -1,5 +1,5 @@
 'use strict';
-const APP_VERSION='1.11.40',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
+const APP_VERSION='1.11.41',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
 function readAppJSON(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
 const savedAppSettings=readAppJSON(APP_SETTINGS_KEY,{});
 const appSettings={music:Number.isFinite(savedAppSettings.music)?Math.min(1,Math.max(0,savedAppSettings.music)):.65,effects:Number.isFinite(savedAppSettings.effects)?Math.min(1,Math.max(0,savedAppSettings.effects)):1,language:savedAppSettings.language==='en'?'en':'ko'};
@@ -66,6 +66,7 @@ const shellProcessAudio=processCombatAudio;processCombatAudio=function(now){if(a
 const shellMovementAudio=updateMovementAudio;updateMovementAudio=function(now){if(appFront()){for(const voice of movementVoices.values())stopMovementVoice(voice);movementVoices.clear();return}return shellMovementAudio(now)};
 
 document.documentElement.lang=appSettings.language;
+
 
 
 
