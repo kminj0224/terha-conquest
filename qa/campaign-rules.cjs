@@ -11,4 +11,5 @@ s=R.create();a=s.units.find(u=>u.side===0&&u.kind==='tank');a.q=6;a.r=7;assert(R
 s=R.create();a=s.units[1];a.hp=50;assert(R.reinforce(s,a.id));assert.equal(a.hp,95);assert.equal(R.move(s,a.id,4,8),false);
 s=R.create();f=s.units[0];f.hp=1;const enemy=s.units.find(u=>u.side===1);enemy.q=3;enemy.r=6;R.endTurn(s);assert.equal(s.status,'lost');assert(R.validate(s));assert.equal(R.produce(s,'base','rifle'),false);
 assert.equal(R.validate(null),false);assert.equal(R.validate({schema:1}),false);s=R.create();s.units[0].q=99;assert.equal(R.validate(s),false);
+s=R.create();s.resources={};assert.equal(R.validate(s),false);s=R.create();s.facilities[0].queue={kind:'missing'};assert.equal(R.validate(s),false);s=R.create();s.nextId=1;assert.equal(R.validate(s),false);
 console.log('PASS campaign rules: production/cost/queue/blocked deployment, capture, movement, retaliation, reinforcement, victory/defeat and corrupt-save guards');
