@@ -7,6 +7,12 @@ module.exports=async function({run,nodes,click,drain,settle,stored}){
  run('window.sharedCombatRefs=[moveUnit,attack,reachable,endTurn,produce,selectUnit,showPanel,tap,sprite,drawUnitFocus,updateHUD,refreshSelection,launchShot,beginAim];CampaignBattle.start(null,1)');
  assert.equal(run('appScreen'),'game');assert.equal(run('activeScenario.id'),'iron-crown-m01');assert.equal(run('relationName(player,player)'),'자국');
  assert(run('[moveUnit,attack,reachable,endTurn,produce,selectUnit,showPanel,tap,sprite,drawUnitFocus,updateHUD,refreshSelection,launchShot,beginAim].every((fn,i)=>fn===sharedCombatRefs[i])'),'Scenario must use identical engine/UI functions');
+
+ for(const [x,y,z]of [[-1e6,-1e6,.12],[1e6,1e6,.12],[-1e6,1e6,2.7],[1e6,-1e6,2.7]]){
+  run('cam={x:'+x+',y:'+y+',z:'+z+'};CampaignBattle.constrainCamera()');
+  assert(run('(()=>{const b=CampaignBattle.bounds(),hx=screenW/(2*cam.z),hy=screenH/(2*cam.z);return cam.x-hx>=b.x-1e-6&&cam.x+hx<=b.x+b.w+1e-6&&cam.y-hy>=b.y-1e-6&&cam.y+hy<=b.y+b.h+1e-6})()'),'Campaign viewport stays inside artwork');
+ }
+ run('CampaignPresentation.showGoals()');assert(nodes.has('campaignGoalSheet'));assert(nodes.get('modal').textContent.includes('회랑 보급소'));run('window.terhaBack()');assert.equal(run('appScreen'),'game');
  assert.equal(nodes.has('campaignCanvas'),false);assert.equal(run('saveKey()'),'terha-campaign-iron-crown-v2');
  run('selectUnit(units[1]);openSelectionPanel()');assert(nodes.get('panel').textContent.includes('체력'));assert(nodes.get('panel').innerHTML.includes('windowHeader'));
  run('selectCity(cities[0],true);cityCommandOpen("units")');assert(nodes.get('panel').textContent.includes('부대 생산'));assert(run('produce(cities[0],0,1,false)'));

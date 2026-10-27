@@ -33,3 +33,33 @@
 .cpBriefing img{width:100%;align-self:center;border:1px solid #b9a16b77;border-radius:5px}.cpBriefing h2{font-size:30px;margin:12px 0}.cpBriefing p,.cpBriefing li{line-height:1.8;font-size:14px;color:#c3ced0}.cpBriefing ul{padding-left:20px}
 @media(max-height:470px){.cpMenu{padding:18px 5%}.cpMissionCard{margin:12px 0}.cpMissionCard img{min-height:140px}.cpMissionCard>div{padding:12px 12px 12px 0}.cpMissionCard h2{font-size:19px}.cpMenu h1{font-size:27px!important;margin:7px 0}.cpSynopsis{font-size:12px;margin:6px 0}.cpDialogue{bottom:4%;left:4%;right:4%;padding:12px 18px 10px;min-height:135px}.cpLine{font-size:14px!important;line-height:1.65!important;margin:7px 0 10px!important}.cpSpeaker{font-size:15px}.cpVNFooter button{min-height:30px!important;padding:4px 10px!important}.cpBriefing{padding:16px 5%;gap:20px}.cpBriefing h2{font-size:23px}.cpBriefing p,.cpBriefing li{font-size:12px;line-height:1.6}.cpBriefing h1{font-size:26px!important}.cpResult{padding:22px 30px}.cpResult h1{font-size:28px!important}}
 @media(max-width:560px) and (min-height:471px){.cpMenu{padding:20px}.cpMissionCard{display:block}.cpMissionCard img{width:100%;height:145px;min-height:0}.cpMissionCard>div{padding:15px}.cpBriefing{display:block;padding:20px}.cpBriefing img{max-height:180px;object-fit:cover}.cpDialogue{left:4%;right:4%;bottom:3%;max-height:52%;padding:15px}.cpLine{font-size:15px!important}.cpPortrait{left:10%;width:70%;height:80%;bottom:18%}.cpVNTop{left:12px;right:12px;flex-wrap:wrap}.cpVNTools{gap:4px}.cpVNTop .cpEyebrow{font-size:9px;letter-spacing:1px}.cpSheet{inset:3%;padding:15px}.cpResult{padding:30px 20px}}
+
+
+/* Separate, uncropped character assets; no atlas regions or neighboring shoulders. */
+.cpPortrait{left:4%;bottom:0;width:45%;height:96%;object-fit:contain;object-position:center bottom;background:none;mask-image:none;filter:drop-shadow(8px 0 16px #0004)}
+.cpBriefing{display:grid;grid-template-columns:minmax(0,1fr) minmax(275px,1fr);gap:24px;height:100%;padding:20px 5%;overflow:hidden}
+.cpBriefMap{min-height:0;display:flex;align-items:center;justify-content:center}
+.cpBriefMap img{width:100%;height:100%;max-height:100%;object-fit:contain}
+.cpBriefContent{min-height:0;display:grid;grid-template-rows:auto 1fr auto;gap:12px}
+#campaignRoot .cpBriefContent h1{font-size:clamp(24px,4vw,42px);margin:6px 0}
+.cpGoals{display:flex;flex-direction:column;justify-content:center;min-height:0}
+.cpGoals h2{font-size:clamp(19px,2.6vw,27px);margin:0 0 12px}
+.cpGoals ul{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.cpGoals li{display:grid;grid-template-columns:74px 1fr;gap:10px;font-size:clamp(14px,1.8vw,19px);line-height:1.5;color:#f1e9d9}
+.cpGoals li span{font-size:.85em;color:#c5ac76;padding-top:2px}
+.cpBriefActions{display:flex;gap:8px;flex-wrap:wrap;padding-top:8px}
+#campaignRoot .cpBriefActions button{min-height:42px}
+@media(max-height:470px){.cpBriefing{padding:14px 4%;gap:20px}.cpBriefContent{gap:7px}.cpGoals h2{margin-bottom:8px}.cpGoals ul{gap:8px}.cpGoals li{font-size:15px;line-height:1.35;grid-template-columns:60px 1fr;gap:8px}#campaignRoot .cpBriefContent h1{font-size:25px}.cpBriefActions{gap:6px;padding-top:4px}#campaignRoot .cpBriefActions button{font-size:12px;padding:6px 9px;min-height:38px}}
+@media(max-width:560px) and (min-height:471px){.cpPortrait{left:5%;width:90%;height:78%;bottom:17%}.cpBriefing{grid-template-columns:1fr;grid-template-rows:minmax(110px,25%) minmax(0,1fr);padding:18px;gap:16px}.cpBriefMap img{height:100%;max-height:none;object-fit:cover}.cpGoals li{font-size:16px}.cpBriefActions{padding-bottom:env(safe-area-inset-bottom)}}
+
+#campaignObjectives{display:none;position:fixed;z-index:3;align-items:center;justify-content:center;padding:8px}
+body[data-scenario="iron-crown-m01"][data-screen="game"] #campaignObjectives{display:flex}
+.campaignGoalWindow{max-width:520px!important}
+.campaignGoalList{list-style:none;margin:0;padding:0;display:grid;gap:18px;text-align:left}
+.campaignGoalList li{display:flex;gap:14px;align-items:flex-start}
+.goalCheck{font-size:25px;line-height:1.25;color:#d7bd7a}
+.campaignGoalList li>div{display:grid;gap:4px}
+.campaignGoalList small{font-size:12px;color:#c6ae78}
+.campaignGoalList strong{font-size:18px;line-height:1.45;color:#f2ead8}
+.campaignGoalList li>div>span{font-size:14px;color:#b5c9c9}
+@media(max-height:470px){.campaignGoalList{gap:10px}.campaignGoalList strong{font-size:16px}.campaignGoalList li>div{gap:2px}.campaignGoalList small{font-size:11px}.campaignGoalList li>div>span{font-size:12px}}

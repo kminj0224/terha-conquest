@@ -1,7 +1,7 @@
-name: Iron Crown mission 01 v1.11.53 APK
+name: Iron Crown mission 01 v1.11.54 APK
 on:
   push:
-    branches: [main, codex/campaign-shared-engine]
+    branches: [main, codex/campaign-polish]
     paths: ['game/assets/**', 'qa/**', 'build.py', '.github/workflows/build-v11150-autocannon.yml']
 permissions:
   contents: write
@@ -52,7 +52,7 @@ jobs:
         continue-on-error: true
         if: always()
         with:
-          name: Battlefield-layout-v1.11.53
+          name: Battlefield-layout-v1.11.54
           path: |
             qa/battlefield-previews/*.png
             qa/campaign-previews/*
@@ -62,15 +62,15 @@ jobs:
           node qa/armored-car-audio-clock.cjs
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.53.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.54.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.53.apk > SHA256SUMS.txt
+          sha256sum Terha-Conquest-v1.11.54.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: Terha-Conquest-v1.11.53
+          name: Terha-Conquest-v1.11.54
           path: |
-            deliverables/Terha-Conquest-v1.11.53.apk
+            deliverables/Terha-Conquest-v1.11.54.apk
             deliverables/SHA256SUMS.txt
           retention-days: 14
       - name: Publish APK after main integration
@@ -78,7 +78,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.53 deliverables/Terha-Conquest-v1.11.53.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.53' --notes '캠페인 전투를 정복 모드의 실제 엔진과 동일 UI로 통합. 이동·공격 애니메이션, 정보창, 초점 표시, 원본 유닛 스프라이트와 전체화면 캔버스, 생산·연구·적 턴·저장 메뉴를 공유하며 지역 지도·목표·트리거만 시나리오 데이터로 적용. 첫 임무와 도입 25장, 전체 스토리 및 후속 계획 보존. 구형 간이 전투 저장은 작전 설명부터 재시작하며 정복 저장은 유지. Android versionCode 198, 기존 업데이트 인증서 유지.'
+          gh release create v1.11.54 deliverables/Terha-Conquest-v1.11.54.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.54' --notes '캠페인 지도 이동·축소 경계를 제한해 지도 밖 검은 영역 방지. 작전 설명을 목표와 고정 버튼으로 정리하고 메뉴 아래 목표 확인 버튼 추가. 인물별 독립 애니메이션풍 스탠딩과 철관의 성채형 전용 외형 적용. 기존 공용 전투 엔진과 정복 저장, 캠페인 전투 저장 유지. Android versionCode 199, 기존 업데이트 인증서 유지.'
       - name: Prepare APK file attachment
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
@@ -92,7 +92,7 @@ jobs:
           for offset in range(0,len(encoded),4000):
               print('PREVIEW_CHUNK:'+str(offset)+':'+encoded[offset:offset+4000])
           PYPREVIEWS
-          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.53 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.53.apk") | .url')
+          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.54 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.54.apk") | .url')
           python3 - <<'PYTRANSFER'
           import os, urllib.request, urllib.error, base64
           class NoRedirect(urllib.request.HTTPRedirectHandler):

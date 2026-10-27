@@ -1,6 +1,6 @@
 # Terha Conquest project instructions
 
-The current baseline is v1.11.53. Preserve existing save compatibility, faction/type IDs, geography and Android update identity unless the task changes them.
+The current baseline is v1.11.54. Preserve existing save compatibility, faction/type IDs, geography and Android update identity unless the task changes them.
 
 - Edit the game under game/assets; index.html script order matters and bootstrap.js must be last.
 - Build with Python 3 and Java 17 using python3 build.py. The original Android shell, build JARs and signing files are under android/ and tools/.
@@ -19,7 +19,8 @@ The current baseline is v1.11.53. Preserve existing save compatibility, faction/
 ## Iron Crown campaign continuity
 
 - Read docs/campaigns/iron-crown.md and game/assets/campaign-data.js before campaign work. They preserve the approved full story, user decisions and follow-on plan.
-- Only mission 01 is implemented in v1.11.53. Do not implement/unlock later missions before the user supplies play feedback and requests continuation.
+- Only mission 01 is implemented in v1.11.54. Do not implement/unlock later missions before the user supplies play feedback and requests continuation.
 - Campaign production is a game rule, not a lore requirement. Keep campaign saves separate from all conquest save keys.
 - Campaign battles MUST use the existing conquest engine, canvas and UI. Only map data/art, scenario goals and triggers differ. Do not introduce a separate tactical engine or UI.
 - Run npm test (includes qa/campaign-shared-native.cjs) and the Chromium qa/campaign-browser.cjs when changing the campaign.
+\n- Campaign presentation decisions (v1.11.54): clamp viewport and minimum zoom to local artwork only in campaign; compact briefing with visible footer; checklist button directly under the menu. Use separate contain-fit portrait assets. Iron Crown has a unique skin while keeping shared engine rules; never add implementation explanations to gameplay UI.\n
