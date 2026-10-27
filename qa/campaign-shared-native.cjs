@@ -5,7 +5,7 @@ module.exports=async function({run,nodes,click,drain,settle,stored}){
  const original=run('JSON.stringify({units,cities,money,food,oil,tech,owners:tiles.map(t=>t.owner),map:MAP.tiles,appRunId,appRunWon})');
  const keys=['terha-v1','terha-conquests',...Array.from({length:10},(_,i)=>'terha-slot-'+(i+1))],before=keys.map(k=>stored.get(k));
  run('window.sharedCombatRefs=[moveUnit,attack,reachable,endTurn,produce,selectUnit,showPanel,tap,sprite,drawUnitFocus,updateHUD,refreshSelection,launchShot,beginAim];CampaignBattle.start(null,1)');
- assert.equal(run('appScreen'),'game');assert.equal(run('activeScenario.id'),'iron-crown-m01');
+ assert.equal(run('appScreen'),'game');assert.equal(run('activeScenario.id'),'iron-crown-m01');assert.equal(run('relationName(player,player)'),'자국');
  assert(run('[moveUnit,attack,reachable,endTurn,produce,selectUnit,showPanel,tap,sprite,drawUnitFocus,updateHUD,refreshSelection,launchShot,beginAim].every((fn,i)=>fn===sharedCombatRefs[i])'),'Scenario must use identical engine/UI functions');
  assert.equal(nodes.has('campaignCanvas'),false);assert.equal(run('saveKey()'),'terha-campaign-iron-crown-v2');
  run('selectUnit(units[1]);openSelectionPanel()');assert(nodes.get('panel').textContent.includes('체력'));assert(nodes.get('panel').innerHTML.includes('windowHeader'));

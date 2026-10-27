@@ -24,14 +24,14 @@ const CampaignBattle=(()=>{
   units=[];cities=[];logs=[];productionTier=1;productionAA=false;uid=1;turn=1;player=2;difficulty=[0,1,2].includes(level)?level:1;activeSlot=0;started=true;busy=false;
   money=Array(7).fill(950);food=Array(7).fill(1200);oil=Array(7).fill(180);tech=Array(7).fill(0);foodTurn=turn;
   strategicResearch=factions.map(()=>({ballistic:false,nuclear:false,jobs:[]}));militaryResearchJobs=Array(7).fill(null);defeatedNotices=new Set([0,3,4,5,6]);
-  diplomacy=factions.map((_,a)=>factions.map((_,b)=>a===b?'ally':'neutral'));diplomacy[1][2]=diplomacy[2][1]='war';
+  diplomacy=factions.map((_,a)=>factions.map((_,b)=>a===b?'self':'neutral'));diplomacy[1][2]=diplomacy[2][1]='war';
   missileBases=[];navalUid=1;hansaBridges=[];aiTransportGrantTurn=Array(7).fill(-1);aiSpecialOrderTurns.fill(-1);danteExpansionSeeded=true;
   for(const [name,q,r,f,origin,level,capital,hp]of DATA.cities){
    const city={id:cities.length,name,tile:tile(q,r),f,origin,level,capital,seedId:7000+cities.length,airport:false,airTurn:-1,queue:null,produced:false,lastAttackedTurn:turn};
    cityProfile(city);city.hp=hp===null?cityMaxHp(city):hp;syncWarheads(city);cities.push(city);tiles[city.tile].city=city.id;
   }
   buildRegions();
-  const fort=makeUnit(DATA.player,DATA.fortress.type,tile(DATA.fortress.q,DATA.fortress.r),1);fort.missionName='〈철관〉';fort.missionRole='iron-crown';
+  const fort=makeUnit(DATA.player,DATA.fortress.type,tile(DATA.fortress.q,DATA.fortress.r),1);fort.missionName=DATA.fortress.name;fort.missionRole='iron-crown';
   for(const [type,q,r]of DATA.friendly)makeUnit(2,type,tile(q,r),1);
   for(const [type,q,r]of DATA.enemy)makeUnit(1,type,tile(q,r),1);
   if(difficulty===2)for(const [type,q,r]of DATA.hardExtra)makeUnit(1,type,tile(q,r),1);
