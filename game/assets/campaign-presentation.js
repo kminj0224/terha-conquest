@@ -40,7 +40,7 @@ const CampaignPresentation=(()=>{
  function showGoals(){
   if(!activeScenario||busy||campaignLoading)return;
   const info=CampaignBattle.inspect().progress,fort=units.find(u=>u.id===info.fortressId),supply=cities[1]?.f===player,goal=CampaignBattle.objective();
-  setAppScreen('menu');appReturn='game';
+  clearWorldNotices();setAppScreen('menu');appReturn='game';
   appBox('작전 목표','<div id="campaignGoalSheet"><ul class="campaignGoalList"><li><span class="goalCheck">'+(info.result==='won'?'☑':'☐')+'</span><div><small>주 목표</small><strong>〈철관〉을 동쪽 출구로 이동</strong><span>'+goal.value+'</span></div></li><li><span class="goalCheck">'+(fort?'☑':'☐')+'</span><div><small>생존</small><strong>〈철관〉 보존</strong><span>내구도 '+(fort?Math.ceil(fort.hp):0)+'</span></div></li><li><span class="goalCheck">'+(supply?'☑':'☐')+'</span><div><small>선택 목표</small><strong>회랑 보급소 확보</strong><span>'+(supply?'확보':'미확보')+'</span></div></li></ul></div>','campaignGoalWindow');
   $('appBack').textContent='계속';$('appBack').onclick=resume;
  }
