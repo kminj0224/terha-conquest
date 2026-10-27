@@ -15,3 +15,10 @@ The current baseline is v1.11.13. Preserve existing save compatibility, faction/
 
 - For native session edits, also run python3 qa/test-live-session.py. Ordinary Home/Recents and Activity recreation must preserve the same WebView and must not navigate/reload the page.
 
+
+## Iron Crown campaign continuity
+
+- Read docs/campaigns/iron-crown.md and game/assets/campaign-data.js before campaign work. They preserve the approved full story, user decisions and follow-on plan.
+- Only mission 01 is implemented in v1.11.52. Do not implement/unlock later missions before the user supplies play feedback and requests continuation.
+- Campaign production is a game rule, not a lore requirement. Keep campaign saves separate from all conquest save keys.
+- Run node qa/campaign-rules.cjs and the Chromium qa/campaign-browser.cjs when changing the campaign.

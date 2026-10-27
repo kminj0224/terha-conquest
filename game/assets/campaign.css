@@ -1,0 +1,47 @@
+#modal.campaignModal{z-index:8;overflow:hidden;background:#07141c;align-items:stretch;justify-content:stretch}
+#campaignRoot{width:100%;height:100%;position:relative;overflow:hidden;background:#081923;color:#f0e5ce;font-family:Terha,system-ui,sans-serif;text-align:left}
+#campaignRoot *{box-sizing:border-box}
+#campaignRoot button{border:1px solid #b99a625e;background:#122b38e8;color:#e9dcc0;border-radius:4px;min-height:40px;padding:8px 13px;font:inherit;font-size:13px;cursor:pointer}
+#campaignRoot button:hover{border-color:#e4c88b;background:#244150}
+#campaignRoot button:focus-visible{outline:2px solid #ffe3a0;outline-offset:2px}
+#campaignRoot button:disabled{opacity:.4;cursor:default}
+#campaignRoot .gold{background:linear-gradient(#a78a48,#66542f);color:#fff0cc;border-color:#d7bc7e}
+.cpBackdrop{position:absolute;inset:0;background:linear-gradient(90deg,#07131aed,#081b2399),url('campaign-command-room.svg') center/cover}
+.cpMenu{position:relative;height:100%;overflow:auto;padding:clamp(20px,5vh,60px) clamp(20px,6vw,100px)}
+#campaignRoot h1{font-size:clamp(26px,4vw,48px);letter-spacing:.1em;margin:12px 0}
+.cpEyebrow{color:#c5ac76;font:11px Georgia,serif;letter-spacing:4px}
+.cpSynopsis{max-width:690px;line-height:1.8;color:#b9c8ca;font-size:14px}
+.cpMissionCard{display:flex;gap:22px;margin:22px 0;max-width:940px;border:1px solid #b59b6166;background:#0b1e29e8;border-radius:6px;overflow:hidden}
+.cpMissionCard img{width:35%;object-fit:cover;min-height:180px}
+.cpMissionCard>div{padding:18px 18px 18px 0;flex:1}
+.cpMissionCard h2{margin:7px 0;font-size:24px}.cpMissionCard p{font-size:13px;line-height:1.7;color:#b9c8ca}
+.cpActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.cpActions select{padding:10px;color:#e8dfc8;background:#142b35;border:1px solid #8c855e;border-radius:4px;font:inherit}
+.cpNote{font-size:12px;color:#c3b28a;line-height:1.7}.cpError{color:#ffb8a3;font-size:13px;line-height:1.5}
+.cpVN{height:100%;position:relative;background:url('campaign-command-room.svg') center/cover}
+.cpVN.field{background-image:url('campaign-m01-map.svg')}
+.cpVN:before{content:'';position:absolute;inset:0;background:linear-gradient(#05101833,transparent 35%,#04101877)}
+.cpPortrait{position:absolute;left:7%;bottom:0;width:31%;height:94%;background-image:url('campaign-portraits.svg');background-repeat:no-repeat;background-size:300% 100%;mask-image:linear-gradient(#000 70%,transparent);filter:drop-shadow(10px 0 20px #0006)}
+.cpVNTop{position:absolute;top:12px;left:20px;right:20px;display:flex;justify-content:space-between;gap:8px;align-items:center;z-index:2}
+.cpVNTools{display:flex;gap:6px}.cpVNTools button{font-size:12px!important;min-height:34px!important;padding:5px 10px!important;background:#0b1e2ade!important}
+.cpDialogue{position:absolute;left:5%;right:5%;bottom:5%;min-height:155px;max-height:53%;padding:20px 28px 16px;background:linear-gradient(110deg,#0b1e2bf5,#0b1e2bea);border:1px solid #c1a569;border-top:2px solid #d9c188;box-shadow:0 12px 40px #0009;border-radius:5px;overflow:auto;z-index:3}
+.cpSpeaker{color:#e4c180;font-size:18px;letter-spacing:1px}.cpLine{font-size:clamp(14px,1.6vw,20px)!important;line-height:1.85!important;color:#f1eadc!important;margin:10px 0 14px!important;white-space:pre-wrap}
+.cpVNFooter{display:flex;justify-content:space-between;align-items:center;color:#9daeb0;font-size:11px}.cpVNFooter>div{display:flex;gap:7px}
+.cpSheet{position:absolute;z-index:12;inset:5%;background:#0c202af5;border:1px solid #bba267;border-radius:6px;overflow:auto;padding:22px;box-shadow:0 15px 50px #000b}
+.cpSheet h2{margin:0 0 16px}.cpHistoryItem{border-bottom:1px solid #81958a33;padding:10px 0;line-height:1.7;font-size:14px}.cpHistoryItem b{color:#d9ba80}
+.cpBriefing{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:30px;height:100%;overflow:auto;padding:clamp(20px,5vh,50px) 6%}
+.cpBriefing img{width:100%;align-self:center;border:1px solid #b9a16b77;border-radius:5px}.cpBriefing h2{font-size:30px;margin:12px 0}.cpBriefing p,.cpBriefing li{line-height:1.8;font-size:14px;color:#c3ced0}.cpBriefing ul{padding-left:20px}
+.cpBattle{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+.cpHud{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid #a98e5b55;background:#0b1d29;flex-wrap:wrap;min-height:49px;z-index:3}
+.cpHud b{color:#e1c587}.cpHud span{font-size:12px;white-space:nowrap}.cpHud .cpHudGrow{flex:1}.cpHud button{min-height:32px!important;padding:5px 10px!important}
+.cpViewport{position:relative;min-height:0;overflow:hidden;background:#0a1821;touch-action:none}
+#campaignCanvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.cpZoom{position:absolute;left:12px;bottom:12px;display:flex;gap:5px;z-index:2}.cpZoom button{min-width:36px}
+.cpBattleNotice{position:absolute;top:9px;left:50%;transform:translateX(-50%);background:#0a1c2bd9;border:1px solid #9c905f66;padding:7px 12px;border-radius:4px;color:#e4d3ab;font-size:12px;pointer-events:none;text-align:center;max-width:70%}
+.cpBottom{display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid #a98e5b55;background:#0b1d29;min-height:75px}
+.cpSelected{flex:1;min-width:0}.cpSelected b{display:block;color:#dfc38c;font-size:15px}.cpSelected small{display:block;font-size:11px;color:#b2c4c5;line-height:1.6;margin-top:3px}
+.cpBottomActions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.cpRoster{display:flex;gap:5px;overflow:auto;padding:8px 0;max-width:100%}.cpRoster button{flex:none;min-height:34px!important;font-size:11px!important;padding:5px 9px!important}.cpRoster .chosen{border-color:#ebd197!important;background:#34505b!important}
+.cpProduction{max-width:760px;margin:auto}.cpProductionRow{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #708f8e44;padding:12px;margin:8px 0;border-radius:4px;background:#17303a77}.cpProductionRow b{font-size:15px}.cpProductionRow small{display:block;font-size:11px;color:#b4c6c6;line-height:1.7}.cpProductionRow button{flex:none}
+.cpResult{position:relative;max-width:900px;height:100%;overflow:auto;margin:auto;padding:7vh 30px}.cpResult dl{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:20px;background:#0d232de8;border:1px solid #bca16b55}.cpResult dt{color:#9bb2b5}.cpResult dd{margin:0;color:#e4c88e;text-align:right}.cpResult p{font-size:14px;line-height:1.9;color:#c1cccb}
+@media(max-height:470px){.cpMenu{padding:18px 5%}.cpMissionCard{margin:12px 0}.cpMissionCard img{min-height:140px}.cpMissionCard>div{padding:12px 12px 12px 0}.cpMissionCard h2{font-size:19px}.cpMenu h1{font-size:27px!important;margin:7px 0}.cpSynopsis{font-size:12px;margin:6px 0}.cpDialogue{bottom:4%;left:4%;right:4%;padding:12px 18px 10px;min-height:135px}.cpLine{font-size:14px!important;line-height:1.65!important;margin:7px 0 10px!important}.cpSpeaker{font-size:15px}.cpVNFooter button{min-height:30px!important;padding:4px 10px!important}.cpHud{padding:5px 9px;gap:8px;min-height:39px}.cpBottom{padding:6px 9px;min-height:65px;gap:6px}.cpBottom button{min-height:33px!important;padding:5px 8px!important;font-size:11px!important}.cpSelected b{font-size:12px}.cpSelected small{font-size:10px}.cpBriefing{padding:16px 5%;gap:20px}.cpBriefing h2{font-size:23px}.cpBriefing p,.cpBriefing li{font-size:12px;line-height:1.6}.cpBriefing h1{font-size:26px!important}.cpResult{padding:22px 30px}.cpResult h1{font-size:28px!important}}
+@media(max-width:560px) and (min-height:471px){.cpMenu{padding:20px}.cpMissionCard{display:block}.cpMissionCard img{width:100%;height:145px;min-height:0}.cpMissionCard>div{padding:15px}.cpBriefing{display:block;padding:20px}.cpBriefing img{max-height:180px;object-fit:cover}.cpDialogue{left:4%;right:4%;bottom:3%;max-height:52%;padding:15px}.cpLine{font-size:15px!important}.cpPortrait{left:10%;width:70%;height:80%;bottom:18%}.cpVNTop{left:12px;right:12px;flex-wrap:wrap}.cpVNTools{gap:4px}.cpVNTop .cpEyebrow{font-size:9px;letter-spacing:1px}.cpHud{gap:6px}.cpHud>span{font-size:10px}.cpBottom{align-items:flex-start;flex-wrap:wrap}.cpSelected{flex-basis:100%}.cpBottomActions{width:100%;justify-content:space-between}.cpRoster{max-height:90px}.cpSheet{inset:3%;padding:15px}.cpBattleNotice{font-size:10px;max-width:90%;width:max-content}.cpResult{padding:30px 20px}}

@@ -1,7 +1,7 @@
-name: Battlefield mode selection v1.11.51 APK
+name: Iron Crown mission 01 v1.11.52 APK
 on:
   push:
-    branches: [main, codex/battlefield-v11151]
+    branches: [main, codex/iron-crown-m01]
     paths: ['game/assets/**', 'qa/**', 'build.py', '.github/workflows/build-v11150-autocannon.yml']
 permissions:
   contents: write
@@ -29,6 +29,7 @@ jobs:
           node qa/armored-car-audio-clock.cjs
           node qa/burst-audio-regression.cjs
           node qa/armored-car-native.cjs
+          node qa/campaign-rules.cjs
           npm test
           python3 qa/verify-native.py
       - name: Verify battlefield layout in Chromium
@@ -37,27 +38,41 @@ jobs:
           npm install --no-save --package-lock=false playwright
           npx playwright install --with-deps chromium
           node qa/battlefield-layout.cjs
+          node qa/campaign-rules.cjs
+          node qa/campaign-browser.cjs
+      - name: Export campaign review images
+        if: always()
+        run: |
+          python3 - <<'PYREVIEW'
+          import pathlib,base64
+          for path in sorted(pathlib.Path('qa/campaign-previews').glob('review-*.jpg')):
+              encoded=base64.b64encode(path.read_bytes()).decode()
+              for offset in range(0,len(encoded),4000):
+                  print('CAMPAIGN_REVIEW:'+path.name+':'+str(offset)+':'+encoded[offset:offset+4000])
+          PYREVIEW
       - uses: actions/upload-artifact@v4
         continue-on-error: true
         if: always()
         with:
-          name: Battlefield-layout-v1.11.51
-          path: qa/battlefield-previews/*.png
+          name: Battlefield-layout-v1.11.52
+          path: |
+            qa/battlefield-previews/*.png
+            qa/campaign-previews/*
       - name: Build and verify signed Android update
         run: |
           node qa/armored-car-defense-clock.cjs
           node qa/armored-car-audio-clock.cjs
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.51.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.52.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.51.apk > SHA256SUMS.txt
+          sha256sum Terha-Conquest-v1.11.52.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: Terha-Conquest-v1.11.51
+          name: Terha-Conquest-v1.11.52
           path: |
-            deliverables/Terha-Conquest-v1.11.51.apk
+            deliverables/Terha-Conquest-v1.11.52.apk
             deliverables/SHA256SUMS.txt
           retention-days: 14
       - name: Publish APK after main integration
@@ -65,7 +80,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.51 deliverables/Terha-Conquest-v1.11.51.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.51' --notes '전장에 캠페인·정복 좌우 배너 선택 화면 추가. 두 버튼을 플레이로 통일하고 설명 문구와 화살표 삭제. 정복은 기존 국가선택 화면으로 연결. 뒤로가기·메뉴 음악·영문 표시 검증. 캠페인 시나리오는 준비 중 화면. Android versionCode 196, 기존 업데이트 인증서 유지.'
+          gh release create v1.11.52 deliverables/Terha-Conquest-v1.11.52.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.52' --notes '왕명을 운반하는 성 첫 임무 출정 허가: 비주얼 노벨 25장, 전용 지역 전장과 인물·상륙성 삽화, 병력 생산·보충·점령·적 턴·호위 목표, 별도 저장과 이어하기·재시작·완료 결과. 전체 스토리와 8개 임무 계획을 저장소 데이터와 인계 문서에 보존. 첫 임무까지만 플레이 가능. Android versionCode 197, 기존 업데이트 인증서 유지.'
       - name: Prepare APK file attachment
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
@@ -79,7 +94,7 @@ jobs:
           for offset in range(0,len(encoded),4000):
               print('PREVIEW_CHUNK:'+str(offset)+':'+encoded[offset:offset+4000])
           PYPREVIEWS
-          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.51 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.51.apk") | .url')
+          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.52 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.52.apk") | .url')
           python3 - <<'PYTRANSFER'
           import os, urllib.request, urllib.error, base64
           class NoRedirect(urllib.request.HTTPRedirectHandler):
