@@ -1,42 +1,37 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const {chromium}=require('playwright');const {spawn}=require('node:child_process');
+const {chromium}=require('playwright'),{spawn}=require('node:child_process');
 (async()=>{
  const server=spawn('python3',['-m','http.server','8766','--bind','127.0.0.1'],{cwd:path.resolve(__dirname,'..'),stdio:'ignore'});let browser;
  try{
-  browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:960,height:540}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  const enter=async()=>{await page.goto('http://127.0.0.1:8766/game/assets/index.html');await page.locator('#appStart:not([disabled])').waitFor();await page.click('#appStart');await page.click('#battle');await page.click('#campaignMode');await page.locator('#cpNew').waitFor()};
-  await enter();await page.evaluate(()=>{localStorage.setItem('terha-v1','CONQUEST-PRESERVED');for(let n=1;n<=10;n++)localStorage.setItem('terha-slot-'+n,'SLOT-'+n)});
-  await page.click('#cpNew');assert.equal(await page.locator('.cpVNFooter>span').textContent(),'1 / 25');
-  fs.mkdirSync('qa/campaign-previews',{recursive:true});await page.screenshot({path:'qa/campaign-previews/01-intro.png'});
-  for(let n=0;n<7;n++)await page.click('#cpNext');await page.click('#cpHistory');assert.equal(await page.locator('.cpHistoryItem').count(),8);await page.click('#cpSheetClose');await page.click('#cpVNLeave');await page.click('#cpContinue');assert.equal(await page.locator('.cpVNFooter>span').textContent(),'8 / 25');
-  await enter();await page.click('#cpContinue');assert.equal(await page.locator('.cpVNFooter>span').textContent(),'8 / 25');await page.screenshot({path:'qa/campaign-previews/02-portrait.png'});await page.screenshot({path:'qa/campaign-previews/review-vn.jpg',type:'jpeg',quality:70});
-  await page.click('#cpSkip');await page.click('#cpReadAgain');const lines=[];for(let n=0;n<25;n++){lines.push(await page.locator('#cpLine').textContent());await page.click('#cpNext')}assert.equal(new Set(lines).size,25);await page.locator('#cpLaunch').waitFor();await page.screenshot({path:'qa/campaign-previews/03-briefing.png'});
-  await page.click('#cpLaunch');await page.locator('#campaignCanvas').waitFor();await page.waitForTimeout(700);
-  const target=await page.evaluate(()=>TerhaCampaign.screenPoint({q:3,r:6})),box=await page.locator('#campaignCanvas').boundingBox();await page.mouse.click(box.x+target.x,box.y+target.y);assert.equal(await page.evaluate(()=>TerhaCampaign.getState().battle.units.find(u=>u.kind==='fortress').q),3);
-  await page.click('#cpProduce');await page.locator('#cpCatalogue [data-kind="rifle"]').click();assert(await page.evaluate(()=>!!TerhaCampaign.getState().battle.facilities.find(f=>f.id==='base').queue));await page.click('#cpEnd');await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>TerhaCampaign.getState().battle.produced),1);
-  await page.screenshot({path:'qa/campaign-previews/04-battle.png'});
-  const saved=await page.evaluate(()=>JSON.stringify(TerhaCampaign.getState().battle));await enter();await page.click('#cpContinue');assert.equal(await page.evaluate(()=>JSON.stringify(TerhaCampaign.getState().battle)),saved);
-  for(const [width,height]of [[800,360],[640,360],[390,844]]){await page.setViewportSize({width,height});await page.waitForTimeout(80);assert(await page.locator('#cpEnd').isVisible());const overflow=await page.evaluate(()=>document.getElementById('campaignRoot').scrollWidth>innerWidth);assert.equal(overflow,false);await page.screenshot({path:'qa/campaign-previews/battle-'+width+'.png'});if(width===800)await page.screenshot({path:'qa/campaign-previews/review-battle.jpg',type:'jpeg',quality:70})}
-  await page.setViewportSize({width:960,height:540});
-  const result=await page.evaluate(()=>{
-   const R=CampaignRules,A=TerhaCampaign;let count=0;
-   for(let round=0;round<35&&A.getState().phase==='battle';round++){
-    let s=A.getState().battle;const ids=s.units.filter(u=>u.side===0).map(u=>u.id);
-    for(const id of ids){if(A.getState().phase!=='battle')break;s=A.getState().battle;let u=s.units.find(u=>u.id===id);if(!u)continue;let t=s.units.filter(v=>R.canFire(s,u,v)).sort((a,b)=>a.hp-b.hp)[0];
-     if(u.kind==='fortress'){
-      const p=[...R.paths(s,u).keys()].map(k=>{const[q,r]=k.split(',').map(Number);return{q,r}}).filter(p=>!R.at(s,p)).sort((a,b)=>R.distance(a,R.EXIT)-R.distance(b,R.EXIT))[0];if(p&&A.act({type:'move',id,...p}))count++;
-     }else if(t){if(A.act({type:'attack',id,target:t.id}))count++}
-     else{const enemy=s.units.filter(v=>v.side===1).sort((a,b)=>R.distance(u,a)-R.distance(u,b))[0];if(enemy){const p=[...R.paths(s,u).keys()].map(k=>{const[q,r]=k.split(',').map(Number);return{q,r}}).filter(p=>!R.at(s,p)).sort((a,b)=>R.distance(a,enemy)-R.distance(b,enemy))[0];if(p&&A.act({type:'move',id,...p}))count++}}
-     if(A.getState().phase!=='battle')break;s=A.getState().battle;u=s.units.find(u=>u.id===id);if(!u)continue;t=s.units.filter(v=>R.canFire(s,u,v)).sort((a,b)=>a.hp-b.hp)[0];if(t&&A.act({type:'attack',id,target:t.id}))count++;
-    }
-    if(A.getState().phase==='battle')A.act({type:'end'});
-   }
-   return{phase:A.getState().phase,state:A.getState().battle,count};
-  });assert.equal(result.phase,'won');assert(result.count>5);assert(result.state.produced>0);await page.locator('#cpResultMenu').waitFor();await page.screenshot({path:'qa/campaign-previews/05-complete.png'});await page.screenshot({path:'qa/campaign-previews/review-complete.jpg',type:'jpeg',quality:70});
-  assert.equal(await page.evaluate(()=>localStorage.getItem('terha-v1')),'CONQUEST-PRESERVED');for(let n=1;n<=10;n++)assert.equal(await page.evaluate(n=>localStorage.getItem('terha-slot-'+n),n),'SLOT-'+n);
-  await page.click('#cpResultMenu');await page.click('#cpContinue');await page.locator('#cpResultRetry').waitFor();await page.click('#cpResultRetry');await page.click('#confirmYes');assert.equal(await page.evaluate(()=>TerhaCampaign.getState().battle.turn),1);assert.equal(await page.evaluate(()=>TerhaCampaign.getState().phase),'battle');
-  await page.evaluate(()=>window.terhaBack());await page.locator('#cpNew').waitFor();await page.click('#appBack');await page.locator('#conquestMode').waitFor();assert.deepEqual(errors,[]);
-  console.log('PASS actual browser campaign: 25 VN panels, history/skip/resume/reload, pointer movement, production/deployment, 4 viewport sizes, legal full victory, result/retry, all conquest saves unchanged',JSON.stringify({turn:result.state.turn,actions:result.count,produced:result.state.produced}));
+  browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:960,height:540},deviceScaleFactor:2}),errors=[];page.on('pageerror',e=>errors.push(e.message));fs.mkdirSync('qa/campaign-previews',{recursive:true});
+  await page.goto('http://127.0.0.1:8766/game/assets/index.html');await page.locator('#appStart:not([disabled])').waitFor();await page.click('#appStart');await page.click('#battle');await page.click('#conquestMode');await page.locator('#factions button').nth(2).click();await page.click('#start');await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading);
+  const ui=()=>page.evaluate(()=>Object.fromEntries(['c','hud','controls','turnControls','selectionActions','panel'].map(id=>{const e=document.getElementById(id),s=getComputedStyle(e),r=e.getBoundingClientRect();return[id,{x:r.x,y:r.y,w:r.width,h:r.height,font:s.fontFamily,fontSize:s.fontSize,position:s.position}]})));
+  await page.evaluate(()=>{window.originalCombatFunctions=[moveUnit,attack,reachable,endTurn,produce,selectUnit,showPanel,tap,sprite,drawUnitFocus,updateHUD,refreshSelection,launchShot,beginAim];const u=units.find(u=>u.f===player&&u.type===0&&!cityAt(u.tile));const p=pxy(u.tile);cam.x=p.x;cam.y=p.y;cam.z=1.2;tap(screenW/2,screenH/2)});await page.click('#selectionInfo');await page.locator('#panel .windowHeader').waitFor();const originalUI=await ui();assert.equal(await page.evaluate(()=>c.width),1920);await page.screenshot({path:'qa/campaign-previews/conquest-ui.png'});
+  await page.click('#panel .close');await page.click('#menu');await page.click('#leaveOperation');await page.click('#confirmYes');await page.locator('#battle').waitFor();
+  const savedConquest=await page.evaluate(()=>{for(let i=1;i<=10;i++)localStorage.setItem('terha-slot-'+i,'SLOT-'+i);return Object.fromEntries(['terha-v1','terha-conquests',...Array.from({length:10},(_,i)=>'terha-slot-'+(i+1))].map(k=>[k,localStorage.getItem(k)]))});
+  await page.click('#battle');await page.click('#campaignMode');await page.click('#cpNew');for(let n=0;n<25;n++)await page.click('#cpNext');await page.click('#cpLaunch');await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading&&!!activeScenario);
+  assert(await page.evaluate(()=>[moveUnit,attack,reachable,endTurn,produce,selectUnit,showPanel,tap,sprite,drawUnitFocus,updateHUD,refreshSelection,launchShot,beginAim].every((fn,i)=>fn===originalCombatFunctions[i])));
+  assert.equal(await page.locator('#campaignCanvas').count(),0);assert.equal(await page.locator('.cpBattle').count(),0);assert.equal(await page.locator('#campaignRoot').count(),0);assert.equal(await page.evaluate(()=>c.width),1920);
+  const focus=async id=>page.evaluate(id=>{const u=units.find(u=>u.id===id),p=pxy(u.tile);cam.x=p.x;cam.y=p.y;cam.z=1.2;tap(screenW/2,screenH/2)},id);
+  await focus(2);assert.equal(await page.evaluate(()=>unitFocusId),2);await page.click('#selectionInfo');await page.locator('#panel .windowHeader').waitFor();assert((await page.locator('#panel').textContent()).includes('소총수'));const campaignUI=await ui();assert.deepEqual(campaignUI,originalUI);await page.screenshot({path:'qa/campaign-previews/campaign-ui.png'});await page.screenshot({path:'qa/campaign-previews/review-battle.jpg',type:'jpeg',quality:75});await page.click('#panel .close');
+  const clickTile=async tile=>{const p=await page.evaluate(tile=>{const p=pxy(tile);return{x:(p.x-cam.x)*cam.z+screenW/2,y:(p.y-cam.y)*cam.z+screenH/2}},tile);await page.mouse.click(p.x,p.y)};
+  const target=await page.evaluate(()=>CampaignBattle.tile(5,7));await clickTile(target);assert(await page.evaluate(()=>moving.some(m=>m.id===2)));const movingA=await page.evaluate(()=>unitVisualPosition(units.find(u=>u.id===2),performance.now()));await page.waitForTimeout(180);const movingB=await page.evaluate(()=>unitVisualPosition(units.find(u=>u.id===2),performance.now()));assert.notDeepEqual(movingA,movingB);await page.waitForTimeout(350);assert.equal(await page.evaluate(()=>unitFocusId),2);
+  await focus(5);await clickTile(await page.evaluate(()=>CampaignBattle.tile(5,6)));await page.waitForTimeout(500);const victim=await page.evaluate(()=>units.find(u=>u.f===1&&u.tile===CampaignBattle.tile(8,6)));assert(victim);await clickTile(victim.tile);await page.waitForTimeout(80);assert(await page.evaluate(()=>busy&&(aimMotions.size>0||fireMotions.size>0||fx.length>0)));assert.equal(await page.evaluate(id=>units.find(u=>u.id===id)?.hp,victim.id),victim.hp);await page.waitForFunction(()=>!busy);assert((await page.evaluate(id=>units.find(u=>u.id===id)?.hp||0,victim.id))<victim.hp);
+  await page.evaluate(()=>selectCity(cities[0],true));await page.click('#cityArmy');await page.locator('#panel .produceButton').filter({hasText:/^소총수 1/}).first().click();assert(await page.evaluate(()=>!!cities[0].queue));await page.click('#turn');await page.waitForTimeout(50);if(await page.locator('#aiFastForward').isVisible())await page.click('#aiFastForward');await page.waitForFunction(()=>!busy&&!aiTurnActive);assert.equal(await page.evaluate(()=>cities[0].queue),null);assert(await page.evaluate(()=>units.some(u=>u.f===2&&u.producedAtCityId===0)));
+  await page.click('#menu');await page.click('#manualSave');await page.click('#slotSave10');assert(await page.evaluate(()=>!!readSave(10)));await page.click('#slotBack');await page.click('#resume');
+  for(const [width,height]of [[800,360],[640,360],[390,844]]){await page.setViewportSize({width,height});await page.waitForTimeout(70);const actual=await page.locator('#c').boundingBox();assert.equal(actual.width,width);assert.equal(actual.height,height);assert(await page.locator('#turn').isVisible());await page.screenshot({path:'qa/campaign-previews/shared-'+width+'.png'})}
+  await page.setViewportSize({width:960,height:540});await page.evaluate(()=>{const f=units.find(u=>u.id===CampaignBattle.inspect().progress.fortressId),p=pxy(f.tile);cam.x=p.x;cam.y=p.y;cam.z=1.2});await page.screenshot({path:'qa/campaign-previews/shared-final.png'});
+  for(let n=0;n<18;n++){
+   const state=await page.evaluate(()=>({active:!!activeScenario,status:CampaignBattle.inspect().progress?.result,busy}));if(!state.active||state.status)break;
+   await page.evaluate(()=>{const info=CampaignBattle.inspect(),u=units.find(u=>u.id===info.progress.fortressId);if(!u)return;const exit=info.progress.exit,options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile&&!unitAt(i)).sort((a,b)=>distance(a,exit)-distance(b,exit));if(options[0]!==undefined)moveUnit(u,options[0]);checkEnd()});await page.waitForTimeout(500);
+   if(await page.evaluate(()=>!!CampaignBattle.inspect().progress?.result))break;
+   await page.evaluate(async()=>{const p=endTurn();enableAIFastForward();await p});
+  }
+  await page.locator('#cpResultRetry').waitFor({timeout:20000});assert.equal(await page.evaluate(()=>TerhaCampaign.getState().phase),'won');await page.screenshot({path:'qa/campaign-previews/complete.png'});
+  await page.click('#appBack');await page.locator('#cpContinue').waitFor();await page.click('#appBack');await page.locator('#conquestMode').waitFor();
+  assert.deepEqual(await page.evaluate(keys=>Object.fromEntries(keys.map(k=>[k,localStorage.getItem(k)])),Object.keys(savedConquest)),savedConquest);
+  await page.evaluate(()=>CampaignBattle.start(null,1));await page.evaluate(()=>{CampaignBattle.leave();setAppScreen('campaign')});assert.equal(await page.evaluate(()=>activeScenario),null);
+  assert.deepEqual(errors,[]);console.log('PASS identical shared campaign UI/engine: exact combat function identities, fullscreen DPR2 canvas and HUD/panel geometry, native focus/information/production/slots, interpolated movement, timed firing and damage, native AI, legal mission victory and all conquest saves preserved');
  }finally{await browser?.close();server.kill()}
 })().catch(e=>{console.error(e);process.exitCode=1});

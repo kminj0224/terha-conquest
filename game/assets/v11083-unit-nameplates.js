@@ -47,7 +47,7 @@ function drawUnitNameOverlays(visibleUnits,now){
   // Body origin is p.y-3, original HP meter starts at local y=21.
   // Baseline 14 pixels below the anchor: 4 px above the meter.
   const baseline=p.y+14;
-  const label=TYPES[u.type].name+' '+u.level;
+  const label=unitDisplayName(u)+' '+u.level;
   const width=ctx.measureText?ctx.measureText(label).width:label.length*5.5;
   const mark=false;
   const size=10,gap=2;
