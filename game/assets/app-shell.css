@@ -116,3 +116,34 @@ body:is([data-screen="country"],[data-screen="records"]) #modal{overflow:hidden;
 #panel .windowHeader .cityCountryName,#panel .windowHeader .cityHeadLevel{font-size:11px}
 
 #panel .supplyCityLink{display:inline;padding:0;margin:0;min-height:0;border:0;background:none;color:#e9c987;font:inherit;cursor:pointer}
+#modal .battlefieldPage{position:relative;display:flex;flex-direction:column;justify-content:flex-start;gap:0;padding:clamp(14px,3vh,32px) max(5vw,env(safe-area-inset-left)) clamp(18px,5vh,50px);isolation:isolate;background:#07141de8;overflow:auto}
+#modal .battlefieldPage:before{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(#05121b99,#06111bd9),url('campaign-banner.svg') center/cover no-repeat;pointer-events:none}
+.battlefieldBack{position:absolute;left:max(20px,3vw,env(safe-area-inset-left));top:max(18px,3vh,env(safe-area-inset-top));border:0;background:transparent;color:#e4c488;font-size:clamp(14px,1.8vw,23px);padding:7px 10px;z-index:2}
+.battlefieldBack:hover{color:#fff0c6;background:#132831aa}
+.battlefieldHeading{flex:none;text-align:center;margin:0 0 clamp(16px,3vh,32px);width:min(500px,62vw)}
+.battlefieldHeading .eyebrow{display:block;font:clamp(9px,1vw,13px) Georgia,serif;letter-spacing:clamp(3px,.65vw,8px);color:#d9b777}
+#modal .battlefieldHeading h1{position:static;margin:7px 0 10px;font-size:clamp(32px,4.5vw,62px);line-height:1.1;letter-spacing:.16em;text-indent:.16em;color:#f1d49c;text-shadow:0 3px 14px #000}
+.battlefieldRule{display:block;height:1px;position:relative;background:linear-gradient(90deg,transparent,#d3ae69,transparent)}
+.battlefieldRule:after{content:'';position:absolute;left:50%;top:-3px;width:7px;height:7px;border:1px solid #d8b574;background:#0b1c26;transform:translateX(-50%) rotate(45deg)}
+.battlefieldModes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(14px,1.6vw,28px);width:min(1440px,100%);flex:1;min-height:270px;max-height:760px}
+.battlefieldMode{position:relative;isolation:isolate;display:block;width:100%;height:100%;min-height:0;padding:0;overflow:hidden;border:2px solid #c8a36a;border-radius:7px;background:#102a38;box-shadow:0 12px 35px #0009;cursor:pointer;transition:border-color .15s,transform .15s}
+.battlefieldMode:before{content:'';position:absolute;inset:5px;z-index:3;pointer-events:none;border:1px solid #e0bc7544;border-radius:3px}
+.battlefieldMode:after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,#06111b00 20%,#06121a33 47%,#050d15e6 73%,#050d15 100%)}
+.modeIllustration{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:43% center;transition:transform .25s}
+.conquestMode .modeIllustration{height:76%;object-fit:contain;object-position:center 30%;filter:saturate(.88);background:radial-gradient(ellipse,#264b5c,#102a38 75%);padding:3% 2% 0}
+.modeCaption{position:absolute;left:7%;right:7%;bottom:5%;z-index:2;display:flex;align-items:center;flex-direction:column;gap:clamp(7px,1.5vh,15px);pointer-events:none}
+.modeCaption strong{font-size:clamp(30px,4.8vw,72px);line-height:1.1;font-weight:800;color:#f2dfb6;letter-spacing:.08em;text-indent:.08em;text-shadow:0 3px 14px #000}
+.modeCaption small{display:flex;align-items:center;gap:16px;width:80%;justify-content:center;font:clamp(9px,1.1vw,15px) Georgia,serif;letter-spacing:clamp(2px,.4vw,6px);color:#dfbd7b}
+.modeCaption small:before,.modeCaption small:after{content:'';height:1px;max-width:70px;flex:1;background:linear-gradient(90deg,transparent,#c9a366)}
+.modeCaption small:after{transform:rotate(180deg)}
+.modePlay{display:flex;align-items:center;justify-content:center;width:54%;min-width:110px;min-height:44px;margin-top:clamp(3px,1vh,12px);padding:7px 18px;border:1px solid #d6b371;border-radius:3px;background:linear-gradient(#20303bd9,#09121be6);box-shadow:inset 0 0 0 3px #d6b37116;font-size:clamp(16px,2vw,27px);font-weight:700;color:#f1dfb7;letter-spacing:.12em;text-indent:.12em}
+.battlefieldMode:hover{border-color:#ffe2a2}
+.battlefieldMode:hover .modeIllustration{transform:scale(1.025)}
+.battlefieldMode:focus-visible,.battlefieldBack:focus-visible{outline:3px solid #ffe2a2;outline-offset:4px}
+.battlefieldMode:active{transform:translateY(2px)}
+.campaignEmpty{padding:24px 0;text-align:center}
+@media(max-height:470px){#modal .battlefieldPage{padding-top:12px;padding-bottom:14px}.battlefieldHeading{margin-bottom:12px}.battlefieldHeading .eyebrow{font-size:9px;letter-spacing:4px}#modal .battlefieldHeading h1{font-size:30px;margin:4px 0 9px}.battlefieldModes{min-height:220px}.modeCaption{bottom:6%;gap:6px}.modeCaption strong{font-size:clamp(28px,4.5vw,44px)}.modeCaption small{font-size:9px}.modePlay{margin-top:3px;min-height:36px;padding:4px 14px;font-size:17px}.battlefieldBack{top:13px}}
+@media(max-width:540px) and (min-height:471px){#modal .battlefieldPage{padding:18px 18px 24px}.battlefieldBack{left:12px;top:16px;font-size:13px}.battlefieldHeading{margin-bottom:24px}.battlefieldModes{gap:12px;min-height:320px;max-height:620px}.modeCaption{left:5%;right:5%;bottom:6%}.modeCaption strong{font-size:29px}.modeCaption small{gap:7px;font-size:8px;letter-spacing:2px}.modePlay{width:84%;min-width:0;font-size:16px}.modeIllustration{object-position:40% center}.conquestMode .modeIllustration{height:70%;padding:5px}}
+@media(prefers-reduced-motion:reduce){.battlefieldMode,.modeIllustration{transition:none}}
+
+/* Battlefield mode selection v1.11.51 */
