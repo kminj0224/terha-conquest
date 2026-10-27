@@ -8,7 +8,7 @@ const path=require('node:path');
  const server=spawn('python3',['-m','http.server','8765','--bind','127.0.0.1'],{cwd:path.resolve(__dirname,'..'),stdio:'ignore'});
  let browser;
  try{
-  browser=await chromium.launch({headless:true});
+  browser=await chromium.launch({headless:true,channel:process.env.TERHA_CHROME_CHANNEL||undefined});
   const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8765/game/assets/index.html');
   await page.locator('#appStart:not([disabled])').waitFor();
