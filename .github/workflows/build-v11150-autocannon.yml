@@ -26,12 +26,7 @@ jobs:
         run: |
           python3 tools/prepare_operation_music.py
           npm install --no-save --package-lock=false playwright
-          if command -v google-chrome; then
-            google-chrome --version
-            export TERHA_CHROME_CHANNEL=chrome
-          else
-            npx playwright install --with-deps chromium
-          fi
+          npx playwright install chromium
           node qa/battlefield-layout.cjs
           node qa/campaign-browser.cjs
       - name: Verify save migration, artwork, game and Android shell
