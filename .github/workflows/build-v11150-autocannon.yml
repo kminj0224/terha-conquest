@@ -30,6 +30,16 @@ jobs:
           node qa/armored-car-native.cjs
           npm test
           python3 qa/verify-native.py
+      - name: Verify battlefield layout in Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+          node qa/battlefield-layout.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Battlefield-layout-v1.11.51
+          path: qa/battlefield-previews/*.png
       - name: Build and verify signed Android update
         run: |
           node qa/armored-car-defense-clock.cjs
