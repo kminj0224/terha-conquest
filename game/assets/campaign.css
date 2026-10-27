@@ -63,3 +63,5 @@ body[data-scenario="iron-crown-m01"][data-screen="game"] #campaignObjectives{dis
 .campaignGoalList strong{font-size:18px;line-height:1.45;color:#f2ead8}
 .campaignGoalList li>div>span{font-size:14px;color:#b5c9c9}
 @media(max-height:470px){.campaignGoalList{gap:10px}.campaignGoalList strong{font-size:16px}.campaignGoalList li>div{gap:2px}.campaignGoalList small{font-size:11px}.campaignGoalList li>div>span{font-size:12px}}
+/* Inspection windows must cover the campaign shortcut beneath the header. */
+body[data-scenario="iron-crown-m01"] #panel{z-index:2}
