@@ -33,6 +33,7 @@ jobs:
           python3 qa/verify-native.py
       - name: Verify battlefield layout in Chromium
         run: |
+          python3 tools/prepare_operation_music.py
           npm install --no-save --package-lock=false playwright
           npx playwright install --with-deps chromium
           node qa/battlefield-layout.cjs
