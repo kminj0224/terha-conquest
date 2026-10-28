@@ -28,7 +28,10 @@ module.exports=async function({run,nodes,click,drain,settle,stored}){
  assert(run('save(9)'));const waveIds=run('JSON.stringify(units.filter(u=>u.missionWave).map(u=>u.id))');
  await drain(run('load(9)'));run('save();save()');assert.equal(run('JSON.stringify(units.filter(u=>u.missionWave).map(u=>u.id))'),waveIds,'No duplicated waves after loading');
  // Isolated victory fixture: prove there is no minimum turn or mandatory wait.
- run('for(let n=0;n<5;n++){units=units.filter(u=>u.f===2);save()}CampaignBattle.check()');
+ // The exit now sits in a narrow illustrated road mouth. A hero parked there
+ // correctly blocks safe reinforcement entry; clear that entrance in this
+ // isolated objective fixture before testing the turn-one victory rule.
+ run('for(let n=0;n<10;n++){units=units.filter(u=>u.f===2);units.find(u=>u.missionRole).tile=CampaignBattle.tile(2,8);save()}units=units.filter(u=>u.f===2);units.find(u=>u.missionRole).tile=CampaignBattle.inspect().progress.exit;CampaignBattle.check()');
  assert.equal(run('turn'),1);assert.equal(run('CampaignBattle.inspect().progress.result'),'won');
  run('CampaignBattle.leave()');
  assert.equal(run('JSON.stringify({units,cities,money,food,oil,tech,owners:tiles.map(t=>t.owner),map:MAP.tiles,appRunId,appRunWon})'),original);
