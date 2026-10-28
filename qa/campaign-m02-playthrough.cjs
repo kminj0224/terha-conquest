@@ -10,8 +10,8 @@ module.exports=async function({run,drain}){
    if(production)for(const q of cities.filter(q=>q.f===2)){
     const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
     const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
-    let k=pool[(turn+q.id)%pool.length];if(prepared&&force.filter(u=>u.type===18).length<3)k=18;
-    if(produce(q,k,prepared?(k===18?1:k===0?3:2):1,false))built++;
+    let k=pool[(turn+q.id)%pool.length];if(prepared){const knights=force.filter(u=>u.type===18).length;k=knights<1&&food[2]>=unitPrice(18,1)?18:rifles<3?0:force.filter(u=>u.type===10).length<4?10:2;}
+    if(produce(q,k,1,false)||prepared&&produce(q,0,1,false))built++;
    }
    if(prepared){const h=units.find(u=>u.missionRole==='iron-crown');if(h&&h.hp<unitMaxHp(h)*.75&&canResupply(h))repair(h)}
    aiTurnActive=true;enableAIFastForward();
