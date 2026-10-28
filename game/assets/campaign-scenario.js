@@ -64,7 +64,7 @@ const CampaignBattle=(()=>{
     progress.initialFriendly=units.filter(u=>u.f===2).map(u=>u.id);
     for(const [key,target]of [['money',money],['food',food],['oil',oil]])target[2]+=Math.floor(Math.max(0,previous[key]?.[2]||0)*.25);
    }
-   food[2]+=600;oil[2]+=180;
+   food[2]+=2400;oil[2]+=180;
    // The paid passage gives the central staging point, never skips a wave.
    if(progress.route==='pay'){money[2]-=600;const gate=cities[1];gate.f=2;gate.hp=cityMaxHp(gate);tiles[gate.tile].owner=2;buildRegions()}
    // Scripted reinforcements supply the enemy. Its normal economy/AI still runs.

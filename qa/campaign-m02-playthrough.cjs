@@ -21,12 +21,17 @@ module.exports=async function({run,drain}){
     for(let action=0;action<5&&u.ap>0&&units.includes(u);action++){
      const hold=prepared&&(turn<18||u.missionRole&&u.hp<unitMaxHp(u)*.65);
      if(hold&&u.missionRole&&u.tile!==cities[0].tile&&mayMove(u)&&reachable(u).costs.has(cities[0].tile)){moveUnit(u,cities[0].tile,true);continue}
-     const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0),targets=enemies.filter(v=>canAttack(u,v));
-     if(targets.length){targets.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,targets[0],true);continue}
+     const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0);
      if(prepared&&u.type===0&&mayMove(u)){
       const take=cities.filter(q=>q.f===1&&q.hp<=0&&!unitAt(q.tile)&&reachable(u).costs.has(q.tile)).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
       if(take){moveUnit(u,take.tile,true);continue}
      }
+     if(prepared&&!hold){
+      const siege=cities.filter(q=>q.f===1&&[1,2].includes(q.id)&&canAttackCity(u,q)&&(TYPES[u.type].branch==='artillery'&&q.hp>1||u.type===0&&q.hp<=200)).sort((a,b)=>a.hp-b.hp)[0];
+      if(siege){await attackCity(u,siege,true);continue}
+     }
+     const targets=enemies.filter(v=>canAttack(u,v));
+     if(targets.length){targets.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,targets[0],true);continue}
      const forts=cities.filter(q=>q.f===1&&canAttackCity(u,q));
      if(forts.length){forts.sort((a,b)=>([1,2].includes(b.id)?1:0)-([1,2].includes(a.id)?1:0)||a.hp-b.hp);await attackCity(u,forts[0],true);continue}
      if(!mayMove(u))break;
