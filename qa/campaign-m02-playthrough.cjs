@@ -17,7 +17,7 @@ module.exports=async function({run,drain}){
    }
    if(prepared){const h=units.find(u=>u.missionRole==='iron-crown');if(h&&h.hp<unitMaxHp(h)*.75&&canResupply(h))repair(h)}
    aiTurnActive=true;enableAIFastForward();
-   const army=units.filter(u=>u.f===2).sort((a,b)=>(a.missionRole?1:0)-(b.missionRole?1:0));
+   const army=units.filter(u=>u.f===2).sort((a,b)=>extraction?(a.missionRole?-1:0)-(b.missionRole?-1:0):(a.missionRole?1:0)-(b.missionRole?1:0));
    for(const u of army){
     if(!units.includes(u))continue;
     for(let action=0;action<5&&u.ap>0&&units.includes(u);action++){
@@ -27,6 +27,7 @@ module.exports=async function({run,drain}){
       if(u.missionRole){options.sort((a,b)=>distance(a,exit)-distance(b,exit));if(options[0]!==undefined&&distance(options[0],exit)<distance(u.tile,exit)){moveUnit(u,options[0],true);continue}}
       else if(distance(u.tile,exit)<4){options.sort((a,b)=>distance(b,exit)-distance(a,exit));if(options[0]!==undefined){moveUnit(u,options[0],true);continue}}
      }
+     if(extract&&!u.missionRole)break;
      const hold=prepared&&!extract&&u.missionRole&&u.hp<unitMaxHp(u)*.65;
      if(hold&&u.missionRole&&u.tile!==cities[0].tile&&mayMove(u)&&reachable(u).costs.has(cities[0].tile)){moveUnit(u,cities[0].tile,true);continue}
      const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0);
@@ -38,7 +39,7 @@ module.exports=async function({run,drain}){
      // Fire before advancing into a defended point; do not march past a shot.
      if(prepared){const immediate=enemies.filter(v=>canAttack(u,v));if(immediate.length){immediate.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,immediate[0],true);continue}}
 
-     if(prepared&&!hold){
+     if(prepared&&!hold&&!(cities[1].f===2&&cities[2].f===2)){
       const operationCities=cities.filter(q=>[1,2,3].includes(q.id));aiObjectives[2]=operationCities.filter(q=>q.f===1).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0]||null;
       const command=aiStep(u,operationCities);
       if(command?.attack){await attack(u,command.attack,true);continue}
@@ -72,7 +73,7 @@ module.exports=async function({run,drain}){
      const hero=units.find(v=>v.missionRole==='iron-crown'),threat=enemies.filter(v=>hero&&distance(v.tile,hero.tile)<7||distance(v.tile,cities[0].tile)<6);
      const goals=cities.filter(q=>q.f!==2&&[1,2,3].includes(q.id));
      const goal=goals.sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
-     const near=threat.length?threat:enemies;
+     const remainingWaves=enemies.filter(v=>v.missionWave);const near=prepared&&cities[1].f===2&&cities[2].f===2&&remainingWaves.length?remainingWaves:threat.length?threat:enemies;
      const target=near.sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
      const targetTile=u.missionRole&&cities[1].f===2&&cities[2].f===2&&near.length===0?CampaignBattle.inspect().progress.exit:target?.tile??goal?.tile??(u.missionRole?CampaignBattle.inspect().progress.exit:cities[0].tile);
      const options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile);

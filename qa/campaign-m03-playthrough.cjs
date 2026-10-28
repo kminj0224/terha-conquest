@@ -38,7 +38,7 @@ module.exports=async function({run,drain}){
      // Fire before advancing into a defended point; do not march past a shot.
      if(prepared){const immediate=enemies.filter(v=>canAttack(u,v));if(immediate.length){immediate.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,immediate[0],true);continue}}
 
-     if(prepared&&!hold){
+     if(prepared&&!hold&&!(cities[1].f===2&&cities[2].f===2)){
       const operationCities=cities.filter(q=>[1,2,3].includes(q.id));aiObjectives[2]=operationCities.filter(q=>q.f===1).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0]||null;
       const command=aiStep(u,operationCities);
       if(command?.attack){await attack(u,command.attack,true);continue}
@@ -72,7 +72,7 @@ module.exports=async function({run,drain}){
      const hero=units.find(v=>v.missionRole==='iron-crown'),threat=enemies.filter(v=>hero&&distance(v.tile,hero.tile)<7||distance(v.tile,cities[0].tile)<6);
      const goals=cities.filter(q=>q.f!==2&&[1,2,3].includes(q.id));
      const goal=goals.sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
-     const near=threat.length?threat:enemies;
+     const remainingWaves=enemies.filter(v=>v.missionWave);const near=prepared&&cities[1].f===2&&cities[2].f===2&&remainingWaves.length?remainingWaves:threat.length?threat:enemies;
      const target=near.sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
      const targetTile=u.missionRole&&cities[1].f===2&&cities[2].f===2&&near.length===0?CampaignBattle.inspect().progress.exit:target?.tile??goal?.tile??(u.missionRole?CampaignBattle.inspect().progress.exit:cities[0].tile);
      const options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile);
