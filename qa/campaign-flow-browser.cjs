@@ -1,0 +1,34 @@
+'use strict';
+const assert=require('node:assert/strict');
+module.exports=async function(page){
+ console.log('CAMPAIGN_QA_PHASE','explicit fresh launch, Continue and in-operation restart');
+ await page.evaluate(()=>TerhaCampaign.open());await page.click('#cpCampaignIron');await page.click('#cpContinue');
+ await page.waitForFunction(()=>activeScenario?.id==='iron-crown-m03'&&!campaignLoading);
+ const checkpoint=await page.evaluate(()=>TerhaCampaign.getState().checkpoint);
+ const otherSaves=await page.evaluate(()=>Object.fromEntries(Object.keys(localStorage).filter(k=>/^terha-campaign-iron-crown(?:-m02)?-(?:v2|slot-|v1-mission-[12]|v1-victory-[12])/.test(k)).map(k=>[k,localStorage.getItem(k)])));
+ await page.evaluate(async()=>{const p=endTurn();enableAIFastForward();await p});
+ const progressed=await page.evaluate(()=>({turn,units:JSON.stringify(units),save:localStorage.getItem(TerhaCampaign.storageKey)}));assert(progressed.turn>1);
+ await page.evaluate(()=>{CampaignBattle.leave();TerhaCampaign.open()});await page.click('#cpCampaignIron');await page.click('#cpMission3');
+ assert.equal(await page.evaluate(()=>activeScenario),null);
+ assert.equal(await page.evaluate(()=>TerhaCampaign.getState().battle),null);
+ assert.equal(await page.evaluate(()=>localStorage.getItem(TerhaCampaign.storageKey)),progressed.save,'Viewing the briefing cannot overwrite the saved operation');
+ assert.equal(await page.locator('#cpReadAgain').count(),0);assert.equal(await page.locator('#cpChangeRoute').count(),0);
+ await page.click('#cpBriefLeave');await page.click('#cpContinue');await page.waitForFunction(()=>activeScenario?.id==='iron-crown-m03'&&!campaignLoading);
+ assert.equal(await page.evaluate(()=>turn),progressed.turn);assert.equal(await page.evaluate(()=>JSON.stringify(units)),progressed.units);assert.equal(await page.locator('.cpVN').count(),0);
+ await page.click('#menu');
+ for(const [width,height]of [[640,360],[390,844]]){await page.setViewportSize({width,height});const r=await page.locator('#campaignRestart').boundingBox();assert(r&&r.x>=0&&r.y>=0&&r.x+r.width<=width+1&&r.y+r.height<=height+1,'Restart is immediately visible')}
+ await page.setViewportSize({width:960,height:540});await page.screenshot({path:'qa/campaign-previews/review-restart-menu.jpg',type:'jpeg',quality:80});
+ await page.click('#campaignRestart');await page.click('#confirmNo');assert.equal(await page.evaluate(()=>turn),progressed.turn);assert.equal(await page.evaluate(()=>JSON.stringify(units)),progressed.units);
+ await page.click('#campaignRestart');await page.click('#confirmYes');await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading);
+ assert.equal(await page.evaluate(()=>turn),checkpoint.turn);
+ for(const key of ['units','money','food','oil','tech'])assert.deepEqual(await page.evaluate(key=>snapshot()[key],key),checkpoint[key],key+' resets to mission start');
+ assert.deepEqual(await page.evaluate(()=>TerhaCampaign.getState().completed),[1,2]);
+ await page.evaluate(()=>{CampaignBattle.leave();TerhaCampaign.open()});await page.click('#cpCampaignIron');await page.click('#cpMission3');
+ assert.equal(await page.evaluate(()=>TerhaCampaign.getState().battle),null);
+ await page.click('#cpLaunch');assert.equal(await page.evaluate(()=>TerhaCampaign.getView()),'intro');assert.equal(await page.evaluate(()=>TerhaCampaign.getState().vn),0);assert.equal(await page.evaluate(()=>TerhaCampaign.getState().checkpoint),null);
+ await page.click('#cpNext');await page.click('#cpNext');await page.click('#cpVNLeave');await page.click('#cpCampaignIron');await page.click('#cpMission3');
+ assert.equal(await page.evaluate(()=>TerhaCampaign.getView()),'briefing');await page.click('#cpResumeMission');assert.equal(await page.evaluate(()=>TerhaCampaign.getView()),'intro');assert.equal(await page.evaluate(()=>TerhaCampaign.getState().vn),2,'Explicit Continue resumes saved dialogue');
+ assert.deepEqual(await page.evaluate(keys=>Object.fromEntries(keys.map(k=>[k,localStorage.getItem(k)])),Object.keys(otherSaves)),otherSaves);
+ await page.evaluate(original=>{if(activeScenario)CampaignBattle.leave();localStorage.setItem(TerhaCampaign.storageKey,original);TerhaCampaign.open();TerhaCampaign.close()},progressed.save);
+ console.log('PASS campaign flow: card never loads or overwrites autosave, explicit Continue resumes exact battle/dialogue, Launch starts VN at panel1, no replay-only button, visible Restart cancel/confirm restores checkpoint and preserves completed/other mission saves');
+};

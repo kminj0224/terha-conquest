@@ -6,6 +6,13 @@ module.exports=async function(page){
  await page.click('#cpCampaignIron');
  await page.click('#cpMission2');
  assert.equal(await page.evaluate(()=>TerhaCampaign.getView()),'briefing');
+ for(const [width,height]of [[640,360],[800,360],[390,844]]){
+  await page.setViewportSize({width,height});
+  for(const id of ['cpLaunch','cpBriefLeave']){const r=await page.locator('#'+id).boundingBox();assert(r&&r.x>=0&&r.y>=0&&r.x+r.width<=width+1&&r.y+r.height<=height+1,id+' visible')}
+  assert(await page.locator('.cpBriefContent').evaluate(e=>e.scrollHeight<=e.clientHeight+1));
+ }
+ assert(!(await page.locator('.cpGoals').textContent()).includes('20턴'));
+ await page.setViewportSize({width:960,height:540});await page.screenshot({path:'qa/campaign-previews/review-m02-briefing.jpg',type:'jpeg',quality:65});
  await page.click('#cpLaunch');
  assert.equal(await page.evaluate(()=>TerhaCampaign.getState().mission),2);
  const silent=async()=>assert(await page.evaluate(()=>{applyAppAudio();return menuMusic.paused&&!operationMusicActive&&(!operationBufferPlayer||!operationBufferPlayer.running)}),'Dialogue must silence title and operation music');
@@ -16,15 +23,7 @@ module.exports=async function(page){
  await page.reload();await page.waitForFunction(()=>typeof TerhaCampaign!=='undefined');await page.evaluate(()=>TerhaCampaign.open());await page.click('#cpCampaignIron');await page.click('#cpContinue');
  assert.equal(await page.evaluate(()=>TerhaCampaign.getState().vn),saved.vn);await silent();
  await page.click('#cpSkip');await page.locator('#cpPay').waitFor();
- await page.click('#cpPay');
- for(const [width,height]of [[640,360],[800,360],[390,844]]){
-  await page.setViewportSize({width,height});
-  for(const id of ['cpLaunch','cpReadAgain','cpBriefLeave']){const r=await page.locator('#'+id).boundingBox();assert(r&&r.x>=0&&r.y>=0&&r.x+r.width<=width+1&&r.y+r.height<=height+1,id+' visible')}
-  assert(await page.locator('.cpBriefContent').evaluate(e=>e.scrollHeight<=e.clientHeight+1));
- }
- assert(!(await page.locator('.cpGoals').textContent()).includes('20턴'));
- await page.setViewportSize({width:960,height:540});await page.screenshot({path:'qa/campaign-previews/review-m02-briefing.jpg',type:'jpeg',quality:65});
- await page.click('#cpLaunch');await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading&&activeScenario?.id==='iron-crown-m02');
+ await page.click('#cpPay');await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading&&activeScenario?.id==='iron-crown-m02');
  await page.waitForFunction(()=>CampaignBattle.ready());assert(await page.locator('#campaignObjectives').isVisible());assert.equal(await page.evaluate(()=>cities[1].f),2);
  await page.click('#campaignObjectives');assert((await page.locator('#campaignGoalSheet').textContent()).includes('남부 보급소'));assert(!(await page.locator('#campaignGoalSheet').textContent()).includes('20턴'));await page.click('#appBack');
  await page.screenshot({path:'qa/campaign-previews/review-m02-battle.jpg',type:'jpeg',quality:65});

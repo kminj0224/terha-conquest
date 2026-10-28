@@ -32,7 +32,9 @@ module.exports=async function(page){
  await page.evaluate(()=>TerhaCampaign.back());
  await page.click('#cpMission2');
  assert.equal(await page.evaluate(()=>TerhaCampaign.getView()),'briefing');
- assert(await page.evaluate(()=>!!TerhaCampaign.getState().battle),'Switching to a replay must retain the other mission battle');
- await page.evaluate(original=>{localStorage.setItem(TerhaCampaign.storageKey,original);TerhaCampaign.open()},original);
+ assert.equal(await page.evaluate(()=>TerhaCampaign.getState().battle),null,'Mission card opens a fresh briefing');
+ await page.click('#cpResumeMission');await page.waitForFunction(()=>activeScenario?.id==='iron-crown-m02'&&!campaignLoading);
+ assert(await page.evaluate(()=>!!TerhaCampaign.getState().battle),'Explicit Continue restores the other mission');
+ await page.evaluate(original=>{if(activeScenario)CampaignBattle.leave();localStorage.setItem(TerhaCampaign.storageKey,original);TerhaCampaign.open()},original);
  console.log('PASS campaign library: seven empty banners, eight mission cards, responsive layout, locked future missions, completed replay, briefing before VN and other mission save retained');
 };
