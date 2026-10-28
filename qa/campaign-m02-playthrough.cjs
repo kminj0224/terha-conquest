@@ -27,6 +27,16 @@ module.exports=async function({run,drain}){
       const take=cities.filter(q=>q.f===1&&q.hp<=0&&!unitAt(q.tile)&&reachable(u).costs.has(q.tile)).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
       if(take){moveUnit(u,take.tile,true);continue}
      }
+     if(prepared&&!hold&&mayMove(u)){
+      const goal=cities.filter(q=>q.f===1&&[1,2,3].includes(q.id)).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
+      if(goal){const wanted=TYPES[u.type].branch==='artillery'?TYPES[u.type].range:0,at=distance(u.tile,goal.tile);
+       if(at>wanted){const options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile&&distance(i,goal.tile)<at);
+        const risk=i=>enemies.reduce((n,v)=>n+(distance(i,v.tile)<=TYPES[v.type].range?1:0),0);
+        options.sort((a,b)=>Math.max(wanted,distance(a,goal.tile))-Math.max(wanted,distance(b,goal.tile))+(risk(a)-risk(b))*.12);
+        if(options[0]!==undefined){moveUnit(u,options[0],true);continue}
+       }
+      }
+     }
      if(prepared&&!hold){
       const siege=cities.filter(q=>q.f===1&&[1,2].includes(q.id)&&canAttackCity(u,q)&&(TYPES[u.type].branch==='artillery'&&q.hp>1||u.type===0&&q.hp<=200)).sort((a,b)=>a.hp-b.hp)[0];
       if(siege){await attackCity(u,siege,true);continue}
