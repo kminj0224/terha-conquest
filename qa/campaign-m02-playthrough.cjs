@@ -6,7 +6,7 @@ module.exports=async function({run,drain}){
   if(prepared){CampaignBattle.start(null,1);const hero=units.find(u=>u.missionRole==='iron-crown');hero.tile=CampaignBattle.inspect().progress.exit;CampaignBattle.check();carry=JSON.parse(JSON.stringify(snapshot()));CampaignBattle.leave()}
   CampaignBattle.start(null,1,{id:'iron-crown-m02',route,carry});
   rngSeed=74123;let built=0,losses=0;const initial=units.filter(u=>u.f===2).length;
-  for(let step=0;step<42&&!CampaignBattle.inspect().progress.result;step++){
+  for(let step=0;step<65&&!CampaignBattle.inspect().progress.result;step++){
    if(production)for(const q of cities.filter(q=>q.f===2)){
     const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
     const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
@@ -19,6 +19,8 @@ module.exports=async function({run,drain}){
    for(const u of army){
     if(!units.includes(u))continue;
     for(let action=0;action<5&&u.ap>0&&units.includes(u);action++){
+     const hold=prepared&&(turn<18||u.missionRole&&u.hp<unitMaxHp(u)*.65);
+     if(hold&&u.missionRole&&u.tile!==cities[0].tile&&mayMove(u)&&reachable(u).costs.has(cities[0].tile)){moveUnit(u,cities[0].tile,true);continue}
      const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0),targets=enemies.filter(v=>canAttack(u,v));
      if(targets.length){targets.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,targets[0],true);continue}
      if(prepared&&u.type===0&&mayMove(u)){
@@ -44,6 +46,12 @@ module.exports=async function({run,drain}){
        if(u.type===0&&goal.hp<=0)d=distance(i,goal.tile)-10;
        else if(TYPES[u.type].branch==='artillery'&&goal.hp>0)d=Math.abs(distance(i,goal.tile)-TYPES[u.type].range)*.8+(target?Math.max(0,2-distance(i,target.tile))*5:0);
        else if(!u.missionRole)d+=distance(i,goal.tile)*.15;
+      }
+      if(hold){
+       const anchor=cities[0].tile,dist=distance(i,anchor);
+       d=(u.missionRole?dist*5:Math.abs(dist-(TYPES[u.type].branch==='artillery'?2:1))*2);
+       if(target)d+=Math.abs(distance(i,target.tile)-Math.max(1,TYPES[u.type].range))*.2;
+       if(TYPES[u.type].branch==='artillery'&&target&&distance(i,target.tile)<=1)d+=10;
       }
       return d;
      };
