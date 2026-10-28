@@ -6,6 +6,8 @@ const prelude=fs.readFileSync(filename,'utf8').split("assert.equal(run('appScree
 const tail=`
 (async()=>{
  await Promise.all(pending);run('setup();started=true;setAppScreen("game")');
+ await require('./campaign-shared-native.cjs')({run,nodes,click,drain,settle,stored});
+ await require('./campaign-m02-native.cjs')({run,nodes,click,drain,settle,stored});
  await require('./campaign-m02-playthrough.cjs')({run,drain});
  console.log('PASS standalone mission02 tactical simulation');process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1)});

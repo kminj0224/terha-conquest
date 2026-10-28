@@ -5,16 +5,16 @@ Object.assign(IRON_CROWN_CAMPAIGN.missions[1],{status:'playable',objective:'관�
 IRON_CROWN_CAMPAIGN.battle2={
  id:'iron-crown-m02',schema:2,map:{origin:{x:40,y:30},cols:24,rows:16,image:'campaign-m02-map.webp'},player:2,
  fortress:{type:14,q:2,r:8,name:'〈철관〉'},exit:{q:22,r:7},
- cities:[['서부 전진기지',2,9,2,2,5,true,null],['관문 외곽 진지',12,7,1,2,2,false,1800],['남부 보급소',11,11,1,2,2,false,1200],['북부 포대',14,3,1,1,2,false,1600],['동부 군용도로',20,7,1,1,2,false,2000]],
+ cities:[['서부 전진기지',2,9,2,2,5,true,null],['관문 외곽 진지',12,7,1,2,2,false,1800],['남부 보급소',11,11,1,2,2,false,1200],['북부 포대',14,3,1,1,1,false,1600],['동부 군용도로',20,7,1,1,1,false,2000]],
  friendly:[[0,3,8],[0,3,9],[2,2,7]],
  enemy:[[0,7,8],[12,8,7],[9,10,7],[10,12,8],[16,14,4],[9,13,4],[0,11,12],[8,12,11],[1,18,7],[9,19,8]],hardExtra:[[9,13,6],[2,16,8]],
  triggers:[{id:'depot',city:2,owner:2,message:'남부 보급소 확보'},{id:'battery',city:3,owner:2,message:'북부 포대 확보'}],
  waves:[
-  {turn:5,name:'동부 선발대',edge:'east',troops:[0,0,12,8,9]},
-  {turn:9,name:'북부 대전차·포병대',edge:'north',troops:[9,9,16,2,0,10]},
-  {turn:13,name:'남부 우회대',edge:'southwest',troops:[11,11,12,8,0,9]},
-  {turn:17,name:'동부 기갑대·남부 측면대',edge:'split',troops:[1,1,13,9,0,11,8,16]},
-  {turn:20,name:'관문 탈환대',edge:'split',troops:[14,1,9,9,2,16,0,8,11,12]}
+  {turn:5,name:'동부 선발대',edge:'east',troops:[0,12,8,9]},
+  {turn:9,name:'북부 대전차·포병대',edge:'north',troops:[9,9,16,2,0]},
+  {turn:13,name:'남부 우회대',edge:'southwest',troops:[11,12,8,0]},
+  {turn:17,name:'동부 기갑대·남부 측면대',edge:'split',troops:[1,13,9,0,11,16]},
+  {turn:20,name:'관문 탈환대',edge:'split',troops:[14,1,9,2,16,0,8]}
  ]
 };
 IRON_CROWN_CAMPAIGN.intro2=[
