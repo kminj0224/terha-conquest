@@ -3,14 +3,17 @@ const assert=require('node:assert/strict');
 module.exports=async function(page){
  console.log('CAMPAIGN_QA_PHASE','mission02 continuation and dialogue silence');
  await page.evaluate(()=>{if(activeScenario)CampaignBattle.leave();TerhaCampaign.open()});
+ await page.click('#cpCampaignIron');
  await page.click('#cpMission2');
+ assert.equal(await page.evaluate(()=>TerhaCampaign.getView()),'briefing');
+ await page.click('#cpLaunch');
  assert.equal(await page.evaluate(()=>TerhaCampaign.getState().mission),2);
  const silent=async()=>assert(await page.evaluate(()=>{applyAppAudio();return menuMusic.paused&&!operationMusicActive&&(!operationBufferPlayer||!operationBufferPlayer.running)}),'Dialogue must silence title and operation music');
  await silent();
  for(let n=0;n<7;n++){await page.click('#cpNext');await silent()}
  await page.click('#cpHistory');await silent();assert((await page.locator('#cpSheet').textContent()).includes('관문'));await page.click('#cpSheetClose');
  const saved=await page.evaluate(()=>TerhaCampaign.getState());
- await page.reload();await page.waitForFunction(()=>typeof TerhaCampaign!=='undefined');await page.evaluate(()=>TerhaCampaign.open());await page.click('#cpContinue');
+ await page.reload();await page.waitForFunction(()=>typeof TerhaCampaign!=='undefined');await page.evaluate(()=>TerhaCampaign.open());await page.click('#cpCampaignIron');await page.click('#cpContinue');
  assert.equal(await page.evaluate(()=>TerhaCampaign.getState().vn),saved.vn);await silent();
  await page.click('#cpSkip');await page.locator('#cpPay').waitFor();
  await page.click('#cpPay');
@@ -32,7 +35,7 @@ module.exports=async function(page){
  // Verify the audio setting itself was never muted by story playback.
  assert(await page.evaluate(()=>appSettings.music>0&&operationMusicActive&&menuMusic.paused));
  await page.evaluate(()=>{CampaignBattle.leave();TerhaCampaign.open()});
- await page.click('#cpContinue');await page.waitForFunction(()=>activeScenario?.id==='iron-crown-m02'&&!campaignLoading);
+ await page.click('#cpCampaignIron');await page.click('#cpContinue');await page.waitForFunction(()=>activeScenario?.id==='iron-crown-m02'&&!campaignLoading);
  assert.equal(await page.evaluate(()=>CampaignBattle.inspect().progress.route),'pay');
  await page.evaluate(()=>{CampaignBattle.leave();TerhaCampaign.close()});
  console.log('PASS mission02 browser: old completed mission continuation, 25-panel dialogue source, dialogue/history/reload silence without changing volume, route choice, compact responsive briefing, dedicated map, checklist, survivor persistence and manual/autosave resume');

@@ -1,5 +1,14 @@
 # 왕명을 운반하는 성 — 스토리·진행 계획·인계 문서
 
+## v1.11.56 캠페인 선택 화면
+
+- 전장 → 캠페인 선택 → 왕명을 운반하는 성 → 8개 임무 카드 → 기존 작전 설명 → 도입 VN → 전투.
+- 남색·금색 가로 배너 디자인 유지. 3열에 현재 캠페인을 왼쪽 위에 배치하고 빈 배너 7개를 둔다. 좁은 세로 화면은 2열로 표시한다.
+- 임무 선택은 승인된 1안(4×2 삽화 카드). 클리어 표시와 재선택을 지원하며 임무 03~08은 구현 전까지 잠근다. 재플레이로 완료 기록을 지우지 않는다.
+- 기존 진행 키는 유지한다. 임무 전환 시 `terha-campaign-iron-crown-v1-mission-N`에 각 임무 기록을 보존하고 `-victory-N`에 승리 시 계승 스냅샷을 보관한다. 다른 임무 재플레이가 진행 중 전투와 계승 전력을 덮어쓰지 않도록 한다.
+- `campaign-iron-crown-banner.webp`: 기본 imagegen 도구로 생성한 UI 없는 배너 삽화. 원본 `exec-3b653cf5-c04c-4f28-9de5-1aa603c0222d.png`. 프롬프트: reference royal heavy tracked Iron Crown tank, navy pennants, mountain fortress, green rocky valley and morning mist, wide painterly strategy illustration, no text/UI/borders. WebP quality 88 변환. 게임 글자·버튼은 HTML로 표시한다.
+- `qa/campaign-library-browser.cjs`: 빈 슬롯 7개, 미션 8개, 가로 화면 한눈 배치, 미래 임무 잠금, 설명창 우선, 클리어 임무 재선택, 다른 임무 저장 보존 검사.
+
 이 문서는 사용자가 승인한 캠페인의 전체 줄거리와 구현 상태를 다음 세션에서 이어가기 위한 기준이다. 런타임 데이터는 `game/assets/campaign-data.js`이며 첫 임무 도입 25장은 그 파일의 `intro`가 정본이다. 임무 01과 02가 구현되어 있으며 임무 03~08은 계획만 있다.
 
 ## 현재 납품 범위

@@ -66,3 +66,31 @@ body[data-scenario^="iron-crown-m"][data-screen="game"] #campaignObjectives{disp
 /* Inspection windows must cover the campaign shortcut beneath the header. */
 body[data-scenario^="iron-crown-m"] #panel{z-index:2}
 
+/* Campaign library and the eight-mission card overview. */
+.cpLibrary{position:relative;height:100%;padding:20px 2.4% 24px;display:flex;flex-direction:column;gap:18px;overflow:auto}
+.cpLibraryHeader{display:flex;gap:20px;align-items:center;border-bottom:1px solid #b89a60;padding-bottom:12px;flex:none}
+#campaignRoot .cpLibraryHeader h1{font-size:clamp(23px,3.4vw,42px);margin:0;letter-spacing:.06em}
+#campaignRoot .cpLibraryHeader button{font-size:32px;width:48px;height:48px;padding:0;color:#dfc48a;border-color:#b99a62}
+.cpCampaignGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-content:start;margin-top:12px}
+#campaignRoot .cpCampaignBanner{position:relative;aspect-ratio:2.7;min-height:0;padding:0;overflow:hidden;border:1px solid #c5a361;border-radius:3px;background:linear-gradient(110deg,#09202b,#07141de8);display:flex;align-items:center;text-align:left}
+.cpCampaignBanner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cpCampaignBanner:after{content:'';position:absolute;inset:5px;border:1px solid #c5a36140;pointer-events:none}
+.cpCampaignBanner>span{position:relative;margin-left:43%;padding:8px;align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:10px;flex:1;background:linear-gradient(90deg,#071b2380,#071b23ed 30%)}
+.cpCampaignBanner strong{font-size:clamp(12px,1.7vw,22px);color:#f0d49d;line-height:1.4;word-break:keep-all}
+.cpCampaignBanner small{font-size:clamp(10px,1.1vw,14px);color:#dfd4b9}
+.cpLibraryTools{display:flex;align-items:center;gap:12px;flex:none;color:#cdbb97}
+.cpLibraryTools select{margin-left:auto;background:#112632;color:#f1e5ce;border:1px solid #a78b56;border-radius:3px;padding:7px;font:inherit;font-size:13px}
+.cpMissionGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(120px,1fr));gap:16px;flex:1;min-height:280px}
+#campaignRoot .cpMissionTile{position:relative;display:flex;flex-direction:column;text-align:left;min-height:0;padding:0;border:1px solid #bb995d;overflow:hidden;background:#081c26;border-radius:3px}
+#campaignRoot .cpMissionTile:hover:not(:disabled){box-shadow:0 0 12px #d7b66c50;border-color:#f1d494}
+.cpMissionTile>img{width:100%;height:0;min-height:0;flex:1;object-fit:cover}
+.cpMissionLabel{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:9px;min-height:51px;background:#071923ed;width:100%}
+.cpMissionLabel b{font-size:22px;font-family:Georgia,serif;color:#e0bf79;font-weight:normal}
+.cpMissionLabel strong{font-size:clamp(12px,1.5vw,19px);font-weight:normal;word-break:keep-all}
+.cpMissionLabel small{margin-left:auto;font-size:10px;color:#dfc489}
+#campaignRoot .cpLocked{opacity:.65}
+.cpLocked>img{filter:grayscale(1) brightness(.5)}
+.cpLock{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);font-size:28px;color:#d6bd85}
+@media(max-height:470px){.cpLibrary{padding:12px 2.4%;gap:10px}.cpLibraryHeader{padding-bottom:8px;gap:12px}#campaignRoot .cpLibraryHeader button{width:36px;height:36px;min-height:36px}.cpCampaignGrid{gap:12px;margin-top:5px}.cpMissionGrid{gap:10px;min-height:200px;grid-template-rows:repeat(2,minmax(95px,1fr))}.cpMissionLabel{padding:6px;gap:5px;min-height:40px}.cpMissionLabel b{font-size:18px}.cpMissionLabel small{font-size:9px}.cpLibraryTools{font-size:12px}#campaignRoot .cpLibraryTools button{min-height:30px;padding:5px 9px}}
+@media(max-width:560px) and (min-height:471px){.cpCampaignGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.cpCampaignBanner>span{margin-left:35%}.cpMissionGrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(120px,1fr));flex:none}.cpMissionTile{min-height:150px!important}.cpMissionTile>img{min-height:100px}.cpLibraryHeader{gap:10px}.cpMissionLabel strong{font-size:14px}}
+
