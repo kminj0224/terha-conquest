@@ -1,6 +1,6 @@
 # Terha Conquest project instructions
 
-The current baseline is v1.11.61. Preserve existing save compatibility, faction/type IDs, geography and Android update identity unless the task changes them.
+The current baseline is v1.11.62. Preserve existing save compatibility, faction/type IDs, geography and Android update identity unless the task changes them.
 
 - Edit the game under game/assets; index.html script order matters and bootstrap.js must be last.
 - Build with Python 3 and Java 17 using python3 build.py. The original Android shell, build JARs and signing files are under android/ and tools/.
@@ -26,8 +26,8 @@ The current baseline is v1.11.61. Preserve existing save compatibility, faction/
 - Run npm test (includes qa/campaign-shared-native.cjs) and the Chromium qa/campaign-browser.cjs when changing the campaign.
 \n- Campaign presentation decisions (v1.11.55): clamp viewport and minimum zoom to local artwork only in campaign; compact briefing with visible footer; checklist button directly under the menu. Use separate contain-fit portrait assets. Iron Crown has a unique skin while keeping shared engine rules; never add implementation explanations to gameplay UI.\n
 
-- v1.11.61 campaign rules: ordinary armies never transfer between missions; use each mission fixed roster and retain only fortress/research/resources continuity. Staging bases are level3, all scenario city levels fixed; no capital-only special production exception. Enemy orders prioritize mission-point defense/recapture, never the departure base. Run qa/campaign-orders-simulation.cjs as well.
+- v1.11.62 campaign rules: ordinary armies never transfer between missions; use each mission fixed roster and retain only fortress/research/resources continuity. Staging bases are level3, all scenario city levels fixed; no capital-only special production exception. Enemy orders prioritize mission-point defense/recapture, never the departure base. Run qa/campaign-orders-simulation.cjs as well.
 
-- v1.11.61 supersedes prior no-deadline rules: every campaign mission shares a deadline/medal system. 1/2/3-star limits: m01 40/26/16, m02 60/40/26, m03 50/35/24; unspecified missions default to40/26/16. This is not an objective/minimum-time lock. Use common deployment/result check-button cards. Native non-land collision masks match original art; cliffs cannot be sailed. Read campaign-rules.js.
+- v1.11.62 supersedes prior no-deadline rules: every campaign mission shares a deadline/medal system. 1/2/3-star limits: m01 40/26/16, m02 60/40/26, m03 50/35/24; unspecified missions default to40/26/16. This is not an objective/minimum-time lock. Use common deployment/result check-button cards. Native non-land collision masks match original art; cliffs cannot be sailed. Read campaign-rules.js.
 
-- v1.11.61: land campaigns also skip prepareAITransports and all whale generation/rendering. Remove legacy campaign ships/ship queues on restore while preserving and safely relocating their cargo. Never suppress the shared ground-defense overlays or conquest naval systems. Run qa/campaign-no-navy-simulation.cjs.
+- v1.11.62: land campaigns also skip prepareAITransports and all whale generation/rendering. Remove legacy campaign ships/ship queues on restore while preserving and safely relocating their cargo. Never suppress the shared ground-defense overlays or conquest naval systems. Run qa/campaign-no-navy-simulation.cjs.

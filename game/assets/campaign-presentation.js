@@ -36,17 +36,25 @@ const CampaignPresentation=(()=>{
   if(!activeScenario||appScreen!=='game')return;
   const r=$('menu').getBoundingClientRect();b.style.left=r.left+'px';b.style.top=(r.bottom+8)+'px';b.style.width=r.width+'px';b.style.height=r.height+'px';
  }
+ function refreshDefenseStatus(){
+  const b=$('campaignDefenseStatus');if(!b)return;
+  const state=CampaignBattle.defenseStatus();if(!state){b.innerHTML='';return}
+  b.disabled=busy;b.innerHTML='<strong>'+state.title+'</strong><span>'+state.sites+'</span><span>반격 격퇴 '+state.defeated+' / 4차</span><span>'+state.waveSummary+'</span>';
+ }
+ window.refreshCampaignDefenseStatus=refreshDefenseStatus;
+ $('campaignDefenseStatus').onclick=showGoals;
  function resume(){setAppScreen('game');alignGoalsButton()}
  function showGoals(){
   if(!activeScenario||busy||campaignLoading)return;
   const rows=CampaignBattle.goalRows();
   clearWorldNotices();setAppScreen('menu');appReturn='game';
-  const d=CampaignOrders.data(),limits=CampaignRules.rules(d);
-  appBox('작전 목표','<div id="campaignGoalSheet"><div class="cpGoalRating"><span>'+turn+' / '+limits[0]+'턴</span>'+limits.map((max,i)=>'<span>'+CampaignRules.row(i+1)+' '+max+'턴</span>').join('')+'</div><ul class="campaignGoalList">'+rows.map(row=>'<li><span class="goalCheck">'+(row.done?'☑':'☐')+'</span><div><strong>'+row.label+'</strong><span>'+row.value+'</span></div></li>').join('')+'</ul></div>','campaignGoalWindow');
+  const d=CampaignOrders.data(),limits=CampaignRules.rules(d),defense=CampaignBattle.defenseStatus();
+  const waveList=defense?'<section class="cpWaveList"><h2>반격 현황 · 격퇴 '+defense.defeated+' / 4차</h2>'+defense.waves.map((w,i)=>'<div class="cpWaveRow '+(w.done?'done':'')+'"><b>'+(i+1)+'차 · '+w.name+'</b><span>'+w.state+'</span></div>').join('')+'</section>':'';
+  appBox('작전 목표','<div id="campaignGoalSheet" class="'+(defense?'cpDefenseGoals':'')+'"><div class="cpGoalRating"><span>'+turn+' / '+limits[0]+'턴</span>'+limits.map((max,i)=>'<span>'+CampaignRules.row(i+1)+' '+max+'턴</span>').join('')+'</div><div class="cpGoalColumns"><ul class="campaignGoalList">'+rows.map(row=>'<li><span class="goalCheck">'+(row.done?'☑':'☐')+'</span><div><strong>'+row.label+'</strong><span>'+row.value+'</span>'+(row.note?'<small>'+row.note+'</small>':'')+'</div></li>').join('')+'</ul>'+waveList+'</div></div>','campaignGoalWindow'+(defense?' cpDefenseWindow':''));
   $('appBack').textContent='계속';$('appBack').onclick=resume;
  }
  $('campaignObjectives').onclick=showGoals;
- const nativeHUD=updateHUD;updateHUD=function(...args){const r=nativeHUD(...args);alignGoalsButton();return r};
+ const nativeHUD=updateHUD;updateHUD=function(...args){const r=nativeHUD(...args);alignGoalsButton();refreshDefenseStatus();return r};
  const nativeBack=window.terhaBack;window.terhaBack=function(){if(activeScenario&&appScreen==='menu'&&$('campaignGoalSheet')&&!appConfirm)return resume();return nativeBack()};
  window.addEventListener('resize',alignGoalsButton);
  return{crownArt,isCrown:crown,muzzle,showGoals,alignGoalsButton};

@@ -50,11 +50,11 @@ const CampaignApp=(()=>{
  function renderBriefing(){
   dialogue(false);view='briefing';mount();const id=mission();
   const goals=id===3?[
-   ['확보','중앙역·신호소 동시 점령'],['방어','두 거점 5턴 방어 · 반격 격퇴'],['실패','〈철관〉 격파 또는 아군 도시 전부 상실']
+   ['확보','중앙역·신호소 동시 점령'],['방어','두 곳을 연속 5턴 유지'],['격퇴','반격 4개 차수 모두 격퇴'],['실패','〈철관〉 격파 또는 아군 도시 전부 상실']
   ]:id===2?[
    ['격퇴','다방향 증원·관문 탈환대 격퇴'],['유지','관문·남부 보급소 동시 확보'],['호위','〈철관〉 동쪽 이탈 · 철관 격파/아군 도시 전부 상실 시 실패']
   ]:[['주 목표','〈철관〉을 동쪽 출구로 이동'],['실패 조건','〈철관〉 격파'],['선택 목표','회랑 보급소 확보']];
-  root.innerHTML='<div class="cpBackdrop"></div><section class="cpBriefing"><div class="cpBriefMap"><img src="'+battleData().map.image+'" alt="작전 지역 지도"></div><div class="cpBriefContent"><header><div class="cpEyebrow">MISSION 0'+id+'</div><h1>'+title()+'</h1></header><div class="cpGoals"><h2>작전 목표</h2><ul>'+goals.map(([label,value])=>'<li><span>'+label+'</span><strong>'+value+'</strong></li>').join('')+'</ul></div><footer class="cpBriefActions"><button id="cpLaunch" class="gold">출격</button>'+(resumeRecord?'<button id="cpResumeMission">이어하기</button>':'')+'<button id="cpBriefLeave">뒤로</button></footer></div></section>';
+  root.innerHTML='<div class="cpBackdrop"></div><section class="cpBriefing"><div class="cpBriefMap"><img src="'+battleData().map.image+'" alt="작전 지역 지도"></div><div class="cpBriefContent"><header><div class="cpEyebrow">MISSION 0'+id+'</div><h1>'+title()+'</h1></header><div class="cpGoals"><h2>작전 목표</h2><ul>'+goals.map(([label,value])=>'<li><span>'+label+'</span><strong>'+value+'</strong></li>').join('')+'</ul>'+(id===3?'<p class="cpDefenseBriefNote">두 거점 확보 시 0/5턴부터 시작<br>한 곳이라도 잃으면 방어 턴 초기화</p>':'')+'</div><footer class="cpBriefActions"><button id="cpLaunch" class="gold">출격</button>'+(resumeRecord?'<button id="cpResumeMission">이어하기</button>':'')+'<button id="cpBriefLeave">뒤로</button></footer></div></section>';
   button('cpLaunch',()=>{draft=false;resumeRecord=null;record.vn=0;record.needsIntro=false;record.phase='intro';record.route=null;record.battle=null;record.checkpoint=null;save();renderVN()});
   button('cpResumeMission',()=>resume(resumeRecord));button('cpBriefLeave',renderMissions)
  }

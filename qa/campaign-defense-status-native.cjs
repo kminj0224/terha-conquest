@@ -1,0 +1,28 @@
+'use strict';
+const assert=require('node:assert/strict');
+module.exports=async function({run,nodes}){
+ run('busy=false;aiTurnActive=false;if(activeScenario)CampaignBattle.leave();setup();started=true;setAppScreen("game");CampaignBattle.start(null,1,{id:"iron-crown-m03"})');
+ assert.equal(run('CampaignBattle.defenseStatus().held'),false);
+ assert(run('CampaignBattle.defenseStatus().waveSummary.includes("출현 전 4차")'));
+ assert(nodes.get('campaignDefenseStatus').textContent.includes('중앙역·신호소를 점령'));
+ run('cities[1].f=2;cities[2].f=2;buildRegions();save()');
+ assert.equal(run('CampaignBattle.inspect().progress.holdTurns'),0);
+ assert(nodes.get('campaignDefenseStatus').textContent.includes('연속 방어 0 / 5턴'));
+ run('turn++;save();save()');assert.equal(run('CampaignBattle.inspect().progress.holdTurns'),1);
+ assert(run('CampaignBattle.defenseStatus().waves[2].state.includes("전장")'));
+ run('cities[2].f=1;save()');assert.equal(run('CampaignBattle.inspect().progress.holdTurns'),0);
+ assert(nodes.get('campaignDefenseStatus').textContent.includes('방어 중단'));
+ assert(run('logs.some(s=>s.includes("0/5턴으로 초기화"))'));
+ run('cities[2].f=2;save();turn+=5;save()');
+ assert.equal(run('CampaignBattle.inspect().progress.holdTurns'),5);
+ assert.equal(run('CampaignBattle.inspect().progress.result'),null);
+ assert(nodes.get('campaignDefenseStatus').textContent.includes('방어 완료 · 반격 격퇴 중'));
+ run('CampaignPresentation.showGoals()');
+ const text=nodes.get('campaignGoalSheet').textContent;
+ for(const s of ['점령한 턴은 0턴','한 곳이라도 잃으면','반격 현황','진입 대기','4차'])assert(text.includes(s),s);
+ run('setAppScreen("game");units=units.filter(u=>u.f===2);for(let n=0;n<10;n++){save();units=units.filter(u=>u.f===2)}CampaignBattle.check()');
+ assert.equal(run('CampaignBattle.defenseStatus().defeated'),4);
+ assert.equal(run('CampaignBattle.inspect().progress.result'),'won');
+ run('CampaignBattle.leave()');
+ console.log('PASS mission03 visible defense: start at zero, actual turn progress, loss/reset notice, five-turn completion separate from four-wave defeat, explicit pending/untriggered waves and final victory');
+};
