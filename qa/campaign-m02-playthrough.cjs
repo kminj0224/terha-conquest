@@ -5,13 +5,13 @@ module.exports=async function({run,drain}){
   if(activeScenario)CampaignBattle.leave();CampaignBattle.start(null,1,{id:'iron-crown-m02',route});
   rngSeed=74123;let built=0,losses=0;const initial=units.filter(u=>u.f===2).length;
   for(let step=0;step<42&&!CampaignBattle.inspect().progress.result;step++){
-   enableAIFastForward();
    if(production)for(const q of cities.filter(q=>q.f===2)){
     const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
     const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
     const k=pool[(turn+q.id)%pool.length];
     if(produce(q,k,1,false))built++;
    }
+   aiTurnActive=true;enableAIFastForward();
    const army=units.filter(u=>u.f===2).sort((a,b)=>(a.missionRole?1:0)-(b.missionRole?1:0));
    for(const u of army){
     if(!units.includes(u))continue;
@@ -38,8 +38,8 @@ module.exports=async function({run,drain}){
      options.sort((a,b)=>score(a)-score(b));if(options[0]===undefined||!moveUnit(u,options[0],true))break;
     }
    }
-   CampaignBattle.check();if(CampaignBattle.inspect().progress.result)break;
-   await endTurn();enableAIFastForward();
+   aiTurnActive=false;aiFastForward=false;CampaignBattle.check();if(CampaignBattle.inspect().progress.result)break;
+   const enemyTurn=endTurn();enableAIFastForward();await enemyTurn;
    losses=initial+built-units.filter(u=>u.f===2).length;
    if(turn%5===0)console.log('M02_PLAY',JSON.stringify({production,route,turn,built,losses,ours:units.filter(u=>u.f===2).length,enemy:units.filter(u=>u.f===1).length,hero:units.find(u=>u.missionRole)?.hp,cities:cities.map(q=>q.f)}));
   }
@@ -47,8 +47,8 @@ module.exports=async function({run,drain}){
   console.log('M02_PLAY_RESULT',JSON.stringify(result));CampaignBattle.leave();return result;
  }`);
  // A reproducible tactical bot uses only real orders and the actual enemy AI.
- const without=await drain(run('m02Autoplay(false,"recapture")'));
+ const without=await run('m02Autoplay(false,"recapture")');
  assert.notEqual(without.result,'won','Starting army alone must not win the reference battle');
- const withProduction=await drain(run('m02Autoplay(true,"pay")'));
+ const withProduction=await run('m02Autoplay(true,"pay")');
  assert(withProduction.built>0); // Results are reported for balance review, not a substitute for human testing.
 };
