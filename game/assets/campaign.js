@@ -15,7 +15,7 @@ const CampaignApp=(()=>{
  function loadRecord(){try{const x=JSON.parse(localStorage.getItem(KEY));if(!x||x.id!==DATA.id||![1,2].includes(x.schema)||!Number.isInteger(x.vn)||x.vn<0||x.vn>=25||![0,1,2].includes(x.difficulty)||!Array.isArray(x.completed))return null;if(x.schema===1){x.schema=2;x.phase=x.phase==='intro'?'intro':'briefing';x.battle=null;x.checkpoint=null;x.legacyReset=true}x.mission=x.mission||1;if(!DATA.implementedMissions.includes(x.mission)||x.mission>1&&!x.completed.includes(x.mission-1))return null;if(!['intro','briefing','route','deployment','battle','won','lost'].includes(x.phase)||x.battle&&!CampaignBattle.valid(x.battle)||x.checkpoint&&!CampaignBattle.valid(x.checkpoint)||x.pendingStart&&!CampaignBattle.valid(x.pendingStart))return null;return x}catch{return null}}
  function save(){if(!record||draft)return true;try{record.savedAt=Date.now();localStorage.setItem(KEY,JSON.stringify(record));archive();return true}catch{notice='캠페인을 저장하지 못했습니다. 저장 공간을 확인하십시오.';return false}}
  function stop(){clearTimeout(autoTimer);autoTimer=null}
- function mount(){stop();$('modal').classList.add('campaignModal');$('modal').innerHTML='<div id="campaignRoot"></div>';root=$('campaignRoot')}
+ function mount(){stop();$('modal').classList.remove('campaignDeployment');$('modal').classList.add('campaignModal');$('modal').innerHTML='<div id="campaignRoot"></div>';root=$('campaignRoot')}
  function button(id,fn){const e=$(id);if(e)e.onclick=fn}
  function open(){if(activeScenario&&!busy)CampaignBattle.leave();setAppScreen('campaign');draft=false;resumeRecord=null;record=loadRecord();view='menu';renderMenu()}
  function close(){dialogue(false);stop();save();$('modal').classList.remove('campaignModal');view='closed';root=null;showBattlefield()}
@@ -34,15 +34,15 @@ const CampaignApp=(()=>{
  }
  function resume(saved=loadRecord()){
   if(!saved)return;const latest=loadRecord();draft=false;resumeRecord=null;record=saved;record.completed=[...new Set([...(latest?.completed||[]),...record.completed])];save();
-  if(record.phase==='deployment')renderDeployment(record.pendingStart||null);else if(record.phase==='intro')renderVN();else if(record.phase==='route')renderChoice();else if(record.phase==='briefing'){if(record.needsIntro)renderBriefing();else if(mission()>1&&!record.route)renderChoice();else enterBattle(record.battle)}else if(['won','lost'].includes(record.phase))renderResult();else enterBattle(record.battle)
+  if(record.phase==='deployment')return renderDeployment(record.pendingStart||null);else if(record.phase==='intro')renderVN();else if(record.phase==='route')renderChoice();else if(record.phase==='briefing'){if(record.needsIntro)renderBriefing();else if(mission()>1&&!record.route)renderChoice();else enterBattle(record.battle)}else if(['won','lost'].includes(record.phase))renderResult();else enterBattle(record.battle)
  }
  function character(id){return id==='steward'?{id,name:'관문 영주의 집사'}:DATA.characters.find(c=>c.id===id)}
  function renderVN(){dialogue(true);view='intro';mount();root.style.setProperty('--cp-field','url("'+battleData().map.image+'")');const line=intro()[record.vn],person=character(line.speaker);root.innerHTML='<section class="cpVN '+(line.scene==='field'?'field':'')+'">'+(person&&person.portrait!==undefined?'<img class="cpPortrait" src="campaign-'+person.id+'-v3.webp" alt="">':'')+'<div class="cpVNTop"><span class="cpEyebrow">'+title()+'</span><div class="cpVNTools"><button id="cpHistory">기록</button><button id="cpAuto">자동</button><button id="cpSkip">건너뛰기</button><button id="cpVNLeave">저장·나가기</button></div></div><div class="cpDialogue"><div class="cpSpeaker">'+esc(person?person.name:line.speaker==='severin'?'제국 통행관리소':'')+'</div><p id="cpLine" class="cpLine">'+esc(line.text)+'</p><div class="cpVNFooter"><span>'+(record.vn+1)+' / '+intro().length+'</span><div><button id="cpPrev" '+(!record.vn?'disabled':'')+'>이전</button><button id="cpNext" class="gold">'+(record.vn===24?(mission()===3?'배차 선택':mission()===2?'통행 조건':'전투 시작'):'다음')+'</button></div></div></div></section>';
- button('cpPrev',()=>{if(record.vn>0){record.vn--;save();renderVN()}});button('cpNext',nextLine);button('cpVNLeave',()=>{save();renderMenu()});button('cpSkip',()=>{record.vn=24;finishVN()});button('cpHistory',history);button('cpAuto',()=>{if(autoTimer){clearTimeout(autoTimer);autoTimer=null;$('cpAuto').textContent='자동';return}$('cpAuto').textContent='자동 중';autoTimer=setTimeout(()=>{autoTimer=null;const next=record.vn+1;nextLine();if(view==='intro'&&record.vn===next)$('cpAuto').click()},Math.max(3500,line.text.length*85))})}
- function nextLine(){if(record.vn<24){record.vn++;save();renderVN()}else finishVN()}
+ button('cpPrev',()=>{if(record.vn>0){record.vn--;save();renderVN()}});button('cpNext',nextLine);button('cpVNLeave',()=>{save();renderMenu()});button('cpSkip',()=>{record.vn=24;return finishVN()});button('cpHistory',history);button('cpAuto',()=>{if(autoTimer){clearTimeout(autoTimer);autoTimer=null;$('cpAuto').textContent='자동';return}$('cpAuto').textContent='자동 중';autoTimer=setTimeout(()=>{autoTimer=null;const next=record.vn+1;nextLine();if(view==='intro'&&record.vn===next)$('cpAuto').click()},Math.max(3500,line.text.length*85))})}
+ function nextLine(){if(record.vn<24){record.vn++;save();renderVN()}else return finishVN()}
  function sheet(html){clearTimeout(autoTimer);autoTimer=null;if($('cpAuto'))$('cpAuto').textContent='자동';const old=$('cpSheet');old?.remove();const e=document.createElement('div');e.id='cpSheet';e.className='cpSheet';e.innerHTML=html;root.appendChild(e);return e}
  function history(){sheet('<h2>대화 기록</h2>'+intro().slice(0,record.vn+1).map(l=>'<div class="cpHistoryItem"><b>'+esc(character(l.speaker)?.name||'')+'</b><div>'+esc(l.text)+'</div></div>').join('')+'<button id="cpSheetClose">닫기</button>');button('cpSheetClose',()=>{ $('cpSheet').remove()})}
- function finishVN(){record.needsIntro=false;if(mission()>1&&!record.route){record.phase='route';save();renderChoice()}else enterBattle(record.battle)}
+ function finishVN(){record.needsIntro=false;if(mission()>1&&!record.route){record.phase='route';save();renderChoice()}else return enterBattle(record.battle)}
  function renderChoice(){if(mission()===3)return renderRailChoice();dialogue(false);view='route';mount();root.innerHTML='<div class="cpBackdrop"></div><section class="cpMenu"><div class="cpEyebrow">MISSION 02</div><h1>통행 조건</h1><article class="cpMissionCard"><img src="'+DATA.battle2.map.image+'" alt="관문 지역"><div><h2>관문 통과</h2><p>두 경로 모두 관문·남부 보급소를 확보하고 적 반격을 막아야 합니다.</p><div class="cpActions"><button id="cpPay" class="gold">통행료 지급 · 600골드</button><button id="cpRecapture">외곽 탈환</button></div><p class="cpNote">지급: 중앙 진지에서 방어 시작<br>탈환: 자금을 보존하고 중앙 진지를 직접 확보</p></div></article><button id="cpChoiceBack">뒤로</button></section>';
   for(const [id,route]of [['cpPay','pay'],['cpRecapture','recapture']])button(id,()=>{record.route=route;save();enterBattle(record.battle)});button('cpChoiceBack',renderMenu)
  }
@@ -58,20 +58,29 @@ const CampaignApp=(()=>{
   button('cpLaunch',()=>{draft=false;resumeRecord=null;record.vn=0;record.needsIntro=false;record.phase='intro';record.route=null;record.battle=null;record.checkpoint=null;save();renderVN()});
   button('cpResumeMission',()=>resume(resumeRecord));button('cpBriefLeave',renderMissions)
  }
- async function enterBattle(s,confirmed=false){
-  if(!s&&!confirmed){renderDeployment();return true}
-  dialogue(false);stop();view='battle';root=null;$('modal').classList.remove('campaignModal');$('modal').innerHTML='';record.phase='battle';setAppScreen('game');
+ async function enterBattle(s,confirmed=false,preview=false){
+  if(!s&&!confirmed)return renderDeployment();
+  dialogue(false);stop();view='battle';root=null;$('modal').classList.remove('campaignModal','campaignDeployment');$('modal').innerHTML='';record.phase=preview?'deployment':'battle';setAppScreen('game');
   const ok=await runCampaignLoading(()=>CampaignBattle.start(s,record.difficulty,{id:battleData().id,route:record.route,carry:record.carry}));
   if(ok===false){if(activeScenario&&!busy)CampaignBattle.leave();setAppScreen('campaign');record.phase='briefing';save();renderBriefing();return false}
-  if(!record.checkpoint)record.checkpoint=JSON.parse(JSON.stringify(snapshot()));record.battle=JSON.parse(JSON.stringify(snapshot()));record.legacyReset=false;delete record.pendingStart;save();return true;
+  if(!record.checkpoint)record.checkpoint=JSON.parse(JSON.stringify(snapshot()));record.battle=JSON.parse(JSON.stringify(snapshot()));record.legacyReset=false;delete record.pendingStart;save();if(preview)showDeploymentCard();return true;
  }
- function onBattleSnapshot(s){if(!record)record={schema:2,id:DATA.id,mission:Number(s.scenario.slice(-2)),phase:'battle',vn:24,difficulty:s.difficulty,battle:null,checkpoint:null,completed:[]};record.battle=JSON.parse(JSON.stringify(s));if(!record.checkpoint)record.checkpoint=JSON.parse(JSON.stringify(s));if(!['won','lost'].includes(record.phase))record.phase='battle';save()}
+ function onBattleSnapshot(s){if(!record)record={schema:2,id:DATA.id,mission:Number(s.scenario.slice(-2)),phase:'battle',vn:24,difficulty:s.difficulty,battle:null,checkpoint:null,completed:[]};record.battle=JSON.parse(JSON.stringify(s));if(!record.checkpoint)record.checkpoint=JSON.parse(JSON.stringify(s));if(!['won','lost','deployment'].includes(record.phase))record.phase='battle';if(record.phase==='deployment')record.pendingStart=JSON.parse(JSON.stringify(s));save()}
  function onResult(win,s){onBattleSnapshot(s);record.phase=win?'won':'lost';if(win){CampaignRules.award(mission(),s.turn,s.difficulty,battleData());if(!record.completed.includes(mission()))record.completed.push(mission())}save();renderResult()}
- function renderDeployment(s=null){
-  dialogue(false);stop();view='deployment';record.phase='deployment';record.pendingStart=s;save();setAppScreen('campaign');mount();
+ async function renderDeployment(s=null){
+  dialogue(false);stop();record.phase='deployment';record.pendingStart=s;save();
+  return enterBattle(s,true,true);
+ }
+ function showDeploymentCard(){
+  view='deployment';record.phase='deployment';record.pendingStart=JSON.parse(JSON.stringify(record.battle));save();
+  setAppScreen('game');mount();$('modal').classList.add('campaignDeployment');$('modal').style.display='flex';
   const limits=CampaignRules.rules(battleData());
-  root.innerHTML='<div class="cpAwardBackdrop" style="background-image:url('+battleData().map.image+')"></div><section class="cpAwardStage"><article class="cpAwardCard" role="dialog" aria-modal="true" aria-labelledby="cpAwardTitle"><div class="cpAwardKicker">OPERATION '+String(mission()).padStart(2,'0')+'</div><h1 id="cpAwardTitle">'+esc(title())+'</h1><div class="cpAwardDivider"><span>작전 평가</span></div><div class="cpRatingGrid">'+limits.map((max,i)=>'<div class="cpRatingTier">'+CampaignRules.row(i+1)+'<strong>'+max+'<small>턴 이내</small></strong></div>').join('')+'</div><div class="cpAwardLimit">제한 '+limits[0]+'턴</div><button id="cpOperationStart" class="cpAwardConfirm" aria-label="작전 시작" title="작전 시작">'+CampaignRules.check+'</button></article></section>';
-  button('cpOperationStart',()=>{if(campaignLoading)return;const snapshot=record.pendingStart||null;return enterBattle(snapshot,true)});
+  root.innerHTML='<section class="cpAwardStage"><article class="cpAwardCard" role="dialog" aria-modal="true" aria-labelledby="cpAwardTitle"><div class="cpAwardKicker">OPERATION '+String(mission()).padStart(2,'0')+'</div><h1 id="cpAwardTitle">'+esc(title())+'</h1><div class="cpAwardDivider"><span>작전 평가</span></div><div class="cpRatingGrid">'+limits.map((max,i)=>'<div class="cpRatingTier">'+CampaignRules.row(i+1)+'<strong>'+max+'<small>턴 이내</small></strong></div>').join('')+'</div><div class="cpAwardLimit">제한 '+limits[0]+'턴</div><button id="cpOperationStart" class="cpAwardConfirm" aria-label="작전 시작" title="작전 시작">'+CampaignRules.check+'</button></article></section>';
+  button('cpOperationStart',()=>{
+   if(campaignLoading||!activeScenario)return;
+   record.phase='battle';delete record.pendingStart;save();view='battle';root=null;
+   $('modal').classList.remove('campaignModal','campaignDeployment');$('modal').innerHTML='';setAppScreen('game');return true;
+  });
  }
  function renderResult(){
   dialogue(false);stop();view='result';setAppScreen('result');appReturn='campaign';mount();
@@ -81,7 +90,7 @@ const CampaignApp=(()=>{
  }
  function nextMission(){const next=mission()+1;if(!record?.completed.includes(mission())||!DATA.implementedMissions.includes(next))return;const carry=record.battle?JSON.parse(JSON.stringify(record.battle)):null;if(activeScenario){if(busy)return;CampaignBattle.leave()}archive();draft=true;resumeRecord=null;record={schema:2,id:DATA.id,mission:next,phase:'briefing',needsIntro:true,vn:0,difficulty:record.difficulty,route:null,carry,battle:null,checkpoint:null,completed:[...record.completed]};save();setAppScreen('campaign');renderBriefing()}
  async function restart(){if(!record?.checkpoint||busy||campaignLoading)return false;if(!await askApp('현재 임무를 처음부터 다시 시작하시겠습니까?'))return false;if(busy||campaignLoading)return false;draft=false;record.phase='battle';record.battle=JSON.parse(JSON.stringify(record.checkpoint));renderDeployment(record.checkpoint);return true}
- function onLeave(){dialogue(false);stop();view='closed';root=null}
+ function onLeave(){dialogue(false);stop();$('modal').classList.remove('campaignDeployment');view='closed';root=null}
  function back(){if(!root||view==='closed'||appScreen!=='campaign')return false;if($('cpSheet')){$('cpSheet').remove();return true}if(view==='menu'){close();return true}save();if(view==='missions')renderMenu();else renderMissions();return true}
  const oldBack=window.terhaBack;window.terhaBack=function(){if(typeof appConfirm!=='undefined'&&appConfirm)return oldBack();if(back())return;return oldBack()};
  showCampaign=open;

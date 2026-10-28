@@ -177,7 +177,6 @@ const CampaignBattle=(()=>{
    const tier=difficulty===0?1:entry.wave>=17?2:1,u=makeUnit(1,entry.type,site,tier);u.missionWave=entry.wave;u.missionWaveSerial=entry.serial;
   }
   progress.pending=pending;
-  window.refreshCampaignDefenseStatus?.();
  }
  function defenseStatus(){
   if(!active()||ID!=='iron-crown-m03'||!progress)return null;

@@ -36,13 +36,6 @@ const CampaignPresentation=(()=>{
   if(!activeScenario||appScreen!=='game')return;
   const r=$('menu').getBoundingClientRect();b.style.left=r.left+'px';b.style.top=(r.bottom+8)+'px';b.style.width=r.width+'px';b.style.height=r.height+'px';
  }
- function refreshDefenseStatus(){
-  const b=$('campaignDefenseStatus');if(!b)return;
-  const state=CampaignBattle.defenseStatus();if(!state){b.innerHTML='';return}
-  b.disabled=busy;b.innerHTML='<strong>'+state.title+'</strong><span>'+state.sites+'</span><span>'+state.next+'</span>';
- }
- window.refreshCampaignDefenseStatus=refreshDefenseStatus;
- $('campaignDefenseStatus').onclick=showGoals;
  function resume(){setAppScreen('game');alignGoalsButton()}
  function showGoals(){
   if(!activeScenario||busy||campaignLoading)return;
@@ -53,7 +46,7 @@ const CampaignPresentation=(()=>{
   $('appBack').textContent='계속';$('appBack').onclick=resume;
  }
  $('campaignObjectives').onclick=showGoals;
- const nativeHUD=updateHUD;updateHUD=function(...args){const r=nativeHUD(...args);alignGoalsButton();refreshDefenseStatus();return r};
+ const nativeHUD=updateHUD;updateHUD=function(...args){const r=nativeHUD(...args);alignGoalsButton();return r};
  const nativeBack=window.terhaBack;window.terhaBack=function(){if(activeScenario&&appScreen==='menu'&&$('campaignGoalSheet')&&!appConfirm)return resume();return nativeBack()};
  window.addEventListener('resize',alignGoalsButton);
  return{crownArt,isCrown:crown,muzzle,showGoals,alignGoalsButton};

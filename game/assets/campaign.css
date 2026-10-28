@@ -117,10 +117,35 @@ body[data-scenario^="iron-crown-m"] #panel{z-index:2}
 @media(max-height:470px){.cpAwardStage{padding:12px}.cpAwardCard{padding:19px 28px 16px;width:min(580px,90vw)}.cpAwardKicker{font-size:10px;margin-bottom:6px}.cpAwardDivider{margin:13px 0 12px}.cpRatingTier{padding:11px 6px;gap:8px}.cpRatingTier strong{font-size:30px}.cpRatingTier strong small{margin-top:4px}.cpStar{width:21px;height:21px}.cpAwardLimit{margin:10px 0}.cpResultStars{margin:18px 0 9px}.cpResultStars .cpStar{width:47px;height:47px}.cpResultTurn{margin-bottom:17px}.cpResultTurn strong{font-size:37px}#campaignRoot button.cpAwardConfirm{height:42px;width:60px}.cpGoalRating{padding-bottom:10px;margin-bottom:10px}}
 @media(max-width:450px) and (min-height:471px){.cpAwardCard{padding:28px 19px 25px}.cpRatingGrid{gap:7px}.cpRatingTier{padding:16px 5px}.cpStar{width:21px;height:21px}.cpRatingTier strong{font-size:34px}.cpResultStars .cpStar{width:50px;height:50px}.cpResultStars .cpStarGroup{gap:12px}.cpAwardActions button{min-width:90px!important}}
 
-/* Mission 03 objective state uses the shared battle HUD and checklist shortcut. */
-#campaignDefenseStatus{display:none;position:fixed;left:14px;top:80px;z-index:1;width:min(330px,calc(100vw - 105px));padding:10px 13px;text-align:left;border:1px solid #657f8c99;border-left:3px solid #d6b66e;border-radius:4px;background:#0b1d2bed;color:#efe8d8;box-shadow:0 4px 15px #0005}
-body[data-scenario="iron-crown-m03"][data-screen="game"] #campaignDefenseStatus{display:grid;gap:4px}
-#campaignDefenseStatus strong{font-size:15px;line-height:1.4}#campaignDefenseStatus span{font-size:12px;line-height:1.4;color:#bcd0d9}
-body[data-scenario="iron-crown-m03"][data-screen="game"] #log{display:none}
+
 .cpDefenseBriefNote{font-size:12px!important;line-height:1.5!important;color:#c6b180!important;margin:10px 0 0!important}
-@media(max-height:470px){#campaignDefenseStatus{top:72px;padding:7px 10px;gap:2px!important}#campaignDefenseStatus strong{font-size:13px}#campaignDefenseStatus span{font-size:11px}.cpDefenseBriefNote{font-size:11px!important;margin-top:7px!important}}
+/* Compact award cards; deployment sits above the already rendered live map. */
+#modal.campaignDeployment{background:transparent}
+#modal.campaignDeployment #campaignRoot{background:transparent}
+#modal.campaignDeployment .cpAwardStage{background:#020a1226}
+.cpAwardStage{padding:12px}
+.cpAwardCard{width:min(390px,90vw);padding:18px 22px 16px;border-radius:6px}
+.cpAwardKicker{font-size:9px;margin-bottom:5px}
+#campaignRoot .cpAwardCard h1{font-size:23px;line-height:1.25}
+.cpAwardDivider{margin:11px 0 10px;font-size:11px;gap:10px}
+.cpRatingGrid{gap:7px}
+.cpRatingTier{padding:10px 5px;gap:7px}
+.cpRatingTier .cpStar{width:17px;height:17px}
+.cpRatingTier strong{font-size:27px}
+.cpRatingTier strong small{font-size:10px;margin-top:4px}
+.cpAwardLimit{font-size:11px;margin:9px 0}
+#campaignRoot button.cpAwardConfirm{width:50px;height:36px;min-height:36px;padding:6px}
+.cpAwardConfirm svg{width:23px;height:23px}
+.cpAwardMission{font-size:12px;margin-top:6px}
+.cpResultStars{margin:18px 0 10px}
+.cpResultStars .cpStar{width:36px;height:36px}
+.cpResultStars .cpStarGroup{gap:11px}
+.cpResultStars .cpStar:nth-child(2){transform:translateY(-4px) scale(1.1)}
+.cpResultTurn{margin-bottom:16px;gap:6px}
+.cpResultTurn strong{font-size:31px}
+.cpResultTurn span{font-size:12px}
+.cpAwardActions{gap:6px}
+#campaignRoot .cpAwardActions button{min-width:86px!important;min-height:34px;padding:6px 8px;font-size:12px}
+@media(max-height:470px){.cpAwardCard{padding:14px 20px 12px}.cpDefenseBriefNote{font-size:11px!important;margin-top:7px!important}}
+
+body[data-scenario="iron-crown-m03"][data-screen="game"] #log{display:none}

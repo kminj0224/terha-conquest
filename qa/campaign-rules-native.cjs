@@ -30,10 +30,10 @@ module.exports=async function({run,nodes,click,drain,stored}){
  assert.equal(run('CampaignBattle.inspect().progress.result'),'won');
  run('CampaignRules.award(1,16,1,IRON_CROWN_CAMPAIGN.battle);CampaignRules.award(1,39,1,IRON_CROWN_CAMPAIGN.battle)');
  assert.equal(run('CampaignRules.records()[1].stars'),3);assert.equal(run('CampaignRules.records()[1].turns'),16);
- run('CampaignBattle.leave();TerhaCampaign.open()');await click('cpCampaignIron');await click('cpMission1');await click('cpLaunch');await click('cpSkip');
- assert.equal(run('TerhaCampaign.getView()'),'deployment');assert.equal(run('activeScenario'),null);
+ run('CampaignBattle.leave();TerhaCampaign.open()');await click('cpCampaignIron');await click('cpMission1');await click('cpLaunch');await drain(click('cpSkip'));
+ assert.equal(run('TerhaCampaign.getView()'),'deployment');assert.equal(run('activeScenario.id'),'iron-crown-m01');assert.equal(run('campaignLoading'),false);
  assert(nodes.has('cpOperationStart'));assert.equal(run('TerhaCampaign.getState().phase'),'deployment');
- run('TerhaCampaign.open()');await click('cpCampaignIron');await click('cpContinue');assert.equal(run('TerhaCampaign.getView()'),'deployment');
+ run('TerhaCampaign.open()');await click('cpCampaignIron');await drain(click('cpContinue'));assert.equal(run('TerhaCampaign.getView()'),'deployment');
  await drain(Promise.resolve(nodes.get('cpOperationStart').onclick()));assert.equal(run('activeScenario.id'),'iron-crown-m01');
  run('turn=26;CampaignBattle.complete(true)');assert(nodes.has('cpResultConfirm'));assert.equal(run('TerhaCampaign.getState().phase'),'won');assert.equal(run('CampaignRules.records()[1].stars'),3);
  await click('cpResultConfirm');assert.equal(nodes.get('cpResultActions').hidden,false);
