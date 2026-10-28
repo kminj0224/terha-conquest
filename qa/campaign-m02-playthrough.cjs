@@ -8,7 +8,8 @@ module.exports=async function({run,drain}){
   rngSeed=74123;let built=0,losses=0;const initial=units.filter(u=>u.f===2).length;console.log('M02_SETUP',JSON.stringify({route,prepared,foodIncome:foodIncome(2),food:food[2],army:units.filter(u=>u.f===2).map(u=>({type:u.type,hp:u.hp,attack:unitAttack(u)}))}));
   for(let step=0;step<65&&!CampaignBattle.inspect().progress.result;step++){
    if(prepared&&tech[2]<5&&!militaryResearchJobs[2]&&money[2]>=(tech[2]+1)*450){selectCity(cities[0],true);research();}
-   if(production)for(const q of cities.filter(q=>q.f===2)){
+   const extraction=prepared&&cities[1].f===2&&cities[2].f===2&&CampaignBattle.goalRows()[0].done;
+   if(production&&!extraction)for(const q of cities.filter(q=>q.f===2)){
     const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
     const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
     let k=pool[(turn+q.id)%pool.length];if(prepared){k=rifles<3?0:force.filter(u=>u.type===10).length<6?10:2;}
@@ -20,7 +21,13 @@ module.exports=async function({run,drain}){
    for(const u of army){
     if(!units.includes(u))continue;
     for(let action=0;action<5&&u.ap>0&&units.includes(u);action++){
-     const hold=prepared&&u.missionRole&&u.hp<unitMaxHp(u)*.65;
+     const exit=CampaignBattle.inspect().progress.exit,extract=prepared&&cities[1].f===2&&cities[2].f===2&&CampaignBattle.goalRows()[0].done;
+     if(extract&&mayMove(u)){
+      const options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile);
+      if(u.missionRole){options.sort((a,b)=>distance(a,exit)-distance(b,exit));if(options[0]!==undefined&&distance(options[0],exit)<distance(u.tile,exit)){moveUnit(u,options[0],true);continue}}
+      else if(distance(u.tile,exit)<4){options.sort((a,b)=>distance(b,exit)-distance(a,exit));if(options[0]!==undefined){moveUnit(u,options[0],true);continue}}
+     }
+     const hold=prepared&&!extract&&u.missionRole&&u.hp<unitMaxHp(u)*.65;
      if(hold&&u.missionRole&&u.tile!==cities[0].tile&&mayMove(u)&&reachable(u).costs.has(cities[0].tile)){moveUnit(u,cities[0].tile,true);continue}
      const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0);
      if(prepared&&u.type===0&&mayMove(u)){
@@ -51,7 +58,7 @@ module.exports=async function({run,drain}){
      const goal=goals.sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
      const near=threat.length?threat:enemies;
      const target=near.sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
-     const targetTile=u.missionRole&&cities[1].f===2&&cities[2].f===2&&near.length===0?CampaignBattle.inspect().progress.exit:target?.tile??goal?.tile??CampaignBattle.inspect().progress.exit;
+     const targetTile=u.missionRole&&cities[1].f===2&&cities[2].f===2&&near.length===0?CampaignBattle.inspect().progress.exit:target?.tile??goal?.tile??(u.missionRole?CampaignBattle.inspect().progress.exit:cities[0].tile);
      const options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile);
      const score=i=>{
       let d=distance(i,targetTile);
