@@ -27,7 +27,12 @@ const CampaignBattle=(()=>{
   MAP.tiles=tiles.map(()=>[-1,0]);tiles=tiles.map(t=>({x:t.x,y:t.y,owner:-1,terrain:0,city:-1,region:-1}));
   for(let q=0;q<COLS;q++)for(let r=1;r<ROWS-1;r++){
    const i=tile(q,r),owner=q<(ID==='iron-crown-m02'?6:10)?2:1,terrain=ID==='iron-crown-m02'?0:(q<4&&r<4||q>13&&r>7)?2:0;
-   MAP.tiles[i]=[owner,terrain];Object.assign(tiles[i],{owner,terrain});
+   let origin=owner;
+   if(ID==='iron-crown-m02'){
+    const local=DATA.cities.reduce((a,b)=>distance(i,tile(a[1],a[2]))<=distance(i,tile(b[1],b[2]))?a:b);
+    origin=local[4];
+   }
+   MAP.tiles[i]=[origin,terrain];Object.assign(tiles[i],{owner,terrain});
   }
  }
  function ensureContext(){if(active())return;if(busy)throw Error('An operation is still running');suspended=captureWorld();activeScenario={id:ID};document.body.dataset.scenario=ID;RANNA_RIVER_TILES.clear();CITY_GROUND_SUPPORT.fill(0);CITY_GROUND_CENTER.fill(0);createMap();}
@@ -66,7 +71,13 @@ const CampaignBattle=(()=>{
    }
    food[2]+=2400;oil[2]+=180;
    // The paid passage gives the central staging point, never skips a wave.
-   if(progress.route==='pay'){money[2]-=600;const gate=cities[1];gate.f=2;gate.hp=cityMaxHp(gate);tiles[gate.tile].owner=2;buildRegions()}
+   if(progress.route==='pay'){
+    money[2]-=600;const gate=cities[1];gate.f=2;gate.hp=cityMaxHp(gate);buildRegions();
+    const army=units.filter(u=>u.f===2),sites=[];
+    for(let q=0;q<COLS;q++)for(let r=1;r<ROWS-1;r++)sites.push(tile(q,r));
+    sites.sort((a,b)=>distance(a,gate.tile)-distance(b,gate.tile));
+    for(const u of army){const site=sites.find(i=>tiles[i].owner===2&&!unitAt(i));if(site!==undefined)u.tile=site}
+   }
    // Scripted reinforcements supply the enemy. Its normal economy/AI still runs.
    money[1]=350;food[1]=500;oil[1]=220;
   }
