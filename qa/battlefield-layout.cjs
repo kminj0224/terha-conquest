@@ -26,7 +26,7 @@ const path=require('node:path');
   }
   await page.click('#conquestMode');await page.locator('#factions').waitFor();
   await page.click('#countryBack');await page.click('#campaignMode');
-  await page.locator('.campaignEmpty').waitFor();await page.evaluate(()=>window.terhaBack());
+  await page.locator('#cpCampaignIron').waitFor();assert.equal(await page.locator('.cpEmptyBanner').count(),7);await page.evaluate(()=>window.terhaBack());
   await page.locator('#conquestMode').waitFor();assert.deepEqual(errors,[]);
  }finally{await browser?.close();server.kill()}
 })().catch(e=>{console.error(e);process.exitCode=1});
