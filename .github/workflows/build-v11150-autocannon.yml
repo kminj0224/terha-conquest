@@ -1,4 +1,4 @@
-name: Iron Crown mission 01 v1.11.54 APK
+name: Iron Crown mission 02 v1.11.55 APK
 on:
   push:
     branches: [main, codex/campaign-polish]
@@ -22,10 +22,12 @@ jobs:
       - uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
         timeout-minutes: 3
       - name: Verify battlefield layout in Chromium
-        timeout-minutes: 6
+        timeout-minutes: 10
         run: |
           python3 tools/prepare_operation_music.py
           npm install --no-save --package-lock=false playwright
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-cjk
           npx playwright install chromium
           node qa/battlefield-layout.cjs
           node qa/campaign-browser.cjs
@@ -53,7 +55,7 @@ jobs:
         continue-on-error: true
         if: always()
         with:
-          name: Battlefield-layout-v1.11.54
+          name: Battlefield-layout-v1.11.55
           path: |
             qa/battlefield-previews/*.png
             qa/campaign-previews/*
@@ -63,15 +65,15 @@ jobs:
           node qa/armored-car-audio-clock.cjs
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.54.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.55.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.54.apk > SHA256SUMS.txt
+          sha256sum Terha-Conquest-v1.11.55.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: Terha-Conquest-v1.11.54
+          name: Terha-Conquest-v1.11.55
           path: |
-            deliverables/Terha-Conquest-v1.11.54.apk
+            deliverables/Terha-Conquest-v1.11.55.apk
             deliverables/SHA256SUMS.txt
           retention-days: 14
       - name: Publish APK after main integration
@@ -79,7 +81,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.54 deliverables/Terha-Conquest-v1.11.54.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.54' --notes '캠페인 지도 이동·축소 경계를 제한해 지도 밖 검은 영역 방지. 작전 설명을 목표와 고정 버튼으로 정리하고 메뉴 아래 목표 확인 버튼 추가. 인물별 독립 애니메이션풍 스탠딩과 철관의 성채형 전용 외형 적용. 기존 공용 전투 엔진과 정복 저장, 캠페인 전투 저장 유지. Android versionCode 199, 기존 업데이트 인증서 유지.'
+          gh release create v1.11.55 deliverables/Terha-Conquest-v1.11.55.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.55' --notes '두 번째 임무 닫힌 관문 추가: 25장 도입 대화, 통행료/외곽 탈환 선택, 잔존 전력 계승, 다방향 적 증원과 목표 반응형 반격. 승리 턴 하한이나 강제 대기 없이 전투와 생산 부담으로 난이도 강화. 비주얼 노벨 대화 장면의 배경음악 정지. 공용 정복 전투 엔진·UI, 기존 저장 및 Android 업데이트 인증서 유지. Android versionCode 200.'
       - name: Prepare APK file attachment
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
@@ -93,7 +95,7 @@ jobs:
           for offset in range(0,len(encoded),4000):
               print('PREVIEW_CHUNK:'+str(offset)+':'+encoded[offset:offset+4000])
           PYPREVIEWS
-          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.54 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.54.apk") | .url')
+          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.55 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.55.apk") | .url')
           python3 - <<'PYTRANSFER'
           import os, urllib.request, urllib.error, base64
           class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -108,4 +110,5 @@ jobs:
               assert url.startswith('https://release-assets.githubusercontent.com/')
               print('APK_FILE_TRANSFER_B64='+base64.b64encode(url.encode()).decode())
           PYTRANSFER
+
 

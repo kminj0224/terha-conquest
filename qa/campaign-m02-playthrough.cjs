@@ -1,0 +1,54 @@
+'use strict';
+const assert=require('node:assert/strict');
+module.exports=async function({run,drain}){
+ run(`window.m02Autoplay=async function(production,route){
+  if(activeScenario)CampaignBattle.leave();CampaignBattle.start(null,1,{id:'iron-crown-m02',route});
+  rngSeed=74123;let built=0,losses=0;const initial=units.filter(u=>u.f===2).length;
+  for(let step=0;step<42&&!CampaignBattle.inspect().progress.result;step++){
+   enableAIFastForward();
+   if(production)for(const q of cities.filter(q=>q.f===2)){
+    const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
+    const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
+    const k=pool[(turn+q.id)%pool.length];
+    if(produce(q,k,1,false))built++;
+   }
+   const army=units.filter(u=>u.f===2).sort((a,b)=>(a.missionRole?1:0)-(b.missionRole?1:0));
+   for(const u of army){
+    if(!units.includes(u))continue;
+    for(let action=0;action<5&&u.ap>0&&units.includes(u);action++){
+     const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0),targets=enemies.filter(v=>canAttack(u,v));
+     if(targets.length){targets.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,targets[0],true);continue}
+     const forts=cities.filter(q=>q.f===1&&canAttackCity(u,q));
+     if(forts.length){forts.sort((a,b)=>([1,2].includes(b.id)?1:0)-([1,2].includes(a.id)?1:0)||a.hp-b.hp);await attackCity(u,forts[0],true);continue}
+     if(!mayMove(u))break;
+     const hero=units.find(v=>v.missionRole==='iron-crown'),threat=enemies.filter(v=>hero&&distance(v.tile,hero.tile)<7||distance(v.tile,cities[0].tile)<6);
+     const goals=cities.filter(q=>q.f!==2&&[1,2,3].includes(q.id));
+     const goal=goals.sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
+     const near=threat.length?threat:enemies;
+     const target=near.sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
+     const targetTile=u.missionRole&&cities[1].f===2&&cities[2].f===2&&near.length===0?CampaignBattle.inspect().progress.exit:target?.tile??goal?.tile??CampaignBattle.inspect().progress.exit;
+     const options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile);
+     const score=i=>{
+      let d=distance(i,targetTile);
+      if(goal&&u.type===0&&goal.hp===0)d=distance(i,goal.tile)-3;
+      if(target){const range=navalTargetRange(u,target),r=distance(i,target.tile);d=Math.abs(r-Math.max(1,range))*.9+distance(i,targetTile)*.1;if(TYPES[u.type].branch==='artillery'&&r<2)d+=8}
+      if(u.missionRole&&u.hp<unitMaxHp(u)*.4)d+=enemies.filter(v=>distance(i,v.tile)<=TYPES[v.type].range+1).length*4;
+      return d;
+     };
+     options.sort((a,b)=>score(a)-score(b));if(options[0]===undefined||!moveUnit(u,options[0],true))break;
+    }
+   }
+   CampaignBattle.check();if(CampaignBattle.inspect().progress.result)break;
+   await endTurn();enableAIFastForward();
+   losses=initial+built-units.filter(u=>u.f===2).length;
+   if(turn%5===0)console.log('M02_PLAY',JSON.stringify({production,route,turn,built,losses,ours:units.filter(u=>u.f===2).length,enemy:units.filter(u=>u.f===1).length,hero:units.find(u=>u.missionRole)?.hp,cities:cities.map(q=>q.f)}));
+  }
+  const result={production,route,turn,built,losses,result:CampaignBattle.inspect().progress.result||'ongoing',hero:units.find(u=>u.missionRole)?.hp};
+  console.log('M02_PLAY_RESULT',JSON.stringify(result));CampaignBattle.leave();return result;
+ }`);
+ // A reproducible tactical bot uses only real orders and the actual enemy AI.
+ const without=await drain(run('m02Autoplay(false,"recapture")'));
+ assert.notEqual(without.result,'won','Starting army alone must not win the reference battle');
+ const withProduction=await drain(run('m02Autoplay(true,"pay")'));
+ assert(withProduction.built>0); // Results are reported for balance review, not a substitute for human testing.
+};
