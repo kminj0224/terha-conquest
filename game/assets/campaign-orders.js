@@ -76,5 +76,31 @@ const CampaignOrders=(()=>{
  aiProcure=function(f,owned){if(data()&&f===1){if(turn%4!==0||units.filter(u=>u.f===f&&u.hp>0).length>=8)return;return nativeProcure(f,owned.slice(0,1))}return nativeProcure(f,owned)};
  Object.assign(window.Terha,{moveCost,canProduce});
  Object.assign(window.Terha,{cityProfile,upgradeCity,aiExpansionCandidates,aiUpgradeCities,showPanel,chooseObjective,danteUnitObjective,danteAssignedFront,aiRifleGoal,aiStep});
- return{goal,points,data};
+
+ // Land-only campaign maps must never inherit ocean ambience or free AI ships.
+ const nativeTransports=prepareAITransports;
+ prepareAITransports=function(f,owned){if(data())return;return nativeTransports(f,owned)};
+ const nativeNavalOverlays=drawNavalOverlays;
+ drawNavalOverlays=function(now){
+  if(!data())return nativeNavalOverlays(now);
+  const clock=lastWhaleAt;lastWhaleAt=now;
+  try{return nativeNavalOverlays(now)}finally{lastWhaleAt=clock;fx=fx.filter(e=>e.kind!=='whale')}
+ };
+ const nativeAmbient=addAmbientScene;
+ addAmbientScene=function(scene,now){
+  if(data())fx=fx.filter(e=>e.kind!=='whale');
+  const result=nativeAmbient(scene,now);
+  if(data())for(let i=scene.length-1;i>=0;i--)if(scene[i].kind==='whale')scene.splice(i,1);
+  return result;
+ };
+ function clearNaval(){
+  if(!data())return;
+  const ships=new Map(units.filter(isNaval).map(u=>[u.id,u]));
+  for(const u of units)if(ships.has(u.carriedBy)){u.tile=ships.get(u.carriedBy).tile;delete u.carriedBy}
+  units=units.filter(u=>!isNaval(u));
+  for(const q of cities)if(q.queue&&isNaval({type:q.queue.type}))q.queue=null;
+  fx=fx.filter(e=>e.kind!=='whale'&&e.kind!=='navalSink');
+ }
+ Object.assign(window.Terha,{prepareAITransports,drawNavalOverlays,addAmbientScene});
+ return{goal,points,data,clearNaval};
 })();
