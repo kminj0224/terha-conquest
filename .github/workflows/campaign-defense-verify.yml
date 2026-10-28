@@ -18,6 +18,7 @@ jobs:
       - run: |
           python3 tools/prepare_operation_music.py
           node qa/campaign-defense-status-simulation.cjs
+          node qa/campaign-m03-defense-playthrough.cjs
           node qa/campaign-no-navy-simulation.cjs
           node qa/campaign-rules-simulation.cjs
           node qa/campaign-orders-simulation.cjs

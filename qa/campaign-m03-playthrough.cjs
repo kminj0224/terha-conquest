@@ -30,6 +30,19 @@ module.exports=async function({run,drain}){
      const hold=prepared&&!extract&&u.missionRole&&u.hp<unitMaxHp(u)*.65;
      if(hold&&u.missionRole&&u.tile!==cities[0].tile&&mayMove(u)&&reachable(u).costs.has(cities[0].tile)){moveUnit(u,cities[0].tile,true);continue}
      const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0);
+     if(prepared&&cities[1].f===2&&cities[2].f===2){
+      // Holding the railway is the objective: keep formations on the two points.
+      const objectives=[cities[1],cities[2]],threats=enemies.filter(v=>objectives.some(q=>distance(v.tile,q.tile)<=5));
+      const shot=threats.filter(v=>canAttack(u,v)).sort((a,b)=>Number(canCaptureCityUnit(b))-Number(canCaptureCityUnit(a))||a.hp-b.hp)[0];
+      if(shot){await attack(u,shot,true);continue}
+      if(mayMove(u)){
+       const anchor=u.missionRole?cities[1]:objectives[(u.id%2)],radius=u.type===0?1:TYPES[u.type].branch==='artillery'?2:1;
+       const score=i=>Math.abs(distance(i,anchor.tile)-radius)+(TYPES[u.type].branch==='artillery'?threats.filter(v=>distance(i,v.tile)<=1).length*3:0);
+       const spots=[...reachable(u).costs.keys()].sort((a,b)=>score(a)-score(b));
+       if(spots[0]!==undefined&&score(spots[0])<score(u.tile)){moveUnit(u,spots[0],true);continue}
+      }
+      break;
+     }
      if(prepared&&turn<8){
       const shot=enemies.filter(v=>canAttack(u,v)).sort((a,b)=>a.hp-b.hp)[0];if(shot){await attack(u,shot,true);continue}
       if(mayMove(u)){const radius=u.missionRole?0:TYPES[u.type].branch==='artillery'?2:3,anchor=cities[0].tile,spots=[...reachable(u).costs.keys()].filter(i=>i!==u.tile).sort((a,b)=>Math.abs(distance(a,anchor)-radius)-Math.abs(distance(b,anchor)-radius));if(spots[0]!==undefined&&Math.abs(distance(spots[0],anchor)-radius)<Math.abs(distance(u.tile,anchor)-radius)){moveUnit(u,spots[0],true);continue}}
