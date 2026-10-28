@@ -37,6 +37,12 @@ module.exports=async function({run,drain}){
       break;
      }
      if(prepared){const breach=cities.find(q=>[1,2].includes(q.id)&&q.f===1&&q.hp>0&&canAttackCity(u,q));if(breach&&TYPES[u.type].branch==='artillery'){await attackCity(u,breach,true);continue}}
+     // After securing the objectives, keep the escort objective in the rear
+     // while the combat formations clear the remaining counterattack units.
+     if(prepared&&u.missionRole&&!extract&&cities[1].f===2&&cities[2].f===2){
+      if(mayMove(u)){const rear=cities[0].tile,spots=[...reachable(u).costs.keys()].filter(i=>i!==u.tile).sort((a,b)=>distance(a,rear)-distance(b,rear));if(spots[0]!==undefined&&distance(spots[0],rear)<distance(u.tile,rear)){moveUnit(u,spots[0],true);continue}}
+      break;
+     }
      // Fire before advancing into a defended point; do not march past a shot.
      if(prepared){const immediate=enemies.filter(v=>canAttack(u,v));if(immediate.length){immediate.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,immediate[0],true);continue}}
 

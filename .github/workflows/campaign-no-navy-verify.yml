@@ -18,4 +18,4 @@ jobs:
       - run: |
           python3 tools/prepare_operation_music.py
           node qa/campaign-no-navy-simulation.cjs
-          npm test
+          node qa/campaign-m03-simulation.cjs
