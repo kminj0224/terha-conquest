@@ -32,6 +32,9 @@ const CampaignOrders=(()=>{
   if(definition)q.level=definition[5];
   nativeProfile(q);
   if(d&&q.f===d.player){
+   // Scenario staging production lines: conventional counters remain available
+   // at level three, without requiring the random world's level-five roll.
+   if(definition?.[3]===d.player)for(const [k,level]of [[0,1],[9,2],[1,3],[2,3]])q.unlockAt[k]=Math.min(level,q.unlockAt[k]);
    // A staging base is not a national capital production exception.
    for(let k=0;k<TYPES.length;k++)if(TYPES[k].special!==undefined)q.unlockAt[k]=Math.max(4,q.unlockAt[k]);
    q.unlockAt[14]=Math.max(5,q.unlockAt[14]);

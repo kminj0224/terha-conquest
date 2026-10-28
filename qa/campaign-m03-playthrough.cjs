@@ -12,8 +12,8 @@ module.exports=async function({run,drain}){
    if(production&&!extraction)for(const q of cities.filter(q=>q.f===2)){
     const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
     const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
-    let k=pool[(turn+q.id)%pool.length];if(prepared){k=rifles<3?0:force.filter(u=>u.type===10).length<6?10:2;}
-    if(produce(q,k,1,false)||prepared&&produce(q,0,1,false))built++;
+    let k=pool[(turn+q.id)%pool.length];if(prepared){k=rifles<3?0:force.filter(u=>u.type===2).length<2?2:force.filter(u=>u.type===9).length<4?9:force.filter(u=>u.type===10).length<3?10:1;}
+    if(produce(q,k,prepared?2:1,false)||prepared&&produce(q,0,1,false))built++;
    }
    if(prepared){const h=units.find(u=>u.missionRole==='iron-crown');if(h&&h.hp<unitMaxHp(h)*.75&&canResupply(h))repair(h)}
    aiTurnActive=true;enableAIFastForward();
@@ -30,6 +30,22 @@ module.exports=async function({run,drain}){
      const hold=prepared&&!extract&&u.missionRole&&u.hp<unitMaxHp(u)*.65;
      if(hold&&u.missionRole&&u.tile!==cities[0].tile&&mayMove(u)&&reachable(u).costs.has(cities[0].tile)){moveUnit(u,cities[0].tile,true);continue}
      const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0);
+     if(prepared&&turn<8){
+      const shot=enemies.filter(v=>canAttack(u,v)).sort((a,b)=>a.hp-b.hp)[0];if(shot){await attack(u,shot,true);continue}
+      if(mayMove(u)){const radius=u.missionRole?0:TYPES[u.type].branch==='artillery'?2:3,anchor=cities[0].tile,spots=[...reachable(u).costs.keys()].filter(i=>i!==u.tile).sort((a,b)=>Math.abs(distance(a,anchor)-radius)-Math.abs(distance(b,anchor)-radius));if(spots[0]!==undefined&&Math.abs(distance(spots[0],anchor)-radius)<Math.abs(distance(u.tile,anchor)-radius)){moveUnit(u,spots[0],true);continue}}
+      break;
+     }
+     // Fire before advancing into a defended point; do not march past a shot.
+     if(prepared){const immediate=enemies.filter(v=>canAttack(u,v));if(immediate.length){immediate.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,immediate[0],true);continue}}
+
+     if(prepared&&!hold){
+      const operationCities=cities.filter(q=>[1,2,3].includes(q.id));aiObjectives[2]=operationCities.filter(q=>q.f===1).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0]||null;
+      const command=aiStep(u,operationCities);
+      if(command?.attack){await attack(u,command.attack,true);continue}
+      if(command?.city){await attackCity(u,command.city,true);continue}
+      if(command?.move!==undefined){moveUnit(u,command.move,true);continue}
+      break;
+     }
      if(prepared&&u.type===0&&mayMove(u)){
       const take=cities.filter(q=>q.f===1&&q.hp<=0&&!unitAt(q.tile)&&reachable(u).costs.has(q.tile)).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
       if(take){moveUnit(u,take.tile,true);continue}

@@ -12,6 +12,7 @@ module.exports=async function({run,nodes,drain}){
   if(id!=='iron-crown-m01'){assert.equal(run('units.find(u=>u.missionRole).hp'),300);assert.equal(run('units.find(u=>u.missionRole).xp'),123)}
   assert(!run('canProduce(cities[0],18,1)'),'No capital exception for mechanic knight');
   assert(!run('canProduce(cities[0],14,1)'),'No elite tank');
+  assert(run('canProduce(cities[0],2,1)'),'Conventional artillery available at level3');
   assert(run('produce(cities[0],0,1,false)'),'Basic production remains available');
   run('deploy(cities[0]);selectCity(cities[0],true)');
   assert(nodes.get('cityExpandGold').disabled);

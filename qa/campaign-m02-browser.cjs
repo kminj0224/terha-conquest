@@ -25,6 +25,8 @@ module.exports=async function(page){
  await page.click('#cpSkip');await page.locator('#cpPay').waitFor();
  await page.click('#cpPay');await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading&&activeScenario?.id==='iron-crown-m02');
  await page.waitForFunction(()=>CampaignBattle.ready());assert(await page.locator('#campaignObjectives').isVisible());assert.equal(await page.evaluate(()=>cities[1].f),2);
+ assert(await page.evaluate(()=>cities[0].level===3&&!canProduce(cities[0],18,1)&&!canProduce(cities[0],14,1)&&canProduce(cities[0],2,1)));
+ await page.evaluate(()=>selectCity(cities[0],true));assert(await page.locator('#cityExpandGold').isDisabled());await page.click('#panel .close');
  await page.click('#campaignObjectives');assert((await page.locator('#campaignGoalSheet').textContent()).includes('남부 보급소'));assert(!(await page.locator('#campaignGoalSheet').textContent()).includes('20턴'));await page.click('#appBack');
  await page.screenshot({path:'qa/campaign-previews/review-m02-battle.jpg',type:'jpeg',quality:65});
  const carry=await page.evaluate(()=>({old:TerhaCampaign.getState().carry.units.filter(u=>u.missionRole==='iron-crown').map(u=>({type:u.type,level:u.level,xp:u.xp,hp:u.hp})),now:units.filter(u=>u.missionRole==='iron-crown').map(u=>({type:u.type,level:u.level,xp:u.xp,hp:u.hp})),count:units.filter(u=>u.f===2).length,expected:IRON_CROWN_CAMPAIGN.battle2.friendly.length+1}));
@@ -37,5 +39,5 @@ module.exports=async function(page){
  await page.click('#cpCampaignIron');await page.click('#cpContinue');await page.waitForFunction(()=>activeScenario?.id==='iron-crown-m02'&&!campaignLoading);
  assert.equal(await page.evaluate(()=>CampaignBattle.inspect().progress.route),'pay');
  await page.evaluate(()=>{CampaignBattle.leave();TerhaCampaign.close()});
- console.log('PASS mission02 browser: old completed mission continuation, 25-panel dialogue source, dialogue/history/reload silence without changing volume, route choice, compact responsive briefing, dedicated map, checklist, survivor persistence and manual/autosave resume');
+ console.log('PASS mission02 browser: old completion unlock, silent dialogue, route choice, responsive briefing, shared battle UI, fixed army, level3/no expansion/no special or elite production, fortress continuity and explicit save resume');
 };
