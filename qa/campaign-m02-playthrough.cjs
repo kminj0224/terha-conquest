@@ -88,5 +88,7 @@ module.exports=async function({run,drain}){
  const withProduction=await run('m02Autoplay(true,"pay")');
  assert(withProduction.built>0);
  const prepared=await run('m02Autoplay(true,"recapture",true)');
- assert(prepared.built>0); // Results are reported for balance review, not a substitute for human testing.
+ assert.equal(prepared.result,'won','Prepared native production/research strategy must complete mission02');
+ const paid=await run('m02Autoplay(true,"pay",true)');
+ assert.equal(paid.result,'won','Paid passage must remain a winnable route'); // Results are reported for balance review, not a substitute for human testing.
 };
