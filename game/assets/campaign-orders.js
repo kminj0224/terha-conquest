@@ -73,7 +73,7 @@ const CampaignOrders=(()=>{
  const nativeCanProduce=canProduce;
  canProduce=function(q,k,level=1){if(data()&&isNaval({type:k}))return false;return nativeCanProduce(q,k,level)};
  const nativeProcure=aiProcure;
- aiProcure=function(f,owned){if(data()&&f===1){if(turn%3!==0)return;return nativeProcure(f,owned.slice(0,1))}return nativeProcure(f,owned)};
+ aiProcure=function(f,owned){if(data()&&f===1){if(turn%4!==0||units.filter(u=>u.f===f&&u.hp>0).length>=8)return;return nativeProcure(f,owned.slice(0,1))}return nativeProcure(f,owned)};
  Object.assign(window.Terha,{moveCost,canProduce});
  Object.assign(window.Terha,{cityProfile,upgradeCity,aiExpansionCandidates,aiUpgradeCities,showPanel,chooseObjective,danteUnitObjective,danteAssignedFront,aiRifleGoal,aiStep});
  return{goal,points,data};

@@ -12,7 +12,7 @@ module.exports=async function({run,drain}){
    if(production&&!extraction)for(const q of cities.filter(q=>q.f===2)){
     const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
     const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
-    let k=pool[(turn+q.id)%pool.length];if(prepared){k=rifles<3?0:force.filter(u=>u.type===1).length<4?1:force.filter(u=>u.type===9).length<3?9:force.filter(u=>u.type===2).length<2?2:10;}
+    let k=pool[(turn+q.id)%pool.length];if(prepared){k=rifles<4?0:force.filter(u=>u.type===2).length<2?2:force.filter(u=>u.type===1).length<3?1:force.filter(u=>u.type===9).length<3?9:10;}
     if(produce(q,k,prepared&&k!==0?4:1,false)||prepared&&produce(q,0,1,false))built++;
    }
    if(prepared){const h=units.find(u=>u.missionRole==='iron-crown');if(h&&h.hp<unitMaxHp(h)*.75&&canResupply(h))repair(h)}
@@ -36,6 +36,7 @@ module.exports=async function({run,drain}){
       if(mayMove(u)){const radius=u.missionRole?0:TYPES[u.type].branch==='artillery'?2:3,anchor=cities[0].tile,spots=[...reachable(u).costs.keys()].filter(i=>i!==u.tile).sort((a,b)=>Math.abs(distance(a,anchor)-radius)-Math.abs(distance(b,anchor)-radius));if(spots[0]!==undefined&&Math.abs(distance(spots[0],anchor)-radius)<Math.abs(distance(u.tile,anchor)-radius)){moveUnit(u,spots[0],true);continue}}
       break;
      }
+     if(prepared){const breach=cities.find(q=>[1,2].includes(q.id)&&q.f===1&&q.hp>0&&canAttackCity(u,q));if(breach&&TYPES[u.type].branch==='artillery'){await attackCity(u,breach,true);continue}}
      // Fire before advancing into a defended point; do not march past a shot.
      if(prepared){const immediate=enemies.filter(v=>canAttack(u,v));if(immediate.length){immediate.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,immediate[0],true);continue}}
 

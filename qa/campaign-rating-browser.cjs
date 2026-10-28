@@ -4,7 +4,7 @@ exports.deployment=async page=>{
  await page.locator('#cpOperationStart').waitFor();
  assert.equal(await page.evaluate(()=>TerhaCampaign.getView()),'deployment');
  assert.equal(await page.locator('.cpRatingTier').count(),3);
- assert.deepEqual(await page.locator('.cpRatingTier strong').allTextContents(),['40턴 이내','26턴 이내','16턴 이내']);
+ const limits=await page.evaluate(()=>{const id=TerhaCampaign.getState().mission;return CampaignRules.rules(id===1?IRON_CROWN_CAMPAIGN.battle:IRON_CROWN_CAMPAIGN['battle'+id])});assert.deepEqual(await page.locator('.cpRatingTier strong').allTextContents(),limits.map(n=>n+'턴 이내'));
  for(const [width,height]of [[640,360],[390,844],[960,540]]){
   await page.setViewportSize({width,height});const b=await page.locator('#cpOperationStart').boundingBox();
   assert(b&&b.x>=0&&b.y>=0&&b.x+b.width<=width+1&&b.y+b.height<=height+1,'Start check remains visible');

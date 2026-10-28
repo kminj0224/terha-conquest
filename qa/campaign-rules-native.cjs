@@ -20,8 +20,8 @@ module.exports=async function({run,nodes,click,drain,stored}){
   run('window.legacyCliff=JSON.parse(JSON.stringify(snapshot()));legacyCliff.units.find(u=>u.f===2).tile=cliff;legacyCliff.owners[cliff]=2;CampaignBattle.restore(legacyCliff)');
   assert(run('units.every(u=>!CampaignTerrain.blocked(u.tile,CampaignOrders.data()))'));
   assert.equal(run('tiles[cliff].owner'),-1);
-  run('turn=40;CampaignBattle.check()');assert.equal(run('CampaignBattle.inspect().progress.result'),null,'All forty player turns are usable');
-  run('turn=41;CampaignBattle.check()');assert.equal(run('CampaignBattle.inspect().progress.result'),'lost');assert.equal(run('CampaignBattle.inspect().progress.failure'),'timeout');
+  run('window.lastAllowed=CampaignRules.rules(CampaignOrders.data())[0];turn=lastAllowed;CampaignBattle.check()');assert.equal(run('CampaignBattle.inspect().progress.result'),null,'All forty player turns are usable');
+  run('turn=lastAllowed+1;CampaignBattle.check()');assert.equal(run('CampaignBattle.inspect().progress.result'),'lost');assert.equal(run('CampaignBattle.inspect().progress.failure'),'timeout');
   run('CampaignBattle.leave()');
  }
  assert.equal(run('JSON.stringify({units,cities,map:MAP.tiles,owners:tiles.map(t=>t.owner)})'),world);
@@ -38,5 +38,5 @@ module.exports=async function({run,nodes,click,drain,stored}){
  run('turn=26;CampaignBattle.complete(true)');assert(nodes.has('cpResultConfirm'));assert.equal(run('TerhaCampaign.getState().phase'),'won');assert.equal(run('CampaignRules.records()[1].stars'),3);
  await click('cpResultConfirm');assert.equal(nodes.get('cpResultActions').hidden,false);
  run('CampaignBattle.leave();showHub()');
- console.log('PASS campaign terrain/rating: connected native non-land masks, no cliff movement/sailing, safe legacy relocation, inclusive 16/26/40 thresholds and turn41 loss, last-turn win, deployment confirmation/reload, result confirmation and persistent best medals');
+ console.log('PASS campaign terrain/rating: connected native non-land masks, no cliff movement/sailing, safe legacy relocation, inclusive medal thresholds and per-mission deadline loss, last-turn win, deployment confirmation/reload, result confirmation and persistent best medals');
 };

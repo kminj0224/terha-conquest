@@ -81,7 +81,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.60 deliverables/Terha-Conquest-v1.11.60.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.60' --notes '캠페인 일러스트와 지형 통행 판정 일치: 협곡·절벽·건물 외곽은 비육지로 처리하며 지상 이동·해군 진입 차단, 도로 진입로 증원. 모든 캠페인 공통 40턴 제한 및 40/26/16턴 별 평가. 전투 전 중앙 평가 창의 체크 버튼으로 시작. 성공·실패 중앙 창, 별과 소요 턴 표시 및 최고 별 기록 저장. 기존 저장 지형 보정, 정복 모드와 업데이트 서명 유지. Android versionCode 205.'
+          gh release create v1.11.60 deliverables/Terha-Conquest-v1.11.60.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.60' --notes '캠페인 일러스트와 지형 통행 판정 일치: 협곡·절벽·건물 외곽은 비육지로 처리하며 지상 이동·해군 진입 차단, 도로 진입로 증원. 모든 캠페인 공통 제한 턴·별 평가: 01 40/26/16, 02 60/40/26, 03 50/35/24턴. 전투 전 중앙 평가 창의 체크 버튼으로 시작. 성공·실패 중앙 창, 별과 소요 턴 표시 및 최고 별 기록 저장. 기존 저장 지형 보정, 정복 모드와 업데이트 서명 유지. Android versionCode 205.'
       - name: Prepare APK file attachment
         if: github.ref == 'refs/heads/main'
         continue-on-error: true

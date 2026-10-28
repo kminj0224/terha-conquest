@@ -65,7 +65,7 @@ const CampaignBattle=(()=>{
     progress.initialFriendly=units.filter(u=>u.f===2).map(u=>u.id);
     for(const [key,target]of [['money',money],['food',food],['oil',oil]])target[2]+=Math.floor(Math.max(0,previous[key]?.[2]||0)*.25);
    }
-   food[2]+=3600;oil[2]+=180;
+   food[2]+=5400;oil[2]+=180;
    // The paid passage gives the central staging point, never skips a wave.
    if(ID==='iron-crown-m02'&&progress.route==='pay'){
     money[2]-=600;const gate=cities[1];gate.f=2;gate.hp=cityMaxHp(gate);buildRegions();
