@@ -55,18 +55,12 @@ const CampaignBattle=(()=>{
   if(ID!=='iron-crown-m01'){
    progress.route=ID==='iron-crown-m03'?(options.route==='cargo'?'cargo':'troops'):(options.route==='pay'?'pay':'recapture');progress.waves=[];progress.pending=[];progress.lastTurn=0;progress.waveSerial=0;
    if(ID==='iron-crown-m03'){progress.holdTurns=0;progress.holdStart=null;progress.deliveryStart=null;progress.delivered=false;progress.cargoSecured=false}
-   // Survivors keep type, tier, experience and damage. Relocate onto the new map.
+   // Ordinary formations are mission-local. Only the named fortress persists.
    const previous=options.carry;
    if(previous?.scenario===(ID==='iron-crown-m03'?'iron-crown-m02':'iron-crown-m01')&&previous.missionProgress?.result==='won'){
-    const survivors=previous.units.filter(u=>u.f===2&&u.hp>0&&!u.carriedBy),hero=survivors.find(u=>u.missionRole==='iron-crown');
+    const hero=previous.units.find(u=>u.f===2&&u.hp>0&&u.missionRole==='iron-crown');
     tech[2]=Math.max(0,Math.min(5,previous.tech?.[2]||0));
     if(hero){fort.level=hero.level;fort.xp=hero.xp||0;fort.hp=Math.min(unitMaxHp(fort),hero.hp)}
-    units=units.filter(u=>u.f!==2||u.id===fort.id);
-    const sites=[];for(let q=0;q<COLS;q++)for(let r=1;r<ROWS-1;r++)sites.push(tile(q,r));sites.sort((a,b)=>distance(a,fort.tile)-distance(b,fort.tile));
-    for(const old of survivors.filter(u=>u!==hero)){
-     const site=sites.find(i=>!unitAt(i));if(site===undefined)break;
-     const u=makeUnit(2,old.type,site,old.level);u.xp=old.xp||0;u.hp=Math.min(unitMaxHp(u),old.hp);
-    }
     progress.initialFriendly=units.filter(u=>u.f===2).map(u=>u.id);
     for(const [key,target]of [['money',money],['food',food],['oil',oil]])target[2]+=Math.floor(Math.max(0,previous[key]?.[2]||0)*.25);
    }

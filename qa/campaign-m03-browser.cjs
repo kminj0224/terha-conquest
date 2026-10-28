@@ -23,7 +23,7 @@ module.exports=async function(page){
  await page.waitForFunction(()=>activeScenario?.id==='iron-crown-m03'&&!campaignLoading);
  assert(await page.evaluate(()=>CampaignBattle.ready()&&CampaignBattle.valid(snapshot())));
  assert.equal(await page.evaluate(()=>saveKey()),'terha-campaign-iron-crown-m03-v2');
- const expected=await page.evaluate(()=>TerhaCampaign.getState().carry.units.filter(u=>u.f===2).length);assert.equal(await page.evaluate(()=>units.filter(u=>u.f===2).length),expected);
+ const expected=await page.evaluate(()=>IRON_CROWN_CAMPAIGN.battle3.friendly.length+1);assert.equal(await page.evaluate(()=>units.filter(u=>u.f===2).length),expected);
  await page.click('#campaignObjectives');assert((await page.locator('#campaignGoalSheet').textContent()).includes('5턴'));await page.click('#appBack');
  await page.evaluate(()=>{const p=pxy(cities[1].tile);cam.x=p.x;cam.y=p.y;cam.z=.85;CampaignBattle.constrainCamera()});
  await page.screenshot({path:'qa/campaign-previews/review-m03-battle.jpg',type:'jpeg',quality:80});

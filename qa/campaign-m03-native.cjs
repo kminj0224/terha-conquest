@@ -10,7 +10,7 @@ module.exports=async function({run,drain,stored}){
  assert.equal(run('saveKey()'),'terha-campaign-iron-crown-m03-v2');
  assert.equal(run('cities.length'),6);assert(run('CampaignBattle.valid(snapshot())'));
  assert.equal(run('tech[2]'),2);assert.equal(run('units.find(u=>u.missionRole).hp'),300);
- assert.equal(run('units.filter(u=>u.f===2).length'),run('m03Previous.units.filter(u=>u.f===2).length'));
+ assert.equal(run('units.filter(u=>u.f===2).length'),run('IRON_CROWN_CAMPAIGN.battle3.friendly.length+1'));
  assert.equal(run('money[2]'),run('950+Math.floor(m03Previous.money[2]*.25)'));
  run('cities[1].f=2;cities[2].f=2;buildRegions();save();save()');
  assert.equal(run('CampaignBattle.inspect().progress.holdTurns'),0);
@@ -18,7 +18,7 @@ module.exports=async function({run,drain,stored}){
  assert(run('units.filter(u=>u.missionWave).every(u=>units.every(v=>v.f!==2||distance(u.tile,v.tile)>2))'));
  run('turn++;save();save()');assert.equal(run('CampaignBattle.inspect().progress.holdTurns'),1);
  run('turn++;save()');assert(run('CampaignBattle.inspect().progress.delivered'));
- assert.equal(run('units.filter(u=>u.f===2).length'),run('m03Previous.units.filter(u=>u.f===2).length+3'));
+ assert.equal(run('units.filter(u=>u.f===2).length'),run('IRON_CROWN_CAMPAIGN.battle3.friendly.length+1+3'));
  const progress=run('JSON.stringify(CampaignBattle.inspect().progress)');assert(run('save(7)'));await drain(run('load(7)'));run('save();save()');assert.equal(run('JSON.stringify(CampaignBattle.inspect().progress)'),progress);
  run('cities[2].f=1;save()');assert.equal(run('CampaignBattle.inspect().progress.holdTurns'),0);
  run('cities[2].f=2;save()');assert.equal(run('CampaignBattle.inspect().progress.holdTurns'),0);
@@ -37,5 +37,5 @@ module.exports=async function({run,drain,stored}){
  run('CampaignBattle.leave()');
  assert.equal(run('JSON.stringify({units,cities,money,food,oil,tech,owners:tiles.map(t=>t.owner),map:MAP.tiles})'),original);
  oldKeys.forEach(([k,v])=>assert.equal(stored.get(k),v,k+' preserved'));
- console.log('PASS mission03 native: previous survivors/research/resources, independent saves, continuous five-turn defense/reset, safe reactive waves, reload deduplication, both delivery priorities, defeat conditions and exact conquest restoration');
+ console.log('PASS mission03 native: fixed starting roster with fortress/research/resources, independent saves, continuous five-turn defense/reset, safe reactive waves, reload deduplication, both delivery priorities, defeat conditions and exact conquest restoration');
 };

@@ -60,6 +60,7 @@ require('./attack-helicopter-scale-live.cjs')({run});
 require('./coastal-balance-regression.cjs')({run});
 await require('./sapros-live-regression.cjs')({run,nodes,click,settle});
 await require('./release-v11149-regression.cjs')({run,nodes,click});
+await require('./campaign-orders-native.cjs')({run,nodes,drain});
 await require('./campaign-shared-native.cjs')({run,nodes,click,drain,settle,stored});
 await require('./campaign-m02-native.cjs')({run,nodes,click,drain,settle,stored});
 await require('./campaign-m02-playthrough.cjs')({run,drain});

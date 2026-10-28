@@ -27,8 +27,8 @@ module.exports=async function(page){
  await page.waitForFunction(()=>CampaignBattle.ready());assert(await page.locator('#campaignObjectives').isVisible());assert.equal(await page.evaluate(()=>cities[1].f),2);
  await page.click('#campaignObjectives');assert((await page.locator('#campaignGoalSheet').textContent()).includes('남부 보급소'));assert(!(await page.locator('#campaignGoalSheet').textContent()).includes('20턴'));await page.click('#appBack');
  await page.screenshot({path:'qa/campaign-previews/review-m02-battle.jpg',type:'jpeg',quality:65});
- const carry=await page.evaluate(()=>({old:TerhaCampaign.getState().carry.units.filter(u=>u.f===2).map(u=>({type:u.type,level:u.level,xp:u.xp,hp:u.hp})),now:units.filter(u=>u.f===2).map(u=>({type:u.type,level:u.level,xp:u.xp,hp:u.hp}))}));
- assert.equal(carry.old.length,carry.now.length);carry.old.forEach(u=>assert(carry.now.some(v=>v.type===u.type&&v.level===u.level&&v.xp===u.xp&&v.hp===u.hp)));
+ const carry=await page.evaluate(()=>({old:TerhaCampaign.getState().carry.units.filter(u=>u.missionRole==='iron-crown').map(u=>({type:u.type,level:u.level,xp:u.xp,hp:u.hp})),now:units.filter(u=>u.missionRole==='iron-crown').map(u=>({type:u.type,level:u.level,xp:u.xp,hp:u.hp})),count:units.filter(u=>u.f===2).length,expected:IRON_CROWN_CAMPAIGN.battle2.friendly.length+1}));
+ assert.equal(carry.count,carry.expected);assert.deepEqual(carry.old,carry.now);
  const first=await page.evaluate(()=>{save(8);return JSON.stringify(snapshot().units)});
  await page.evaluate(async()=>{await load(8);save()});await page.waitForFunction(()=>!campaignLoading);assert.equal(await page.evaluate(()=>JSON.stringify(units)),first);
  // Verify the audio setting itself was never muted by story playback.

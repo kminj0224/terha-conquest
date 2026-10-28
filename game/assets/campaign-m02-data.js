@@ -5,7 +5,7 @@ Object.assign(IRON_CROWN_CAMPAIGN.missions[1],{status:'playable',objective:'관�
 IRON_CROWN_CAMPAIGN.battle2={
  id:'iron-crown-m02',schema:2,enemyGoldCeiling:500,map:{origin:{x:40,y:30},cols:24,rows:16,image:'campaign-m02-map-v3.webp'},player:2,
  fortress:{type:14,q:2,r:8,name:'〈철관〉'},exit:{q:22,r:7},
- cities:[['서부 전진기지',2,9,2,2,5,true,null],['관문 외곽 진지',12,7,1,2,2,false,1800],['남부 보급소',11,11,1,2,2,false,1200],['북부 포대',14,3,1,1,1,false,1600],['동부 군용도로',20,7,1,1,1,false,2000]],
+ cities:[['서부 전진기지',2,9,2,2,3,true,null],['관문 외곽 진지',12,7,1,2,2,false,1800],['남부 보급소',11,11,1,2,2,false,1200],['북부 포대',14,3,1,1,1,false,1600],['동부 군용도로',20,7,1,1,1,false,2000]],
  friendly:[[0,3,8],[0,3,9],[2,2,7]],
  enemy:[[0,7,8],[12,8,7],[9,10,7],[10,12,8],[16,14,4],[9,13,4],[0,11,12],[8,12,11],[1,18,7],[9,19,8]],hardExtra:[[9,13,6],[2,16,8]],
  triggers:[{id:'depot',city:2,owner:2,message:'남부 보급소 확보'},{id:'battery',city:3,owner:2,message:'북부 포대 확보'}],

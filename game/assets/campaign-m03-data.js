@@ -1,11 +1,11 @@
 'use strict';
 IRON_CROWN_CAMPAIGN.implementedMissions=[1,2,3];
-Object.assign(IRON_CROWN_CAMPAIGN.missions[2],{status:'playable',objective:'중앙역·신호소를 확보하고 5턴 동안 방어',design:'26×18 철도 야적장. 두 거점 동시 점령 뒤 방어전으로 전환. 병력 하역/왕실 화물 우선 선택, 반응형 반격, 임무 02 생존 병력·연구·자원 계승.'});
+Object.assign(IRON_CROWN_CAMPAIGN.missions[2],{status:'playable',objective:'중앙역·신호소를 확보하고 5턴 동안 방어',design:'26×18 철도 야적장. 두 거점 동시 점령 뒤 방어전으로 전환. 병력 하역/왕실 화물 우선 선택, 반응형 반격. 일반 병력은 임무별 편성, 철관·연구·자원만 계승.'});
 IRON_CROWN_CAMPAIGN.battle3={
  id:'iron-crown-m03',schema:2,enemyGoldCeiling:500,holdRequired:5,
  map:{origin:{x:40,y:30},cols:26,rows:18,image:'campaign-m03-map.webp'},player:2,
  fortress:{type:14,q:2,r:8,name:'〈철관〉'},exit:{q:23,r:9},
- cities:[['서부 화물기지',2,10,2,2,5,true,null],['중앙역',13,9,1,2,3,false,1600],['신호소',18,6,1,2,2,false,1200],['남부 하역장',10,14,1,2,2,false,900],['동부 차량기지',23,10,1,1,1,false,2000],['서부 정비소',4,13,2,2,3,false,null]],
+ cities:[['서부 화물기지',2,10,2,2,3,true,null],['중앙역',13,9,1,2,3,false,1600],['신호소',18,6,1,2,2,false,1200],['남부 하역장',10,14,1,2,2,false,900],['동부 차량기지',23,10,1,1,1,false,2000],['서부 정비소',4,13,2,2,3,false,null]],
  friendly:[[0,3,9],[0,3,10],[9,2,11],[2,4,9]],
  enemy:[[0,8,9],[10,10,8],[9,11,10],[2,14,8],[0,13,10],[1,16,9],[9,17,6],[10,18,7],[16,19,5],[0,10,13],[12,11,14],[2,22,11],[1,22,8],[0,21,10]],
  hardExtra:[[9,12,7],[2,18,5],[1,20,11]],
