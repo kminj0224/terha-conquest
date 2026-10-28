@@ -115,6 +115,7 @@ const CampaignBattle=(()=>{
  }
  function tick(){
   if(!progress||ID!=='iron-crown-m02'||progress.result)return;
+  if(progress.lastTurn!==turn)money[1]=Math.min(money[1],DATA.enemyGoldCeiling);
   progress.lastTurn=turn;
   for(const w of DATA.waves){
    if(!progress.triggered.includes('warn-'+w.turn)&&(turn>=w.turn-2||waveDue(w))){progress.triggered.push('warn-'+w.turn);worldNotice(w.name+' 집결 중')}

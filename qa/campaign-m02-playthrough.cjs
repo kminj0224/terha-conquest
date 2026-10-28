@@ -11,7 +11,7 @@ module.exports=async function({run,drain}){
    if(production)for(const q of cities.filter(q=>q.f===2)){
     const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
     const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
-    let k=pool[(turn+q.id)%pool.length];if(prepared){const knights=force.filter(u=>u.type===18).length;k=knights<1&&food[2]>=unitPrice(18,1)?18:rifles<3?0:force.filter(u=>u.type===10).length<4?10:2;}
+    let k=pool[(turn+q.id)%pool.length];if(prepared){k=rifles<3?0:force.filter(u=>u.type===10).length<6?10:2;}
     if(produce(q,k,1,false)||prepared&&produce(q,0,1,false))built++;
    }
    if(prepared){const h=units.find(u=>u.missionRole==='iron-crown');if(h&&h.hp<unitMaxHp(h)*.75&&canResupply(h))repair(h)}
@@ -29,7 +29,7 @@ module.exports=async function({run,drain}){
      }
      if(prepared&&!hold&&mayMove(u)){
       const goal=cities.filter(q=>q.f===1&&[1,2,3].includes(q.id)).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0];
-      if(goal){const wanted=TYPES[u.type].branch==='artillery'?TYPES[u.type].range:0,at=distance(u.tile,goal.tile);
+      if(goal){const wanted=u.type===0?0:TYPES[u.type].range,at=distance(u.tile,goal.tile);
        if(at>wanted){const options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile&&distance(i,goal.tile)<at);
         const risk=i=>enemies.reduce((n,v)=>n+(distance(i,v.tile)<=TYPES[v.type].range?1:0),0);
         options.sort((a,b)=>Math.max(wanted,distance(a,goal.tile))-Math.max(wanted,distance(b,goal.tile))+(risk(a)-risk(b))*.12);
