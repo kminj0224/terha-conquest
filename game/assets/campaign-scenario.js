@@ -56,7 +56,7 @@ const CampaignBattle=(()=>{
     tech[2]=Math.max(0,Math.min(5,previous.tech?.[2]||0));
     if(hero){fort.level=hero.level;fort.xp=hero.xp||0;fort.hp=Math.min(unitMaxHp(fort),hero.hp)}
     units=units.filter(u=>u.f!==2||u.id===fort.id);
-    const sites=[];for(let q=0;q<6;q++)for(let r=5;r<14;r++)sites.push(tile(q,r));
+    const sites=[];for(let q=0;q<COLS;q++)for(let r=1;r<ROWS-1;r++)sites.push(tile(q,r));sites.sort((a,b)=>distance(a,fort.tile)-distance(b,fort.tile));
     for(const old of survivors.filter(u=>u!==hero)){
      const site=sites.find(i=>!unitAt(i));if(site===undefined)break;
      const u=makeUnit(2,old.type,site,old.level);u.xp=old.xp||0;u.hp=Math.min(unitMaxHp(u),old.hp);
@@ -117,12 +117,12 @@ const CampaignBattle=(()=>{
   if(!progress||ID!=='iron-crown-m02'||progress.result)return;
   progress.lastTurn=turn;
   for(const w of DATA.waves){
-   if(!progress.triggered.includes('warn-'+w.turn)&&(turn>=w.turn-2||waveDue(w))){progress.triggered.push('warn-'+w.turn);worldNotice(w.name+' 집결 중');log(w.name+' 집결 중')}
+   if(!progress.triggered.includes('warn-'+w.turn)&&(turn>=w.turn-2||waveDue(w))){progress.triggered.push('warn-'+w.turn);worldNotice(w.name+' 집결 중')}
    if(waveDue(w)&&!progress.waves.includes(w.turn)){
     progress.waves.push(w.turn);
     w.troops.forEach((type,n)=>progress.pending.push({type,edge:w.edge==='split'?(n%2?'southwest':'east'):w.edge,wave:w.turn,serial:progress.waveSerial++}));
     if(difficulty===2)progress.pending.push({type:9,edge:w.edge==='split'?'east':w.edge,wave:w.turn,serial:progress.waveSerial++});
-    worldNotice(w.name+' 접근');log(w.name+' 접근');
+    worldNotice(w.name+' 접근');
    }
   }
   // Never teleport beside a player unit or overwrite an occupied edge cell.

@@ -28,7 +28,7 @@ module.exports=async function(page){
  const carry=await page.evaluate(()=>({old:TerhaCampaign.getState().carry.units.filter(u=>u.f===2).map(u=>({type:u.type,level:u.level,xp:u.xp,hp:u.hp})),now:units.filter(u=>u.f===2).map(u=>({type:u.type,level:u.level,xp:u.xp,hp:u.hp}))}));
  assert.equal(carry.old.length,carry.now.length);carry.old.forEach(u=>assert(carry.now.some(v=>v.type===u.type&&v.level===u.level&&v.xp===u.xp&&v.hp===u.hp)));
  const first=await page.evaluate(()=>{save(8);return JSON.stringify(snapshot().units)});
- await page.evaluate(()=>{load(8);save()});assert.equal(await page.evaluate(()=>JSON.stringify(units)),first);
+ await page.evaluate(async()=>{await load(8);save()});await page.waitForFunction(()=>!campaignLoading);assert.equal(await page.evaluate(()=>JSON.stringify(units)),first);
  // Verify the audio setting itself was never muted by story playback.
  assert(await page.evaluate(()=>appSettings.music>0&&operationMusicActive&&menuMusic.paused));
  await page.evaluate(()=>{CampaignBattle.leave();TerhaCampaign.open()});
