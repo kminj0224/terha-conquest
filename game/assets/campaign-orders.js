@@ -3,8 +3,15 @@
 // continue to run through the conquest engine and its existing UI.
 const CampaignOrders=(()=>{
  const data=()=>activeScenario?.id==='iron-crown-m03'?IRON_CROWN_CAMPAIGN.battle3:activeScenario?.id==='iron-crown-m02'?IRON_CROWN_CAMPAIGN.battle2:activeScenario?.id==='iron-crown-m01'?IRON_CROWN_CAMPAIGN.battle:null;
- const points=()=>{const d=data();return d?cities.filter(q=>(d.id==='iron-crown-m01'?[1,2]:[1,2,3]).includes(q.id)):[]};
+ const points=()=>{const d=data();return d?cities.filter(q=>(d.id==='iron-crown-m01'||d.id==='iron-crown-m03'?[1,2]:[1,2,3]).includes(q.id)):[]};
  function goal(u){
+  if(data()?.id==='iron-crown-m03'){
+   const objectives=points(),retake=objectives.filter(q=>atWar(u.f??1,q.f)),targets=retake.length?retake:objectives;
+   return targets.slice().sort((a,b)=>{
+    const score=q=>distance(u.tile,q.tile)+(targets.length>1&&q.id!==(u.id%2?1:2)?5:0);
+    return score(a)-score(b)||a.id-b.id;
+   })[0]||null;
+  }
   const army=units.filter(v=>v.f===1&&v.hp>0&&!v.carriedBy),enemy=units.filter(v=>atWar(1,v.f)&&v.hp>0&&!v.carriedBy);
   return points().map(q=>{
    const d=distance(u.tile,q.tile),threats=enemy.filter(v=>distance(v.tile,q.tile)<=5).length;
@@ -25,6 +32,27 @@ const CampaignOrders=(()=>{
   let tile=u.tile,best=score(tile);
   for(const i of reachable(u).costs.keys()){const value=score(i);if(value<best-.01){tile=i;best=value}}
   return tile!==u.tile?{move:tile}:null;
+ }
+ // Mission orders select native legal attacks/moves; capture and damage stay shared.
+ function assault(u,q){
+  if(canCaptureCityUnit(u)&&atWar(u.f,q.f)&&q.hp<=0&&!unitAt(q.tile)&&reachable(u).costs.has(q.tile))return{move:q.tile};
+  const hero=units.find(v=>v.f===2&&v.missionRole==='iron-crown');
+  const targets=units.filter(v=>canAttack(u,v)&&(distance(v.tile,q.tile)<=4||distance(v.tile,u.tile)<=1||hero&&distance(v.tile,hero.tile)<=2&&distance(hero.tile,q.tile)<=5));
+  targets.sort((a,b)=>Number(canCaptureCityUnit(b))-Number(canCaptureCityUnit(a))||a.hp-b.hp);
+  if(canAttackCity(u,q)&&(!targets.length||canCaptureCityUnit(u)&&q.hp<=siegeDamage(u,q)))return{city:q};
+  if(targets[0])return{attack:targets[0]};
+  if(!atWar(u.f,q.f))return defense(u,q);
+  if(!mayMove(u))return null;
+  const route=rifleRoute(u.f,q),before=route[u.tile];
+  if(before<0)return null;
+  const range=canCaptureCityUnit(u)?(q.hp<=0?0:1):TYPES[u.type].branch==='artillery'?Math.min(2,TYPES[u.type].range):1;
+  let best=u.tile,value=Infinity;
+  for(const [i,cost]of reachable(u).costs){
+   if(route[i]<0||!canCaptureCityUnit(u)&&i===q.tile)continue;
+   const dist=route[i],score=Math.abs(dist-range)+(dist<range?2:0)+cost*.001;
+   if(score<value){best=i;value=score}
+  }
+  return best!==u.tile?{move:best}:null;
  }
  const nativeProfile=cityProfile;
  cityProfile=function(q){
@@ -64,6 +92,7 @@ const CampaignOrders=(()=>{
   if(!data()||u.f!==1)return nativeStep(u,targets);
   if(!units.includes(u)||u.carriedBy||u.hp<=0||u.ap<=0)return null;
   const q=goal(u);if(!q)return null;
+  if(data().id==='iron-crown-m03')return assault(u,q);
   const action=nativeStep(u,[q]);
   if(action)return action;
   return q.f===u.f?defense(u,q):null;
@@ -73,7 +102,7 @@ const CampaignOrders=(()=>{
  const nativeCanProduce=canProduce;
  canProduce=function(q,k,level=1){if(data()&&isNaval({type:k}))return false;return nativeCanProduce(q,k,level)};
  const nativeProcure=aiProcure;
- aiProcure=function(f,owned){if(data()&&f===1){if(turn%4!==0||units.filter(u=>u.f===f&&u.hp>0).length>=8)return;return nativeProcure(f,owned.slice(0,1))}return nativeProcure(f,owned)};
+ aiProcure=function(f,owned){if(data()&&f===1){if(data().id==='iron-crown-m03'&&turn%2===0){const rifles=units.filter(u=>u.f===f&&u.hp>0&&canCaptureCityUnit(u)).length;if(rifles<4){const q=owned.filter(q=>!q.queue&&!q.produced).sort((a,b)=>distance(a.tile,cities[1].tile)-distance(b.tile,cities[1].tile))[0];if(q&&aiQueueUnit(f,q,0,1))return}}if(turn%4!==0||units.filter(u=>u.f===f&&u.hp>0).length>=8)return;return nativeProcure(f,owned.slice(0,1))}return nativeProcure(f,owned)};
  Object.assign(window.Terha,{moveCost,canProduce});
  Object.assign(window.Terha,{cityProfile,upgradeCity,aiExpansionCandidates,aiUpgradeCities,showPanel,chooseObjective,danteUnitObjective,danteAssignedFront,aiRifleGoal,aiStep});
 

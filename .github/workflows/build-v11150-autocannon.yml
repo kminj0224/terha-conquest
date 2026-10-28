@@ -84,7 +84,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.62 deliverables/Terha-Conquest-v1.11.62.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.62' --notes '임무03 연속 방어 진행 표시 개선. 전투 화면에 거점 소유·0~5턴 방어·반격 격퇴 차수와 전장/진입 대기/미출현 병력 표시. 목표 창에 각 반격의 출현 조건과 상태 표시. 거점 상실 시 초기화 알림, 5턴 방어 완료와 반격 격퇴 구분. 기존 승리 조건·난이도·저장·정복 UI 및 업데이트 서명 유지. Android versionCode 207.'
+          gh release create v1.11.62 deliverables/Terha-Conquest-v1.11.62.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.62' --notes '임무03 방어전 수정. 중앙역·신호소 연속 5턴 유지 즉시 승리하며 반격 전멸 조건 제거. 소총수 포함 탈환 편성 및 거점 공격·재점령에 집중하는 AI, 선로 진입 지점 조정. 전투 화면 방어 턴 상시 표시, 거점 상실 초기화 알림과 간결한 목표 안내. 기존 저장·정복 모드·업데이트 서명 유지. Android versionCode 207.'
       - name: Prepare APK file attachment
         if: github.ref == 'refs/heads/main'
         continue-on-error: true

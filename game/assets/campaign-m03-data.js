@@ -7,14 +7,14 @@ IRON_CROWN_CAMPAIGN.battle3={
  fortress:{type:14,q:2,r:8,name:'〈철관〉'},exit:{q:23,r:9},
  cities:[['서부 화물기지',2,10,2,2,3,true,null],['중앙역',13,9,1,2,3,false,1600],['신호소',18,6,1,2,2,false,1200],['남부 하역장',10,14,1,2,2,false,900],['동부 차량기지',23,10,1,1,1,false,2000],['서부 정비소',4,13,2,2,3,false,null]],
  friendly:[[0,3,9],[0,3,10],[9,2,11],[2,4,9]],
- enemy:[[0,8,9],[10,10,8],[9,11,10],[2,14,8],[0,13,10],[1,16,9],[9,17,6],[10,18,7],[16,19,5],[0,10,13],[12,11,14],[2,22,11],[1,22,8],[0,21,10]],
+ enemy:[[0,17,5],[0,15,10],[0,8,9],[10,10,8],[9,11,10],[2,14,8],[0,13,10],[1,16,9],[9,17,6],[10,18,7],[16,19,5],[0,10,13],[12,11,14],[2,22,11],[1,22,8],[0,21,10]],
  hardExtra:[[9,12,7],[2,18,5],[1,20,11]],
  triggers:[{id:'loading-yard',city:3,owner:2,message:'남부 하역장 확보'}],
  waves:[
-  {turn:6,stage:'approach',name:'북부 선로 경계대',edge:'north',troops:[0,9,12,2]},
-  {turn:11,stage:'station',name:'중앙역 탈환대',edge:'east',troops:[1,9,0,16,10]},
-  {turn:17,stage:'hold2',name:'남부 우회 기동대',edge:'southwest',troops:[12,9,8,0,2]},
-  {turn:20,stage:'hold4',name:'철도 기갑 예비대',edge:'split',troops:[14,1,9,16,0,10]}
+  {turn:6,stage:'approach',name:'북부 선로 경계대',edge:'north',entry:{q:17,r:2},troops:[0,0,9,12,2]},
+  {turn:11,stage:'station',name:'중앙역 탈환대',edge:'east',entry:{q:23,r:7},troops:[0,0,1,2,9,10]},
+  {turn:17,stage:'hold2',name:'남부 우회 기동대',edge:'southwest',entry:{q:12,r:15},troops:[0,0,0,9,2,12]},
+  {turn:20,stage:'hold4',name:'철도 기갑 예비대',edge:'split',entry:{q:23,r:10},troops:[0,0,0,1,14,2,9,10]}
  ]
 };
 IRON_CROWN_CAMPAIGN.intro3=[
