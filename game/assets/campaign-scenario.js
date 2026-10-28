@@ -34,6 +34,7 @@ const CampaignBattle=(()=>{
    }
    MAP.tiles[i]=[origin,terrain];Object.assign(tiles[i],{owner,terrain});
   }
+  CampaignTerrain.apply(DATA);
  }
  function ensureContext(){if(active())return;if(busy)throw Error('An operation is still running');suspended=captureWorld();activeScenario={id:ID};document.body.dataset.scenario=ID;RANNA_RIVER_TILES.clear();CITY_GROUND_SUPPORT.fill(0);CITY_GROUND_CENTER.fill(0);createMap();}
  function newMission(level,options={}){
@@ -64,7 +65,7 @@ const CampaignBattle=(()=>{
     progress.initialFriendly=units.filter(u=>u.f===2).map(u=>u.id);
     for(const [key,target]of [['money',money],['food',food],['oil',oil]])target[2]+=Math.floor(Math.max(0,previous[key]?.[2]||0)*.25);
    }
-   food[2]+=2400;oil[2]+=180;
+   food[2]+=3600;oil[2]+=180;
    // The paid passage gives the central staging point, never skips a wave.
    if(ID==='iron-crown-m02'&&progress.route==='pay'){
     money[2]-=600;const gate=cities[1];gate.f=2;gate.hp=cityMaxHp(gate);buildRegions();
@@ -76,6 +77,7 @@ const CampaignBattle=(()=>{
    // Scripted reinforcements supply the enemy. Its normal economy/AI still runs.
    money[1]=350;food[1]=500;oil[1]=220;
   }
+  CampaignTerrain.relocate(DATA);
   appRunId='iron-crown-'+Date.now();appRunWon=false;cam={...pxy(fort.tile),z:1.2};invalidate();faceInitialArmy();
   const order=ID==='iron-crown-m03'?'철도 분기점 · 중앙역·신호소 확보 후 5턴 방어':ID==='iron-crown-m02'?'닫힌 관문 · 관문과 남부 보급소 확보':'출정 허가 · 〈철관〉을 동쪽 출구로 이동';log(order);worldNotice(order);updateHUD();refreshSelection();save();
  }
@@ -93,7 +95,7 @@ const CampaignBattle=(()=>{
   if(!active()||s?.scenario!==ID||!valid(s))return false;
   const v=copy(s);rngSeed=v.rngSeed??rngSeed;productionTier=v.productionTier??1;productionAA=!!v.productionAA;({units,cities,money,food,oil,tech,turn,player,difficulty,uid,cam}=v);activeSlot=slot||v.activeSlot||0;
   strategicResearch=v.strategicResearch||factions.map(()=>({ballistic:false,nuclear:false,jobs:[]}));militaryResearchJobs=v.militaryResearchJobs||Array(7).fill(null);foodTurn=v.foodTurn||turn;diplomacy=v.diplomacy;missileBases=v.missileBases||[];navalUid=v.navalUid||1;defeatedNotices=new Set(v.defeatedNotices||[0,3,4,5,6]);aiTransportGrantTurn=v.aiTransportGrantTurn||Array(7).fill(-1);aiSpecialOrderTurns.forEach((_,i)=>aiSpecialOrderTurns[i]=v.aiSpecialOrderTurns?.[i]??-1);hansaBridges=[];danteExpansionSeeded=true;
-  appRunId=v.appRunId||'iron-crown-'+Date.now();appRunWon=false;progress=copy(v.missionProgress);tiles.forEach((t,i)=>{t.city=-1;t.owner=v.owners[i]??-1});cities.forEach(q=>{tiles[q.tile].city=q.id;cityProfile(q);syncWarheads(q)});buildRegions();started=true;busy=false;invalidate();constrainCamera();updateHUD();refreshSelection();return true;
+  appRunId=v.appRunId||'iron-crown-'+Date.now();appRunWon=false;progress=copy(v.missionProgress);tiles.forEach((t,i)=>{t.city=-1;t.owner=v.owners[i]??-1});CampaignTerrain.apply(DATA);cities.forEach(q=>{q.tile=tile(DATA.cities[q.id][1],DATA.cities[q.id][2]);tiles[q.tile].city=q.id;cityProfile(q);syncWarheads(q)});CampaignTerrain.relocate(DATA);buildRegions();started=true;busy=false;invalidate();constrainCamera();updateHUD();refreshSelection();return true;
  }
  function start(s,level=1,options={}){configure(s?.scenario||options.id||'iron-crown-m01');artwork();ensureContext();if(s){if(!restore(s))throw Error('Invalid campaign save')}else newMission(level,options);constrainCamera();setAppScreen('game');updateHUD();refreshSelection();save();return snapshot()}
  function metadata(){if(active()&&!busy)tick();constrainCamera();return active()?{scenario:ID,scenarioSchema:SCHEMA,missionProgress:copy(progress),rngSeed,militaryResearchJobs,productionTier,productionAA,aiSpecialOrderTurns:[...aiSpecialOrderTurns]}:{}}
@@ -109,7 +111,15 @@ const CampaignBattle=(()=>{
   if(edge==='east')for(let r=2;r<ROWS-2;r++)sites.push(tile(COLS-1,r));
   if(edge==='north')for(let q=7;q<COLS-2;q++)sites.push(tile(q,1));
   if(edge==='southwest')for(let q=0;q<11;q++)sites.push(tile(q,ROWS-2));
-  return sites;
+  const legal=sites.filter(i=>!CampaignTerrain.blocked(i,DATA));if(legal.length)return legal;
+  // Where the illustration's road ends at a cliff boundary, use that road mouth.
+  for(let q=0;q<COLS;q++)for(let r=1;r<ROWS-1;r++){
+   const i=tile(q,r);if(!CampaignTerrain.blocked(i,DATA)&&neighbors(i).some(j=>CampaignTerrain.blocked(j,DATA)))sites.push(i);
+  }
+  return [...new Set(sites)].filter(i=>!CampaignTerrain.blocked(i,DATA)).sort((a,b)=>{
+   const rank=i=>{const t=tiles[i];return edge==='north'?(t.y-ORIGIN.y)*3+Math.abs(t.x-ORIGIN.x-COLS*.55):edge==='southwest'?(COLS-(t.y-ORIGIN.y))*2+(t.x-ORIGIN.x):COLS-(t.x-ORIGIN.x)};
+   return rank(a)-rank(b);
+  }).slice(0,8);
  }
  function waveAlive(){return units.filter(u=>u.f===1&&u.missionWave&&u.hp>0).length}
  function cleared(){return progress.waves?.length===DATA.waves?.length&&!progress.pending.length&&waveAlive()===0}
@@ -175,7 +185,7 @@ const CampaignBattle=(()=>{
   if(!active()||!progress)return false;
   if(!busy)tick();
   const fort=units.find(u=>u.id===progress.fortressId&&u.hp>0);
-  if(!progress.result){if(!fort)progress.result='lost';else if(ID==='iron-crown-m03'){if(!cities.some(q=>q.f===2))progress.result='lost';else if(secured()&&progress.holdTurns>=DATA.holdRequired&&cleared())progress.result='won'}else if(fort.tile===progress.exit&&(ID!=='iron-crown-m02'||cleared()&&secured()))progress.result='won';else if(ID==='iron-crown-m02'&&!cities.some(q=>q.f===2))progress.result='lost';}
+  if(!progress.result){if(turn>CampaignRules.rules(DATA)[0]){progress.result='lost';progress.failure='timeout'}else if(!fort)progress.result='lost';else if(ID==='iron-crown-m03'){if(!cities.some(q=>q.f===2))progress.result='lost';else if(secured()&&progress.holdTurns>=DATA.holdRequired&&cleared())progress.result='won'}else if(fort.tile===progress.exit&&(ID!=='iron-crown-m02'||cleared()&&secured()))progress.result='won';else if(ID==='iron-crown-m02'&&!cities.some(q=>q.f===2))progress.result='lost';}
   for(const event of DATA.triggers){const city=cities.find(q=>q.id===event.city);if(city?.f===event.owner&&!progress.triggered.includes(event.id)){progress.triggered.push(event.id);worldNotice(event.message)}}
   if(!progress.result||busy||resultTimer||!['game','menu'].includes(appScreen))return false;
   const delayMs=Math.max(0,...moving.map(a=>a.start+a.duration-performance.now()))+50;

@@ -19,7 +19,7 @@ module.exports=async function(page){
   if(n===6)await page.screenshot({path:'qa/campaign-previews/review-m03-vn.jpg',type:'jpeg',quality:80});
   await page.click('#cpNext');
  }
- await page.locator('#cpTroops').waitFor();await page.click('#cpCargo');
+ await page.locator('#cpTroops').waitFor();await page.click('#cpCargo');await require('./campaign-rating-browser.cjs').deployment(page);
  await page.waitForFunction(()=>activeScenario?.id==='iron-crown-m03'&&!campaignLoading);
  assert(await page.evaluate(()=>CampaignBattle.ready()&&CampaignBattle.valid(snapshot())));
  assert.equal(await page.evaluate(()=>saveKey()),'terha-campaign-iron-crown-m03-v2');

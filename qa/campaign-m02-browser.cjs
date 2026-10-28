@@ -23,7 +23,7 @@ module.exports=async function(page){
  await page.reload();await page.waitForFunction(()=>typeof TerhaCampaign!=='undefined');await page.evaluate(()=>TerhaCampaign.open());await page.click('#cpCampaignIron');await page.click('#cpContinue');
  assert.equal(await page.evaluate(()=>TerhaCampaign.getState().vn),saved.vn);await silent();
  await page.click('#cpSkip');await page.locator('#cpPay').waitFor();
- await page.click('#cpPay');await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading&&activeScenario?.id==='iron-crown-m02');
+ await page.click('#cpPay');await require('./campaign-rating-browser.cjs').deployment(page);await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading&&activeScenario?.id==='iron-crown-m02');
  await page.waitForFunction(()=>CampaignBattle.ready());assert(await page.locator('#campaignObjectives').isVisible());assert.equal(await page.evaluate(()=>cities[1].f),2);
  assert(await page.evaluate(()=>cities[0].level===3&&!canProduce(cities[0],18,1)&&!canProduce(cities[0],14,1)&&canProduce(cities[0],2,1)));
  await page.evaluate(()=>selectCity(cities[0],true));assert(await page.locator('#cityExpandGold').isDisabled());await page.click('#panel .close');

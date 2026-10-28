@@ -41,7 +41,8 @@ const CampaignPresentation=(()=>{
   if(!activeScenario||busy||campaignLoading)return;
   const rows=CampaignBattle.goalRows();
   clearWorldNotices();setAppScreen('menu');appReturn='game';
-  appBox('작전 목표','<div id="campaignGoalSheet"><ul class="campaignGoalList">'+rows.map(row=>'<li><span class="goalCheck">'+(row.done?'☑':'☐')+'</span><div><strong>'+row.label+'</strong><span>'+row.value+'</span></div></li>').join('')+'</ul></div>','campaignGoalWindow');
+  const d=CampaignOrders.data(),limits=CampaignRules.rules(d);
+  appBox('작전 목표','<div id="campaignGoalSheet"><div class="cpGoalRating"><span>'+turn+' / '+limits[0]+'턴</span>'+limits.map((max,i)=>'<span>'+CampaignRules.row(i+1)+' '+max+'턴</span>').join('')+'</div><ul class="campaignGoalList">'+rows.map(row=>'<li><span class="goalCheck">'+(row.done?'☑':'☐')+'</span><div><strong>'+row.label+'</strong><span>'+row.value+'</span></div></li>').join('')+'</ul></div>','campaignGoalWindow');
   $('appBack').textContent='계속';$('appBack').onclick=resume;
  }
  $('campaignObjectives').onclick=showGoals;

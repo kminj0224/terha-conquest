@@ -19,7 +19,7 @@ module.exports=async function(page){
  for(const [width,height]of [[640,360],[390,844]]){await page.setViewportSize({width,height});const r=await page.locator('#campaignRestart').boundingBox();assert(r&&r.x>=0&&r.y>=0&&r.x+r.width<=width+1&&r.y+r.height<=height+1,'Restart is immediately visible')}
  await page.setViewportSize({width:960,height:540});await page.screenshot({path:'qa/campaign-previews/review-restart-menu.jpg',type:'jpeg',quality:80});
  await page.click('#campaignRestart');await page.click('#confirmNo');assert.equal(await page.evaluate(()=>turn),progressed.turn);assert.equal(await page.evaluate(()=>JSON.stringify(units)),progressed.units);
- await page.click('#campaignRestart');await page.click('#confirmYes');await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading);
+ await page.click('#campaignRestart');await page.click('#confirmYes');await require('./campaign-rating-browser.cjs').deployment(page);await page.waitForFunction(()=>appScreen==='game'&&!campaignLoading);
  assert.equal(await page.evaluate(()=>turn),checkpoint.turn);
  for(const key of ['units','money','food','oil','tech'])assert.deepEqual(await page.evaluate(key=>snapshot()[key],key),checkpoint[key],key+' resets to mission start');
  assert.deepEqual(await page.evaluate(()=>TerhaCampaign.getState().completed),[1,2]);

@@ -39,7 +39,7 @@ module.exports=async function({run,drain}){
      if(prepared){const immediate=enemies.filter(v=>canAttack(u,v));if(immediate.length){immediate.sort((a,b)=>(damage(u,b)>=b.hp?1000:0)+unitAttack(b)-b.hp*.05-((damage(u,a)>=a.hp?1000:0)+unitAttack(a)-a.hp*.05));await attack(u,immediate[0],true);continue}}
 
      if(prepared&&!hold&&!(cities[1].f===2&&cities[2].f===2)){
-      const operationCities=cities.filter(q=>[1,2,3].includes(q.id));aiObjectives[2]=operationCities.filter(q=>q.f===1).sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0]||null;
+      const main=cities.find(q=>[1,2].includes(q.id)&&q.f===1),operationCities=main?[main]:[];aiObjectives[2]=main||null;
       const command=aiStep(u,operationCities);
       if(command?.attack){await attack(u,command.attack,true);continue}
       if(command?.city){await attackCity(u,command.city,true);continue}
