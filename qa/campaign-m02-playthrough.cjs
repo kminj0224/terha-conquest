@@ -20,7 +20,7 @@ module.exports=async function({run,drain}){
    for(const u of army){
     if(!units.includes(u))continue;
     for(let action=0;action<5&&u.ap>0&&units.includes(u);action++){
-     const hold=prepared&&(turn<18||u.missionRole&&u.hp<unitMaxHp(u)*.65);
+     const hold=prepared&&u.missionRole&&u.hp<unitMaxHp(u)*.65;
      if(hold&&u.missionRole&&u.tile!==cities[0].tile&&mayMove(u)&&reachable(u).costs.has(cities[0].tile)){moveUnit(u,cities[0].tile,true);continue}
      const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0);
      if(prepared&&u.type===0&&mayMove(u)){
