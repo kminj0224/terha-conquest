@@ -1,6 +1,6 @@
 # Terha Conquest project instructions
 
-The current baseline is v1.11.56. Preserve existing save compatibility, faction/type IDs, geography and Android update identity unless the task changes them.
+The current baseline is v1.11.57. Preserve existing save compatibility, faction/type IDs, geography and Android update identity unless the task changes them.
 
 - Edit the game under game/assets; index.html script order matters and bootstrap.js must be last.
 - Build with Python 3 and Java 17 using python3 build.py. The original Android shell, build JARs and signing files are under android/ and tools/.
@@ -19,7 +19,8 @@ The current baseline is v1.11.56. Preserve existing save compatibility, faction/
 ## Iron Crown campaign continuity
 
 - Read docs/campaigns/iron-crown.md and game/assets/campaign-data.js before campaign work. They preserve the approved full story, user decisions and follow-on plan.
-- Missions 01 and 02 are implemented in v1.11.55 by user request. Do not implement/unlock mission 03 onward without user feedback and continuation. Read campaign-m02-data.js as well. No minimum victory turn, mandatory hold/wait duration or in-game 20-turn target: difficulty comes from combat, production and reactive reinforcements. Silence music only during VN dialogue, preserving volume settings.
+- Missions 01–03 are implemented by user request. Read campaign-m02-data.js and campaign-m03-data.js. Do not implement/unlock mission 04 onward without continuation. Missions 01/02 have no victory-turn floor or forced hold. Mission03 explicitly uses the approved five-turn railway defense objective; do not turn this into a general campaign timer. Silence music only during VN dialogue, preserving volume settings.
+- Stetopia art direction: gloomy muted navy/blue-gray CYBERPUNK, industrial concrete/steel and cold blue lighting. Characters wear suits or blue-gray modern uniforms, retaining clean anime lines/cel shading. No medieval plate armor, cloaks, gold braids, bright stone castles or sunshine palette. v3 portraits are separate contain-fit assets; preserve identities and uncropped shoulders.
 - Campaign production is a game rule, not a lore requirement. Keep campaign saves separate from all conquest save keys.
 - Campaign battles MUST use the existing conquest engine, canvas and UI. Only map data/art, scenario goals and triggers differ. Do not introduce a separate tactical engine or UI.
 - Run npm test (includes qa/campaign-shared-native.cjs) and the Chromium qa/campaign-browser.cjs when changing the campaign.

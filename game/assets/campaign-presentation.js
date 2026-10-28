@@ -1,7 +1,7 @@
 'use strict';
 // Campaign-only presentation. Orders, damage, movement, production and AI stay shared.
 const CampaignPresentation=(()=>{
- const crownArt=new Image();crownArt.src='campaign-iron-crown-v2.webp';
+ const crownArt=new Image();crownArt.src='campaign-iron-crown-v3.webp';
  const crown=u=>!!activeScenario&&u?.missionRole==='iron-crown';
  const size=()=>({w:124,h:124*(crownArt.naturalHeight||1024)/(crownArt.naturalWidth||1536)});
  function muzzle(u,now=performance.now()){

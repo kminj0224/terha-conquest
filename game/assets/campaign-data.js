@@ -1,8 +1,9 @@
 'use strict';
-// Canonical campaign content. Missions 02–08 are planned, not selectable battles.
+// Canonical campaign story. Additional mission data loads after this file.
 const IRON_CROWN_CAMPAIGN={
  schema:1,id:'iron-crown',title:'왕명을 운반하는 성',faction:2,implementedMissions:[1],
- battle:{id:'iron-crown-m01',schema:2,map:{origin:{x:40,y:30},cols:18,rows:12,image:'campaign-m01-map.svg'},player:2,fortress:{type:14,q:2,r:7,name:'〈철관〉'},exit:{q:16,r:4},cities:[['왕국군 집결지',2,8,2,2,3,true,null],['회랑 보급소',7,7,1,2,1,false,0],['관문 전초기지',14,5,1,1,2,false,null]],friendly:[[0,3,7],[0,3,8],[1,2,6],[2,4,6]],enemy:[[0,8,6],[0,11,5],[12,12,7],[0,15,4],[2,15,7]],hardExtra:[[1,13,6]],triggers:[{id:'supply',city:1,owner:2,message:'선택 목표 완료 · 회랑 보급소 확보'}]},
+ artDirection:'스테토피아는 어둡고 푸른 칙칙한 사이버펑크 기술사회. 인물은 정장 또는 청회색 현대 제복, 선명한 애니메이션 선화·셀 채색. 중세 갑옷·망토·과한 금장·밝은 석조 성채를 사용하지 않는다.',
+ battle:{id:'iron-crown-m01',schema:2,map:{origin:{x:40,y:30},cols:18,rows:12,image:'campaign-m01-map-v3.webp'},player:2,fortress:{type:14,q:2,r:7,name:'〈철관〉'},exit:{q:16,r:4},cities:[['왕국군 집결지',2,8,2,2,3,true,null],['회랑 보급소',7,7,1,2,1,false,0],['관문 전초기지',14,5,1,1,2,false,null]],friendly:[[0,3,7],[0,3,8],[1,2,6],[2,4,6]],enemy:[[0,8,6],[0,11,5],[12,12,7],[0,15,4],[2,15,7]],hardExtra:[[1,13,6]],triggers:[{id:'supply',city:1,owner:2,message:'선택 목표 완료 · 회랑 보급소 확보'}]},
  premise:'스테토피아 동부의 벨트란 회랑이 단테 제국 파견군에 의해 차단되었다. 베른 가문의 기사 에드릭은 상륙성 〈철관〉을 이끌고 고립된 오르덴 왕실 공창의 자산을 회수하라는 왕명을 받는다.',
  principles:['병력 생산과 자원 수집은 게임 규칙이며, 이를 이야기 속 편성·보급 설정으로 설명할 의무가 없다.','각 임무는 세계지도의 축소판이 아니라 해당 장소의 전용 일러스트 맵을 사용한다.','임무 전 비주얼 노벨 약 25장과 작전 설명 뒤에는 정복 모드와 동일한 엔진·UI·렌더러로 전투한다. 시나리오는 지도·배치·목표·트리거만 공급한다.','국제적 인권 개념을 도입하지 않는다. TNU의 국권과 불간섭 원칙을 보존한다.','인물을 도덕적 교훈으로 해설하거나 자동으로 갱생시키지 않는다.'],
  characters:[
@@ -25,7 +26,7 @@ const IRON_CROWN_CAMPAIGN={
   {speaker:'',scene:'room',text:'집결지의 아침은 창문 아래에서 시작되고 있었다. 보급차량의 등불이 안개 속을 움직였고, 지휘실 바닥에는 밤새 식지 않은 기관의 진동이 남아 있었다.'},
   {speaker:'kessel',scene:'room',text:'오른쪽 추진부는 다시 묶어 놓았습니다. 오늘 출발하는 데에는 지장 없습니다. 오늘 돌아오라는 명령이라면 따로 말씀해 주십시오.'},
   {speaker:'edric',scene:'room',text:'돌아오는 날짜는 내가 정하지 않는다. 아직 인가서가 오지 않았나?'},
-  {speaker:'',scene:'room',text:'문이 열렸다. 검은 제복의 여자가 서류함을 탁자 위에 내려놓았다. 서류함의 황동 모서리에는 왕실 봉인이 걸려 있었다.'},
+  {speaker:'',scene:'room',text:'문이 열렸다. 청회색 정장을 입은 여자가 서류함을 탁자 위에 내려놓았다. 서류함의 검은 금속 모서리에는 왕실 봉인이 걸려 있었다.'},
   {speaker:'rozena',scene:'room',text:'로제나 바르크입니다. 왕실 재산감찰국의 명으로 동행합니다. 베른 경, 수령인란에 서명하십시오.'},
   {speaker:'edric',scene:'room',text:'왕명부터 읽겠소.'},
   {speaker:'rozena',scene:'room',text:'벨트란 회랑을 개통하고, 오르덴 왕실 공창의 자산을 확보하며, 왕실에 속한 모든 것을 제슬린카운티로 인도한다. 수행 책임자는 에드릭 베른.'},

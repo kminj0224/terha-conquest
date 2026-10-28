@@ -1,5 +1,5 @@
 'use strict';
-const APP_VERSION='1.11.56',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
+const APP_VERSION='1.11.57',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
 function readAppJSON(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
 const savedAppSettings=readAppJSON(APP_SETTINGS_KEY,{});
 const appSettings={music:Number.isFinite(savedAppSettings.music)?Math.min(1,Math.max(0,savedAppSettings.music)):.65,effects:Number.isFinite(savedAppSettings.effects)?Math.min(1,Math.max(0,savedAppSettings.effects)):1,language:savedAppSettings.language==='en'?'en':'ko'};
@@ -27,7 +27,7 @@ function showHub(){if(activeScenario&&!busy)window.TerhaScenario.leave();setAppS
 function showBattlefield(){
  if(busy)return;
  setAppScreen('battlefield');
- $('modal').innerHTML='<div class="box landing battlefieldPage"><button id="battlefieldBack" class="battlefieldBack">'+tr('뒤로','BACK')+'</button><header class="battlefieldHeading"><span class="eyebrow">TERHA CONQUEST</span><h1>'+tr('전장','BATTLEFIELD')+'</h1><span class="battlefieldRule" aria-hidden="true"></span></header><div class="battlefieldModes"><button id="campaignMode" class="battlefieldMode campaignMode" aria-label="'+tr('캠페인 플레이','Play campaign')+'"><img class="modeIllustration" src="campaign-banner.svg" alt=""><span class="modeCaption"><strong>'+tr('캠페인','CAMPAIGN')+'</strong><small lang="en">CAMPAIGN</small><span class="modePlay">'+tr('플레이','PLAY')+'</span></span></button><button id="conquestMode" class="battlefieldMode conquestMode" aria-label="'+tr('정복 플레이','Play conquest')+'"><img class="modeIllustration" src="world.jpg" alt=""><span class="modeCaption"><strong>'+tr('정복','CONQUEST')+'</strong><small lang="en">CONQUEST</small><span class="modePlay">'+tr('플레이','PLAY')+'</span></span></button></div></div>';
+ $('modal').innerHTML='<div class="box landing battlefieldPage"><button id="battlefieldBack" class="battlefieldBack">'+tr('뒤로','BACK')+'</button><header class="battlefieldHeading"><span class="eyebrow">TERHA CONQUEST</span><h1>'+tr('전장','BATTLEFIELD')+'</h1><span class="battlefieldRule" aria-hidden="true"></span></header><div class="battlefieldModes"><button id="campaignMode" class="battlefieldMode campaignMode" aria-label="'+tr('캠페인 플레이','Play campaign')+'"><img class="modeIllustration" src="campaign-iron-crown-banner-v3.webp" alt=""><span class="modeCaption"><strong>'+tr('캠페인','CAMPAIGN')+'</strong><small lang="en">CAMPAIGN</small><span class="modePlay">'+tr('플레이','PLAY')+'</span></span></button><button id="conquestMode" class="battlefieldMode conquestMode" aria-label="'+tr('정복 플레이','Play conquest')+'"><img class="modeIllustration" src="world.jpg" alt=""><span class="modeCaption"><strong>'+tr('정복','CONQUEST')+'</strong><small lang="en">CONQUEST</small><span class="modePlay">'+tr('플레이','PLAY')+'</span></span></button></div></div>';
  $('battlefieldBack').onclick=showHub;
  $('campaignMode').onclick=showCampaign;
  $('conquestMode').onclick=showStart;

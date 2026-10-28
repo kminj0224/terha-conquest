@@ -87,6 +87,7 @@ module.exports=async function({run,drain}){
    if(turn%5===0)console.log('M02_PLAY',JSON.stringify({production,route,turn,built,losses,ours:units.filter(u=>u.f===2).length,enemy:units.filter(u=>u.f===1).length,food:food[2],oil:oil[2],tech:tech[2],gold:money[2],types:units.filter(u=>u.f===2).map(u=>u.type),hero:units.find(u=>u.missionRole)?.hp,cities:cities.map(q=>q.f)}));
   }
   const result={production,route,prepared,turn,built,losses,result:CampaignBattle.inspect().progress.result||'ongoing',hero:units.find(u=>u.missionRole)?.hp};
+  if(result.result==='won')window.lastM02Victory=JSON.parse(JSON.stringify(snapshot()));
   console.log('M02_PLAY_RESULT',JSON.stringify(result));CampaignBattle.leave();return result;
  }`);
  // A reproducible tactical bot uses only real orders and the actual enemy AI.

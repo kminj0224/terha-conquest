@@ -2,7 +2,7 @@
 """Repackage the retained Android shell with current game assets and original signing key."""
 import pathlib,zipfile,struct,subprocess,os,urllib.request
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
-VERSION='1.11.56';CODE=201
+VERSION='1.11.57';CODE=202
 subprocess.run(['python3','tools/prepare_operation_music.py'],check=True)
 T=ROOT/'tools';T.mkdir(exist_ok=True)
 for name,url in [('ecj.jar','https://repo.maven.apache.org/maven2/org/eclipse/jdt/ecj/3.33.0/ecj-3.33.0.jar'),('apksig.jar','https://repo.maven.apache.org/maven2/com/android/tools/build/apksig/2.3.0/apksig-2.3.0.jar')]:

@@ -3,7 +3,7 @@
 IRON_CROWN_CAMPAIGN.implementedMissions=[1,2];
 Object.assign(IRON_CROWN_CAMPAIGN.missions[1],{status:'playable',objective:'관문·남부 보급소 확보, 반격 격퇴 후 철관 동쪽 이탈',design:'24×16 장소 지도. 통행료 600골드/외곽 탈환 선택. 다방향 웨이브는 기본 일정 또는 전선 진출·목표 점령에 반응해 조기 진입. 관문·남부 보급소 확보, 반격 격퇴와 철관 이탈로 즉시 승리. 턴 하한·강제 유지·대기 조건 없음. 전력과 전선 부담으로 20턴 이상의 플레이를 목표로 밸런싱. 초기 전력만으로 버티기 어려운 대전차·포병·측면 공격. 생산과 후방 방어 필요.'});
 IRON_CROWN_CAMPAIGN.battle2={
- id:'iron-crown-m02',schema:2,enemyGoldCeiling:500,map:{origin:{x:40,y:30},cols:24,rows:16,image:'campaign-m02-map.webp'},player:2,
+ id:'iron-crown-m02',schema:2,enemyGoldCeiling:500,map:{origin:{x:40,y:30},cols:24,rows:16,image:'campaign-m02-map-v3.webp'},player:2,
  fortress:{type:14,q:2,r:8,name:'〈철관〉'},exit:{q:22,r:7},
  cities:[['서부 전진기지',2,9,2,2,5,true,null],['관문 외곽 진지',12,7,1,2,2,false,1800],['남부 보급소',11,11,1,2,2,false,1200],['북부 포대',14,3,1,1,1,false,1600],['동부 군용도로',20,7,1,1,1,false,2000]],
  friendly:[[0,3,8],[0,3,9],[2,2,7]],

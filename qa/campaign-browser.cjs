@@ -43,7 +43,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   const completedRecord=await page.evaluate(()=>localStorage.getItem(TerhaCampaign.storageKey));
   await page.evaluate(()=>CampaignBattle.start(null,1));await page.evaluate(()=>{CampaignBattle.leave();setAppScreen('campaign')});assert.equal(await page.evaluate(()=>activeScenario),null);
   await page.evaluate(s=>localStorage.setItem(TerhaCampaign.storageKey,s),completedRecord);
-  await require('./campaign-m02-browser.cjs')(page);await require('./campaign-library-browser.cjs')(page);
+  await require('./campaign-m02-browser.cjs')(page);await require('./campaign-library-browser.cjs')(page);await require('./campaign-m03-browser.cjs')(page);
   assert.deepEqual(errors,[]);console.log('PASS campaign boundaries, immediately visible briefing buttons, three separate portraits, objective shortcut and Iron Crown artwork; identical shared campaign UI/engine: exact combat function identities, fullscreen DPR2 canvas and HUD/panel geometry, native focus/information/production/slots, interpolated movement, timed firing and damage, native AI, legal mission victory and all conquest saves preserved');
  }finally{await Promise.race([browser?.close(),new Promise(r=>setTimeout(r,4000))]);server.kill();clearTimeout(watchdog)}
 })().catch(e=>{console.error(e);process.exitCode=1});
