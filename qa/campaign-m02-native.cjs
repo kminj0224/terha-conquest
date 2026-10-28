@@ -17,12 +17,14 @@ module.exports=async function({run,nodes,click,drain,settle,stored}){
  assert.equal(run('money[2]'),gold-600);assert.equal(run('cities[1].f'),2);assert.equal(run('tiles[cities[1].tile].owner'),2);assert(run("distance(units.find(u=>u.missionRole==='iron-crown').tile,cities[1].tile)<=1"));
  assert(run('produce(cities[1],0,1,false)'));run('deploy(cities[1])');assert.equal(run('cities[1].queue'),null,'Paid gate can actually deploy its native production');
  run('CampaignPresentation.showGoals()');assert(nodes.get('modal').textContent.includes('남부 보급소'));assert(!nodes.get('modal').textContent.includes('20턴'));await click('appBack');
+ assert(run('units.filter(u=>u.missionWave).every(u=>units.every(v=>v.f!==2||distance(u.tile,v.tile)>2))'));
+ const previousWaveIds=run('units.filter(u=>u.missionWave).map(u=>u.id)');
  // Early objective capture accelerates every counterattack; no turn-count lock.
  run('cities[1].f=2;cities[2].f=2;units.find(u=>u.missionRole===\'iron-crown\').tile=CampaignBattle.inspect().progress.exit;save()');
  assert.equal(run('CampaignBattle.inspect().progress.waves.length'),5);
  assert.equal(run('CampaignBattle.inspect().progress.result'),null);
  assert(run('units.filter(u=>u.missionWave).length+CampaignBattle.inspect().progress.pending.length>=26'));
- assert(run('units.filter(u=>u.missionWave).every(u=>units.every(v=>v.f!==2||distance(u.tile,v.tile)>2))'));
+ assert(run('units.filter(u=>u.missionWave&&!'+JSON.stringify(previousWaveIds)+'.includes(u.id)).every(u=>units.every(v=>v.f!==2||distance(u.tile,v.tile)>2))'));
  assert(run('save(9)'));const waveIds=run('JSON.stringify(units.filter(u=>u.missionWave).map(u=>u.id))');
  await drain(run('load(9)'));run('save();save()');assert.equal(run('JSON.stringify(units.filter(u=>u.missionWave).map(u=>u.id))'),waveIds,'No duplicated waves after loading');
  // Isolated victory fixture: prove there is no minimum turn or mandatory wait.
