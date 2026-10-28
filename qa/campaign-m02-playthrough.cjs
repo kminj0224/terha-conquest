@@ -5,13 +5,13 @@ module.exports=async function({run,drain}){
   if(activeScenario)CampaignBattle.leave();let carry=null;
   if(prepared){CampaignBattle.start(null,1);const hero=units.find(u=>u.missionRole==='iron-crown');hero.tile=CampaignBattle.inspect().progress.exit;CampaignBattle.check();carry=JSON.parse(JSON.stringify(snapshot()));CampaignBattle.leave()}
   CampaignBattle.start(null,1,{id:'iron-crown-m02',route,carry});
-  rngSeed=74123;let built=0,losses=0;const initial=units.filter(u=>u.f===2).length;
+  rngSeed=74123;let built=0,losses=0;const initial=units.filter(u=>u.f===2).length;console.log('M02_SETUP',JSON.stringify({route,prepared,foodIncome:foodIncome(2),food:food[2],army:units.filter(u=>u.f===2).map(u=>({type:u.type,hp:u.hp,attack:unitAttack(u)}))}));
   for(let step=0;step<65&&!CampaignBattle.inspect().progress.result;step++){
    if(production)for(const q of cities.filter(q=>q.f===2)){
     const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
     const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
-    const k=pool[(turn+q.id)%pool.length];
-    if(produce(q,k,prepared?(k===0?3:2):1,false))built++;
+    let k=pool[(turn+q.id)%pool.length];if(prepared&&force.filter(u=>u.type===18).length<3)k=18;
+    if(produce(q,k,prepared?(k===18?1:k===0?3:2):1,false))built++;
    }
    if(prepared){const h=units.find(u=>u.missionRole==='iron-crown');if(h&&h.hp<unitMaxHp(h)*.75&&canResupply(h))repair(h)}
    aiTurnActive=true;enableAIFastForward();
@@ -61,7 +61,7 @@ module.exports=async function({run,drain}){
    aiTurnActive=false;aiFastForward=false;CampaignBattle.check();if(CampaignBattle.inspect().progress.result)break;
    const enemyTurn=endTurn();enableAIFastForward();await enemyTurn;
    losses=initial+built-units.filter(u=>u.f===2).length;
-   if(turn%5===0)console.log('M02_PLAY',JSON.stringify({production,route,turn,built,losses,ours:units.filter(u=>u.f===2).length,enemy:units.filter(u=>u.f===1).length,hero:units.find(u=>u.missionRole)?.hp,cities:cities.map(q=>q.f)}));
+   if(turn%5===0)console.log('M02_PLAY',JSON.stringify({production,route,turn,built,losses,ours:units.filter(u=>u.f===2).length,enemy:units.filter(u=>u.f===1).length,food:food[2],gold:money[2],types:units.filter(u=>u.f===2).map(u=>u.type),hero:units.find(u=>u.missionRole)?.hp,cities:cities.map(q=>q.f)}));
   }
   const result={production,route,prepared,turn,built,losses,result:CampaignBattle.inspect().progress.result||'ongoing',hero:units.find(u=>u.missionRole)?.hp};
   console.log('M02_PLAY_RESULT',JSON.stringify(result));CampaignBattle.leave();return result;
