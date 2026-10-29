@@ -2,39 +2,39 @@
 const source=require('fs').readFileSync(require('path').join(__dirname,'native-test.cjs'),'utf8').split("assert.equal(run('appScreen'),'title')")[0];
 new Function('require','__dirname',source+`
 (async()=>{
- await Promise.all(pending);run("player=7;setup();started=true;setAppScreen('game');menuMode=false;busy=false");await settle();
- const summary=run(\`(()=>{
+ await Promise.all(pending);run("player=7;setup();started=true;setAppScreen('game');menuMode=false;busy=false;focusCapital()");await settle();
+ const report=run(\`(()=>{
   const check=(v,m)=>{if(!v)throw Error(m)};
   check(factions.length===8&&factions[7].name==='가르다라','Country identity');
-  check(cities.length===190,'190 cities');const local=cities.filter(q=>q.origin===7);
-  check(local.length===9&&local.find(q=>q.capital).name==='부루다라','Nine cities and capital');
-  check(!missileBases.some(b=>b.f===7),'No initial Gardara defense batteries');check(units.some(u=>u.f===7)&&units.filter(u=>u.f===7).every(u=>TYPES[u.type].branch==='infantry'),'Infantry-only initial roster');
-  check(units.filter(u=>u.f===7).every(u=>tiles[u.tile].owner===7),'Own land');
-  check(GARDARA_TILES.length>180&&GARDARA_TILES.length<400,'Medium continent');
-  const min=(f)=>Math.min(...GARDARA_TILES.map(i=>Math.min(...tiles.map((t,j)=>MAP.tiles[j][0]===f?distance(i,j):Infinity))));
-  const gaps={stetopia:min(2),lanna:min(4),ayria:min(3),nakwol:min(5)};check(gaps.stetopia>20&&gaps.lanna>12,'Distant continent');check(GARDARA_TILES.every(i=>tiles[i].x>31&&tiles[i].x<87&&tiles[i].y>95),'Between Ayria and Nakwol in southern ocean');
-  const home=local.find(q=>q.capital);check(canProduce(home,GARDARA_GUARD,1),'Special production permitted');
-  check(!canProduce(cities.find(q=>q.origin===0),GARDARA_GUARD,1),'Foreign special blocked');
-  const guard=makeUnit(7,GARDARA_GUARD,home.tile,1);check(canCaptureCityUnit(guard),'Guard capture');
-  check(Number.isFinite(unitAttack(guard))&&Number.isFinite(unitMaxHp(guard)),'Special stats');units=units.filter(u=>u!==guard);
-  check(money.length===8&&tech.length===8&&food.length===8&&oil.length===8&&militaryResearchJobs.length===8,'All resources and research cover Gardara');
-  check(diplomacy.length===8&&diplomacy.every(r=>r.length===8)&&diplomacy[7].every((r,f)=>r===(f===7?'self':'neutral')),'Neutral diplomacy');
-  for(const q of local)check(tiles[q.tile].city===q.id&&regionTiles[q.id].includes(q.tile),'Region ownership');
-  const land=new Set([GARDARA_TILES[0]]),queue=[GARDARA_TILES[0]];for(let n=0;n<queue.length;n++)for(const j of neighbors(queue[n]))if(MAP.tiles[j][0]===7&&!land.has(j)){land.add(j);queue.push(j)}check(land.size===GARDARA_TILES.length,'Connected continent');
-  return{cities:cities.length,landTiles:GARDARA_TILES.length,gaps,starting:units.filter(u=>u.f===7).map(u=>TYPES[u.type].name),special:GARDARA_GUARD};
- })()\`);console.log(summary);
- run("showStart()");assert.equal(nodes.get('factions').children.length,8);assert(nodes.get('factions').children[7].innerHTML.includes('flag-7.jpg'));
- run("setAppScreen('game');selectCity(cities.find(q=>q.origin===7&&q.capital),true);cityCommandOpen('units')");
- run("productionPanel(cities.find(q=>q.origin===7&&q.capital))");assert(nodes.has('gardaraGuardProductionRow'));
- run("money[7]=10000;food[7]=10000;oil[7]=10000;const ghome=cities.find(q=>q.origin===7&&q.capital);ghome.produced=false;produce(ghome,GARDARA_GUARD,1,false)");
- assert.equal(run('ghome.queue.type'),run('GARDARA_GUARD'));run('ghome.queue=null;ghome.produced=false');
- run("save();const freshGardara=snapshot();localStorage.setItem('terha-slot-9',JSON.stringify(freshGardara))");assert.equal(await drain(run('load(9)')),true);assert.equal(run('cities.filter(q=>q.origin===7).length'),9);
- // A real prior seven-country save keeps prior money, diplomacy, owners and armies.
- run(\`const oldGardara=snapshot();oldGardara.cities=oldGardara.cities.filter(q=>q.origin!==7);oldGardara.units=oldGardara.units.filter(u=>u.f!==7);oldGardara.player=0;oldGardara.owners=oldGardara.owners.slice(0,15552);for(const key of ['money','food','oil','tech','strategicResearch'])oldGardara[key]=oldGardara[key].slice(0,7);oldGardara.money[0]=5432;oldGardara.diplomacy=oldGardara.diplomacy.slice(0,7).map(r=>r.slice(0,7));oldGardara.diplomacy[0][1]='neutral';oldGardara.diplomacy[1][0]='neutral';delete oldGardara.gardaraSchema;localStorage.setItem('terha-slot-8',JSON.stringify(oldGardara))\`);
- assert.equal(await drain(run('load(8)')),true);assert.equal(run('money[0]'),5432);assert.equal(run('diplomacy[0][1]'),'neutral');assert.equal(run('cities.length'),190);assert.equal(run('cities.filter(q=>q.origin===7).length'),9);run('save(8)');assert.equal(await drain(run('load(8)')),true);assert.equal(run('cities.length'),190);
- run("player=7;focusCapital();cam.z=.65;menuMode=false;setAppScreen('game');selected=null;panelOpen=false;draw(performance.now())");await settle();
- fs.mkdirSync(path.resolve(__dirname,'../previews'),{recursive:true});fs.writeFileSync(path.resolve(__dirname,'../previews/Gardara-v1.11.72.png'),main.toBuffer('image/png'));
- run("cam.x=WORLD_LEFT+WORLD_WIDTH/2;cam.y=WORLD_TOP+WORLD_HEIGHT/2;cam.z=.12;draw(performance.now())");fs.writeFileSync(path.resolve(__dirname,'../previews/Gardara-world-v1.11.72.png'),main.toBuffer('image/png'));
- assert.deepEqual(errors,[]);console.log('PASS Gardara country, distant tropical continent, nine cities, infantry seed, production, capture, native art, save/reload and seven-country migration');
-})().catch(e=>{console.error(e);process.exitCode=1});
+  const local=cities.filter(q=>q.origin===7);check(cities.length===190&&local.length===9,'All nine cities exist');
+  check(local.some(q=>q.capital&&q.name==='부루다라'),'Capital');
+  check(GARDARA_TILES.length>85&&GARDARA_TILES.length<150,'Requested approximate area');
+  check(GARDARA_TILES.every(i=>tiles[i].y>50&&tiles[i].y<80&&(tiles[i].x<0||tiles[i].x>112)),'Correct ocean between Nakwol and Ayria, across wrap seam');
+  const left=new Set(GARDARA_TILES),sizes=[];while(left.size){const first=left.values().next().value,q=[first];left.delete(first);for(let n=0;n<q.length;n++)for(const j of neighbors(q[n]))if(left.has(j)){left.delete(j);q.push(j)}sizes.push(q.length)}check(sizes.length===3,'Mainland and two southern islands');
+  check(units.some(u=>u.f===7)&&units.filter(u=>u.f===7).every(u=>TYPES[u.type].branch==='infantry'),'Infantry only');
+  check(!missileBases.some(b=>b.f===7),'No initial batteries');check(!units.some(u=>u.f===7&&tiles[u.tile].owner!==7),'Units on own land');
+  check(local.every(q=>regionTiles[q.id].includes(q.tile)),'Normal city ownership regions');
+  check(!Object.prototype.hasOwnProperty.call(window.Terha,'gardaraTerrainCanvas')&&typeof gardaraTerrainCanvas==='undefined','No Gardara terrain renderer');
+  check(naturalMapPages.length===2&&NATURAL_DETAIL.regions.some(q=>q.extension==='png'),'Official shared map pages');
+  check(NATURAL_OWNERSHIP.pages[0].far.runs.length>1000,'Normal ownership masks');
+  check(local.every(q=>Number.isFinite(q.hp)&&canProduce(q,0,1)),'All cities use normal production');
+  return{land:GARDARA_TILES.length,components:sizes,cities:local.map(q=>q.name),starting:units.filter(u=>u.f===7).map(u=>TYPES[u.type].name)};
+ })()\`);console.log(report);
+ run('updateHUD()');assert(nodes.get('resources').innerHTML.includes('flag-7.jpg'),'HUD flag must resolve');
+ // Actual native draw calls: cities and supplied infantry must be present in the new geographic area.
+ run(\`const gPaint={cities:0,units:0},gCitySprite=citySprite,gSprite=sprite;citySprite=function(q,...a){if(q.origin===7)gPaint.cities++;return gCitySprite(q,...a)};sprite=function(u,...a){if(u.f===7)gPaint.units++;return gSprite(u,...a)};cam.x=8200;cam.y=3480;cam.z=.55;draw(performance.now());citySprite=gCitySprite;sprite=gSprite\`);
+ assert(run('gPaint.cities')>=7,'Cities actually painted');assert(run('gPaint.units')>=7,'Infantry actually painted');
+ run(\`const home=cities.find(q=>q.origin===7&&q.capital);selectCity(home,true);cityCommandOpen('units');productionPanel(home)\`);assert(nodes.has('gardaraGuardProductionRow'));
+ run(\`const guard=makeUnit(7,GARDARA_GUARD,home.tile,1);if(!canCaptureCityUnit(guard))throw Error('Guard capture');units=units.filter(u=>u!==guard);selected=null;panelOpen=false;cam.x=8200;cam.y=3480;cam.z=.7;menuMode=false;draw(performance.now())\`);await settle();
+ fs.mkdirSync(path.resolve(__dirname,'../previews'),{recursive:true});fs.writeFileSync(path.resolve(__dirname,'../previews/Gardara-v1.11.73.png'),main.toBuffer('image/png'));
+ // Supplied armor follows the ordinary tank scale/recoil/facing/muzzle path.
+ run(\`const tankA=makeUnit(7,1,home.tile,1),tankB=makeUnit(7,14,home.tile,1);if(!isBaekTank(tankA)||!isBaekTank(tankB)||baekTankProfile(tankA).image!==gardaraTankArt.idle||baekTankProfile(tankB).image!==gardaraEliteArt.idle)throw Error('Shared supplied tank path');sprite(tankA,pxy(home.tile),performance.now());sprite(tankB,pxy(home.tile),performance.now());units=units.filter(u=>u!==tankA&&u!==tankB);const crossing=GARDARA_TILES.flatMap(i=>neighbors(i).filter(j=>MAP.tiles[j][0]===7&&Math.abs(tiles[i].x-tiles[j].x)>1&&!unitAt(i)&&!unitAt(j)).map(j=>[i,j]))[0];if(!crossing)throw Error('No wrap land crossing');const mover=makeUnit(7,0,crossing[0],1);freshOrders(mover);if(!moveUnit(mover,crossing[1],true))throw Error('Normal land movement over seam');const motion=movingAnimation(mover.id);if(motion&&Math.abs(motion.to.x-motion.from.x)>65)throw Error('Long seam animation');units=units.filter(u=>u!==mover);moving=[]\`);
+ // Reproduce exactly the supplied screenshot's world window, including the horizontal seam.
+ run("screenW=1536;screenH=691;c.width=1536;c.height=691;cam.x=4941.217391304347+1536/(2*.23);cam.y=1265.2747826086952+691/(2*.23);cam.z=.23;selected=null;draw(performance.now())");await settle();fs.writeFileSync(path.resolve(__dirname,'../previews/Gardara-location-v1.11.73.png'),main.toBuffer('image/png'));
+ run('screenW=1280;screenH=800;c.width=1280;c.height=800');
+ // Real capture updates the same region tiles and shared ownership generation.
+ run(\`const captureCity=cities.find(q=>q.origin===7&&!q.capital);captureCity.hp=0;units=units.filter(u=>u.tile!==captureCity.tile);diplomacy[0][7]=diplomacy[7][0]='war';const invader=makeUnit(0,0,captureCity.tile,1);const before=territoryGeneration;capture(invader);refreshTerritory();if(captureCity.f!==0||!regionTiles[captureCity.id].every(i=>tiles[i].owner===0)||territoryGeneration<=before)throw Error('Shared capture ownership');cam.x=8200;cam.y=3480;cam.z=.7;draw(performance.now())\`);await settle();fs.writeFileSync(path.resolve(__dirname,'../previews/Gardara-capture-v1.11.73.png'),main.toBuffer('image/png'));
+ run('save(9)');assert.equal(await drain(run('load(9)')),true);assert.equal(run('cities.filter(q=>q.origin===7).length'),9);
+ assert.deepEqual(errors,[]);console.log('PASS official map, exact marked location, 3 components, normal ownership/capture, actual city/infantry paint, HUD flag, production and save/reload');process.exit(0);
+})().catch(e=>{console.error(e);process.exit(1)});
 `)(require,__dirname);

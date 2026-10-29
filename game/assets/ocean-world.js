@@ -33,8 +33,8 @@ drawMini=function(){
  if(!oceanMini||oceanMiniKey!==key){refreshTerritory();oceanMiniKey=key;oceanMini??=document.createElement('canvas');oceanMini.width=166;oceanMini.height=119;const g=oceanMini.getContext('2d');g.scale(166/WORLD_WIDTH,119/WORLD_HEIGHT);g.translate(-WORLD_LEFT,-WORLD_TOP);
   // This small surface covers the full world, independent of the current camera.
   const source=coastArtwork.ready&&coastArtwork.natural?coastArtwork.image:worldImg;
-  paintOceanSurface(g,WORLD_LEFT,WORLD_TOP,WORLD_WIDTH,WORLD_HEIGHT);if(source.naturalWidth)g.drawImage(source,0,0,WW,HH)
-  if(territoryCanvas){g.save();g.globalAlpha=.5;g.drawImage(coastArtwork.natural&&naturalTerritory?naturalTerritory:territoryCanvas,0,0,WW,HH);g.restore()}
+  paintOceanSurface(g,WORLD_LEFT,WORLD_TOP,WORLD_WIDTH,WORLD_HEIGHT);if(coastArtwork.ready&&coastArtwork.natural)drawNaturalOwnedOverview(g);else if(source.naturalWidth)g.drawImage(source,0,0,WW,HH)
+  if(!coastArtwork.natural&&territoryCanvas){g.save();g.globalAlpha=.5;g.drawImage(territoryCanvas,0,0,WW,HH);g.restore()}
   for(const q of cities){const p=pxy(q.tile);g.fillStyle=factions[q.f].color;g.fillRect(p.x,p.y,WORLD_WIDTH/83,WORLD_HEIGHT/60)}
  }
  const g=m.getContext('2d');g.clearRect(0,0,166,119);g.drawImage(oceanMini,0,0);g.strokeStyle='#f3e8bd';g.lineWidth=1;

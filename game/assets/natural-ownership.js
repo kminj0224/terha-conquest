@@ -1,6 +1,6 @@
 'use strict';
 // No pixel reads: offline runs connect visible scenery to its anchor tile.
-const NATURAL_OWNERSHIP_COLORS=['#739b7b','#aa7871','#7b9eb2','#b6a377','#b88f9e','#a58eae','#b6c5c6'];
+const NATURAL_OWNERSHIP_COLORS=['#739b7b','#aa7871','#7b9eb2','#b6a377','#b88f9e','#a58eae','#b6c5c6','#888888'];
 let naturalTerritory=null,naturalTerritoryGeneration=-1,naturalOwnershipWork=null;
 const ownershipLittleEndian=new Uint8Array(new Uint32Array([1]).buffer)[0]===1;
 function fillNaturalOwnership(canvas,meta){
@@ -11,10 +11,15 @@ function fillNaturalOwnership(canvas,meta){
 }
 function tintNaturalOwnership(g,canvas,x,y,w,h){g.save();g.globalCompositeOperation='color';g.globalAlpha=.98;g.drawImage(canvas,x,y,w,h);g.globalCompositeOperation='source-over';g.globalAlpha=.04;g.drawImage(canvas,x,y,w,h);g.restore()}
 function drawNaturalOverviewOwnership(g){if(!naturalTerritory||naturalTerritoryGeneration!==territoryGeneration){naturalTerritory??=document.createElement('canvas');fillNaturalOwnership(naturalTerritory,NATURAL_OWNERSHIP.far);naturalTerritoryGeneration=territoryGeneration}tintNaturalOwnership(g,naturalTerritory,0,0,WW,HH)}
+// Every official map page uses the same owner mask, color compositing and cache rules.
+const naturalMapPages=[{id:'main',x:0,y:0,w:WW,h:HH,source:coastArtwork.image,far:NATURAL_OWNERSHIP.far},...(NATURAL_OWNERSHIP.pages||[]).map(p=>{const source=new Image();source.onload=()=>naturalDetailRevision++;source.src=p.image;return{...p,source}})];
 let naturalOverviewCanvas=null,naturalOverviewGeneration=-1;
+function naturalPageOverview(page){
+ if(!page.canvas||page.generation!==territoryGeneration){page.canvas??=document.createElement('canvas');page.canvas.width=page.far.w;page.canvas.height=page.far.h;const p=page.canvas.getContext('2d');p.drawImage(page.source,0,0,page.canvas.width,page.canvas.height);page.mask??=document.createElement('canvas');fillNaturalOwnership(page.mask,page.far);tintNaturalOwnership(p,page.mask,0,0,page.canvas.width,page.canvas.height);page.generation=territoryGeneration}
+ return page.canvas;
+}
 function drawNaturalOwnedOverview(g){
- if(!naturalOverviewCanvas||naturalOverviewGeneration!==territoryGeneration){naturalOverviewCanvas??=document.createElement('canvas');naturalOverviewCanvas.width=NATURAL_OWNERSHIP.far.w;naturalOverviewCanvas.height=NATURAL_OWNERSHIP.far.h;const p=naturalOverviewCanvas.getContext('2d');p.scale(naturalOverviewCanvas.width/WW,naturalOverviewCanvas.height/HH);p.drawImage(coastArtwork.image,0,0,WW,HH);drawNaturalOverviewOwnership(p);naturalOverviewGeneration=territoryGeneration}
- g.drawImage(naturalOverviewCanvas,0,0,WW,HH);
+ for(const page of naturalMapPages){if(!page.source.naturalWidth)continue;const image=naturalPageOverview(page);if(page.id==='main'){naturalOverviewCanvas=image;naturalOverviewGeneration=page.generation}for(const offset of page.wrap?[-WORLD_WIDTH,0,WORLD_WIDTH]:[0])g.drawImage(image,page.x+offset,page.y,page.w,page.h)}
 }
 // Cache the finished bitmap with its source. Camera motion only draws this bitmap.
 // Invalidate by semantic anchor owners, including objects extending into adjacent regions.

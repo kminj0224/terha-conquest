@@ -6,7 +6,8 @@ module.exports=function(geo,assets,{sdf,riverDistance,cities},createCanvas){
  const riverCache=new Map();function riverNear(x,y){const ix=Math.floor(x/3),iy=Math.floor(y/3),key=(ix+2048)*4096+iy+2048;if(!riverCache.has(key))riverCache.set(key,riverDistance(ix*3+1.5,iy*3+1.5));return riverCache.get(key);}
  const recipesM=['tall-peak','twin-peaks','broad-ridge','three-peak-range','asymmetric-ridge','high-massif','low-foothills','stepped-range'];
  const recipesF=['tall-cluster','broad-canopy','uneven-twins','dense-copse','high-low-mix','low-thicket','layered-grove','diagonal-canopy'];
- const neighbors=t=>{const x=t.id%112,y=Math.floor(t.id/112),d=x&1;return [[x,y-1],[x,y+1],[x-1,y-1+d],[x-1,y+d],[x+1,y-1+d],[x+1,y+d]].filter(([xx,yy])=>xx>=0&&xx<112&&yy>=0&&yy<84).map(([xx,yy])=>geo.tiles[yy*112+xx]).filter(n=>n.owner>=0&&n.city<0&&n.terrain===t.terrain)};
+ const grid=new Map(geo.tiles.map(t=>[(t.col??t.id%112)+','+(t.row??Math.floor(t.id/112)),t]));
+ const neighbors=t=>{const x=t.col??t.id%112,y=t.row??Math.floor(t.id/112),d=x&1;return [[x,y-1],[x,y+1],[x-1,y-1+d],[x-1,y+d],[x+1,y-1+d],[x+1,y+d]].map(([xx,yy])=>grid.get(xx+','+yy)).filter(n=>n&&n.owner>=0&&n.city<0&&n.terrain===t.terrain)};
  function make(p,option){const key=option+':'+p.tile;if(cache.has(key))return cache.get(key);const t=geo.tiles[p.tile],s=sizes[option],recipe=Math.floor(noise(p.tile,87)*8),adj=neighbors(t);
   const sx=p.terrain===3?s.mw:s.fw,sy=p.terrain===3?s.mh:s.fh;
   // Grow about the exact released scenery root; the gameplay anchor and root do not move.

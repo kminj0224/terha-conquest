@@ -1,0 +1,49 @@
+name: Publish official Gardara v1.11.73 APK
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-v11173-official-gardara.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: release-v11173
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
+        timeout-minutes: 3
+      - name: Verify official map, actual rendering, capture and signature
+        run: |
+          npm ci --no-audit --no-fund
+          python3 tools/prepare_operation_music.py
+          node qa/official-map-page.cjs
+          node qa/gardara-regression.cjs
+          node qa/ocean-world-regression.cjs
+          python3 qa/verify-native.py
+          python3 build.py
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.73.apk
+          cd deliverables
+          sha256sum Terha-Conquest-v1.11.73.apk > SHA256SUMS-v1.11.73.txt
+      - name: Publish permanent APK and actual map previews
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.11.73 >/dev/null 2>&1; then
+            gh release upload v1.11.73 deliverables/Terha-Conquest-v1.11.73.apk deliverables/SHA256SUMS-v1.11.73.txt previews/Gardara-v1.11.73.png previews/Gardara-location-v1.11.73.png previews/Gardara-capture-v1.11.73.png --clobber
+          else
+            gh release create v1.11.73 deliverables/Terha-Conquest-v1.11.73.apk deliverables/SHA256SUMS-v1.11.73.txt previews/Gardara-v1.11.73.png previews/Gardara-location-v1.11.73.png previews/Gardara-capture-v1.11.73.png --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.73 — 가르다라 정식 지도' --notes '첨부 지도 윤곽과 위치에 맞춰 낙월·아이리아 사이 해역에 본토와 남쪽 섬 두 개를 배치. 기존 지도와 같은 지형 제작·해안·강·산림·소유권 마스크 및 점령 색상 코드를 사용하며 별도 가르다라 지형 렌더러 제거. 기존 지도와 소재를 참고한 열대 숲 이미지, 강 3개, 산과 숲의 완전한 실루엣 및 앵커 소유권 적용. 9개 도시·보병 시작·수도 부루다라·특수 병종 유지. 사용자 제공 전차·정예전차를 공통 전차 표시·반동·발사 코드로 연결. HUD·작전 메뉴 국기 수정. 이전 가르다라 정복 저장은 새 작전으로 시작. 정식 지도·실제 렌더링·점령 색상·생산·저장·해양 연결·기존 Android 서명 검증. versionCode 218. 실제 게임 렌더러에서 촬영한 위치·도시·점령 화면 첨부.'
+          fi
+          gh release view v1.11.73 --json url,assets

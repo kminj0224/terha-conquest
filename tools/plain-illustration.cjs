@@ -4,7 +4,8 @@ const clamp=x=>Math.max(0,Math.min(1,x));
 function hash(x,y){let n=Math.imul(x,374761393)^Math.imul(y,668265263);n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967295;}
 module.exports=function(geo,cities,createCanvas){
  const reports=[];
- function tileAt(x,y){let best=null,dd=Infinity;const cx=Math.round((x-42.6666667)/64);for(let col=cx-1;col<=cx+1;col++){if(col<0||col>=112)continue;const row=Math.round((y-27.715-(col&1)*27.715)/55.43);for(let yy=row-1;yy<=row+1;yy++){if(yy<0||yy>=84)continue;const t=geo.tiles[yy*112+col],d=(t.x-x)**2+(t.y-y)**2;if(d<dd){dd=d;best=t;}}}return best;}
+ const grid=new Map(geo.tiles.map(t=>[(t.col??t.id%112)+','+(t.row??Math.floor(t.id/112)),t]));
+ function tileAt(x,y){let best=null,dd=Infinity;const cx=Math.round((x-42.6666667)/64);for(let col=cx-1;col<=cx+1;col++){const row=Math.round((y-27.715-(col&1)*27.715)/55.43);for(let yy=row-1;yy<=row+1;yy++){const t=grid.get(col+','+yy);if(!t)continue;const d=(t.x-x)**2+(t.y-y)**2;if(d<dd){dd=d;best=t}}}return best}
  const allowed=t=>t&&t.owner>=0&&t.city<0&&t.terrain<2;
  function paint(g,{sx,sy,sw,sh,profile,name},sdf){
   const c=createCanvas(1254,1254),p=c.getContext('2d');p.setTransform(1254/sw,0,0,1254/sh,-sx*1254/sw,-sy*1254/sh);
