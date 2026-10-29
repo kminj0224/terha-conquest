@@ -8,10 +8,10 @@ const b={ensureCombatAudio:()=>context,combatBuffer:()=>({}),combatAudio:{variat
 vm.createContext(b);vm.runInContext(source.slice(source.indexOf('function playCombatVoice('),source.indexOf('function combatWeaponProfile(')),b);
 for(const variation of [0,1,9,10,17]){
  b.combatAudio.variation=variation;
- b.event={name:'armored_autocannon',position:{x:0,y:0},start:1100,end:2600,volume:.78,playbackRate:1,fixedRate:true};
+ b.event={name:'armored_autocannon',position:{x:0,y:0},start:1100,end:2100,volume:.78,playbackRate:1,fixedRate:true};
  vm.runInContext('playCombatVoice(event,1000)',b);
  assert.equal(sourceNode.playbackRate.value,1);assert(Math.abs(startTime-10.1)<1e-9);
  // The shared audio engine permits an 8 ms stop guard after the exact end envelope.
- assert(Math.abs(stopTime-11.608)<1e-9);assert(sourceNode.buffer);
+ assert(Math.abs(stopTime-11.108)<1e-9);assert(sourceNode.buffer);
 }
-console.log('PASS: spatial audio preserves exact cannon playback rate and scheduled 1.5 s firing window across all variation counters');
+console.log('PASS: spatial audio preserves exact cannon playback rate and scheduled 1.0 s firing window across all variation counters');

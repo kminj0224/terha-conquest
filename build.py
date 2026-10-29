@@ -2,7 +2,7 @@
 """Repackage the retained Android shell with current game assets and original signing key."""
 import pathlib,zipfile,struct,subprocess,os,urllib.request
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
-VERSION='1.11.63';CODE=208
+VERSION='1.11.64';CODE=209
 subprocess.run(['python3','tools/prepare_operation_music.py'],check=True)
 T=ROOT/'tools';T.mkdir(exist_ok=True)
 for name,url in [('ecj.jar','https://repo.maven.apache.org/maven2/org/eclipse/jdt/ecj/3.33.0/ecj-3.33.0.jar'),('apksig.jar','https://repo.maven.apache.org/maven2/com/android/tools/build/apksig/2.3.0/apksig-2.3.0.jar')]:
@@ -34,7 +34,7 @@ def manifest_version(data):
 with zipfile.ZipFile('android/native-shell.zip') as base,zipfile.ZipFile('android/build/aligned.apk','w') as out:
  entries=[(i,base.read(i)) for i in base.infolist()]
  for p in sorted(pathlib.Path('game/assets').iterdir()):
-  if p.is_file():
+  if p.is_file() and not p.name.startswith("."):
    i=zipfile.ZipInfo('assets/'+p.name);i.compress_type=zipfile.ZIP_DEFLATED;entries.append((i,p.read_bytes()))
  for i,data in entries:
   if i.filename=='AndroidManifest.xml':data=manifest_version(data)
@@ -50,7 +50,7 @@ subprocess.run([java,'--add-exports','java.base/sun.security.x509=ALL-UNNAMED','
 with zipfile.ZipFile(result) as z:
  assert z.testzip() is None
  for p in pathlib.Path('game/assets').iterdir():
-  if p.is_file():assert z.read('assets/'+p.name)==p.read_bytes(),p
+  if p.is_file() and not p.name.startswith("."):assert z.read('assets/'+p.name)==p.read_bytes(),p
 print(result)
 
 

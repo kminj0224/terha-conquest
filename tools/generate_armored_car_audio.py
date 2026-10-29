@@ -6,8 +6,8 @@ import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
 RATE=32000
-SECONDS=1.5
-STEP=.075
+SECONDS=1.0
+STEP=.170
 
 def highpass(noise):
     return noise-.90*np.r_[0,noise[:-1]]
@@ -21,7 +21,7 @@ def burst(variant):
     rng=np.random.default_rng(50750+variant)
     out=np.zeros(round(RATE*SECONDS))
     t=np.arange(round(RATE*.14))/RATE
-    for shot in range(20):
+    for shot in range(5):
         noise=highpass(rng.standard_normal(len(t)))
         crack=noise*np.exp(-t/.0085)*1.08
         snap=np.sin(2*np.pi*(3500*t-6900*t*t))*np.exp(-t/.0035)*.42
@@ -33,7 +33,7 @@ def burst(variant):
         for delay,level in [(0,1),(.011,.17),(.029,.075)]:
             at=round((shot*STEP+delay)*RATE);n=min(len(pulse),len(out)-at)
             if n>0:out[at:at+n]+=pulse[:n]*level
-    # The last cannon report decays inside the exact 1.5-second firing window.
+    # The last cannon report decays inside the exact 1.0-second firing window.
     out[-192:]*=np.linspace(1,0,192)
     return encode(out,.94)
 
@@ -61,6 +61,6 @@ def main():
     for name,versions in clips.items():
         with wave.open(str(previews/(name+'.wav')),'wb') as output:
             output.setnchannels(1);output.setsampwidth(2);output.setframerate(RATE);output.writeframes(versions[0])
-    print('Generated two exact 1.5 s / 20-round bursts and two 0.23 s shell impacts.')
+    print('Generated two exact 1.0 s / 5-round bursts and two 0.23 s shell impacts.')
 
 if __name__=='__main__':main()

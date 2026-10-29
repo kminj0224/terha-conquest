@@ -2,7 +2,7 @@
 // One-stage baseline only; existing tier and research multipliers are unchanged.
 const UNIT_BALANCE_42_SCHEMA=1;
 const UNIT_BALANCE_42={
- 0:{atk:25,hp:130},8:{atk:30,hp:140},9:{atk:28,hp:135},10:{atk:35,hp:150},11:{atk:33,hp:145},6:{atk:33,hp:150},
+ 0:{atk:25,hp:130},8:{atk:30,hp:140},9:{atk:28,hp:135},10:{atk:35,hp:150},11:{atk:33,hp:145},6:{atk:41,hp:150},
  12:{atk:40,hp:200,cost:220,antiInfantry:1.2},13:{atk:45,hp:240,cost:280,antiInfantry:1.2},
  1:{atk:50,hp:280,cost:360,antiInfantry:1.2},14:{atk:65,hp:550,cost:650,antiInfantry:1.2},
  17:{atk:60,hp:500,cost:600,antiInfantry:1.2}

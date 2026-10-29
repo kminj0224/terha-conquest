@@ -9,7 +9,7 @@ const ARMORED_CAR_PROFILES=[
  {base:1,mx:.605,my:.105},{base:-1,mx:.36,my:.093},{base:-1,mx:.388,my:.07},
  {base:-1,mx:.36,my:.093},{base:1,mx:.637,my:.09},{base:-1,mx:.402,my:.074},{base:-1,mx:.388,my:.07}
 ];
-const ARMORED_CAR_BURST_MS=1500,ARMORED_CAR_ROUND_MS=75,ARMORED_CAR_ROUNDS=20;
+const ARMORED_CAR_BURST_MS=1000,ARMORED_CAR_ROUND_MS=170,ARMORED_CAR_ROUNDS=5;
 const armoredCarBursts=new Map();
 TYPES[12].attackWindup=ARMORED_CAR_BURST_MS;
 COMBAT_FX_SOUNDS.armoredCarHit='armored_autocannon_hit';

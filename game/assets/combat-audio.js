@@ -65,7 +65,7 @@ function playCombatVoice(event,now){
 function combatWeaponProfile(u){
  const type=u.type,f=u.f;
  if(type===26)return null;
- if(type===12)return{name:'armored_autocannon',shots:1,step:0,volume:.78,fixedRate:true,duration:1500};
+ if(type===12)return{name:'armored_autocannon',shots:1,step:0,volume:.78,fixedRate:true,duration:1000};
  if(type===0)return{name:'rifle',shots:3,step:90,volume:.53,echo:true};
  if(type===18)return{name:'laser',shots:5,step:260,volume:.58,playbackRate:.65};
  if(f===2&&[1,13,14].includes(type))return{name:'laser',shots:1,step:0,volume:.66};
