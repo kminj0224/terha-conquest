@@ -81,3 +81,15 @@ migrateArmy=function(s){
 };
 Object.assign(window.Terha,{ignoresUnitArmor,aiDiversePool,moveFood,attackFood,mayMove,mayFire,moveUnit,spendShot,
  canCounterattack,counterattackDamage,deploy,snapshot,migrateArmy});
+
+// Remove Easy starting grants after placement so unrelated fleets keep their slots.
+const conquestTransportSetup=setup;
+setup=function(...args){
+ const result=conquestTransportSetup(...args);
+ if(!activeScenario&&difficulty===0){
+  units=units.filter(u=>u.f===player||u.type!==26||!u.aiFreeTransport);
+  save();
+ }
+ return result;
+};
+Object.assign(window.Terha,{setup});

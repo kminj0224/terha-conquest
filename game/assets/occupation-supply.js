@@ -3,6 +3,18 @@
 let supplyChoice=null;
 // Exact topology snapshots avoid rebuilding a whole network for every catalogue button.
 let supplyTopology=null;
+let supplyLakeComponents=null,supplyLakeIds=new Set();
+function supplyOceanTile(i){
+ if(tiles[i]?.owner>=0)return false;
+ if(typeof HANSA_WATER_TILES==='undefined')return true;
+ const components=aiSeaComponents();
+ if(supplyLakeComponents!==components){
+  supplyLakeComponents=components;supplyLakeIds=new Set();
+  if(typeof HANSA_WATER_TILES!=='undefined')for(const j of HANSA_WATER_TILES)
+   if(components.ids[j]>=0)supplyLakeIds.add(components.ids[j]);
+ }
+ return !supplyLakeIds.has(components.ids[i]);
+}
 function supplyNetwork(f){
  const blocked=new Set(typeof hansaBridges==='undefined'?[]:hansaBridges.filter(b=>b.transition).flatMap(b=>b.deck));
  let changed=!supplyTopology||supplyTopology.owners.length!==tiles.length||supplyTopology.factions.length!==cities.length||blocked.size!==supplyTopology.blocked.size;
@@ -12,7 +24,7 @@ function supplyNetwork(f){
  if(changed)supplyTopology={owners:tiles.map(t=>t.owner),regions:tiles.map(t=>t.region),factions:cities.map(q=>q.f),blocked,networks:new Map()};
  if(supplyTopology.networks.has(f))return supplyTopology.networks.get(f);
  const ids=new Int32Array(tiles.length).fill(-1),queue=[];
- const passable=i=>!blocked.has(i)&&(tiles[i].owner<0||tiles[i].owner===f&&cities[tiles[i].region]?.f===f);
+ const passable=i=>!blocked.has(i)&&(supplyOceanTile(i)||tiles[i].owner===f&&cities[tiles[i].region]?.f===f);
  let component=0;
  for(let start=0;start<tiles.length;start++){
   if(ids[start]>=0||!passable(start))continue;
@@ -39,7 +51,7 @@ function supplySource(q){return cities.find(s=>s.queue?.transportTo===q.id)}
 function supplyTurns(source,target){return strategicResearch[source.f]?.supplyRoutes||distance(source.tile,target.tile)<=30?1:2}
 function supplyCoastalCity(target){
  // Coast belongs to this city's region, not a different occupied region.
- return tiles.some((t,i)=>t.region===target.id&&t.owner===target.f&&neighbors(i).some(j=>tiles[j].owner<0));
+ return tiles.some((t,i)=>t.region===target.id&&t.owner===target.f&&neighbors(i).some(supplyOceanTile));
 }
 function supplyHomelandConnected(target){
  const seen=new Set([target.tile]),queue=[target.tile];
@@ -66,7 +78,7 @@ function supplyLandConnected(source,target){
 function supplySeaAccess(target){
  const seen=new Set([target.tile]),queue=[target.tile];
  for(let n=0;n<queue.length;n++)for(const i of neighbors(queue[n])){
-  if(tiles[i].owner<0)return true;
+  if(supplyOceanTile(i))return true;
   const region=cities[tiles[i].region];
   if(tiles[i].owner===target.f&&region?.f===target.f&&!seen.has(i)){seen.add(i);queue.push(i)}
  }

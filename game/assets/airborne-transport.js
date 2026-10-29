@@ -97,3 +97,21 @@ drawMissionAircraft=function(e,t){
  ctx.restore();
 };
 Object.assign(window.Terha,{airDropTileAvailable,canAirStrike,airStrike,showPanel});
+
+// Reserve available airport resources for undefended, breached enemy cities first.
+async function aiCaptureBreachedCities(f,owned){
+ if(activeScenario||f===player)return 0;
+ let captured=0;
+ for(;;){
+  const targets=cities.filter(q=>atWar(f,q.f)&&q.hp<=0);
+  const options=[];
+  for(const q of owned)if(q.f===f&&q.airport)for(const target of targets)
+   if(canAirStrike(q,'transport',target.tile))options.push({q,target,d:distance(q.tile,target.tile)});
+  options.sort((a,b)=>a.d-b.d||a.target.id-b.target.id||a.q.id-b.q.id);
+  const best=options[0];if(!best)break;
+  if(!await airStrike(best.q,'transport',best.target.tile,true))break;
+  captured++;
+ }
+ return captured;
+}
+Object.assign(window.Terha,{aiCaptureBreachedCities});

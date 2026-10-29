@@ -16,8 +16,8 @@ function cityYield(q,level=q.level){if(q.nukeUntil>turn)return{money:0,oil:0};co
 function income(f){return cities.filter(q=>q.f===f).reduce((n,q)=>n+cityYield(q).money,0)}
 function oilIncome(f){return cities.filter(q=>q.f===f).reduce((n,q)=>n+cityYield(q).oil,0)}
 function unitOil(k,level=1){const t=TYPES[k];if(t.branch==='infantry'&&k!==11)return 0;return Math.ceil(({11:4,12:6,13:9,1:14,14:21,15:2,16:3,2:10,3:12,4:18,7:24,5:20,17:12,18:40,19:45,20:10,21:16}[k]||0)*tierMultiplier(level))}
-function moveOil(u){if(u.f!==player)return 0;return unitOil(u.type)>0?Math.max(1,Math.ceil(unitOil(u.type)/10)):0}
-function attackOil(u){return unitOil(u.type)>0?Math.max(1,Math.ceil(unitOil(u.type)/12)):0}
+function moveOil(u){if(u.f!==player&&(u.f!==1||activeScenario||difficulty===2))return 0;return unitOil(u.type)>0?Math.max(1,Math.ceil(unitOil(u.type)/10)):0}
+function attackOil(u){if(u.f===1&&u.f!==player&&!activeScenario&&difficulty===2)return 0;return unitOil(u.type)>0?Math.max(1,Math.ceil(unitOil(u.type)/12)):0}
 function isAircraft(u){return u.type===4||u.type===7||u.type===19}
 const priorCanProduce=canProduce;
 canProduce=function(q,k,level=1){cityProfile(q);return !isAircraft({type:k})&&q.nukeUntil<=turn&&priorCanProduce(q,k,level)&&q.level>=q.unlockAt[k]&&(k!==5||q.harbor)&&(k!==19||q.level===5&&q.airport)};

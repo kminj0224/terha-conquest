@@ -30,11 +30,17 @@ function aiUpgradeCities(f,owned){
  }
 }
 const aiSpecialOrderTurns=Array(factions.length).fill(-1);
+function aiSpecialFronts(f){
+ const fronts=[];
+ for(let i=0;i<tiles.length;i++)if(tiles[i].owner===f&&neighbors(i).some(j=>tiles[j].owner>=0&&atWar(f,tiles[j].owner)))fronts.push({tile:i});
+ return fronts.length?fronts:aiEnemyCities(f);
+}
 function aiOrderSpecials(f,owned){
  if(aiSpecialOrderTurns[f]===turn)return 0;
  const pool=TYPES.map((t,k)=>k).filter(k=>TYPES[k].special===f);
  if(!pool.length)return 0;
- for(const q of owned.filter(q=>q.f===f&&!q.queue&&!q.produced&&!(q.nukeUntil>turn)).sort((a,b)=>b.level-a.level||a.id-b.id)){
+ const fronts=activeScenario?[]:aiSpecialFronts(f);
+ for(const q of owned.filter(q=>q.f===f&&!q.queue&&!q.produced&&!(q.nukeUntil>turn)).sort((a,b)=>aiFrontDistance(a,fronts)-aiFrontDistance(b,fronts)||b.level-a.level||a.id-b.id)){
   // Tier one keeps a continuing supply affordable instead of exhausting food on one elite unit.
   const k=pool.find(k=>canProduce(q,k,1)&&food[f]>=unitPrice(k,1)&&money[f]>=navGoldCost(k,1)&&oil[f]>=unitOil(k,1));
   if(k===undefined)continue;

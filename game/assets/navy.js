@@ -21,7 +21,7 @@ for(const k of [12,13,1,14,17])TYPES[k].atk=Math.round(TYPES[k].atk*.56);
 for(const k of [15,16,2,3,18])TYPES[k].atk=Math.round(TYPES[k].atk*1.3);
 function isNaval(u){return TYPES[u.type]?.branch==='navy'}
 function navGoldCost(k,l=1){return tierCost(TYPES[k].goldCost||0,l)}
-const navalAttackOil=attackOil;attackOil=function(u){return u.type===25?2:navalAttackOil(u)};
+const navalAttackOil=attackOil;attackOil=function(u){return u.f===1&&u.f!==player&&!activeScenario&&difficulty===2?0:u.type===25?2:navalAttackOil(u)};
 const navalOil=unitOil;unitOil=function(k,l=1){return TYPES[k]?.branch==='navy'?tierCost(TYPES[k].oilCost,l):navalOil(k,l)};
 const navalProfile=cityProfile;cityProfile=function(q){navalProfile(q);for(const [k,min]of [[22,1],[5,2],[23,3],[24,4],[25,5],[26,3]])q.unlockAt[k]=min;return q};
 const navalCanProduce=canProduce;canProduce=function(q,k,l=1){if(TYPES[k]?.branch==='navy'&&(!q.harbor||q.level<({22:1,5:2,23:3,24:4,25:5,26:3}[k])||k===25&&q.f>2))return false;return navalCanProduce(q,k,l)};
