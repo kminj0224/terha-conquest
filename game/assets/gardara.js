@@ -19,8 +19,8 @@ canCaptureCityUnit=function(u){return u?.type===GARDARA_GUARD||gardaraCaptureChe
 const gardaraFlag=new Image();gardaraFlag.src='flag-7.jpg';flagImages[GARDARA]=gardaraFlag;
 const gardaraCityArt={capital:loadBaekArt('gardara-city-capital.png'),2:loadBaekArt('gardara-city-small.png'),3:loadBaekArt('gardara-city-3.png'),4:loadBaekArt('gardara-city-4.png'),5:loadBaekArt('gardara-city-5.png')};
 const gardaraPhotoProfile=photoCityProfile;
-photoCityProfile=function(q){if(q.origin!==GARDARA)return gardaraPhotoProfile(q);const level=Math.max(1,Math.min(5,q.level)),key=q.capital?'capital':level<=2?2:level;const art=gardaraCityArt[key],image=art.idle;return{key,art,crop:[0,0,image.naturalWidth||1536,image.naturalHeight||1024],width:(q.capital?99:[0,57.5,74,82,80.5,89.7][level])}};
-const gardaraTankArt=loadBaekArt('gardara-tank.png'),gardaraArtilleryArt=loadBaekArt('gardara-artillery.png');
+photoCityProfile=function(q){if(q.origin!==GARDARA)return gardaraPhotoProfile(q);const profile=baekCityProfile(q);if(!q.capital)return{...profile,art:gardaraCityArt[profile.key]};const image=gardaraCityArt.capital.idle;return{...profile,art:gardaraCityArt.capital,crop:[0,0,image.naturalWidth||1448,image.naturalHeight||1086]}};
+const gardaraTankArt=loadBaekArt('gardara-tank.png'),gardaraArtilleryArt=loadBaekArt('gardara-artillery.png','gardara-artillery-fire.png');
 armoredCarArt[GARDARA]=armoredCarArt[0];ARMORED_CAR_PROFILES[GARDARA]={...ARMORED_CAR_PROFILES[0]};
 const gardaraEliteArt=loadBaekArt('gardara-elite.png');
 const gardaraOtherVehicleArt={11:loadBaekArt('baek-motorized-right.png'),12:armoredCarArt[0],13:baekLightTankArt,14:gardaraEliteArt,3:baekMLArt,15:MORTAR_ART[0].idle,16:TOWED_ART[0].idle};
@@ -56,7 +56,7 @@ isBaekTank=function(u){return u.f===GARDARA&&[1,14].includes(u.type)||gardaraTan
 baekTankProfile=function(u){if(u.f!==GARDARA||![1,14].includes(u.type))return gardaraTankProfile(u);const art=u.type===14?gardaraEliteArt:gardaraTankArt,image=art.idle,w=image.naturalWidth||1448,h=image.naturalHeight||1086;return{art,image,w,h,mx:w*.99,my:h*(u.type===14?.42:.49),flip:baekTankFacing(u)!==1}};
 const gardaraArtilleryCheck=isBaekArtillery,gardaraSPProfile=baekArtilleryProfile;
 isBaekArtillery=function(u){return u.f===GARDARA&&u.type===2||gardaraArtilleryCheck(u)};
-baekArtilleryProfile=function(u,firing=false){if(u.f!==GARDARA||u.type!==2)return gardaraSPProfile(u,firing);const art=gardaraArtilleryArt,image=art.idle,w=image.naturalWidth||1536,h=image.naturalHeight||1024;return{art,w,h,mx:w*.99,my:h*.05,baseFacing:1,flashAngle:0}};
+baekArtilleryProfile=function(u,firing=false){if(u.f!==GARDARA||u.type!==2)return gardaraSPProfile(u,firing);const art=gardaraArtilleryArt,image=art[firing?'fire':'idle'],w=image.naturalWidth||1672,h=image.naturalHeight||941;return{art,w,h,mx:firing?72:27,my:firing?57:365,baseFacing:-1,flashAngle:.44}};
 const gardaraPreviousSprite=sprite;
 sprite=function(u,p,now){
  if(u.f!==GARDARA||[1,14,2].includes(u.type)||TYPES[u.type].branch==='infantry'&&u.type!==11)return gardaraPreviousSprite(u,p,now);
