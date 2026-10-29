@@ -39,10 +39,10 @@ const CampaignBattle=(()=>{
  function ensureContext(){if(active())return;if(busy)throw Error('An operation is still running');suspended=captureWorld();activeScenario={id:ID};document.body.dataset.scenario=ID;RANNA_RIVER_TILES.clear();CITY_GROUND_SUPPORT.fill(0);CITY_GROUND_CENTER.fill(0);createMap();}
  function newMission(level,options={}){
   units=[];cities=[];logs=[];productionTier=1;productionAA=false;uid=1;turn=1;player=2;difficulty=[0,1,2].includes(level)?level:1;activeSlot=0;started=true;busy=false;
-  money=Array(7).fill(950);food=Array(7).fill(1200);oil=Array(7).fill(180);tech=Array(7).fill(0);foodTurn=turn;
-  strategicResearch=factions.map(()=>({ballistic:false,nuclear:false,jobs:[]}));militaryResearchJobs=Array(7).fill(null);defeatedNotices=new Set([0,3,4,5,6]);
+  money=Array(factions.length).fill(950);food=Array(factions.length).fill(1200);oil=Array(factions.length).fill(180);tech=Array(factions.length).fill(0);foodTurn=turn;
+  strategicResearch=factions.map(()=>({ballistic:false,nuclear:false,jobs:[]}));militaryResearchJobs=Array(factions.length).fill(null);defeatedNotices=new Set([0,3,4,5,6]);
   diplomacy=factions.map((_,a)=>factions.map((_,b)=>a===b?'self':'neutral'));diplomacy[1][2]=diplomacy[2][1]='war';
-  missileBases=[];navalUid=1;hansaBridges=[];aiTransportGrantTurn=Array(7).fill(-1);aiSpecialOrderTurns.fill(-1);danteExpansionSeeded=true;
+  missileBases=[];navalUid=1;hansaBridges=[];aiTransportGrantTurn=Array(factions.length).fill(-1);aiSpecialOrderTurns.fill(-1);danteExpansionSeeded=true;
   for(const [name,q,r,f,origin,level,capital,hp]of DATA.cities){
    const city={id:cities.length,name,tile:tile(q,r),f,origin,level,capital,seedId:7000+cities.length,airport:false,airTurn:-1,queue:null,produced:false,lastAttackedTurn:turn};
    cityProfile(city);city.hp=hp===null?cityMaxHp(city):hp;syncWarheads(city);cities.push(city);tiles[city.tile].city=city.id;
@@ -89,12 +89,12 @@ const CampaignBattle=(()=>{
    const p=s.missionProgress;
    if(!['troops','cargo'].includes(p.route)||!Array.isArray(p.waves)||!Array.isArray(p.pending)||!Number.isInteger(p.lastTurn)||!Number.isInteger(p.waveSerial)||!Number.isInteger(p.holdTurns)||p.holdTurns<0||p.holdTurns>5||![p.holdStart,p.deliveryStart].every(v=>v===null||Number.isInteger(v)&&v>0&&v<=s.turn)||typeof p.delivered!=='boolean'||typeof p.cargoSecured!=='boolean')return false;
   }
-  const ids=new Set();return s.units.every(u=>Number.isInteger(u.id)&&!ids.has(u.id)&&ids.add(u.id)&&!!TYPES[u.type]&&Number.isFinite(u.hp)&&u.hp>0&&inMap(u.tile,d))&&s.cities.every((q,i)=>q.id===i&&inMap(q.tile,d)&&Number.isFinite(q.hp))&&['money','food','oil','tech'].every(k=>Array.isArray(s[k])&&s[k].length===7&&s[k].every(Number.isFinite));
+  const ids=new Set();return s.units.every(u=>Number.isInteger(u.id)&&!ids.has(u.id)&&ids.add(u.id)&&!!TYPES[u.type]&&Number.isFinite(u.hp)&&u.hp>0&&inMap(u.tile,d))&&s.cities.every((q,i)=>q.id===i&&inMap(q.tile,d)&&Number.isFinite(q.hp))&&['money','food','oil','tech'].every(k=>Array.isArray(s[k])&&s[k].length===factions.length&&s[k].every(Number.isFinite));
  }
  function restore(s,slot=0){
   if(!active()||s?.scenario!==ID||!valid(s))return false;
   const v=copy(s);rngSeed=v.rngSeed??rngSeed;productionTier=v.productionTier??1;productionAA=!!v.productionAA;({units,cities,money,food,oil,tech,turn,player,difficulty,uid,cam}=v);activeSlot=slot||v.activeSlot||0;
-  strategicResearch=v.strategicResearch||factions.map(()=>({ballistic:false,nuclear:false,jobs:[]}));militaryResearchJobs=v.militaryResearchJobs||Array(7).fill(null);foodTurn=v.foodTurn||turn;diplomacy=v.diplomacy;missileBases=v.missileBases||[];navalUid=v.navalUid||1;defeatedNotices=new Set(v.defeatedNotices||[0,3,4,5,6]);aiTransportGrantTurn=v.aiTransportGrantTurn||Array(7).fill(-1);aiSpecialOrderTurns.forEach((_,i)=>aiSpecialOrderTurns[i]=v.aiSpecialOrderTurns?.[i]??-1);hansaBridges=[];danteExpansionSeeded=true;
+  strategicResearch=v.strategicResearch||factions.map(()=>({ballistic:false,nuclear:false,jobs:[]}));militaryResearchJobs=v.militaryResearchJobs||Array(factions.length).fill(null);foodTurn=v.foodTurn||turn;diplomacy=v.diplomacy;missileBases=v.missileBases||[];navalUid=v.navalUid||1;defeatedNotices=new Set(v.defeatedNotices||[0,3,4,5,6]);aiTransportGrantTurn=v.aiTransportGrantTurn||Array(factions.length).fill(-1);aiSpecialOrderTurns.forEach((_,i)=>aiSpecialOrderTurns[i]=v.aiSpecialOrderTurns?.[i]??-1);hansaBridges=[];danteExpansionSeeded=true;
   appRunId=v.appRunId||'iron-crown-'+Date.now();appRunWon=false;progress=copy(v.missionProgress);tiles.forEach((t,i)=>{t.city=-1;t.owner=v.owners[i]??-1});CampaignTerrain.apply(DATA);cities.forEach(q=>{q.tile=tile(DATA.cities[q.id][1],DATA.cities[q.id][2]);tiles[q.tile].city=q.id;cityProfile(q);syncWarheads(q)});CampaignOrders.clearNaval();CampaignTerrain.relocate(DATA);buildRegions();started=true;busy=false;invalidate();constrainCamera();updateHUD();refreshSelection();return true;
  }
  function start(s,level=1,options={}){configure(s?.scenario||options.id||'iron-crown-m01');artwork();ensureContext();if(s){if(!restore(s))throw Error('Invalid campaign save')}else newMission(level,options);constrainCamera();setAppScreen('game');updateHUD();refreshSelection();save();return snapshot()}

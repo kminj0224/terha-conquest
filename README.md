@@ -1,13 +1,13 @@
 # Terha Conquest
 
-Private development repository. Current baseline: **v1.11.41**, Android versionCode **186**.
+Private development repository. Current baseline: **v1.11.72**, Android versionCode **217**.
 
 ## Cloud setup
 
 Use Python 3 and Java 17. All game artwork, audio, fonts, the Android shell, signing files and Java build dependencies are included.
 
 - Build the update APK: `python3 build.py`
-- Output: `deliverables/Terha-Conquest-v1.11.41.apk`
+- Output: `deliverables/Terha-Conquest-v1.11.72.apk`
 - Install QA dependency: `npm install`
 - Game regression checks: `npm test`
 - Android shell checks: `python3 qa/verify-native.py`
@@ -33,3 +33,10 @@ All city tiers retain their relative sizes and grow by 15%. New campaigns retain
 - Supplied idle, windup, strike and corpse illustrations; approximately two tiles tall, 1,200 ms windup before damage, illustrated blood/spark atlas effects.
 - Occupied-city production headings link the selected homeland city. Harbor markers and source-port error text are displayed in the homeland catalogue.
 - Run `node qa/sapros-regression.cjs` and `npm test`; the latter covers real production, deployment, save compatibility, Canvas artwork and linked city headings. Physical Android installation/performance remains outside automated coverage.
+
+## v1.11.72 · Gardara
+
+- Eighth playable country: gray Gardara, capital Burudara, nine cities and infantry-only starting army. Its tropical continent lies in the southern ocean between Ayria and Nakwol, well south of Ranna.
+- Existing land and ocean tile IDs remain intact; 32 southern ocean rows are appended. Seven-country saves retain resources, diplomacy and armies and gain Gardara once.
+- Supplied infantry/flag/capital artwork, black-roof Baekyang city variants, straight elevated side-view gray modern armor/artillery, primitive gray navy/transports, and the 아마라한을 지키는 힘무리 special.
+- Verification: `node qa/gardara-regression.cjs`, `node qa/ocean-world-regression.cjs`, `npm test`, and `python3 qa/verify-native.py`. Physical-device installation is not automated.

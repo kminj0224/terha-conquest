@@ -11,7 +11,7 @@ new Function('require','__dirname',source+`
   for(let i=0;i<tiles.length;i++){
    const t=tiles[i],p=pxy(i);check(worldTileAt(p.x,p.y)===i,'Tile hit '+i);
    for(const k of [-2,-1,1,2])check(worldTileAt(p.x+k*WORLD_WIDTH,p.y)===i,'Wrapped tile hit '+i);
-   if(i>=W*H)check(t.owner===-1&&t.terrain===0,'New ocean must be water');
+   if(i>=W*H&&MAP.tiles[i][0]!==GARDARA)check(t.owner===-1&&t.terrain===0,'Ocean must remain water outside Gardara');
    for(const j of neighbors(i)){check(distance(i,j)===1,'Neighbor distance');check(neighbors(j).includes(i),'Reciprocal seam neighbor')}
   }
   for(const origin of [0,2,5])for(let level=1;level<=5;level++)for(const capital of [false,true]){
@@ -29,7 +29,7 @@ new Function('require','__dirname',source+`
  console.log('PASS ocean topology, all tile hits over five world copies, tier scaling and seam navigation',report);
  // Load an actual legacy-length campaign, then save/reload the expanded format.
  run("const oceanLegacy=snapshot();oceanLegacy.appVersion='1.11.19';oceanLegacy.owners=oceanLegacy.owners.slice(0,W*H);localStorage.setItem(saveKey(5),JSON.stringify(oceanLegacy));const savedFleetCount=units.length");
- assert.equal(await drain(run('load(5)')),true);assert.equal(run('units.length'),run('savedFleetCount'));assert(run('tiles.slice(W*H).every(t=>t.owner===-1)'));
+ assert.equal(await drain(run('load(5)')),true);assert.equal(run('units.length'),run('savedFleetCount'));assert(run('tiles.slice(W*H).every((t,n)=>MAP.tiles[n+W*H][0]===GARDARA||t.owner===-1)'));
  run('save(5)');assert.equal(await drain(run('load(5)')),true);
  fs.mkdirSync(path.join(__dirname,'../previews'),{recursive:true});
  const [worldW,worldH,worldLeft]=JSON.parse(run('JSON.stringify([WW,HH,WORLD_LEFT])'));

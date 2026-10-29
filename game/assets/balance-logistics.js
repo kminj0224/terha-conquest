@@ -7,7 +7,8 @@ function ignoresUnitArmor(u,v){
 }
 function aiDiversePool(f,pool){
  const count=k=>units.filter(u=>u.f===f&&u.type===k&&u.hp>0).length+cities.filter(q=>q.f===f&&q.queue?.type===k).length;
- return [...pool].sort((a,b)=>count(a)-count(b)||((turn+f+a)%TYPES.length)-((turn+f+b)%TYPES.length));
+ const cycle=f===7?TYPES.length:Math.min(TYPES.length,31); // New country types must not reorder existing nations' recruitment.
+ return [...pool].sort((a,b)=>count(a)-count(b)||((turn+f+a)%cycle)-((turn+f+b)%cycle));
 }
 // Descriptions carry abilities; the information grid carries base values and prices.
 for(const t of TYPES){

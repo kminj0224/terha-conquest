@@ -2,7 +2,7 @@
 // v1.10.78: direct coastal batteries and two-turn national military research.
 // This module loads after the prior balance / UI modules to preserve their APIs.
 let selectedDefenseId=null;
-let militaryResearchJobs=Array(7).fill(null);
+let militaryResearchJobs=Array(factions.length).fill(null);
 function militaryResearchCost(f){return (tech[f]+1)*450}
 function militaryResearchDescription(){return '전 국가 부대 기본 공격력 +5 · 기본 최대 내구도 +12 (편제 단계 배율 적용)'}
 function canBeginMilitaryResearch(f=player){
@@ -41,7 +41,7 @@ industryTurn=async function(...args){
 };
 const researchSetup=setup;
 setup=function(...args){
- militaryResearchJobs=Array(7).fill(null);
+ militaryResearchJobs=Array(factions.length).fill(null);
  selectedDefenseId=null;
  return researchSetup(...args);
 };
@@ -54,7 +54,7 @@ snapshot=function(...args){
 const researchMigration=migrateArmy;
 migrateArmy=function(s){
  const result=researchMigration(s);
- militaryResearchJobs=Array.from({length:7},(_,i)=>{
+ militaryResearchJobs=Array.from({length:factions.length},(_,i)=>{
   const j=s.militaryResearchJobs?.[i];
   return j&&Number.isInteger(j.remaining)&&j.remaining>0?{
    remaining:Math.min(2,j.remaining),total:2,lastTick:Number.isInteger(j.lastTick)?j.lastTick:turn,

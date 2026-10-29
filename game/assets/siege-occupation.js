@@ -51,7 +51,7 @@ function aiNeedsRifles(f,fronts=aiEnemyCities(f)){
  const forward=fronts.filter(q=>cities.some(home=>home.f===f&&distance(home.tile,q.tile)<=14)||units.some(u=>u.f===f&&!u.carriedBy&&distance(u.tile,q.tile)<=6));
  return forward.some(q=>!troops.some(u=>!u.carriedBy&&distance(u.tile,q.tile)<=8));
 }
-const aiRifleOrderTurn=Array(7).fill(-1);
+const aiRifleOrderTurn=Array(factions.length).fill(-1);
 const siegeAIProcure=aiProcure;
 aiProcure=function(f,owned){
  if(f===player)return siegeAIProcure(f,owned);

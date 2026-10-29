@@ -1,5 +1,5 @@
 'use strict';
-const transportShipArt=factions.map((_,f)=>loadBaekArt(f?'transport-ship-'+f+'.png':'transport-ship.png'));
+const transportShipArt=factions.map((_,f)=>f===7?null:loadBaekArt(f?'transport-ship-'+f+'.png':'transport-ship.png'));
 function transportShipFacing(u){return Number.isFinite(u.angle)&&Math.cos(u.angle)<0?-1:1}
 function paintTransportShip(u,bottom=14,width=110*NAVAL_VISUAL_SCALE){
  const art=transportShipArt[u.f];if(!art?.idleReady)return false;

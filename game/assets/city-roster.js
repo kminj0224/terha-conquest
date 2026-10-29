@@ -2,7 +2,7 @@
 const CITY_ROSTER_SCHEMA=1,CITY_ROSTER_COUNTS=[33,33,33,24,24,10,24];
 const EXTRA_CITY_NAMES=[['해룡항','율계성','청하','운림','태강','동천','금해','류운','백송'],['아스타로스','마르바스','아가레스','부네','포르네우스','벨레트','카임','안드라스','오세'],['킹스브리지','그레이포드','레이븐홀','노스헤이븐','세인트마리아','애쉬캐슬','스틸크레스트','윈터게이트','퀸즈워드']];
 function adjustCityRoster(newGame=false){
- if(cities.length===181&&cities.every((q,i)=>q.id===i))return false;
+ if([181,190].includes(cities.length)&&cities.every((q,i)=>q.id===i))return false;
  for(const q of cities)q.seedId=q.seedId??q.id;
  const nag=cities.filter(q=>q.origin===5),priority=q=>(q.capital?100000:0)+(q.nuclearJob?10000:0)+(q.queue?1000:0)+(q.nukes||0)*100;
  const keep=new Set(nag.slice().sort((a,b)=>priority(b)-priority(a)||a.id-b.id).slice(0,10));
