@@ -73,7 +73,7 @@ airStrike=async function(q,type,i,ai=false){
  // The popup must always use the same number subtracted from structure HP.
  const realDamage=Math.round(m.damage*12*samAirProtection(b));
  b.hp-=realDamage;
- targetExplosions({type:3},p,realDamage);
+ targetExplosions({type:3,strategic:true},p,realDamage);
  if(b.hp<=0)missileBases=missileBases.filter(v=>v!==b);
  if(!ai){busy=false;refreshSelection();updateHUD();save()}
  return true;

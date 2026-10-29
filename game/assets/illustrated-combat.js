@@ -9,20 +9,23 @@ function fleshTarget(u){return TYPES[u?.type]?.branch==='infantry'&&u.type!==11}
 const EFFECT_ROWS=[0,305,594,887,1237];
 const cityFlameArt=loadBaekArt('city-flame-soft.webp'),wreckSmokeArt=loadBaekArt('wreck-smoke.webp');
 const ILLUSTRATED_HITS=new Set(['illustratedImpact','blast','baekArtilleryBlast','baekImpact','infantryExplosion','infantrySpark','infantryDust','devilImpact','defenseHit','armoredCarHit']);
-const DEFAULT_EXPLOSION=['explosion'],DEFAULT_SPARKS=['sparks'];
+const DEFAULT_EXPLOSION=['dustBurst'],DEFAULT_SPARKS=['sparks'],ARTILLERY_EXPLOSION=['explosion'];
 function impactLayers(attacker,target,city=false){
- const branch=TYPES[attacker?.type]?.branch,flesh=fleshTarget(target);
- if(branch==='armor')return !city&&flesh?['infantrySmokeHit','blood']:['armorSmoke'];
- if(city)return ['explosion'];
- return fleshTarget(attacker)?(flesh?['blood']:['sparks']):(flesh?['explosion','blood']:['explosion']);
+ const branch=TYPES[attacker?.type]?.branch,flesh=!city&&fleshTarget(target);
+ if(branch==='artillery'&&!attacker.strategic)return flesh?['explosion','blood']:['explosion'];
+ if(branch==='armor')return flesh?['infantrySmokeHit','blood']:['armorSmoke'];
+ if(attacker?.type===8)return flesh?['grenadeDust','blood']:['grenadeDust'];
+ if(attacker?.type===9||attacker?.strategic)return flesh?['dustBurst','blood']:['dustBurst'];
+ if(city)return ['dustBurst'];
+ return fleshTarget(attacker)?(flesh?['blood']:['sparks']):(flesh?['dustBurst','blood']:['dustBurst']);
 }
 function softEffectTexture(art){return art.idleReady?art.idle:null}
 function effectFrame(row,t,x,y,size){
- if(row===3){const fire=softEffectTexture(cityFlameArt);if(fire)ctx.drawImage(fire,x-size/2,y-size*.8,size,size);return}
+ if(row===3){const fire=softEffectTexture(cityFlameArt);if(fire)nativeMapDrawImage(fire,x-size/2,y-size*.8,size,size);return}
  if(!battlefieldEffects.idleReady)return;
  const source=battlefieldEffects.idle,w=source.naturalWidth/4,frame=Math.min(3,Math.max(0,Math.floor(t*4)));
  const y0=EFFECT_ROWS[row]*source.naturalHeight/1237,h=(EFFECT_ROWS[row+1]-EFFECT_ROWS[row])*source.naturalHeight/1237;
- ctx.drawImage(source,frame*w,y0,w,h,x-size/2,y-size*.8,size,size);
+ nativeMapDrawImage(source,frame*w,y0,w,h,x-size/2,y-size*.8,size,size);
 }
 function drawImpactSmoke(x,y,size,t,density=1){
  const smoke=softEffectTexture(wreckSmokeArt);if(!smoke)return;
@@ -31,10 +34,11 @@ function drawImpactSmoke(x,y,size,t,density=1){
  nativeMapDrawImage(smoke,x-width/2+Math.sin(t*2.1)*3,y-height*.84-t*8,width,height);ctx.restore();
 }
 function paintImpact(e,t){
- const layers=e.layers||(e.kind==='infantrySpark'?DEFAULT_SPARKS:DEFAULT_EXPLOSION);
+ const layers=e.layers||(e.kind==='baekArtilleryBlast'?ARTILLERY_EXPLOSION:e.kind==='infantrySpark'?DEFAULT_SPARKS:DEFAULT_EXPLOSION);
  for(const layer of layers){
-  if(layer==='armorSmoke'){drawImpactSmoke(e.x,e.y,S*1.25,t,.95);continue}
-  if(layer==='infantrySmokeHit'){drawImpactSmoke(e.x,e.y,S*.75,t,.55);continue}
+  if(layer==='armorSmoke'){drawArmorImpact(e,t,false);continue}
+  if(layer==='infantrySmokeHit'){drawArmorImpact(e,t,true);continue}
+  if(layer==='dustBurst'||layer==='grenadeDust'){drawDirtImpact(e.x,e.y,t,layer==='grenadeDust'?S*.68:e.small?S*.8:S*1.4);continue}
   effectFrame(layer==='sparks'?0:layer==='blood'?1:2,t,e.x,e.y,layer==='blood'?S*.85:layer==='sparks'?S*.9:S*1.4);
  }
  if(e.damage!=null){ctx.save();ctx.globalAlpha=Math.min(1,(1-t)*4);ctx.font='bold 14px Terha,sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff0d4';ctx.fillText('−'+e.damage,e.x,e.y-29-t*24);ctx.restore()}
@@ -73,10 +77,9 @@ launchShot=function(u,target,start=performance.now(),duration=520){
 };
 drawCityFire=function(q,p,now){
  if(q.hp>cityMaxHp(q)*.5||cam.z<.24)return;
- const flame=softEffectTexture(cityFlameArt);if(!flame)return;
- const phase=now*.007+q.id*1.73,width=q.capital?100:80,height=width*(1+.045*Math.sin(phase*1.31));
- // Axis-aligned stretch/offset avoids the expensive affine resampling path.
- nativeMapDrawImage(flame,p.x-width/2+Math.sin(phase)*1.1,p.y+12-height,width,height);
+ const frames=prepareCityFlameFrames();if(!frames.length)return;
+ const width=q.capital?100:80,height=width*128/112;
+ nativeMapDrawImage(frames[(Math.floor(now/60)+q.id*5)%frames.length],p.x-width/2,p.y+12-height,width,height);
 };
 const wreckBodyCache=new Map(),WRECK_CACHE_LIMIT=48;
 // Capture only the painted unit body with its actual faction art and facing.

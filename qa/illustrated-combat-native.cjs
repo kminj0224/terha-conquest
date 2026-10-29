@@ -14,7 +14,11 @@ new Function('require','__dirname',source.slice(0,at)+`
   assert.equal(run('moveOil({type:11,f:'+f+',level:'+level+'})'),0);assert.equal(run('attackOil({type:11,f:'+f+',level:'+level+'})'),0);
  }
  assert.equal(run('battlefieldEffects.idleReady'),true);
- for(const [attacker,target,expected] of [[0,0,['blood']],[0,1,['sparks']],[1,0,['infantrySmokeHit','blood']],[1,1,['armorSmoke']],[1,2,['armorSmoke']],[2,1,['explosion']],[2,0,['explosion','blood']],[11,0,['explosion','blood']],[0,11,['sparks']]]){
+ assert.equal(run('prepareCityFlameFrames().length'),12);
+ const crypto=require('crypto');
+ const flameHashes=run('cityFlameFrames').map(frame=>crypto.createHash('sha256').update(frame.toBuffer('image/png')).digest('hex'));
+ assert.equal(new Set(flameHashes).size,12,'twelve distinct precomputed flame animation frames');
+ for(const [attacker,target,expected] of [[0,0,['blood']],[0,1,['sparks']],[1,0,['infantrySmokeHit','blood']],[1,1,['armorSmoke']],[1,2,['armorSmoke']],[2,1,['explosion']],[2,0,['explosion','blood']],[11,0,['dustBurst','blood']],[0,11,['sparks']]]){
   assert.equal(run('JSON.stringify(impactLayers({type:'+attacker+'},{type:'+target+'}))'),JSON.stringify(expected));
   run('(()=>{fx=[];const attacker64=makeUnit(0,'+attacker+',home64.tile),target64=makeUnit(1,'+target+',home64.tile);targetExplosions(attacker64,pxy(target64.tile),10,performance.now(),false,target64);for(const e of fx)drawIllustratedEffect(e,.3)})()');
  }
@@ -44,6 +48,6 @@ new Function('require','__dirname',source.slice(0,at)+`
  fs.writeFileSync(path.join(__dirname,'../previews/illustrated-effects.png'),main.toBuffer('image/png'));
  run("ctx.clearRect(0,0,1280,800);fx=[];for(let f=0;f<7;f++){const u=makeUnit(f,1,cities.find(q=>q.f===f).tile);kill(u);const e=fx.at(-1);e.x=100+f*170;e.y=150;drawIllustratedWreck(e,.3,performance.now())}for(const [j,type]of [11,12,18,21,23,24,26].entries()){const u=makeUnit(0,type,home64.tile);kill(u);const e=fx.at(-1);e.x=100+j*170;e.y=350;drawIllustratedWreck(e,.3,performance.now())}");
  fs.writeFileSync(path.join(__dirname,'../previews/illustrated-wrecks.png'),main.toBuffer('image/png'));
- assert.deepEqual(errors,[]);console.log('PASS v1.11.65: Black Legion exclusions, 41 attack, seven-faction motorized fuel, two Sielun specials, armor smoke / infantry blood and unchanged artillery, depth-sorted wrecks, baked flame alpha, zero steady-state canvas allocations, offscreen culling, beam-only knight, 140 national mechanical wreck renders and 3-second lifetimes.');process.exit(0);
+ assert.deepEqual(errors,[]);console.log('PASS v1.11.66: Black Legion exclusions, 41 attack, seven-faction motorized fuel, two Sielun specials, armor smoke / infantry blood and unchanged artillery, depth-sorted wrecks, baked flame alpha, zero steady-state canvas allocations, offscreen culling, beam-only knight, 140 national mechanical wreck renders and 3-second lifetimes.');process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1)});
 `)(require,__dirname);
