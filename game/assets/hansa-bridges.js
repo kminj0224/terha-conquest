@@ -127,12 +127,18 @@ async function askHansaBridge(b){
  if(player!==0||hansaBridgeCity()?.f!==0||busy||b.transition)return;
  setHansaBridge(b,open);
 }
-function hansaBridgeAt(wx,wy){
+function hansaBridgeAt(wx,wy,touch=false){
+ let nearest=null,score=Infinity;
  for(const b of [...hansaBridges].reverse())for(const island of [false,true]){
-  const p=island?b.a:b.z,box=hansaBridgeBuildingBox(b,island),x=wx-p.x,y=wy-p.y-(b.slope||0)*x;
-  if(x>=box.x-3&&x<=box.x+box.w+3&&y>=box.y-3&&y<=box.y+box.h+3)return b;
+  const p=nearWorldPoint(island?b.a:b.z,{x:wx,y:wy}),box=hansaBridgeBuildingBox(b,island),x=wx-p.x,y=wy-p.y-(b.slope||0)*x;
+  const dx=Math.max(box.x-x,0,x-box.x-box.w),dy=Math.max(box.y-y,0,y-box.y-box.h);
+  // Exact painted controls win before padding, including overlapping touch targets.
+  if(dx<=3&&dy<=3)return b;
+  if(!touch)continue;
+  const minimum=48/Math.max(.12,cam.z),padX=Math.max(3,(minimum-box.w)/2),padY=Math.max(3,(minimum-box.h)/2);
+  if(dx<=padX&&dy<=padY&&dx*dx+dy*dy<score){nearest=b;score=dx*dx+dy*dy}
  }
- return null;
+ return nearest;
 }
 function hansaBridgeUnderUnit(u){
  if(!u||u.carriedBy)return null;
@@ -149,9 +155,11 @@ const hansaBridgeSelection=refreshSelection;refreshSelection=function(...args){
  return result;
 };
 const hansaBridgeTap=tap;tap=function(sx,sy){
- if(started&&!busy&&!menuMode&&!airTarget&&!navalMode&&!coastBuildMode&&!appConfirm){
-  const wx=(sx-screenW/2)/cam.z+cam.x,wy=(sy-screenH/2)/cam.z+cam.y,b=hansaBridgeAt(wx,wy);
-  if(b&&player===0&&!unitAt(worldTileAt(wx,wy))){void askHansaBridge(b);return}
+ if(started&&!busy&&!menuMode&&!airTarget&&!strategicTarget&&!navalMode&&!coastBuildMode&&!appConfirm){
+  const wx=(sx-screenW/2)/cam.z+cam.x,wy=(sy-screenH/2)/cam.z+cam.y;
+  const b=hansaBridgeAt(wx,wy,true);
+  // The control owns its touch area, even if a city or troop shares its hex.
+  if(b&&player===0){void askHansaBridge(b);return}
  }
  return hansaBridgeTap(sx,sy);
 };

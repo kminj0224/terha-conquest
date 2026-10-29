@@ -77,16 +77,43 @@ function setImpactGround(e,target,city=false){
  if(target&&!city){e.explosionGroundY=unitExplosionGroundY(target,e.start);e.splitUnitSmoke=true}
  return e;
 }
+// Body centers are measured offline from the actual national sprites, with no pixel reads in play.
+function unitHitCenter(u,now=performance.now()){
+ const p=unitVisualPosition(u,now),fire=fireMotions.get(u.id),firing=fire&&now>=fire.start&&now<fire.start+fire.duration;
+ const side=u.tankFacing??u.artilleryFacing??u.rifleFacing??u.destroyerFacing??u.carrierFacing??u.danteFleetFacing;
+ const branch=TYPES[u.type]?.branch,angle=['navy','air','helicopter'].includes(branch)?(u.angle||0):Number.isFinite(side)?side<0?Math.PI:0:u.angle||0;
+ const direction=((Math.round(angle/(Math.PI/8))%16)+16)%16;
+ const offset=HIT_CENTER_DATA[u.f+':'+u.type]?.[Math.max(0,Math.min(3,(u.level||1)-1))]?.[(firing?16:0)+direction]??[0,-12];
+ return{x:p.x+offset[0],y:p.y+offset[1]};
+}
+function setDirectionalImpact(e,attacker,target,now=e.start){
+ if(!target)return e;
+ const center=unitHitCenter(target,now),victim=unitVisualPosition(target,now);
+ const origin=Number.isInteger(attacker?.tile)&&tiles[attacker.tile]?nearWorldPoint(unitVisualPosition(attacker,now),victim):null;
+ e.targetId??=target.id;e.hitX=center.x;e.hitY=center.y;e.hitFacing=origin&&origin.x>victim.x?-1:1;
+ return e;
+}
+function directionalImpactCenter(e,now=performance.now()){
+ const target=units.find(u=>u.id===e.targetId&&!u.carriedBy&&u.hp>0);
+ return target?unitHitCenter(target,now):{x:e.hitX,y:e.hitY};
+}
+function drawDirectionalHitFrame(e,row,t,size,now=performance.now()){
+ if(!Number.isFinite(e.hitX)||!Number.isFinite(e.hitY))return effectFrame(row,t,e.x,e.y,size);
+ const p=directionalImpactCenter(e,now);
+ ctx.save();ctx.translate(p.x,p.y);ctx.scale(e.hitFacing===-1?-1:1,1);
+ effectFrame(row,t,0,size/2-12,size);ctx.restore();
+}
 function paintImpact(e,t){
  const layers=e.layers||(e.kind==='baekArtilleryBlast'?ARTILLERY_EXPLOSION:e.kind==='infantrySpark'?DEFAULT_SPARKS:DEFAULT_EXPLOSION);
  const smokeT=impactSmokePhase(e,t),burstT=e.burstDuration!=null?t*e.duration/e.burstDuration:t,ground=e.explosionGroundY??null;
  if(smokeT>=0&&smokeT<1&&!e.hideImpactSmoke){const size=e.small?S*.7:layers.includes('grenadeDust')?S*.85:S*1.38;drawImpactSmoke(e.x+(e.splitUnitSmoke?6:0),e.y,size*(e.splitUnitSmoke?.75:1),smokeT,e.splitUnitSmoke?.75:.95,(ground??e.y+12)+(e.splitUnitSmoke?2:0),e.splitUnitSmoke?1:0)}
  if(burstT>=1)return;
  for(const layer of layers){
-  if(layer==='armorSmoke'){drawArmorImpact(e,burstT,false,ground);continue}
-  if(layer==='infantrySmokeHit'){drawArmorImpact(e,burstT,true,ground);continue}
+  if(layer==='armorSmoke'){drawArmorImpact(e,burstT,false,ground,e.start+t*e.duration);continue}
+  if(layer==='infantrySmokeHit'){drawArmorImpact(e,burstT,true,ground,e.start+t*e.duration);continue}
   if(layer==='dustBurst'||layer==='grenadeDust'){drawDirtImpact(e.x,e.y,burstT,layer==='grenadeDust'?S*.68:e.small?S*.8:S*1.4,ground);continue}
-  effectFrame(layer==='sparks'?0:layer==='blood'?1:2,burstT,e.x,e.y,layer==='blood'?S*.85:layer==='sparks'?S*.9:S*1.4,layer==='blood'||layer==='sparks'?null:ground);
+  if(layer==='blood'||layer==='sparks')drawDirectionalHitFrame(e,layer==='sparks'?0:1,burstT,layer==='blood'?S*.85:S*.9,e.start+t*e.duration);
+  else effectFrame(2,burstT,e.x,e.y,S*1.4,ground);
  }
  if(e.damage!=null){ctx.save();ctx.globalAlpha=Math.min(1,(1-burstT)*4);ctx.font='bold 14px Terha,sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff0d4';ctx.fillText('−'+e.damage,e.x,e.y-29-burstT*24);ctx.restore()}
 }
@@ -99,7 +126,7 @@ function impactCityAt(p){const tile=worldTileAt(p.x,p.y);return tile>=0?cityAt(t
 function addAreaImpact(u,target,d,now=performance.now()){
  if(skipAIAnimations()||d<=0)return;
  const q=cityAt(target.tile),p=pxy(target.tile);
- fx.push(setImpactGround(configureImpactTimeline({kind:'blast',x:p.x,y:p.y,damage:d,layers:impactLayers(u,target,!!q),targetId:target.id,targetTile:target.tile,cityImpact:!!q,cityId:q?.id,combatImpact:combatImpactProfile(u),splash:true,start:now,duration:650},u),target,!!q));
+ fx.push(setDirectionalImpact(setImpactGround(configureImpactTimeline({kind:'blast',x:p.x,y:p.y,damage:d,layers:impactLayers(u,target,!!q),targetId:target.id,targetTile:target.tile,cityImpact:!!q,cityId:q?.id,combatImpact:combatImpactProfile(u),splash:true,start:now,duration:650},u),target,!!q),u,q?null:target,now));
 }
 const illustratedTargetExplosions=targetExplosions;
 targetExplosions=function(u,p,d,now=performance.now(),city=false,target=null){
@@ -113,9 +140,9 @@ targetExplosions=function(u,p,d,now=performance.now(),city=false,target=null){
   return result;
  }
  fx=fx.slice(0,before).concat(fx.slice(before).filter(e=>e.kind!=='navalSmoke'));
- if(isSapros(u)||isWhiteNight(u))return result;
+ if(isSapros(u)||isWhiteNight(u)){for(const e of fx.slice(before))if(e.kind==='saprosBlood'||e.kind==='saprosSparks'||ILLUSTRATED_HITS.has(e.kind))setDirectionalImpact(e,u,target,e.start);return result;}
  const layers=impactLayers(u,target,false);
- for(const e of fx.slice(before))if(ILLUSTRATED_HITS.has(e.kind)){e.layers=layers;e.combatImpact=combatImpactProfile(u);e.targetId=target?.id;e.targetTile=target?.tile;setImpactGround(e,target);configureImpactTimeline(e,u)}
+ for(const e of fx.slice(before))if(ILLUSTRATED_HITS.has(e.kind)){e.layers=layers;e.combatImpact=combatImpactProfile(u);e.targetId=target?.id;e.targetTile=target?.tile;setImpactGround(e,target);setDirectionalImpact(e,u,target,e.start);configureImpactTimeline(e,u)}
  return result;
 };
 const illustratedLaunch=launchShot;
@@ -126,7 +153,7 @@ launchShot=function(u,target,start=performance.now(),duration=520){
  const victim=units.find(v=>!v.carriedBy&&v.id!==u.id&&Math.hypot(pxy(v.tile).x-target.x,pxy(v.tile).y-target.y)<2);
  const result=illustratedLaunch(u,target,start,duration);
  if(impactCityAt(target))fx=fx.slice(0,before).concat(fx.slice(before).filter(e=>!ILLUSTRATED_HITS.has(e.kind)));
- for(const e of fx.slice(before))if(ILLUSTRATED_HITS.has(e.kind)){e.layers=impactLayers(u,victim,!!impactCityAt(target));e.targetId=victim?.id;e.targetTile=victim?.tile;setImpactGround(e,victim);configureImpactTimeline(e,u)}
+ for(const e of fx.slice(before))if(ILLUSTRATED_HITS.has(e.kind)){e.layers=impactLayers(u,victim,!!impactCityAt(target));e.targetId=victim?.id;e.targetTile=victim?.tile;setImpactGround(e,victim);setDirectionalImpact(e,u,victim,e.start);configureImpactTimeline(e,u)}
  if(u.type===18){
   fx=fx.slice(0,before).concat(fx.slice(before).filter(e=>!['shot','baekArtilleryShell','baekRocket','baekGrenade','laser','doctrine'].includes(e.kind)));
   if(!skipAIAnimations()){

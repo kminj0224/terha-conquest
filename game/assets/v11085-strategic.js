@@ -160,7 +160,7 @@ launchStrategic=async function(q,kind,i,ai=false){
   let unitDamage=0;
   if(u&&atWar(q.f,u.f)){unitDamage=escortProtected(u)?0:Math.round(model.damage*.08*(city?.f===u.f?.7:1)*specialIncomingFactor(u));u.hp-=unitDamage;if(u.hp<=0)kill(u)}
   const cityDamage=city&&atWar(q.f,city.f)?damageCity(city,model.damage,1):0;
-  targetExplosions({type:3,strategic:true},b,cityDamage||unitDamage||(facility?model.damage:0));
+  targetExplosions({type:3,strategic:true,f:q.f,tile:q.tile},b,cityDamage||unitDamage||(facility?model.damage:0));
  }
  log(q.name+' · '+(nuclear?NUCLEAR_WARHEADS[payload].name:model.name)+' 발사');
  busy=previousBusy;if(!ai){refreshSelection();updateHUD();save();checkEnd()}return true;

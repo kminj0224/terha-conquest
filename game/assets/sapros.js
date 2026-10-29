@@ -107,7 +107,12 @@ function drawSaprosEffect(e,t){
   if(art.idleReady){
    const blood=e.kind==='saprosBlood',frame=blood?Math.min(7,Math.floor(t*8)):8+Math.min(3,Math.floor(t*4));
    const cw=art.idle.naturalWidth/4,ch=art.idle.naturalHeight/3,size=blood?S*2.1:S*1.8;
-   ctx.globalAlpha=Math.min(1,(1-t)*4);ctx.drawImage(art.idle,(frame%4)*cw,Math.floor(frame/4)*ch,cw,ch,e.x-size/2,e.y-size*.65,size,size*ch/cw);
+   ctx.globalAlpha=Math.min(1,(1-t)*4);
+   if(Number.isFinite(e.hitX)&&Number.isFinite(e.hitY)){
+    const center=directionalImpactCenter(e,e.start+t*e.duration);
+    ctx.save();ctx.translate(center.x,center.y);ctx.scale(e.hitFacing===-1?-1:1,1);
+    ctx.drawImage(art.idle,(frame%4)*cw,Math.floor(frame/4)*ch,cw,ch,-size/2,-size*ch/cw/2,size,size*ch/cw);ctx.restore();
+   }else ctx.drawImage(art.idle,(frame%4)*cw,Math.floor(frame/4)*ch,cw,ch,e.x-size/2,e.y-size*.65,size,size*ch/cw);
   }
   ctx.fillStyle='#fff0d4';ctx.font='bold 15px Terha,sans-serif';ctx.textAlign='center';ctx.fillText('−'+e.damage,e.x,e.y-28-t*24);
  }

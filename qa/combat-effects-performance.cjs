@@ -15,7 +15,7 @@ function fn(name,textSource=text){const text=textSource;const start=text.indexOf
  if(text.includes('const DIRT_FRAME_FEET='))vm.runInContext(text.slice(text.indexOf('const DIRT_FRAME_FEET='),text.indexOf('function effectFrame')),b);
  vm.runInContext(animation.slice(animation.indexOf('const dirtImpactArt='),animation.indexOf('function prepareCityFlameFrames')),b);
  for(const name of ['prepareCityFlameFrames','drawDirtImpact','drawArmorImpact'])vm.runInContext(fn(name,animation),b);
- for(const name of ['softEffectTexture','effectFrame','drawImpactSmoke','impactSmokePhase','paintImpact','drawIllustratedWreck'])if(text.includes('function '+name+'('))vm.runInContext(fn(name),b);
+ for(const name of ['softEffectTexture','drawDirectionalHitFrame','effectFrame','drawImpactSmoke','impactSmokePhase','paintImpact','drawIllustratedWreck'])if(text.includes('function '+name+'('))vm.runInContext(fn(name),b);
  if(text.includes('const smokePlumeFrames=')){vm.runInContext(fs.readFileSync(root+'/game/assets/smoke-plume-data.js','utf8'),b);vm.runInContext(fs.readFileSync(root+'/game/assets/smoke-flow-bounds.js','utf8'),b);vm.runInContext(text.slice(text.indexOf('const smokePlumeFrames='),text.indexOf('function drawImpactSmoke')),b)}
  const a=text.indexOf('drawCityFire=function('),end=text.indexOf('\n};',a);vm.runInContext(text.slice(a,end+3),b);
  b.city={hp:0,id:1};b.point={x:640,y:400};b.wreck={x:640,y:400,unitArt:body,wreckArt:body};b.event={x:640,y:400,layers:['explosion'],burstDuration:975,duration:3000};
