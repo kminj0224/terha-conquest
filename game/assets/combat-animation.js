@@ -50,7 +50,7 @@ function drawDirtImpact(x,y,t,size,bottom=null){
 }
 function drawArmorImpact(e,t,flesh,ground=e.explosionGroundY??e.y+12){
  if(!flesh&&t<.3)effectFrame(0,Math.min(.99,t/.3),e.x,e.y,S*1.6);
- drawDirtImpact(e.x,e.y,t,flesh?S*1.42:S*.9,ground);
+ if(flesh)drawDirtImpact(e.x,e.y,t,S*1.42,ground);
  // The old untimed direct renderer also retains the spark -> smoke sequence.
  if(e.burstDuration==null&&t>.3)drawImpactSmoke(e.x,e.y,S*1.38,(t-.3)/.7,.95);
 }
