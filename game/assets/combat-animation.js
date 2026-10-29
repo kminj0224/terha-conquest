@@ -44,9 +44,9 @@ function paintProjectile(kind,x,y,width,height,angle=0,alpha=1){
 function drawMuzzleIllustration(x,y,size,angle=0,cyan=false){paintProjectile(cyan?'cyanMuzzle':3,x+Math.cos(angle)*size*.8,y+Math.sin(angle)*size*.8,size*2.4,size*1.1,angle)}
 function drawDirtImpact(x,y,t,size){
  const image=softEffectTexture(dirtImpactArt);if(!image)return;
- const p=Math.min(1,t*2.5),spread=1-Math.pow(1-p,3),w=size*(.35+.85*spread),h=size*(.4+.6*spread);
+ const w=size*1.2,h=size;
  ctx.save();ctx.globalAlpha*=Math.min(1,(1-t)*3);
- nativeMapDrawImage(image,x-w/2,y-h*.76-t*size*.08,w,h);ctx.restore();
+ nativeMapDrawImage(image,x-w/2,y+12-h,w,h);ctx.restore();
 }
 function drawArmorImpact(e,t,flesh){
  if(flesh){
@@ -87,7 +87,7 @@ drawIllustratedEffect=function(e,t){
  if(k==='infantryMuzzle'||k==='defenseFlame'){drawMuzzleIllustration(e.x,e.y,k==='defenseFlame'?26:9,e.angle||0);return true}
  if(k==='infantrySmoke'||k==='navalSmoke'){drawImpactSmoke(e.x,e.y,k==='navalSmoke'?66:30,t,.7);return true}
  if(k==='nuclear'){
-  if(nuclearCloudArt.idleReady){const rise=1-Math.pow(1-t,3),w=240+rise*260,h=120+rise*320;ctx.save();ctx.globalAlpha=Math.min(1,(1-t)*4);nativeMapDrawImage(nuclearCloudArt.idle,e.x-w/2,e.y-h*.8,w,h);ctx.restore()}
+  if(nuclearCloudArt.idleReady){const w=500,h=440;ctx.save();ctx.globalAlpha=Math.min(1,(1-t)*4);nativeMapDrawImage(nuclearCloudArt.idle,e.x-w/2,e.y+12-h,w,h);ctx.restore()}
   return true;
  }
  if(k==='rally'||k==='doctrine'){effectFrame(0,t,e.x,e.y,40);return true}

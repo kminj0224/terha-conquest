@@ -9,11 +9,11 @@ new Function('require','__dirname',source.slice(0,at)+`
  const hashes=run('cityFlameFrames').map(c=>require('crypto').createHash('sha256').update(c.toBuffer('image/png')).digest('hex'));
  assert.equal(new Set(hashes).size,12);
  assert.equal(run('JSON.stringify(impactLayers({type:8},{type:1}))'),'["grenadeDust"]');
- for(const type of [1,12,13,14,18,4,7,19,20,21,22,23,24,25]){
+ for(const type of [1,12,13,14,18,4,7,19,20,21]){
   assert(!run('impactLayers({type:'+type+'},{type:0}).includes("explosion")'));
   assert(!run('impactLayers({type:'+type+'},{type:1}).includes("explosion")'));
  }
- for(const type of [2,3,15,16])assert(run('impactLayers({type:'+type+'},{type:1}).includes("explosion")'));
+ for(const type of [2,3,15,16,5,22,23,24,25])assert(run('impactLayers({type:'+type+'},{type:1}).includes("explosion")'));
  assert(!run('impactLayers({type:3,strategic:true},{type:1}).includes("explosion")'));
  run("globalThis.stages66=[];const originalFrame66=effectFrame,originalDirt66=drawDirtImpact,originalSmoke66=drawImpactSmoke;effectFrame=function(row,...a){stages66.push(row===0?'sparks':'frame');return originalFrame66(row,...a)};drawDirtImpact=function(...a){stages66.push('dirt');return originalDirt66(...a)};drawImpactSmoke=function(...a){stages66.push('smoke');return originalSmoke66(...a)};try{drawArmorImpact({x:640,y:400},.05,false);drawArmorImpact({x:640,y:400},.7,false)}finally{effectFrame=originalFrame66;drawDirtImpact=originalDirt66;drawImpactSmoke=originalSmoke66}");
  assert.equal(run('stages66[0]'),'sparks');assert(run('stages66.includes("smoke")'));
@@ -23,6 +23,6 @@ new Function('require','__dirname',source.slice(0,at)+`
  // Paint phases for visual review using the actual renderer and shared assets.
  run("ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,1280,800);for(let j=0;j<5;j++){const t=[.03,.13,.28,.5,.8][j];paintImpact({x:140+j*240,y:150,layers:['armorSmoke']},t);paintImpact({x:140+j*240,y:350,layers:['infantrySmokeHit','blood']},t);paintImpact({x:140+j*240,y:530,layers:['grenadeDust']},t);drawCityFire({id:j,hp:0,level:3},{x:140+j*240,y:740},j*120)}");
  fs.mkdirSync(path.join(__dirname,'../previews'),{recursive:true});fs.writeFileSync(path.join(__dirname,'../previews/combat-animation-v66.png'),main.toBuffer('image/png'));
- console.log('PASS v1.11.66: '+run('fxKinds66.length')+' raster combat kinds, all phases reject primitive drawing; 12 distinct shared fire frames; no steady-state allocations; armor spark/dirt/smoke staging; small grenade blast; non-artillery flame exclusion.');process.exit(0);
+ console.log('PASS v1.11.67: '+run('fxKinds66.length')+' raster combat kinds, all phases reject primitive drawing; 12 distinct shared fire frames; no steady-state allocations; armor spark/dirt/smoke staging; small grenade blast; non-naval/non-artillery flame exclusion.');process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1)});
 `)(require,__dirname);

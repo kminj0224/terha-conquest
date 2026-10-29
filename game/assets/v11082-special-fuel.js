@@ -11,7 +11,7 @@ UNIT_STORIES[NAKWOL_COMMANDO]='낙월 특공대의 붉은 베레모는 낙월민
 const nakwolCommandoArt=loadBaekArt('nakwol-commando-idle.webp','nakwol-commando-fire.webp');
 NAKWOL_INFANTRY_PROFILES[NAKWOL_COMMANDO]={
  art:nakwolCommandoArt,baseFacing:-1,
- muzzles:baekMuzzles([[40,405],[512,367],[972,355],[215,689],[697,695]]),
+ muzzles:[[2,54],[144,54],[289,55],[11,169],[180,171]].map(([x,y])=>({x:(x/480-.5)*64,y:14-48+y/360*48})),
  burst:true,burstShots:4
 };
 // The special is available only at the Nakwol capital, with the normal

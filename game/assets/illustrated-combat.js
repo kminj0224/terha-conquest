@@ -7,31 +7,34 @@ moveOil=function(u){return u?.type===11?0:motorizedMoveOil(u)};
 attackOil=function(u){return u?.type===11?0:motorizedAttackOil(u)};
 function fleshTarget(u){return TYPES[u?.type]?.branch==='infantry'&&u.type!==11}
 const EFFECT_ROWS=[0,305,594,887,1237];
-const cityFlameArt=loadBaekArt('city-flame-soft.webp'),wreckSmokeArt=loadBaekArt('wreck-smoke.webp');
+const cityFlameArt=loadBaekArt('city-flame-soft.webp'),wreckSmokeArt=loadBaekArt('wreck-smoke.webp'),explosionFramesArt=loadBaekArt('explosion-soft.webp');
 const ILLUSTRATED_HITS=new Set(['illustratedImpact','blast','baekArtilleryBlast','baekImpact','infantryExplosion','infantrySpark','infantryDust','devilImpact','defenseHit','armoredCarHit']);
 const DEFAULT_EXPLOSION=['dustBurst'],DEFAULT_SPARKS=['sparks'],ARTILLERY_EXPLOSION=['explosion'];
 function impactLayers(attacker,target,city=false){
  const branch=TYPES[attacker?.type]?.branch,flesh=!city&&fleshTarget(target);
+ if(branch==='navy')return flesh?['explosion','blood']:['explosion'];
  if(branch==='artillery'&&!attacker.strategic)return flesh?['explosion','blood']:['explosion'];
  if(branch==='armor')return flesh?['infantrySmokeHit','blood']:['armorSmoke'];
  if(attacker?.type===8)return flesh?['grenadeDust','blood']:['grenadeDust'];
- if(attacker?.type===9||attacker?.strategic)return flesh?['dustBurst','blood']:['dustBurst'];
- if(city)return ['dustBurst'];
- return fleshTarget(attacker)?(flesh?['blood']:['sparks']):(flesh?['dustBurst','blood']:['dustBurst']);
+ if(attacker?.type===9)return flesh?['dustBurst','blood']:['armorSmoke'];
+ if(attacker?.strategic)return flesh?['dustBurst','blood']:['dustBurst'];
+ if(city)return branch==='infantry'?['sparks']:['dustBurst'];
+ return branch==='infantry'?(flesh?['blood']:['sparks']):(flesh?['dustBurst','blood']:['dustBurst']);
 }
 function softEffectTexture(art){return art.idleReady?art.idle:null}
 function effectFrame(row,t,x,y,size){
- if(row===3){const fire=softEffectTexture(cityFlameArt);if(fire)nativeMapDrawImage(fire,x-size/2,y-size*.8,size,size);return}
+ if(row===3){const fire=softEffectTexture(cityFlameArt);if(fire)nativeMapDrawImage(fire,x-size/2,y+12-size,size,size);return}
+ if(row===2){if(explosionFramesArt.idleReady){const image=explosionFramesArt.idle,w=image.naturalWidth/4;nativeMapDrawImage(image,Math.min(3,Math.max(0,Math.floor(t*4)))*w,0,w,image.naturalHeight,x-size/2,y+12-size,size,size)}return}
  if(!battlefieldEffects.idleReady)return;
  const source=battlefieldEffects.idle,w=source.naturalWidth/4,frame=Math.min(3,Math.max(0,Math.floor(t*4)));
  const y0=EFFECT_ROWS[row]*source.naturalHeight/1237,h=(EFFECT_ROWS[row+1]-EFFECT_ROWS[row])*source.naturalHeight/1237;
- nativeMapDrawImage(source,frame*w,y0,w,h,x-size/2,y-size*.8,size,size);
+ nativeMapDrawImage(source,frame*w,y0,w,h,x-size/2,y+12-size,size,size);
 }
 function drawImpactSmoke(x,y,size,t,density=1){
  const smoke=softEffectTexture(wreckSmokeArt);if(!smoke)return;
  ctx.save();ctx.globalAlpha*=density*Math.min(1,.3+t*5)*Math.min(1,(1-t)*4);
- const width=size*(.75+t*.3),height=size*(.85+t*.45);
- nativeMapDrawImage(smoke,x-width/2+Math.sin(t*2.1)*3,y-height*.84-t*8,width,height);ctx.restore();
+ const width=size,height=size*1.2;
+ nativeMapDrawImage(smoke,x-width/2,y+12-height,width,height);ctx.restore();
 }
 function paintImpact(e,t){
  const layers=e.layers||(e.kind==='baekArtilleryBlast'?ARTILLERY_EXPLOSION:e.kind==='infantrySpark'?DEFAULT_SPARKS:DEFAULT_EXPLOSION);
@@ -48,13 +51,26 @@ function drawIllustratedEffect(e,t){
  if(Math.abs(e.x-cam.x)>screenW/2/cam.z+160||Math.abs(e.y-cam.y)>screenH/2/cam.z+180)return true;
  paintImpact(e,t);return true;
 }
+function impactCityAt(p){const tile=worldTileAt(p.x,p.y);return tile>=0?cityAt(tile):null}
+function addAreaImpact(u,target,d,now=performance.now()){
+ if(skipAIAnimations()||d<=0)return;
+ const q=cityAt(target.tile),p=pxy(target.tile);
+ fx.push({kind:'blast',x:p.x,y:p.y,damage:d,layers:impactLayers(u,target,!!q),targetId:target.id,targetTile:target.tile,cityImpact:!!q,cityId:q?.id,combatImpact:combatImpactProfile(u),splash:true,start:now,duration:650});
+}
 const illustratedTargetExplosions=targetExplosions;
 targetExplosions=function(u,p,d,now=performance.now(),city=false,target=null){
- const before=fx.length,result=illustratedTargetExplosions(u,p,d,now,city,target);
- // Preserve special melee timing/art, numeric labels and sounds.
- if(isSapros(u)||isWhiteNight(u)||skipAIAnimations())return result;
- const layers=impactLayers(u,target,city),hitKinds=['blast','baekArtilleryBlast','baekImpact','infantryExplosion','infantrySpark','infantryDust','devilImpact','armoredCarHit'];
- for(const e of fx.slice(before))if(hitKinds.includes(e.kind)){e.layers=layers;e.combatImpact=combatImpactProfile(u)}
+ const q=impactCityAt(p),cityImpact=!!q;
+ const before=fx.length,result=illustratedTargetExplosions(u,p,d,now,city||cityImpact,target);
+ if(skipAIAnimations())return result;
+ if(cityImpact){
+  const added=fx.slice(before),first=added.find(e=>ILLUSTRATED_HITS.has(e.kind));
+  fx=fx.slice(0,before).concat(added.filter(e=>!ILLUSTRATED_HITS.has(e.kind)&&!['armoredCarDamage','saprosBlood','saprosSparks','navalSmoke'].includes(e.kind)));
+  fx.push({kind:'blast',x:p.x,y:p.y,damage:d,layers:impactLayers(u,null,true),cityImpact:true,cityId:q.id,targetTile:q.tile,combatImpact:combatImpactProfile(u),start:first?.start??now,duration:750});
+  return result;
+ }
+ if(isSapros(u)||isWhiteNight(u))return result;
+ const layers=impactLayers(u,target,false);
+ for(const e of fx.slice(before))if(ILLUSTRATED_HITS.has(e.kind)){e.layers=layers;e.combatImpact=combatImpactProfile(u);e.targetId=target?.id;e.targetTile=target?.tile}
  return result;
 };
 const illustratedLaunch=launchShot;
@@ -64,6 +80,7 @@ launchShot=function(u,target,start=performance.now(),duration=520){
  // Only the armored-car burst needs target classification before impact.
  const victim=u.type===12?units.find(v=>!v.carriedBy&&v.id!==u.id&&Math.hypot(pxy(v.tile).x-target.x,pxy(v.tile).y-target.y)<2):null;
  const result=illustratedLaunch(u,target,start,duration);
+ if(impactCityAt(target))fx=fx.slice(0,before).concat(fx.slice(before).filter(e=>!ILLUSTRATED_HITS.has(e.kind)));
  if(u.type===12)for(const e of fx.slice(before))if(e.kind==='armoredCarHit')e.layers=impactLayers(u,victim,!victim);
  if(u.type===18){
   fx=fx.slice(0,before).concat(fx.slice(before).filter(e=>!['shot','baekArtilleryShell','baekRocket','baekGrenade','laser','doctrine'].includes(e.kind)));
@@ -128,6 +145,17 @@ function addWreckDepthEffects(scene,now){
   scene.push({kind:'wreck',id:i,p:{x:e.x,y:e.y},paint:()=>drawIllustratedWreck(e,t,now)});
  }
 }
+function isDepthImpact(e){return ILLUSTRATED_HITS.has(e.kind)||e.kind==='navalSmoke'||e.kind==='nuclear'}
+function addImpactDepthEffects(scene,now){
+ for(let i=0;i<fx.length;i++){
+  const e=fx[i];if(!isDepthImpact(e))continue;
+  const t=(now-e.start)/e.duration;if(t<0||t>=1)continue;
+  const margin=e.kind==='nuclear'?460:180;
+  if(Math.abs(e.x-cam.x)>screenW/2/cam.z+margin||Math.abs(e.y-cam.y)>screenH/2/cam.z+margin)continue;
+  const tile=e.targetTile??worldTileAt(e.x,e.y),p=tile>=0?pxy(tile):{x:e.x,y:e.y};
+  scene.push({kind:'impact',id:i,p,paint:()=>drawIllustratedEffect(e,t)});
+ }
+}
 const illustratedSetup=setup;
 setup=function(...args){
  const result=illustratedSetup(...args);
@@ -141,4 +169,4 @@ setup=function(...args){
  }
  return result;
 };
-Object.assign(window.Terha,{moveOil,attackOil,impactLayers,drawIllustratedEffect,drawIllustratedWreck,addWreckDepthEffects,drawCityFire,targetExplosions,launchShot,kill,setup});
+Object.assign(window.Terha,{moveOil,attackOil,impactLayers,drawIllustratedEffect,drawIllustratedWreck,addWreckDepthEffects,drawCityFire,isDepthImpact,addImpactDepthEffects,addAreaImpact,targetExplosions,launchShot,kill,setup});

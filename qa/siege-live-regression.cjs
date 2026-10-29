@@ -22,6 +22,7 @@ module.exports=async function({run}){
    delay=async()=>{};finishMovingBeforeFire=async()=>{};beginAim=()=>{};launchShot=()=>{};targetExplosions=(u,p,d)=>damage.push(d);
    check(await attackCity(artillery,q,true),'Live artillery attack');check(q.hp===1&&damage.at(-1)===499,'Live 500-to-1 clamp and popup');
    freshOrders(artillery);check(await attackCity(artillery,q,true),'Live 1 HP artillery attack');check(q.hp===1&&damage.at(-1)===0,'Live 1-to-1 and zero popup');
+   targetExplosions=old.targetExplosions;
    // Exercise the final wrapped unit-target attack, including a surviving and killed garrison.
    for(const type of [0,1,6,8,9,10,11,12,13,14,17,18,DEKPHUING_GUERRILLA,NAKWOL_COMMANDO,2,3,4,7,19,20,21,5,22,23,24,25])for(const hp of [1,500])for(const lethal of [false,true]){
     units=[];q.hp=hp;fx=[];

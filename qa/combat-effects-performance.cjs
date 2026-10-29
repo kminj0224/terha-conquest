@@ -5,7 +5,7 @@ const {createCanvas,loadImage}=require(root+'/node_modules/@napi-rs/canvas');
 const text=fs.readFileSync(root+'/game/assets/illustrated-combat.js','utf8'),animation=fs.readFileSync(root+'/game/assets/combat-animation.js','utf8');
 function fn(name,textSource=text){const text=textSource;const start=text.indexOf('function '+name+'(');let at=text.indexOf('{',start),depth=1;for(let i=at+1;i<text.length;i++){if(text[i]==='{')depth++;if(text[i]==='}'&&!--depth)return text.slice(start,i+1);}throw Error(name)}
 (async()=>{
- const atlas=await loadImage(root+'/game/assets/battlefield-effects.webp');const extras={};for(const name of ['city-flame-soft.webp','wreck-smoke.webp','dirt-impact.webp','combat-projectiles.webp','nuclear-cloud.webp'])extras[name]=await loadImage(root+'/game/assets/'+name);const c=createCanvas(1280,800),ctx=c.getContext('2d'),body=createCanvas(256,192);
+ const atlas=await loadImage(root+'/game/assets/battlefield-effects.webp');const extras={};for(const name of ['city-flame-soft.webp','wreck-smoke.webp','explosion-soft.webp','dirt-impact.webp','combat-projectiles.webp','nuclear-cloud.webp'])extras[name]=await loadImage(root+'/game/assets/'+name);const c=createCanvas(1280,800),ctx=c.getContext('2d'),body=createCanvas(256,192);
  body.getContext('2d').drawImage(atlas,0,0,256,192);
  const b={ctx,S:64,cam:{x:640,y:400,z:1},screenW:1280,screenH:800,battlefieldEffects:{idle:atlas,idleReady:true},cityMaxHp:()=>1000,document:{createElement:()=>createCanvas(128,128)},loadBaekArt:name=>({idle:extras[name]||atlas,idleReady:true})};
  b.nativeMapDrawImage=(...args)=>ctx.drawImage(...args);vm.createContext(b);

@@ -1,4 +1,4 @@
-name: Animated raster combat effects and shared city fire v1.11.66 APK
+name: Grounded impacts, city routing and splash visuals v1.11.67 APK
 on:
   push:
     branches: [main, codex/campaign-polish]
@@ -57,12 +57,13 @@ jobs:
         continue-on-error: true
         if: always()
         with:
-          name: Battlefield-layout-v1.11.66
+          name: Battlefield-layout-v1.11.67
           path: |
             qa/battlefield-previews/*.png
             qa/campaign-previews/*
       - name: Build and verify signed Android update
         run: |
+          node qa/combat-impact-routing-native.cjs
           node qa/combat-animation-native.cjs
           node qa/illustrated-combat-native.cjs
           node qa/campaign-defense-status-simulation.cjs
@@ -72,15 +73,15 @@ jobs:
           node qa/armored-car-audio-clock.cjs
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.66.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.67.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.66.apk > SHA256SUMS.txt
+          sha256sum Terha-Conquest-v1.11.67.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: Terha-Conquest-v1.11.66
+          name: Terha-Conquest-v1.11.67
           path: |
-            deliverables/Terha-Conquest-v1.11.66.apk
+            deliverables/Terha-Conquest-v1.11.67.apk
             deliverables/SHA256SUMS.txt
           retention-days: 14
       - name: Publish APK after main integration
@@ -88,7 +89,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.66 deliverables/Terha-Conquest-v1.11.66.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.66' --notes '기존 도시 화염 이미지 기반 공유 12프레임 애니메이션. 전차 대 보병 흙먼지·혈흔·연기, 대기계 대형 스파크 후 검은 연기. 유탄수 작은 흙먼지 폭발. 포병 외 피격은 무화염. 미사일·포탄·투하탄·레이저·방공·총구섬광·핵구름 등 도형 전투 효과 일러스트 교체. 화면 밖 생략·공유 프레임과 소재·프레임 중 이미지 생성 없음. 기존 저장·밸런스·Android 서명 유지. versionCode 211.'
+          gh release create v1.11.67 deliverables/Terha-Conquest-v1.11.67.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.67' --notes '차량화보병 사격 피격 분류 수정. 해군은 4프레임 화염·연기 폭발. 폭발 소재 하단 투명 그라데이션 및 표시 위치 고정. 대전차보병 대기계 피격은 스파크·검은 연기. 도시와 주둔군은 중앙의 도시 피격 하나로 표시. 범위 공격의 모든 피해 유닛에 효과 추가. 피격 효과도 일반 유닛과 같은 타일 깊이 정렬. 낙월특공대 좌우 5개 총구 좌표 수정. 기존 저장·밸런스·서명 유지. versionCode 212.'
       - name: Prepare APK file attachment
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
@@ -102,7 +103,7 @@ jobs:
           for offset in range(0,len(encoded),4000):
               print('PREVIEW_CHUNK:'+str(offset)+':'+encoded[offset:offset+4000])
           PYPREVIEWS
-          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.66 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.66.apk") | .url')
+          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.67 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.67.apk") | .url')
           python3 - <<'PYTRANSFER'
           import os, urllib.request, urllib.error, base64
           class NoRedirect(urllib.request.HTTPRedirectHandler):
