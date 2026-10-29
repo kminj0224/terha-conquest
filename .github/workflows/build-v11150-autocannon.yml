@@ -1,4 +1,4 @@
-name: Five-stage bursts and rising smoke v1.11.68 APK
+name: Sprite-foot explosions and simultaneous looping smoke v1.11.69 APK
 on:
   push:
     branches: [main, codex/campaign-polish]
@@ -57,12 +57,13 @@ jobs:
         continue-on-error: true
         if: always()
         with:
-          name: Battlefield-layout-v1.11.68
+          name: Battlefield-layout-v1.11.69
           path: |
             qa/battlefield-previews/*.png
             qa/campaign-previews/*
       - name: Build and verify signed Android update
         run: |
+          node qa/combat-ground-native.cjs
           node qa/combat-sequence-native.cjs
           node qa/combat-impact-routing-native.cjs
           node qa/combat-animation-native.cjs
@@ -74,15 +75,15 @@ jobs:
           node qa/armored-car-audio-clock.cjs
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.68.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.69.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.68.apk > SHA256SUMS.txt
+          sha256sum Terha-Conquest-v1.11.69.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: Terha-Conquest-v1.11.68
+          name: Terha-Conquest-v1.11.69
           path: |
-            deliverables/Terha-Conquest-v1.11.68.apk
+            deliverables/Terha-Conquest-v1.11.69.apk
             deliverables/SHA256SUMS.txt
           retention-days: 14
       - name: Publish APK after main integration
@@ -90,7 +91,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.68 deliverables/Terha-Conquest-v1.11.68.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.68' --notes '비포병 폭발 1.5배 지속·5프레임, 현재 최대 폭발은 가운데 프레임으로 유지. 포병·항공·해군 폭발 7프레임. 폭발 후 검은 연기 5프레임·3초 페이드. 대전차보병 총구 연기는 기존 자연스러운 연출로 복원. 동일 타일 잔류 연기 병합·화면 밖 제외·표시 수 제한. 기존 피격 깊이 정렬과 도시 단일 피격 유지. 저장·밸런스·서명 유지. versionCode 213.'
+          gh release create v1.11.69 deliverables/Terha-Conquest-v1.11.69.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.69' --notes '폭발만 피격 유닛 발끝·궤도·바퀴의 불투명 하단에 정렬. 스파크·피 위치 유지. 연기는 크기가 일정한 새 5프레임을 빠르게 반복하며 폭발과 동시에 시작, 약 3초 동안 투명해져 사라짐. 도시 단일 피격·타일 깊이 정렬·동일 타일 연기 병합 유지. 오프라인 하단 좌표로 실행 중 픽셀 읽기 없음. 기존 저장·서명 유지. versionCode 214.'
       - name: Prepare APK file attachment
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
@@ -104,7 +105,7 @@ jobs:
           for offset in range(0,len(encoded),4000):
               print('PREVIEW_CHUNK:'+str(offset)+':'+encoded[offset:offset+4000])
           PYPREVIEWS
-          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.68 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.68.apk") | .url')
+          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.69 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.69.apk") | .url')
           python3 - <<'PYTRANSFER'
           import os, urllib.request, urllib.error, base64
           class NoRedirect(urllib.request.HTTPRedirectHandler):

@@ -42,15 +42,15 @@ function paintProjectile(kind,x,y,width,height,angle=0,alpha=1){
  nativeMapDrawImage(image,-width/2,-height/2,width,height);ctx.restore();
 }
 function drawMuzzleIllustration(x,y,size,angle=0,cyan=false){paintProjectile(cyan?'cyanMuzzle':3,x+Math.cos(angle)*size*.8,y+Math.sin(angle)*size*.8,size*2.4,size*1.1,angle)}
-function drawDirtImpact(x,y,t,size){
+function drawDirtImpact(x,y,t,size,bottom=null){
  const image=softEffectTexture(dirtImpactArt);if(!image)return;
  const w=size*1.2,h=size,sw=image.naturalWidth/5,frame=Math.min(4,Math.max(0,Math.floor(t*5)));
  ctx.save();ctx.globalAlpha*=Math.min(1,(1-t)*5);
- nativeMapDrawImage(image,frame*sw,0,sw,image.naturalHeight,x-w/2,y+12-h,w,h);ctx.restore();
+ nativeMapDrawImage(image,frame*sw,0,sw,image.naturalHeight,x-w/2,bottom==null?y+12-h:bottom-h*DIRT_FRAME_FEET[frame],w,h);ctx.restore();
 }
-function drawArmorImpact(e,t,flesh){
+function drawArmorImpact(e,t,flesh,ground=e.explosionGroundY??e.y+12){
  if(!flesh&&t<.3)effectFrame(0,Math.min(.99,t/.3),e.x,e.y,S*1.6);
- drawDirtImpact(e.x,e.y,t,flesh?S*1.42:S*.9);
+ drawDirtImpact(e.x,e.y,t,flesh?S*1.42:S*.9,ground);
  // The old untimed direct renderer also retains the spark -> smoke sequence.
  if(e.burstDuration==null&&t>.3)drawImpactSmoke(e.x,e.y,S*1.38,(t-.3)/.7,.95);
 }
