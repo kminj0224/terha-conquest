@@ -1,7 +1,7 @@
 'use strict';
 // Every combat effect is a bounded raster composition. Unit bodies and tactical
 // UI remain with their original renderers. Assets/frames are shared, never per city.
-const dirtImpactArt=loadBaekArt('dirt-impact.webp'),combatProjectileArt=loadBaekArt('combat-projectiles.webp'),nuclearCloudArt=loadBaekArt('nuclear-cloud.webp');
+const dirtImpactArt=loadBaekArt('dirt-sequence.webp'),combatProjectileArt=loadBaekArt('combat-projectiles.webp'),nuclearCloudArt=loadBaekArt('nuclear-cloud.webp');
 const cityFlameFrames=[],projectileTextures=new Map();
 const COMBAT_RASTER_KINDS=new Set(['shot','baekArtilleryShell','baekRocket','baekGrenade','navalMissile','missile','defenseMissile','samIntercept','laser','devilLaser','infantryMuzzle','infantrySmoke','navalSmoke','defenseFlame','nuclear','rally','doctrine']);
 function prepareCityFlameFrames(){
@@ -44,19 +44,15 @@ function paintProjectile(kind,x,y,width,height,angle=0,alpha=1){
 function drawMuzzleIllustration(x,y,size,angle=0,cyan=false){paintProjectile(cyan?'cyanMuzzle':3,x+Math.cos(angle)*size*.8,y+Math.sin(angle)*size*.8,size*2.4,size*1.1,angle)}
 function drawDirtImpact(x,y,t,size){
  const image=softEffectTexture(dirtImpactArt);if(!image)return;
- const w=size*1.2,h=size;
- ctx.save();ctx.globalAlpha*=Math.min(1,(1-t)*3);
- nativeMapDrawImage(image,x-w/2,y+12-h,w,h);ctx.restore();
+ const w=size*1.2,h=size,sw=image.naturalWidth/5,frame=Math.min(4,Math.max(0,Math.floor(t*5)));
+ ctx.save();ctx.globalAlpha*=Math.min(1,(1-t)*5);
+ nativeMapDrawImage(image,frame*sw,0,sw,image.naturalHeight,x-w/2,y+12-h,w,h);ctx.restore();
 }
 function drawArmorImpact(e,t,flesh){
- if(flesh){
-  if(t<.38)drawDirtImpact(e.x,e.y,t/.38,S*1.42);
-  else drawImpactSmoke(e.x,e.y,S*1.32,(t-.25)/.75,.95);
- }else{
-  if(t<.3)effectFrame(0,Math.min(.99,t/.3),e.x,e.y,S*1.6);
-  if(t<.18)drawDirtImpact(e.x,e.y,t/.18,S*.85);
-  else drawImpactSmoke(e.x,e.y,S*1.38,(t-.1)/.9,1);
- }
+ if(!flesh&&t<.3)effectFrame(0,Math.min(.99,t/.3),e.x,e.y,S*1.6);
+ drawDirtImpact(e.x,e.y,t,flesh?S*1.42:S*.9);
+ // The old untimed direct renderer also retains the spark -> smoke sequence.
+ if(e.burstDuration==null&&t>.3)drawImpactSmoke(e.x,e.y,S*1.38,(t-.3)/.7,.95);
 }
 function drawIllustratedBomb(x,y,angle=Math.PI/2){paintProjectile(2,x,y,22,13,angle)}
 function combatTrajectory(e,t){
@@ -85,7 +81,8 @@ drawIllustratedEffect=function(e,t){
  }
  if(!effectVisible(e.x,e.y,k==='nuclear'?460:180))return true;
  if(k==='infantryMuzzle'||k==='defenseFlame'){drawMuzzleIllustration(e.x,e.y,k==='defenseFlame'?26:9,e.angle||0);return true}
- if(k==='infantrySmoke'||k==='navalSmoke'){drawImpactSmoke(e.x,e.y,k==='navalSmoke'?66:30,t,.7);return true}
+ if(k==='infantrySmoke'){legacyInfantryEffect(e,t);return true}
+ if(k==='navalSmoke'){drawImpactSmoke(e.x,e.y,66,t,.7);return true}
  if(k==='nuclear'){
   if(nuclearCloudArt.idleReady){const w=500,h=440;ctx.save();ctx.globalAlpha=Math.min(1,(1-t)*4);nativeMapDrawImage(nuclearCloudArt.idle,e.x-w/2,e.y+12-h,w,h);ctx.restore()}
   return true;

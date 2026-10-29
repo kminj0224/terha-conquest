@@ -7,44 +7,57 @@ moveOil=function(u){return u?.type===11?0:motorizedMoveOil(u)};
 attackOil=function(u){return u?.type===11?0:motorizedAttackOil(u)};
 function fleshTarget(u){return TYPES[u?.type]?.branch==='infantry'&&u.type!==11}
 const EFFECT_ROWS=[0,305,594,887,1237];
-const cityFlameArt=loadBaekArt('city-flame-soft.webp'),wreckSmokeArt=loadBaekArt('wreck-smoke.webp'),explosionFramesArt=loadBaekArt('explosion-soft.webp');
+const cityFlameArt=loadBaekArt('city-flame-soft.webp'),wreckSmokeArt=loadBaekArt('wreck-smoke.webp'),explosionFramesArt=loadBaekArt('explosion-sequence.webp'),smokeFramesArt=loadBaekArt('smoke-sequence.webp');
+const IMPACT_SMOKE_MS=3000,MAX_VISIBLE_IMPACT_SMOKE=24;
 const ILLUSTRATED_HITS=new Set(['illustratedImpact','blast','baekArtilleryBlast','baekImpact','infantryExplosion','infantrySpark','infantryDust','devilImpact','defenseHit','armoredCarHit']);
 const DEFAULT_EXPLOSION=['dustBurst'],DEFAULT_SPARKS=['sparks'],ARTILLERY_EXPLOSION=['explosion'];
 function impactLayers(attacker,target,city=false){
  const branch=TYPES[attacker?.type]?.branch,flesh=!city&&fleshTarget(target);
+ if(branch==='air'||branch==='helicopter'||attacker?.strategic)return flesh?['explosion','blood']:['explosion'];
  if(branch==='navy')return flesh?['explosion','blood']:['explosion'];
  if(branch==='artillery'&&!attacker.strategic)return flesh?['explosion','blood']:['explosion'];
  if(branch==='armor')return flesh?['infantrySmokeHit','blood']:['armorSmoke'];
  if(attacker?.type===8)return flesh?['grenadeDust','blood']:['grenadeDust'];
  if(attacker?.type===9)return flesh?['dustBurst','blood']:['armorSmoke'];
- if(attacker?.strategic)return flesh?['dustBurst','blood']:['dustBurst'];
  if(city)return branch==='infantry'?['sparks']:['dustBurst'];
  return branch==='infantry'?(flesh?['blood']:['sparks']):(flesh?['dustBurst','blood']:['dustBurst']);
 }
 function softEffectTexture(art){return art.idleReady?art.idle:null}
 function effectFrame(row,t,x,y,size){
  if(row===3){const fire=softEffectTexture(cityFlameArt);if(fire)nativeMapDrawImage(fire,x-size/2,y+12-size,size,size);return}
- if(row===2){if(explosionFramesArt.idleReady){const image=explosionFramesArt.idle,w=image.naturalWidth/4;nativeMapDrawImage(image,Math.min(3,Math.max(0,Math.floor(t*4)))*w,0,w,image.naturalHeight,x-size/2,y+12-size,size,size)}return}
+ if(row===2){if(explosionFramesArt.idleReady){const image=explosionFramesArt.idle,w=image.naturalWidth/7;nativeMapDrawImage(image,Math.min(6,Math.max(0,Math.floor(t*7)))*w,0,w,image.naturalHeight,x-size/2,y+12-size,size,size)}return}
  if(!battlefieldEffects.idleReady)return;
  const source=battlefieldEffects.idle,w=source.naturalWidth/4,frame=Math.min(3,Math.max(0,Math.floor(t*4)));
  const y0=EFFECT_ROWS[row]*source.naturalHeight/1237,h=(EFFECT_ROWS[row+1]-EFFECT_ROWS[row])*source.naturalHeight/1237;
  nativeMapDrawImage(source,frame*w,y0,w,h,x-size/2,y+12-size,size,size);
 }
 function drawImpactSmoke(x,y,size,t,density=1){
- const smoke=softEffectTexture(wreckSmokeArt);if(!smoke)return;
- ctx.save();ctx.globalAlpha*=density*Math.min(1,.3+t*5)*Math.min(1,(1-t)*4);
+ if(!smokeFramesArt.idleReady)return;
+ const image=smokeFramesArt.idle,sw=image.naturalWidth/5,frame=Math.min(4,Math.max(0,Math.floor(t*5)));
+ ctx.save();ctx.globalAlpha*=density*Math.min(1,t*10)*Math.min(1,(1-t)/.42);
  const width=size,height=size*1.2;
- nativeMapDrawImage(smoke,x-width/2,y+12-height,width,height);ctx.restore();
+ nativeMapDrawImage(image,frame*sw,0,sw,image.naturalHeight,x-width/2,y+12-height,width,height);ctx.restore();
 }
+function configureImpactTimeline(e,attacker){
+ if(e.burstDuration!=null)return e;
+ const layers=e.layers||DEFAULT_EXPLOSION;
+ if(!layers.some(v=>['explosion','dustBurst','grenadeDust','armorSmoke','infantrySmokeHit'].includes(v)))return e;
+ e.burstDuration=Math.round(e.duration*(TYPES[attacker?.type]?.branch==='artillery'&&!attacker?.strategic?1:1.5));
+ e.duration=e.burstDuration+IMPACT_SMOKE_MS;
+ return e;
+}
+function impactSmokePhase(e,t){return e.burstDuration!=null?(t*e.duration-e.burstDuration)/IMPACT_SMOKE_MS:-1}
 function paintImpact(e,t){
  const layers=e.layers||(e.kind==='baekArtilleryBlast'?ARTILLERY_EXPLOSION:e.kind==='infantrySpark'?DEFAULT_SPARKS:DEFAULT_EXPLOSION);
+ const smokeT=impactSmokePhase(e,t),burstT=e.burstDuration!=null?t*e.duration/e.burstDuration:t;
+ if(smokeT>=0){drawImpactSmoke(e.x,e.y,e.small?S*.7:layers.includes('grenadeDust')?S*.85:S*1.38,smokeT,.95);return}
  for(const layer of layers){
-  if(layer==='armorSmoke'){drawArmorImpact(e,t,false);continue}
-  if(layer==='infantrySmokeHit'){drawArmorImpact(e,t,true);continue}
-  if(layer==='dustBurst'||layer==='grenadeDust'){drawDirtImpact(e.x,e.y,t,layer==='grenadeDust'?S*.68:e.small?S*.8:S*1.4);continue}
-  effectFrame(layer==='sparks'?0:layer==='blood'?1:2,t,e.x,e.y,layer==='blood'?S*.85:layer==='sparks'?S*.9:S*1.4);
+  if(layer==='armorSmoke'){drawArmorImpact(e,burstT,false);continue}
+  if(layer==='infantrySmokeHit'){drawArmorImpact(e,burstT,true);continue}
+  if(layer==='dustBurst'||layer==='grenadeDust'){drawDirtImpact(e.x,e.y,burstT,layer==='grenadeDust'?S*.68:e.small?S*.8:S*1.4);continue}
+  effectFrame(layer==='sparks'?0:layer==='blood'?1:2,burstT,e.x,e.y,layer==='blood'?S*.85:layer==='sparks'?S*.9:S*1.4);
  }
- if(e.damage!=null){ctx.save();ctx.globalAlpha=Math.min(1,(1-t)*4);ctx.font='bold 14px Terha,sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff0d4';ctx.fillText('−'+e.damage,e.x,e.y-29-t*24);ctx.restore()}
+ if(e.damage!=null){ctx.save();ctx.globalAlpha=Math.min(1,(1-burstT)*4);ctx.font='bold 14px Terha,sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff0d4';ctx.fillText('−'+e.damage,e.x,e.y-29-burstT*24);ctx.restore()}
 }
 function drawIllustratedEffect(e,t){
  if(!ILLUSTRATED_HITS.has(e.kind))return false;
@@ -55,7 +68,7 @@ function impactCityAt(p){const tile=worldTileAt(p.x,p.y);return tile>=0?cityAt(t
 function addAreaImpact(u,target,d,now=performance.now()){
  if(skipAIAnimations()||d<=0)return;
  const q=cityAt(target.tile),p=pxy(target.tile);
- fx.push({kind:'blast',x:p.x,y:p.y,damage:d,layers:impactLayers(u,target,!!q),targetId:target.id,targetTile:target.tile,cityImpact:!!q,cityId:q?.id,combatImpact:combatImpactProfile(u),splash:true,start:now,duration:650});
+ fx.push(configureImpactTimeline({kind:'blast',x:p.x,y:p.y,damage:d,layers:impactLayers(u,target,!!q),targetId:target.id,targetTile:target.tile,cityImpact:!!q,cityId:q?.id,combatImpact:combatImpactProfile(u),splash:true,start:now,duration:650},u));
 }
 const illustratedTargetExplosions=targetExplosions;
 targetExplosions=function(u,p,d,now=performance.now(),city=false,target=null){
@@ -65,23 +78,24 @@ targetExplosions=function(u,p,d,now=performance.now(),city=false,target=null){
  if(cityImpact){
   const added=fx.slice(before),first=added.find(e=>ILLUSTRATED_HITS.has(e.kind));
   fx=fx.slice(0,before).concat(added.filter(e=>!ILLUSTRATED_HITS.has(e.kind)&&!['armoredCarDamage','saprosBlood','saprosSparks','navalSmoke'].includes(e.kind)));
-  fx.push({kind:'blast',x:p.x,y:p.y,damage:d,layers:impactLayers(u,null,true),cityImpact:true,cityId:q.id,targetTile:q.tile,combatImpact:combatImpactProfile(u),start:first?.start??now,duration:750});
+  fx.push(configureImpactTimeline({kind:'blast',x:p.x,y:p.y,damage:d,layers:impactLayers(u,null,true),cityImpact:true,cityId:q.id,targetTile:q.tile,combatImpact:combatImpactProfile(u),start:first?.start??now,duration:750},u));
   return result;
  }
+ fx=fx.slice(0,before).concat(fx.slice(before).filter(e=>e.kind!=='navalSmoke'));
  if(isSapros(u)||isWhiteNight(u))return result;
  const layers=impactLayers(u,target,false);
- for(const e of fx.slice(before))if(ILLUSTRATED_HITS.has(e.kind)){e.layers=layers;e.combatImpact=combatImpactProfile(u);e.targetId=target?.id;e.targetTile=target?.tile}
+ for(const e of fx.slice(before))if(ILLUSTRATED_HITS.has(e.kind)){e.layers=layers;e.combatImpact=combatImpactProfile(u);e.targetId=target?.id;e.targetTile=target?.tile;configureImpactTimeline(e,u)}
  return result;
 };
 const illustratedLaunch=launchShot;
 launchShot=function(u,target,start=performance.now(),duration=520){
  if(skipAIAnimations())return illustratedLaunch(u,target,start,duration);
  const before=fx.length;
- // Only the armored-car burst needs target classification before impact.
- const victim=u.type===12?units.find(v=>!v.carriedBy&&v.id!==u.id&&Math.hypot(pxy(v.tile).x-target.x,pxy(v.tile).y-target.y)<2):null;
+ // Classify pre-scheduled burst/rocket impacts before their first frame.
+ const victim=units.find(v=>!v.carriedBy&&v.id!==u.id&&Math.hypot(pxy(v.tile).x-target.x,pxy(v.tile).y-target.y)<2);
  const result=illustratedLaunch(u,target,start,duration);
  if(impactCityAt(target))fx=fx.slice(0,before).concat(fx.slice(before).filter(e=>!ILLUSTRATED_HITS.has(e.kind)));
- if(u.type===12)for(const e of fx.slice(before))if(e.kind==='armoredCarHit')e.layers=impactLayers(u,victim,!victim);
+ for(const e of fx.slice(before))if(ILLUSTRATED_HITS.has(e.kind)){e.layers=impactLayers(u,victim,!!impactCityAt(target));e.targetId=victim?.id;e.targetTile=victim?.tile;configureImpactTimeline(e,u)}
  if(u.type===18){
   fx=fx.slice(0,before).concat(fx.slice(before).filter(e=>!['shot','baekArtilleryShell','baekRocket','baekGrenade','laser','doctrine'].includes(e.kind)));
   if(!skipAIAnimations()){
@@ -147,12 +161,15 @@ function addWreckDepthEffects(scene,now){
 }
 function isDepthImpact(e){return ILLUSTRATED_HITS.has(e.kind)||e.kind==='navalSmoke'||e.kind==='nuclear'}
 function addImpactDepthEffects(scene,now){
- for(let i=0;i<fx.length;i++){
+ // Latest smoke on a tile replaces older smoke there. Bursts/damage stay intact.
+ const smokeTiles=new Set();let smokeCount=0;
+ for(let i=fx.length-1;i>=0;i--){
   const e=fx[i];if(!isDepthImpact(e))continue;
   const t=(now-e.start)/e.duration;if(t<0||t>=1)continue;
   const margin=e.kind==='nuclear'?460:180;
   if(Math.abs(e.x-cam.x)>screenW/2/cam.z+margin||Math.abs(e.y-cam.y)>screenH/2/cam.z+margin)continue;
   const tile=e.targetTile??worldTileAt(e.x,e.y),p=tile>=0?pxy(tile):{x:e.x,y:e.y};
+  if(impactSmokePhase(e,t)>=0){const key=tile>=0?tile:Math.round(e.x/32)+':'+Math.round(e.y/32);if(smokeTiles.has(key)||smokeCount>=MAX_VISIBLE_IMPACT_SMOKE)continue;smokeTiles.add(key);smokeCount++}
   scene.push({kind:'impact',id:i,p,paint:()=>drawIllustratedEffect(e,t)});
  }
 }
