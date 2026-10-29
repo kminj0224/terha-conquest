@@ -90,7 +90,7 @@ function setDirectionalImpact(e,attacker,target,now=e.start){
  if(!target)return e;
  const center=unitHitCenter(target,now),victim=unitVisualPosition(target,now);
  const origin=Number.isInteger(attacker?.tile)&&tiles[attacker.tile]?nearWorldPoint(unitVisualPosition(attacker,now),victim):null;
- e.targetId??=target.id;e.hitX=center.x;e.hitY=center.y;e.hitFacing=origin&&origin.x>victim.x?-1:1;
+ e.targetId??=target.id;e.hitX=center.x;e.hitY=center.y;e.hitFacing=origin&&origin.x>victim.x?1:-1;
  return e;
 }
 function directionalImpactCenter(e,now=performance.now()){
