@@ -1,4 +1,4 @@
-name: Illustrated combat effects and unit balance v1.11.64 APK
+name: Optimize smoke, city fire and wreck depth v1.11.65 APK
 on:
   push:
     branches: [main, codex/campaign-polish]
@@ -57,7 +57,7 @@ jobs:
         continue-on-error: true
         if: always()
         with:
-          name: Battlefield-layout-v1.11.64
+          name: Battlefield-layout-v1.11.65
           path: |
             qa/battlefield-previews/*.png
             qa/campaign-previews/*
@@ -71,15 +71,15 @@ jobs:
           node qa/armored-car-audio-clock.cjs
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.64.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.65.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.64.apk > SHA256SUMS.txt
+          sha256sum Terha-Conquest-v1.11.65.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: Terha-Conquest-v1.11.64
+          name: Terha-Conquest-v1.11.65
           path: |
-            deliverables/Terha-Conquest-v1.11.64.apk
+            deliverables/Terha-Conquest-v1.11.65.apk
             deliverables/SHA256SUMS.txt
           retention-days: 14
       - name: Publish APK after main integration
@@ -87,7 +87,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v1.11.64 deliverables/Terha-Conquest-v1.11.64.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.64' --notes '흑색병단 공격력 41 및 상호·자기 지원 제외, 차량화보병 행동 석유 면제, 장갑차 1초 기관포 5연사, 메카닉 나이트 레이저, 백양 호위함·구축함 확대, 시엘룬 시작 특수유닛 2개, 일러스트 피격·폭발·화염 및 3초 유닛별 잔해. 기존 저장·Android 서명 유지. versionCode 209.'
+          gh release create v1.11.65 deliverables/Terha-Conquest-v1.11.65.apk deliverables/SHA256SUMS.txt qa/battlefield-previews/*.png qa/campaign-previews/*.png qa/campaign-previews/*.jpg --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.65' --notes '전차 대 기계 피격은 무화염 연기, 전차 대 보병은 작은 연기·혈흔, 포병 폭발 유지. 단일 도시 화염과 하단 투명 그라데이션. 검은 연기의 3초 잔해 및 유닛과 동일한 앞뒤 정렬. 잔해 사전 합성·48개 캐시·화면 밖 효과 생략·불필요한 전체 병력 검색 제거. 기존 v64 밸런스·저장·서명 유지. versionCode 210.'
       - name: Prepare APK file attachment
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
@@ -101,7 +101,7 @@ jobs:
           for offset in range(0,len(encoded),4000):
               print('PREVIEW_CHUNK:'+str(offset)+':'+encoded[offset:offset+4000])
           PYPREVIEWS
-          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.64 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.64.apk") | .url')
+          export APK_ASSET_API=$(gh api repos/$GITHUB_REPOSITORY/releases/tags/v1.11.65 --jq '.assets[] | select(.name=="Terha-Conquest-v1.11.65.apk") | .url')
           python3 - <<'PYTRANSFER'
           import os, urllib.request, urllib.error, base64
           class NoRedirect(urllib.request.HTTPRedirectHandler):

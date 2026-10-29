@@ -87,7 +87,7 @@ function drawGroundRemains(now){
  for(const e of fx){
   const t=(now-e.start)/e.duration;if(!isGroundRemains(e)||t<0||t>=1)continue;
   if(Math.abs(e.x-cam.x)>screenW/2/cam.z+160||Math.abs(e.y-cam.y)>screenH/2/cam.z+180)continue;
-  if(e.kind==='wreck'&&e.unitArt){drawIllustratedWreck(e,t,now);continue}
+  if(e.kind==='wreck'&&e.unitArt)continue; // Painted with the normal depth-sorted units.
   if(e.kind==='infantryRemains'){drawInfantryRemains(e,t);continue}
   if(e.kind==='saprosRemains'){drawSaprosEffect(e,t);continue}
   if(e.kind==='navalSink'){drawNavalEffect(e,t);continue}
