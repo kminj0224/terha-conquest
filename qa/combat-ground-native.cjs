@@ -24,10 +24,9 @@ new Function('require','__dirname',source.slice(0,at)+`
   if(kind==='dirt')box.drawDirtImpact(640,400,(j+.1)/count,90,425);else box.effectFrame(2,(j+.1)/count,640,400,90,425);
   const feet=vm.runInContext(kind==='dirt'?'DIRT_FRAME_FEET':'FIRE_FRAME_FEET',box);assert(Math.abs(call[6]+call[8]*feet[j]-425)<.001);
  }
- // The new artwork is a steady plume in every keyframe, not a growing sequence.
- const {loadImage,createCanvas}=require('@napi-rs/canvas'),im=await loadImage(path.join(root,'smoke-loop.webp')),areas=[],heights=[];
- for(let j=0;j<5;j++){const c=createCanvas(192,192),g=c.getContext('2d');g.drawImage(im,j*192,0,192,192,0,0,192,192);const p=g.getImageData(0,0,192,192).data;let area=0,top=192,bottom=0;for(let y=0;y<192;y++)for(let x=0;x<192;x++)if(p[(y*192+x)*4+3]>=32){area++;top=Math.min(top,y);bottom=Math.max(bottom,y)}areas.push(area);heights.push(bottom-top)}
- assert(Math.max(...areas)/Math.min(...areas)<1.25,'all phases keep plume size');assert(Math.max(...heights)-Math.min(...heights)<15);
- assert.deepEqual(errors,[]);console.log('PASS v1.11.69: 217 national/type foot lookups; 70 real victim/splash factories; destroyed target feet; burst+smoke simultaneous; unchanged blood/sparks; exact opaque feet in all 12 blast frames; steady-size smoke keyframes.');process.exit(0);
+ // Smoke now uses tall, narrow-root columns rather than round growing clouds.
+ const {loadImage,createCanvas}=require('@napi-rs/canvas'),im=await loadImage(path.join(root,'smoke-column.webp'));assert.equal(im.width,960);assert.equal(im.height,384);
+ for(let j=0;j<5;j++){const c=createCanvas(192,384),g=c.getContext('2d');g.drawImage(im,j*192,0,192,384,0,0,192,384);const p=g.getImageData(0,0,192,384).data;let base=0,upper=0;for(let y=0;y<384;y++)for(let x=0;x<192;x++)if(p[(y*192+x)*4+3]>=32){if(y>320)base++;if(y>100&&y<164)upper++}assert(base>100&&upper>base*.7,'column has a softened visible base and spreading upper smoke')}
+ assert.deepEqual(errors,[]);console.log('PASS v1.11.69: 217 national/type foot lookups; 70 real victim/splash factories; destroyed target feet; burst+smoke simultaneous; unchanged blood/sparks; exact opaque feet in all 12 blast frames; narrow-root smoke columns.');process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1)});
 `)(require,__dirname);

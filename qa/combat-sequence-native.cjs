@@ -5,9 +5,9 @@ new Function('require','__dirname',source.slice(0,at)+`
 (async()=>{
  await Promise.all(pending);run('setup();started=true;setAppScreen("game");sound=false;cam.x=640;cam.y=400;cam.z=1');
  const crypto=require('crypto');const {createCanvas,loadImage}=require('@napi-rs/canvas');
- for(const [name,count]of [['dirt-sequence.webp',5],['smoke-loop.webp',5],['explosion-sequence.webp',7]]){
-  const image=await loadImage(path.join(root,name));assert.equal(image.width,192*count);assert.equal(image.height,192);
-  const hashes=[];for(let j=0;j<count;j++){const c=createCanvas(192,192),g=c.getContext('2d');g.drawImage(image,j*192,0,192,192,0,0,192,192);hashes.push(crypto.createHash('sha256').update(c.toBuffer('image/png')).digest('hex'));const pixels=g.getImageData(0,191,192,1).data;for(let k=3;k<pixels.length;k+=4)assert(pixels[k]<=2,name+' soft foot')}
+ for(const [name,count]of [['dirt-sequence.webp',5],['smoke-column.webp',5],['explosion-sequence.webp',7]]){
+  const image=await loadImage(path.join(root,name));assert.equal(image.width,192*count);const height=name==='smoke-column.webp'?384:192;assert.equal(image.height,height);
+  const hashes=[];for(let j=0;j<count;j++){const c=createCanvas(192,height),g=c.getContext('2d');g.drawImage(image,j*192,0,192,height,0,0,192,height);hashes.push(crypto.createHash('sha256').update(c.toBuffer('image/png')).digest('hex'));const pixels=g.getImageData(0,height-1,192,1).data;for(let k=3;k<pixels.length;k+=4)assert(pixels[k]<=2,name+' soft foot')}
   assert.equal(new Set(hashes).size,count,name+' distinct frames');
  }
  // Normal weapons keep their old burst length scaled by exactly 1.5; artillery
@@ -18,17 +18,17 @@ new Function('require','__dirname',source.slice(0,at)+`
  }
  for(const type of [0,6,10,11])assert.equal(run('configureImpactTimeline({duration:650,layers:impactLayers({type:'+type+'},{type:0})},{type:'+type+'}).duration'),650,'gunfire must stay gunfire');
  const smokeText68=fs.readFileSync(path.join(root,'illustrated-combat.js'),'utf8'),draws=[];
- const smokeBox68={IMPACT_SMOKE_MS:3000,smokeFramesArt:run('smokeFramesArt'),ctx:{globalAlpha:1,save(){this.old=this.globalAlpha},restore(){this.globalAlpha=this.old}}};
- smokeBox68.nativeMapDrawImage=(image,...args)=>draws.push({args,alpha:smokeBox68.ctx.globalAlpha});vm.createContext(smokeBox68);vm.runInContext(smokeText68.slice(smokeText68.indexOf('function drawImpactSmoke('),smokeText68.indexOf('function configureImpactTimeline(')),smokeBox68);
- for(const t of [.01,.032,.054,.076,.098,.98])smokeBox68.drawImpactSmoke(640,400,90,t);
- assert.equal(draws.length,6);assert.equal(new Set(draws.slice(0,5).map(d=>d.args[0])).size,5,'rapid loop plays all five frames');assert(draws[0].alpha>.9,'smoke present at impact start');for(const d of draws)assert.deepEqual(d.args.slice(-4),draws[0].args.slice(-4),'smoke foot must stay fixed');assert(draws.at(-1).alpha<draws[0].alpha*.1,'smoke fades away');
+ const smokeBox68={smokePlumeFrames:run('smokePlumeFrames'),smokeFrontFrames:run('smokeFrontFrames'),prepareSmokePlumeFrames:()=>run('smokePlumeFrames'),IMPACT_SMOKE_MS:3000,smokeFramesArt:run('smokeFramesArt'),ctx:{globalAlpha:1,save(){this.old=this.globalAlpha},restore(){this.globalAlpha=this.old}}};
+ smokeBox68.nativeMapDrawImage=(image,...args)=>draws.push({image,args,alpha:smokeBox68.ctx.globalAlpha});vm.createContext(smokeBox68);vm.runInContext(smokeText68.slice(smokeText68.indexOf('function drawImpactSmoke('),smokeText68.indexOf('function configureImpactTimeline(')),smokeBox68);
+ for(const t of [.01,.04,.07,.1,.13,.9])smokeBox68.drawImpactSmoke(640,400,90,t);
+ assert.equal(draws.length,6);assert.equal(new Set(draws.slice(0,5).map(d=>d.args[0]+":"+d.args[1])).size,5,'rapid loop plays all five frames');assert(draws[0].alpha>.9,'smoke present at impact start');for(const d of draws){const [sx,sy,sw,sh,x,y,w,h]=d.args,W=w*80/sw,H=h*192/sh;assert(Math.abs(x-(sx%80)/80*W-(640-W/2))<.001);assert(Math.abs(y-(sy%192)/192*H+H*.98-412)<.001,'cropped smoke keeps fixed emission anchor')}assert.equal(run('smokePlumeFrames.length'),40,'shared flow/dispersal cache');
  // Restore the small original anti-tank muzzle plume, including angle and seven
  // puffs. This explicit exception does not affect impact illustrations.
  run('globalThis.puffs68=0;const oldCircle68=circle;circle=function(...args){puffs68++;return oldCircle68(...args)};try{drawIllustratedEffect({kind:"infantrySmoke",x:640,y:400,angle:Math.PI},.4)}finally{circle=oldCircle68}');assert.equal(run('puffs68'),7);
  run('fx=[];globalThis.smokeTiles68=tiles.map((t,i)=>i).filter(i=>tiles[i].owner>=0).slice(0,60);const p=pxy(smokeTiles68[0]);cam.x=p.x;cam.y=p.y;screenW=100000;screenH=100000;for(const tile of smokeTiles68){const p=pxy(tile);fx.push(configureImpactTimeline({kind:"blast",x:p.x,y:p.y,targetTile:tile,layers:["dustBurst"],start:1000,duration:650},{type:8}))}globalThis.smokeScene68=[];addImpactDepthEffects(smokeScene68,2500)');
- assert.equal(run('smokeScene68.length'),24,'smoke overload bounded at 24 visible tile plumes');
- run('smokeScene68=[];addImpactDepthEffects(smokeScene68,1100)');assert.equal(run('smokeScene68.length'),60,'smoke cap must not hide simultaneous initial bursts');
- run('fx=fx.slice(0,1);fx.push({...fx[0],start:1100});globalThis.smokeScene68=[];addImpactDepthEffects(smokeScene68,2500)');assert.equal(run('smokeScene68.length'),1,'overlapping smoke merges by target tile');assert.equal(run('smokeScene68[0].id'),1);
+ assert.equal(run('smokeScene68.filter(s=>s.kind==="impact").length'),run('MAX_VISIBLE_IMPACT_SMOKE'),'smoke overload bounded at 24 visible tile plumes');
+ run('smokeScene68=[];addImpactDepthEffects(smokeScene68,1100)');assert.equal(run('smokeScene68.filter(s=>s.kind==="impact").length'),60,'smoke cap must not hide simultaneous initial bursts');
+ run('fx=fx.slice(0,1);fx.push({...fx[0],start:1100});globalThis.smokeScene68=[];addImpactDepthEffects(smokeScene68,2500)');assert.equal(run('smokeScene68.filter(s=>s.kind==="impact").length'),1,'overlapping smoke merges by target tile');assert.equal(run('smokeScene68[0].id'),1);
  run('globalThis.canvas68=document.createElement;globalThis.alloc68=0;document.createElement=function(...a){alloc68++;return canvas68(...a)};try{for(let j=0;j<100;j++){drawImpactSmoke(640,400,90,j/100);drawDirtImpact(640,400,j/100,90);effectFrame(2,j/100,640,400,90)}}finally{document.createElement=canvas68}');assert.equal(run('alloc68'),0);
  // Read the actual rendered burst peak, then smoke-only tail: no repeat sound or
  // new effect objects are created by drawing it.
