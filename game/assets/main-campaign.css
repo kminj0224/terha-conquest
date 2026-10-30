@@ -2,7 +2,7 @@
 body:is([data-screen="mainIntro"],[data-screen="mainCampaign"]) #modal{padding:0;background:#000;overflow:hidden}
 body:is([data-screen="mainIntro"],[data-screen="mainCampaign"]) #frontBackground{display:none}
 .mcIntro{position:absolute;inset:0;background:#000;color:#fff;outline:0;isolation:isolate;--mc-font:clamp(15px,2vw,22px)}
-.mcImage{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:-1;pointer-events:none}
+.mcImage{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:-1;pointer-events:none}
 .mcIntro .mcTextArea{position:absolute;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom));min-height:27%;display:flex;align-items:center;padding:22px max(11%,env(safe-area-inset-left)) 22px max(11%,env(safe-area-inset-right));background:linear-gradient(90deg,transparent 0%,#0008 5%,#000 10%,#000 90%,#0008 95%,transparent 100%);pointer-events:none}
 .mcText{position:relative;width:100%;font:400 var(--mc-font)/1.75 TerhaTypewriter,monospace;letter-spacing:0;color:#fff;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal}
 .mcMeasure{visibility:hidden;display:block}

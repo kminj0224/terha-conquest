@@ -1,13 +1,13 @@
-name: Verify and publish main campaign prologue v1.11.80
+name: Verify and publish main campaign prologue v1.11.81
 on:
   push:
-    branches: [main, codex/main-intro-pacing]
-    paths: ['.github/workflows/publish-v11180-main-intro.yml', 'game/assets/main-campaign*', 'qa/main-campaign-intro-browser.cjs']
+    branches: [main, codex/main-intro-art]
+    paths: ['.github/workflows/publish-v11181-main-art.yml', 'game/assets/main-campaign*', 'qa/main-campaign-intro-browser.cjs']
   workflow_dispatch:
 permissions:
   contents: write
 concurrency:
-  group: main-intro-pacing-${{ github.ref }}
+  group: main-intro-art-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
   verify-release:
@@ -41,25 +41,25 @@ jobs:
         run: |
           python3 build.py
           java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
-          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.80.apk
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.81.apk
           cd deliverables
-          sha256sum Terha-Conquest-v1.11.80.apk > SHA256SUMS-v1.11.80.txt
+          sha256sum Terha-Conquest-v1.11.81.apk > SHA256SUMS-v1.11.81.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: main-prologue-review-${{ github.sha }}
           path: |
             qa/campaign-previews/main-*.png
-            deliverables/Terha-Conquest-v1.11.80.apk
+            deliverables/Terha-Conquest-v1.11.81.apk
           if-no-files-found: ignore
       - name: Publish APK release
         if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v1.11.80 >/dev/null 2>&1; then
-            test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/tags/v1.11.80 --jq .object.sha)" = "$GITHUB_SHA"
-            gh release upload v1.11.80 deliverables/Terha-Conquest-v1.11.80.apk deliverables/SHA256SUMS-v1.11.80.txt --clobber
+          if gh release view v1.11.81 >/dev/null 2>&1; then
+            test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/tags/v1.11.81 --jq .object.sha)" = "$GITHUB_SHA"
+            gh release upload v1.11.81 deliverables/Terha-Conquest-v1.11.81.apk deliverables/SHA256SUMS-v1.11.81.txt --clobber
           else
-            gh release create v1.11.80 deliverables/Terha-Conquest-v1.11.80.apk deliverables/SHA256SUMS-v1.11.80.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.80 — 서막 자동 전환·타이핑 후 버튼' --notes-file docs/releases/v1.11.80.md
+            gh release create v1.11.81 deliverables/Terha-Conquest-v1.11.81.apk deliverables/SHA256SUMS-v1.11.81.txt --target "$GITHUB_SHA" --title 'Terha Conquest v1.11.81 — 서막 삽화·구간별 음악·가로 전체화면' --notes-file docs/releases/v1.11.81.md
           fi

@@ -9,7 +9,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.goto('http://127.0.0.1:8779/game/assets/index.html');await page.locator('#appStart:not([disabled])').waitFor();await page.click('#appStart');await page.click('#battle');
   const saves=await page.evaluate(()=>JSON.stringify(localStorage));
   await page.click('#campaignMode');await page.click('#mainCampaign');await page.evaluate(()=>document.fonts.load('20px TerhaTypewriter'));assert(await page.evaluate(()=>document.fonts.check('20px TerhaTypewriter')));
-  await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+1000));await page.evaluate(()=>MainCampaign.open());
+  assert(await page.evaluate(()=>menuMusic.paused));await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+1000));await page.evaluate(()=>MainCampaign.open());
   const index=()=>page.evaluate(()=>MainCampaign.getPage()),opacity=()=>page.locator('#mcVisible').evaluate(e=>+getComputedStyle(e).opacity);
   const ignoreManual=async n=>{await page.locator('#mainIntro').click({position:{x:40,y:80}});for(const key of ['ArrowRight','ArrowLeft','Enter',' '])await page.keyboard.press(key);await page.evaluate(()=>window.terhaBack());assert.equal(await index(),n)};
   assert.equal(await opacity(),0);assert.equal(await page.locator('#mainIntro button').count(),1);await ignoreManual(0);
@@ -18,19 +18,19 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.clock.fastForward(2900);assert.equal(await opacity(),1);assert.equal(await index(),0);await page.clock.fastForward(500);assert((await opacity())>0&&(await opacity())<1);assert.equal(await index(),0);await page.clock.fastForward(450);assert.equal(await index(),1);
   assert.equal(await page.locator('#mcNext').isVisible(),false);assert(await page.locator('#mcNext').isDisabled());await ignoreManual(1);await page.evaluate(()=>document.getElementById('mcNext').onclick());assert.equal(await index(),1);
   const before=await page.locator('#mcVisible').textContent();await page.clock.fastForward(350);const partial=await page.locator('#mcVisible').textContent();assert(partial.length>before.length);assert.equal(await page.locator('#mcNext').isVisible(),false);
-  await page.clock.fastForward(4000);assert.equal(await page.locator('#mcVisible').textContent(),await page.locator('.mcMeasure').textContent());assert(await page.locator('#mcNext').isVisible());assert(await page.locator('#mcNext').isEnabled());
+  await page.clock.fastForward(12000);assert.equal(await page.locator('#mcVisible').textContent(),await page.locator('.mcMeasure').textContent());assert(await page.locator('#mcNext').isVisible());assert(await page.locator('#mcNext').isEnabled());
   const b=await page.locator('#mcNext').boundingBox();assert(b.x>800&&b.y>450);assert.equal(await page.locator('#mcPrev,#mcPage').count(),0);await page.screenshot({path:'qa/campaign-previews/main-intro-banner.png'});
   await page.locator('#mainIntro').click({position:{x:40,y:80}});assert.equal(await index(),1);await page.click('#mcNext');assert.equal(await index(),2);assert.equal(await page.locator('#mcNext').isVisible(),false);
   await page.click('#mcSkip');assert(await page.locator('#mainCampaignSelection').isVisible());await page.clock.fastForward(10000);assert(await page.locator('#mainCampaignSelection').isVisible());
   await page.click('#mcWar');assert(await page.locator('#mcCampaignDetails').isVisible());assert(await page.locator('#mcCampaignDetails button').isDisabled());
-  const lines=await page.evaluate(()=>MAIN_CAMPAIGN_INTRO);assert.equal(lines.length,45);assert.equal(lines.filter(l=>l.layout==='center').length,6);assert(lines.filter(l=>l.image).every(l=>l.image==='main-campaign-intro.jpg'));
-  for(const [width,height]of [[960,540],[640,360],[390,844],[844,390]]){
+  const lines=await page.evaluate(()=>MAIN_CAMPAIGN_INTRO);assert.equal(lines.length,45);assert.equal(lines.filter(l=>l.layout==='center').length,6);assert.equal(lines.filter(l=>l.image).length,41);
+  for(const [width,height]of [[960,540],[640,360],[390,844],[844,390],[2400,1080]]){
    await page.setViewportSize({width,height});await page.click('#mcReplay');let font;
    for(let n=0;n<lines.length;n++){
     assert.equal(await index(),n);const line=lines[n];
     const m=await page.locator('.mcText').evaluate(e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height,size:getComputedStyle(e).fontSize}});
     assert(m.x>=0&&m.y>=0&&m.x+m.w<=width+1&&m.y+m.h<height-48,`Text fits ${width}x${height} page ${n+1}`);
-    if(line.image){await page.locator('.mcImage').evaluate(e=>e.decode());assert.equal(await page.locator('.mcImage').getAttribute('src'),'main-campaign-intro.jpg')}else assert.equal(await page.locator('.mcImage').count(),0);
+    if(line.image){await page.locator('.mcImage').evaluate(e=>e.decode());assert.equal(await page.locator('.mcImage').getAttribute('src'),line.image);assert.equal(await page.locator('.mcImage').evaluate(e=>getComputedStyle(e).objectFit),'cover')}else assert.equal(await page.locator('.mcImage').count(),0);
     assert.equal(await page.locator('#mcPrev,#mcPage').count(),0);
     if(line.layout==='center'){
      assert.equal(await page.locator('#mainIntro button').count(),1);await ignoreManual(n);
@@ -40,7 +40,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
      if(n<lines.length-1)assert.equal(await index(),n+1);
     }else{
      if(!font)font=m.size;assert.equal(m.size,font);assert((await page.locator('.mcTextArea').evaluate(e=>getComputedStyle(e).backgroundImage)).includes('90%'));
-     assert.equal(await page.locator('#mcNext').isVisible(),false);await ignoreManual(n);await page.clock.fastForward(Array.from(line.text).length*14+32);assert(await page.locator('#mcNext').isVisible());
+     assert.equal(await page.locator('#mcNext').isVisible(),false);await ignoreManual(n);await page.clock.fastForward(Array.from(line.text).length*42+32);assert(await page.locator('#mcNext').isVisible());
      const r=await page.locator('#mcNext').boundingBox();assert(r.x>width/2&&r.y>height/2&&r.x+r.width<=width+1&&r.y+r.height<=height+1);await page.click('#mcNext');
     }
    }

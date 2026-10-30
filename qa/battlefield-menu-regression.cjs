@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 module.exports=async function({run,click,nodes}){
- const musicPosition=run('menuMusic.currentTime');
+ let musicPosition=run('menuMusic.currentTime');
  assert.equal(run('appScreen'),'battlefield');
  const checkModeScreen=()=>{
   const modal=nodes.get('modal');
@@ -22,7 +22,7 @@ module.exports=async function({run,click,nodes}){
  await click('campaignMode');assert.equal(run('appScreen'),'battlefield');
  assert(nodes.has('campaignPicker'));assert.equal(nodes.get('modal').inert,true);
  assert.equal(nodes.get('mainCampaign').textContent,run('appSettings.language')==='en'?'MAIN CAMPAIGN':'메인캠페인');
- await click('mainCampaign');assert.equal(run('appScreen'),'mainIntro');assert.equal(run('MainCampaign.getPage()'),0);
+ await click('mainCampaign');assert.equal(run('appScreen'),'mainIntro');assert.equal(run('MainCampaign.getPage()'),0);assert.equal(run('menuMusic.paused'),true);musicPosition=0;
  await click('mcSkip');assert(nodes.has('mainCampaignSelection'));await click('mcBack');
  await click('campaignMode');
  assert(!nodes.has('cpCampaignIron'));
@@ -38,5 +38,5 @@ module.exports=async function({run,click,nodes}){
  await click('battle');await click('battlefieldBack');assert.equal(run('appScreen'),'hub');
  run("appSettings.language='ko'");await click('battle');checkModeScreen();
  run("appSettings.language='en';showBattlefield()");checkModeScreen();
- console.log('PASS campaign branch picker, main prologue and selection, subcampaign library, battlefield: both PLAY labels, no subtitles/arrows, campaign placeholder, conquest/country, hardware and visible Back, Korean/English, uninterrupted music');
+ console.log('PASS campaign branch picker, main prologue and selection, subcampaign library, battlefield: both PLAY labels, no subtitles/arrows, campaign placeholder, conquest/country, hardware and visible Back, Korean/English, menu music stops in main campaign and resumes on exit');
 };

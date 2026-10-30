@@ -1,5 +1,5 @@
 'use strict';
-const APP_VERSION='1.11.80',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
+const APP_VERSION='1.11.81',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
 function readAppJSON(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
 const savedAppSettings=readAppJSON(APP_SETTINGS_KEY,{});
 const appSettings={music:Number.isFinite(savedAppSettings.music)?Math.min(1,Math.max(0,savedAppSettings.music)):.65,effects:Number.isFinite(savedAppSettings.effects)?Math.min(1,Math.max(0,savedAppSettings.effects)):1,language:savedAppSettings.language==='en'?'en':'ko'};
@@ -8,11 +8,12 @@ const menuMusic=new Audio('menu-music.mp3');menuMusic.loop=true;menuMusic.preloa
 const frontBackground=$('frontBackground')||document.createElement('div');if(!frontBackground.id){frontBackground.id='frontBackground';document.body.appendChild(frontBackground)}
 const appSettingsIcon='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m9 3 .7-2h4.6l.7 2 2 .9 2.1-.3 2.3 4-1.3 1.7.2 2.2 1.3 1.7-2.3 4-2.1-.3-2 .9-.7 2H9.7L9 18.8l-2-.9-2.1.3-2.3-4 1.3-1.7-.2-2.2-1.3-1.7 2.3-4 2.1.3Z" transform="translate(0 1)"/><circle cx="12" cy="12" r="3.4"/></svg>';
 let menuMusicSession=false;
-function appUsesMenuMusic(){return ['title','hub','battlefield','campaign','country','mainIntro','mainCampaign','records','help','settings'].includes(appScreen)||(appScreen==='slots'&&appReturn==='country')}
+function appUsesMenuMusic(){return ['title','hub','battlefield','campaign','country','records','help','settings'].includes(appScreen)||(appScreen==='slots'&&appReturn==='country')}
 function tr(ko,en){return appSettings.language==='en'?en:ko}
 function appPersistSettings(){document.documentElement.lang=appSettings.language;try{localStorage.setItem(APP_SETTINGS_KEY,JSON.stringify(appSettings))}catch{}applyAppAudio()}
 function appFront(){if(['settings','help'].includes(appScreen)&&['game','menu'].includes(appReturn))return false;return !['game','menu','result'].includes(appScreen)&&!(appScreen==='slots'&&appReturn==='menu')}
 function applyAppAudio(){
+ window.TerhaMainCampaign?.syncAudio();
  menuMusic.volume=appSettings.music;
  const wanted=appUsesMenuMusic();
  if(wanted!==menuMusicSession){menuMusicSession=wanted;menuMusic.pause();try{menuMusic.currentTime=0}catch{}}

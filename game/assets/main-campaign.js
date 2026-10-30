@@ -1,9 +1,27 @@
 'use strict';
 const MainCampaign = (() => {
  let page = 0, frame = 0, root = null, view = 'closed', ready = false, resetClock = null;
+ // One streaming player preserves playback position across pages in each music range.
+ const music = new Audio();
+ music.loop = true; music.preload = 'auto';
+ let musicSource = '';
+ function syncAudio() {
+  const number = page+1;
+  const source = view !== 'intro' ? '' : number >= 2 && number <= 33 ? 'main-campaign-ruins.mp3' : number >= 37 ? 'main-campaign-tomb.mp3' : '';
+  if (source !== musicSource) {
+   music.pause();
+   try { music.currentTime = 0; } catch {}
+   musicSource = source;
+   if (source) music.src = source;
+  }
+  music.volume = appSettings.music;
+  if (source && !document.hidden && appSettings.music > 0) {
+   if (music.paused) music.play()?.catch(()=>{});
+  } else if (!music.paused) music.pause();
+ }
  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function stop() { if (frame) cancelAnimationFrame(frame); frame = 0; resetClock = null; ready = false; }
- function leave() { stop(); root = null; view = 'closed'; }
+ function leave() { stop(); root = null; view = 'closed'; syncAudio(); }
  function open() {
   if (busy) return;
   if (closeCampaignPicker) closeCampaignPicker();
@@ -14,6 +32,7 @@ const MainCampaign = (() => {
  }
  function render() {
   stop();
+  syncAudio();
   const line = MAIN_CAMPAIGN_INTRO[page];
   $('modal').innerHTML = '<section id="mainIntro" class="mcIntro mc-'+line.layout+'" tabindex="-1" aria-label="메인 캠페인 서막">'+
    (line.image?'<img class="mcImage" src="'+line.image+'" alt="">':'')+
@@ -43,7 +62,7 @@ const MainCampaign = (() => {
    // Reserve the full paragraph's layout so typing never shifts the banner.
    const characters = Array.from(line.text);
    update = time => {
-    const count = Math.min(characters.length, Math.floor(time/14));
+    const count = Math.min(characters.length, Math.floor(time/42));
     visible.textContent = characters.slice(0, count).join('');
     if (count < characters.length) return true;
     ready = true;
@@ -88,6 +107,6 @@ const MainCampaign = (() => {
   if (['ArrowLeft','ArrowRight','Enter',' '].includes(e.key) && e.target !== $('mcSkip')) { e.preventDefault(); if (e.key !== 'ArrowLeft') next(); }
  });
  document.addEventListener('visibilitychange', () => { resetClock?.(); });
- return Object.freeze({open, close, getView:()=>view, getPage:()=>page});
+ return Object.freeze({open, close, getView:()=>view, getPage:()=>page, syncAudio});
 })();
 window.TerhaMainCampaign = MainCampaign;
