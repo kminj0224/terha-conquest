@@ -17,7 +17,9 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    const box=await page.locator('.campaignPickerBox').boundingBox();
    assert(box.width<=380&&box.x>=0&&box.y>=0&&box.x+box.width<=width&&box.y+box.height<=height);
    assert(Math.abs(box.x+box.width/2-width/2)<1&&Math.abs(box.y+box.height/2-height/2)<1);
-   await page.click('#mainCampaign');assert(await page.locator('#mainCampaignNotice').isVisible());
+   await page.click('#mainCampaign');assert(await page.locator('#mainIntro').isVisible());
+   await page.click('#mcSkip');assert(await page.locator('#mainCampaignSelection').isVisible());
+   await page.click('#mcBack');await page.click('#campaignMode');
    await page.click('#subCampaign');assert(await page.locator('#cpCampaignIron').isVisible());
    await page.click('#cpCampaignIron');assert.equal(await page.locator('.cpMissionTile').count(),8);
    await page.evaluate(()=>{TerhaCampaign.close()});
@@ -40,6 +42,6 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.id),'campaignPickerClose');
   await page.keyboard.press('Escape');await page.click('#conquestMode');assert(await page.locator('#factions').isVisible());
   assert.equal(await page.evaluate(()=>JSON.stringify(localStorage)),saves);assert.deepEqual(errors,[]);
-  console.log('PASS campaign picker: centered at three viewport sizes, both branches, main notice, subcampaign missions, all close controls, focus loop, English labels, conquest and unchanged saves');
+  console.log('PASS campaign picker: centered at three viewport sizes, both branches, main prologue and selection, subcampaign missions, all close controls, focus loop, English labels, conquest and unchanged saves');
  }finally{await browser?.close();server.kill()}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,5 +1,5 @@
 'use strict';
-const APP_VERSION='1.11.78',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
+const APP_VERSION='1.11.79',APP_SETTINGS_KEY='terha-settings',APP_RECORDS_KEY='terha-conquests';
 function readAppJSON(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
 const savedAppSettings=readAppJSON(APP_SETTINGS_KEY,{});
 const appSettings={music:Number.isFinite(savedAppSettings.music)?Math.min(1,Math.max(0,savedAppSettings.music)):.65,effects:Number.isFinite(savedAppSettings.effects)?Math.min(1,Math.max(0,savedAppSettings.effects)):1,language:savedAppSettings.language==='en'?'en':'ko'};
@@ -8,7 +8,7 @@ const menuMusic=new Audio('menu-music.mp3');menuMusic.loop=true;menuMusic.preloa
 const frontBackground=$('frontBackground')||document.createElement('div');if(!frontBackground.id){frontBackground.id='frontBackground';document.body.appendChild(frontBackground)}
 const appSettingsIcon='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m9 3 .7-2h4.6l.7 2 2 .9 2.1-.3 2.3 4-1.3 1.7.2 2.2 1.3 1.7-2.3 4-2.1-.3-2 .9-.7 2H9.7L9 18.8l-2-.9-2.1.3-2.3-4 1.3-1.7-.2-2.2-1.3-1.7 2.3-4 2.1.3Z" transform="translate(0 1)"/><circle cx="12" cy="12" r="3.4"/></svg>';
 let menuMusicSession=false;
-function appUsesMenuMusic(){return ['title','hub','battlefield','campaign','country','records','help','settings'].includes(appScreen)||(appScreen==='slots'&&appReturn==='country')}
+function appUsesMenuMusic(){return ['title','hub','battlefield','campaign','country','mainIntro','mainCampaign','records','help','settings'].includes(appScreen)||(appScreen==='slots'&&appReturn==='country')}
 function tr(ko,en){return appSettings.language==='en'?en:ko}
 function appPersistSettings(){document.documentElement.lang=appSettings.language;try{localStorage.setItem(APP_SETTINGS_KEY,JSON.stringify(appSettings))}catch{}applyAppAudio()}
 function appFront(){if(['settings','help'].includes(appScreen)&&['game','menu'].includes(appReturn))return false;return !['game','menu','result'].includes(appScreen)&&!(appScreen==='slots'&&appReturn==='menu')}
@@ -37,12 +37,12 @@ function showCampaignPicker(){
  if(busy||closeCampaignPicker)return;
  const overlay=document.createElement('div'),background=$('modal');
  overlay.id='campaignPicker';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','campaignPickerTitle');
- overlay.innerHTML='<section class="campaignPickerBox"><header><h2 id="campaignPickerTitle">'+tr('캠페인','CAMPAIGN')+'</h2><button id="campaignPickerClose" aria-label="'+tr('닫기','Close')+'">×</button></header><div class="campaignPickerActions"><button id="mainCampaign">'+tr('메인캠페인','MAIN CAMPAIGN')+'</button><button id="subCampaign">'+tr('서브캠페인','SUB CAMPAIGN')+'</button></div><p id="mainCampaignNotice" hidden>'+tr('메인캠페인은 준비 중입니다.','The main campaign is in preparation.')+'</p></section>';
+ overlay.innerHTML='<section class="campaignPickerBox"><header><h2 id="campaignPickerTitle">'+tr('캠페인','CAMPAIGN')+'</h2><button id="campaignPickerClose" aria-label="'+tr('닫기','Close')+'">×</button></header><div class="campaignPickerActions"><button id="mainCampaign">'+tr('메인캠페인','MAIN CAMPAIGN')+'</button><button id="subCampaign">'+tr('서브캠페인','SUB CAMPAIGN')+'</button></div></section>';
  background.inert=true;document.body.appendChild(overlay);
  const onKey=e=>{if(e.key==='Escape'){e.preventDefault();closeCampaignPicker()}else if(e.key==='Tab'){const buttons=[...overlay.querySelectorAll('button')],first=buttons[0],last=buttons[buttons.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}};
  closeCampaignPicker=()=>{document.removeEventListener('keydown',onKey);overlay.remove();background.inert=false;closeCampaignPicker=null;$('campaignMode')?.focus?.()};
  $('campaignPickerClose').onclick=()=>closeCampaignPicker();overlay.onclick=e=>{if(e.target===overlay)closeCampaignPicker()};
- $('mainCampaign').onclick=()=>{$('mainCampaignNotice').hidden=false};
+ $('mainCampaign').onclick=()=>MainCampaign.open();
  $('subCampaign').onclick=()=>{closeCampaignPicker();showCampaign()};
  document.addEventListener('keydown',onKey);$('mainCampaign').focus?.();
 }
