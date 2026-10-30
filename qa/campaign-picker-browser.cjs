@@ -7,7 +7,14 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   browser=await chromium.launch({headless:true});const page=await browser.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8767/game/assets/index.html');
-  await page.locator('#appStart:not([disabled])').waitFor();await page.click('#appStart');await page.click('#battle');
+  await page.locator('#appStart:not([disabled])').waitFor();
+  assert.equal(await page.title(),'테르하 : 낙원의 기억');
+  assert.equal(await page.locator('#modal h1').textContent(),'테르하 : 낙원의 기억');
+  await page.click('#appStart');
+  assert.equal(await page.locator('#modal h1').textContent(),'테르하 : 낙원의 기억');
+  await page.evaluate(()=>{appSettings.language='en';showHub()});
+  assert.equal(await page.locator('#modal h1').textContent(),'TERHA: MEMORIES OF PARADISE');
+  await page.evaluate(()=>{appSettings.language='ko';showHub()});await page.click('#battle');
   const saves=await page.evaluate(()=>JSON.stringify(localStorage));
   for(const [width,height]of [[960,540],[640,360],[390,844]]){
    await page.setViewportSize({width,height});await page.click('#campaignMode');
