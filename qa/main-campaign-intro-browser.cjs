@@ -6,63 +6,53 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
  try{
   browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:960,height:540}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:8779/game/assets/index.html');
-  await page.locator('#appStart:not([disabled])').waitFor();await page.click('#appStart');await page.click('#battle');
+  await page.goto('http://127.0.0.1:8779/game/assets/index.html');await page.locator('#appStart:not([disabled])').waitFor();await page.click('#appStart');await page.click('#battle');
   const saves=await page.evaluate(()=>JSON.stringify(localStorage));
-  await page.click('#campaignMode');await page.click('#mainCampaign');
-  assert.equal(await page.evaluate(()=>MainCampaign.getPage()),0);
-  await page.evaluate(()=>document.fonts.load('20px TerhaTypewriter'));
-  assert(await page.evaluate(()=>document.fonts.check('20px TerhaTypewriter')));
-  // Measure the actual CSS delay and fade before mocking RAF for typing.
-  await page.evaluate(()=>MainCampaign.open());
-  assert.equal(await page.locator('#mcVisible').evaluate(e=>+getComputedStyle(e).opacity),0);
-  await page.waitForTimeout(1600);
-  assert.equal(await page.locator('#mcVisible').evaluate(e=>+getComputedStyle(e).opacity),0);
-  await page.waitForTimeout(550);
-  const partial=await page.locator('#mcVisible').evaluate(e=>+getComputedStyle(e).opacity);assert(partial>0&&partial<1);
-  await page.waitForTimeout(950);assert.equal(await page.locator('#mcVisible').evaluate(e=>+getComputedStyle(e).opacity),1);
+  await page.click('#campaignMode');await page.click('#mainCampaign');await page.evaluate(()=>document.fonts.load('20px TerhaTypewriter'));assert(await page.evaluate(()=>document.fonts.check('20px TerhaTypewriter')));
+  await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+1000));await page.evaluate(()=>MainCampaign.open());
+  const index=()=>page.evaluate(()=>MainCampaign.getPage()),opacity=()=>page.locator('#mcVisible').evaluate(e=>+getComputedStyle(e).opacity);
+  const ignoreManual=async n=>{await page.locator('#mainIntro').click({position:{x:40,y:80}});for(const key of ['ArrowRight','ArrowLeft','Enter',' '])await page.keyboard.press(key);await page.evaluate(()=>window.terhaBack());assert.equal(await index(),n)};
+  assert.equal(await opacity(),0);assert.equal(await page.locator('#mainIntro button').count(),1);await ignoreManual(0);
+  await page.clock.runFor(1000);assert.equal(await opacity(),0);await page.clock.runFor(450);assert((await opacity())>0&&(await opacity())<1);await page.clock.runFor(450);assert.equal(await opacity(),1);
   fs.mkdirSync('qa/campaign-previews',{recursive:true});await page.screenshot({path:'qa/campaign-previews/main-intro-center.png'});
-  await page.clock.install();
-  await page.click('#mcNext');assert.equal(await page.evaluate(()=>MainCampaign.getPage()),1);
-  const early=await page.locator('#mcVisible').textContent();await page.clock.runFor(350);const typed=await page.locator('#mcVisible').textContent();
-  assert(typed.length>early.length&&typed.length<await page.locator('.mcMeasure').textContent().then(t=>t.length));
-  await page.clock.runFor(4000);assert.equal(await page.locator('#mcVisible').textContent(),await page.locator('.mcMeasure').textContent());
-  await page.screenshot({path:'qa/campaign-previews/main-intro-banner.png'});
-  await page.click('#mcPrev');assert.equal(await page.evaluate(()=>MainCampaign.getPage()),0);assert.equal(await page.locator('#mcVisible').evaluate(e=>+getComputedStyle(e).opacity),0);
-  await page.click('#mainIntro',{position:{x:40,y:80}});assert.equal(await page.evaluate(()=>MainCampaign.getPage()),1);
-  await page.click('#mcNext');assert.equal(await page.evaluate(()=>MainCampaign.getPage()),2,'Next button advances exactly once');
-  await page.evaluate(()=>window.terhaBack());assert.equal(await page.evaluate(()=>MainCampaign.getPage()),1);
-  await page.click('#mcSkip');assert(await page.locator('#mainCampaignSelection').isVisible());assert.equal(await page.locator('#mainIntro').count(),0);
-  await page.clock.runFor(5000);assert(await page.locator('#mainCampaignSelection').isVisible(),'No stale animation after Skip');
+  await page.clock.runFor(2900);assert.equal(await opacity(),1);assert.equal(await index(),0);await page.clock.runFor(500);assert((await opacity())>0&&(await opacity())<1);assert.equal(await index(),0);await page.clock.runFor(450);assert.equal(await index(),1);
+  assert.equal(await page.locator('#mcNext').isVisible(),false);assert(await page.locator('#mcNext').isDisabled());await ignoreManual(1);await page.evaluate(()=>document.getElementById('mcNext').onclick());assert.equal(await index(),1);
+  const before=await page.locator('#mcVisible').textContent();await page.clock.runFor(350);const partial=await page.locator('#mcVisible').textContent();assert(partial.length>before.length);assert.equal(await page.locator('#mcNext').isVisible(),false);
+  await page.clock.runFor(4000);assert.equal(await page.locator('#mcVisible').textContent(),await page.locator('.mcMeasure').textContent());assert(await page.locator('#mcNext').isVisible());assert(await page.locator('#mcNext').isEnabled());
+  const b=await page.locator('#mcNext').boundingBox();assert(b.x>800&&b.y>450);assert.equal(await page.locator('#mcPrev,#mcPage').count(),0);await page.screenshot({path:'qa/campaign-previews/main-intro-banner.png'});
+  await page.locator('#mainIntro').click({position:{x:40,y:80}});assert.equal(await index(),1);await page.click('#mcNext');assert.equal(await index(),2);assert.equal(await page.locator('#mcNext').isVisible(),false);
+  await page.click('#mcSkip');assert(await page.locator('#mainCampaignSelection').isVisible());await page.clock.runFor(10000);assert(await page.locator('#mainCampaignSelection').isVisible());
   await page.click('#mcWar');assert(await page.locator('#mcCampaignDetails').isVisible());assert(await page.locator('#mcCampaignDetails button').isDisabled());
-  await page.screenshot({path:'qa/campaign-previews/main-campaign-selection.png'});
-  const lines=await page.evaluate(()=>MAIN_CAMPAIGN_INTRO);assert.equal(lines.length,45);assert.equal(lines.filter(l=>l.layout==='center').length,6);
-  assert.equal(lines[36].layout,'center');assert.equal(lines[36].image,'main-campaign-intro.jpg');
-  assert(lines.filter(l=>l.image).every(l=>l.image==='main-campaign-intro.jpg'));
+  const lines=await page.evaluate(()=>MAIN_CAMPAIGN_INTRO);assert.equal(lines.length,45);assert.equal(lines.filter(l=>l.layout==='center').length,6);assert(lines.filter(l=>l.image).every(l=>l.image==='main-campaign-intro.jpg'));
   for(const [width,height]of [[960,540],[640,360],[390,844],[844,390]]){
    await page.setViewportSize({width,height});await page.click('#mcReplay');let font;
    for(let n=0;n<lines.length;n++){
-    assert.equal(await page.evaluate(()=>MainCampaign.getPage()),n);
-    const metrics=await page.locator('.mcText').evaluate(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,size:getComputedStyle(e).fontSize}});
-    assert(metrics.x>=0&&metrics.y>=0&&metrics.x+metrics.w<=width+1&&metrics.y+metrics.h<height-48,`Text fits ${width}x${height} page ${n+1}: ${JSON.stringify(metrics)}`);
-    if(lines[n].layout==='banner'){
-     if(!font)font=metrics.size;assert.equal(metrics.size,font,'All banner pages have the same type size');
-     assert((await page.locator('.mcTextArea').evaluate(e=>getComputedStyle(e).backgroundImage)).includes('90%'));
+    assert.equal(await index(),n);const line=lines[n];
+    const m=await page.locator('.mcText').evaluate(e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height,size:getComputedStyle(e).fontSize}});
+    assert(m.x>=0&&m.y>=0&&m.x+m.w<=width+1&&m.y+m.h<height-48,`Text fits ${width}x${height} page ${n+1}`);
+    if(line.image){await page.locator('.mcImage').evaluate(e=>e.decode());assert.equal(await page.locator('.mcImage').getAttribute('src'),'main-campaign-intro.jpg')}else assert.equal(await page.locator('.mcImage').count(),0);
+    assert.equal(await page.locator('#mcPrev,#mcPage').count(),0);
+    if(line.layout==='center'){
+     assert.equal(await page.locator('#mainIntro button').count(),1);await ignoreManual(n);
+     await page.clock.runFor(line.image?1800:800);assert.equal(await opacity(),0);
+     await page.clock.runFor(1200);assert.equal(await opacity(),1);await page.clock.runFor(2700);assert.equal(await opacity(),1);assert.equal(await index(),n);
+     for(let step=0;step<15&&await index()===n;step++)await page.clock.runFor(100);
+     if(n<lines.length-1)assert.equal(await index(),n+1);
+    }else{
+     if(!font)font=m.size;assert.equal(m.size,font);assert((await page.locator('.mcTextArea').evaluate(e=>getComputedStyle(e).backgroundImage)).includes('90%'));
+     assert.equal(await page.locator('#mcNext').isVisible(),false);await ignoreManual(n);await page.clock.runFor(Array.from(line.text).length*14+32);assert(await page.locator('#mcNext').isVisible());
+     const r=await page.locator('#mcNext').boundingBox();assert(r.x>width/2&&r.y>height/2&&r.x+r.width<=width+1&&r.y+r.height<=height+1);await page.click('#mcNext');
     }
-    const img=page.locator('.mcImage');
-    if(lines[n].image){await img.evaluate(e=>e.decode());assert.equal(await img.getAttribute('src'),'main-campaign-intro.jpg');assert.equal(await img.evaluate(e=>getComputedStyle(e).objectFit),'contain')}
-    else {assert.equal(await img.count(),0);assert.equal(await page.locator('#mainIntro').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(0, 0, 0)')}
-    for(const id of ['mcSkip','mcPrev','mcNext']){const r=await page.locator('#'+id).boundingBox();assert(r.x>=0&&r.y>=0&&r.x+r.width<=width+1&&r.y+r.height<=height+1)}
-    await page.click('#mcNext');
    }
-   assert(await page.locator('#mainCampaignSelection').isVisible(),'Reading all pages leads to selection');
+   assert(await page.locator('#mainCampaignSelection').isVisible(),'Last center page automatically opens selection');
   }
-  await page.click('#mcReplay');await page.click('#mcNext');await page.click('#mcNext');await page.click('#mcPrev');assert.equal(await page.evaluate(()=>MainCampaign.getPage()),1);
-  await page.evaluate(()=>{window.terhaBackground();window.terhaForeground()});assert.equal(await page.evaluate(()=>MainCampaign.getPage()),1);
-  await page.click('#mcSkip');await page.click('#mcBack');await page.click('#campaignMode');await page.click('#subCampaign');assert(await page.locator('#cpCampaignIron').isVisible());
-  await page.evaluate(()=>TerhaCampaign.close());await page.click('#campaignMode');await page.click('#mainCampaign');assert.equal(await page.evaluate(()=>MainCampaign.getPage()),0,'New entry starts at page one');
-  await page.evaluate(()=>window.terhaBack());assert.equal(await page.evaluate(()=>appScreen),'battlefield');
+  // Pausing the app must not consume an unseen center page or its display time.
+  await page.click('#mcReplay');await page.clock.runFor(500);
+  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))});await page.clock.runFor(10000);assert.equal(await index(),0);assert.equal(await opacity(),0);
+  await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'))});await page.clock.runFor(400);assert.equal(await opacity(),0);await page.clock.runFor(5500);assert.equal(await index(),1);
+  await page.click('#mcSkip');await page.click('#mcBack');await page.click('#campaignMode');await page.click('#subCampaign');assert(await page.locator('#cpCampaignIron').isVisible());await page.evaluate(()=>TerhaCampaign.close());
+  await page.click('#campaignMode');await page.click('#mainCampaign');await page.click('#mcSkip');await page.clock.runFor(10000);assert(await page.locator('#mainCampaignSelection').isVisible());await page.click('#mcBack');
   assert.equal(await page.evaluate(()=>JSON.stringify(localStorage)),saves);assert.deepEqual(errors,[]);
-  console.log('PASS main campaign: 45 pages, supplied image, 2-second delayed center fade, 14ms typing, fixed font, 80/10/10 banner, all page bounds at four viewports, touch/arrows/Back/Skip/replay/end flow, selection, background continuity and unchanged saves/subcampaign');
+  console.log('PASS main campaign pacing: 45 pages/four viewports, black 1s and illustrated center 2s delay, fade in/3s hold/fade out/automatic next, no manual center progression, typing-gated lower-right next, Skip cleanup, visibility pause, unchanged saves/subcampaign');
  }finally{await browser?.close();server.kill()}
 })().catch(e=>{console.error(e);process.exitCode=1});

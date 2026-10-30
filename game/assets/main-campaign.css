@@ -1,7 +1,7 @@
 @font-face{font-family:TerhaTypewriter;src:url('main-intro-typewriter.woff') format('woff');font-display:swap}
 body:is([data-screen="mainIntro"],[data-screen="mainCampaign"]) #modal{padding:0;background:#000;overflow:hidden}
 body:is([data-screen="mainIntro"],[data-screen="mainCampaign"]) #frontBackground{display:none}
-.mcIntro{position:absolute;inset:0;background:#000;color:#fff;outline:0;cursor:pointer;isolation:isolate;--mc-font:clamp(15px,2vw,22px)}
+.mcIntro{position:absolute;inset:0;background:#000;color:#fff;outline:0;isolation:isolate;--mc-font:clamp(15px,2vw,22px)}
 .mcImage{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:-1;pointer-events:none}
 .mcIntro .mcTextArea{position:absolute;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom));min-height:27%;display:flex;align-items:center;padding:22px max(11%,env(safe-area-inset-left)) 22px max(11%,env(safe-area-inset-right));background:linear-gradient(90deg,transparent 0%,#0008 5%,#000 10%,#000 90%,#0008 95%,transparent 100%);pointer-events:none}
 .mcText{position:relative;width:100%;font:400 var(--mc-font)/1.75 TerhaTypewriter,monospace;letter-spacing:0;color:#fff;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal}
@@ -9,13 +9,12 @@ body:is([data-screen="mainIntro"],[data-screen="mainCampaign"]) #frontBackground
 #mcVisible{position:absolute;inset:0;display:block}
 .mcIntro.mc-center .mcTextArea{inset:64px 0 calc(70px + env(safe-area-inset-bottom));min-height:0;background:none;justify-content:center;padding:20px max(12%,env(safe-area-inset-left))}
 .mc-center .mcText{text-align:center;font-size:clamp(17px,2.4vw,27px);line-height:1.9;text-shadow:0 2px 5px #000,0 0 15px #000}
-.mc-center #mcVisible{animation:mcReveal .85s ease 2s both}
-@keyframes mcReveal{from{opacity:0}to{opacity:1}}
+.mc-center #mcVisible{opacity:0}
 .mcIntro button{border:1px solid #fff5;background:#000a;border-radius:2px;color:#fff;min-width:48px;min-height:44px;font-family:TerhaTypewriter,monospace;touch-action:manipulation}
 .mcIntro button:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .mcIntro .mcSkip{position:absolute;right:calc(18px + env(safe-area-inset-right));top:calc(14px + env(safe-area-inset-top));padding:8px 18px;font-size:15px;z-index:2}
-.mcNavigation{position:absolute;bottom:calc(10px + env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:center;align-items:center;gap:24px;font:13px TerhaTypewriter,monospace;color:#fff9;pointer-events:none}
-.mcNavigation button{font-size:23px;padding:0 15px;pointer-events:auto}
+.mcIntro .mcNext{position:absolute;right:calc(18px + env(safe-area-inset-right));bottom:calc(10px + env(safe-area-inset-bottom));font-size:23px;padding:0 15px}
+.mcIntro .mcNext[hidden]{display:none}
 .mcSelection{width:100%;height:100%;overflow-y:auto;padding:calc(20px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left));background:radial-gradient(ellipse at top,#253441,#10171f 65%);color:#e9e7dd}
 .mcSelection header{display:flex;align-items:center;gap:18px;max-width:1100px;margin:0 auto 28px}
 .mcSelection h1{font-size:clamp(20px,3vw,32px);letter-spacing:2px;margin:0;flex:1}
