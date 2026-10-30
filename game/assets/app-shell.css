@@ -148,3 +148,14 @@ body[data-scenario^="iron-crown-m"] #modal .operationProgress>.operationActions{
 @media(prefers-reduced-motion:reduce){.battlefieldMode,.modeIllustration{transition:none}}
 
 /* Battlefield mode selection v1.11.51 */
+
+/* Campaign branch picker over the battlefield mode cards. */
+#campaignPicker{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:#020a10bb}
+.campaignPickerBox{width:min(380px,100%);max-height:90dvh;overflow:auto;background:linear-gradient(145deg,#1c303e,#0d1c29);border:1px solid #bba474;border-radius:8px;box-shadow:0 16px 60px #000b;color:#eee4cc}
+.campaignPickerBox header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid #bba47455}
+.campaignPickerBox h2{margin:0;font-size:21px;letter-spacing:2px}
+#campaignPickerClose{font-size:26px;line-height:1;min-width:40px;min-height:40px;padding:0}
+.campaignPickerActions{display:grid;gap:12px;padding:22px}
+.campaignPickerActions button{width:100%;min-height:56px;font-size:18px;border-color:#bba47477;background:#243b4c}
+.campaignPickerActions button:focus-visible,#campaignPickerClose:focus-visible{outline:2px solid #f1d28e;outline-offset:3px}
+#mainCampaignNotice{margin:0;padding:0 22px 22px;text-align:center;font-size:13px;color:#cfbf9d}

@@ -19,7 +19,13 @@ module.exports=async function({run,click,nodes}){
   assert.equal(run('menuMusic.currentTime'),musicPosition,'Mode navigation preserves menu music');
  };
  checkModeScreen();
- await click('campaignMode');assert.equal(run('appScreen'),'campaign');
+ await click('campaignMode');assert.equal(run('appScreen'),'battlefield');
+ assert(nodes.has('campaignPicker'));assert.equal(nodes.get('modal').inert,true);
+ assert.equal(nodes.get('mainCampaign').textContent,run('appSettings.language')==='en'?'MAIN CAMPAIGN':'메인캠페인');
+ await click('mainCampaign');assert.equal(nodes.get('mainCampaignNotice').hidden,false);
+ assert(!nodes.has('cpCampaignIron'));
+ await click('subCampaign');assert.equal(run('appScreen'),'campaign');
+ assert(!nodes.has('campaignPicker'));assert.equal(nodes.get('modal').inert,false);
  assert(!nodes.has('factions'));assert.equal(run('menuMusic.paused'),false);
  await click('appBack');assert.equal(run('appScreen'),'battlefield');checkModeScreen();
  await click('campaignMode');run('window.terhaBack()');assert.equal(run('appScreen'),'battlefield');
@@ -30,5 +36,5 @@ module.exports=async function({run,click,nodes}){
  await click('battle');await click('battlefieldBack');assert.equal(run('appScreen'),'hub');
  run("appSettings.language='ko'");await click('battle');checkModeScreen();
  run("appSettings.language='en';showBattlefield()");checkModeScreen();
- console.log('PASS battlefield: both PLAY labels, no subtitles/arrows, campaign placeholder, conquest/country, hardware and visible Back, Korean/English, uninterrupted music');
+ console.log('PASS campaign branch picker, main preparation notice, subcampaign library, battlefield: both PLAY labels, no subtitles/arrows, campaign placeholder, conquest/country, hardware and visible Back, Korean/English, uninterrupted music');
 };
