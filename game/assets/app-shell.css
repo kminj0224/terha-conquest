@@ -159,3 +159,7 @@ body[data-scenario^="iron-crown-m"] #modal .operationProgress>.operationActions{
 .campaignPickerActions button{width:100%;min-height:56px;font-size:18px;border-color:#bba47477;background:#243b4c}
 .campaignPickerActions button:focus-visible,#campaignPickerClose:focus-visible{outline:2px solid #f1d28e;outline-offset:3px}
 #mainCampaignNotice{margin:0;padding:0 22px 22px;text-align:center;font-size:13px;color:#cfbf9d}
+
+/* Title-only image masthead; the menu and gameplay continue using their own headings. */
+body[data-screen="title"] #modal .landing .titleLogo{position:absolute;top:clamp(10px,4vh,65px);left:50%;transform:translateX(-50%);width:min(84vw,1000px);max-height:32vh;height:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
+@media(max-height:470px){body[data-screen="title"] #modal .landing .titleLogo{top:max(8px,env(safe-area-inset-top));width:min(80vw,900px);max-height:35vh}}
