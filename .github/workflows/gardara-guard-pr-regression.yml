@@ -27,8 +27,8 @@ jobs:
         timeout-minutes: 3
       - name: Verify transferred image binaries
         run: |
-          echo 'af24a70b39e7f915fa5a3dea6de7b62ec69b97647225251b4bb02c3d20b7d84c  game/assets/gardara-guard-idle.webp' | sha256sum -c -
-          echo 'eb55da23160b4b449740140f46f0c6864bdc1c14a13ff01e693c46fd2794fdc8  game/assets/gardara-guard-fire.webp' | sha256sum -c -
+          echo 'bba25dd5d90bb56e083fbe71ea221617ec0732efd42d896879b611ac28dfcbab  game/assets/gardara-guard-idle.webp' | sha256sum -c -
+          echo '47e7358157e86af7c2f6e1b7106a9735ba1de58d9c30b9460ce6818e4506c409  game/assets/gardara-guard-fire.webp' | sha256sum -c -
       - name: Install native test dependencies
         run: npm ci --no-audit --no-fund
       - name: Prepare offline music
