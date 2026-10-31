@@ -3,15 +3,24 @@
 const GARDARA=7,GARDARA_TILES=tiles.map((t,i)=>t.owner===7?i:-1).filter(i=>i>=0);
 const GARDARA_GUARD=TYPES.length;
 TYPES.push({name:'아마라한을 지키는 힘무리',cost:780,hp:220,atk:58,range:2,move:4,def:20,branch:'infantry',special:GARDARA,icon:'정',text:'가르다라 특수 보병. 수도 또는 4레벨 이상 본토 도시에서 생산하는 정예 경호 전력. 도시 점령 가능.'});
-UNIT_STORIES[GARDARA_GUARD]='아마라한을 지키는 힘무리. 가르다라의 회색 위장복과 검은 장비를 갖춘 정예 병력.';
+UNIT_STORIES[GARDARA_GUARD]='아마라한을 지키는 힘무리. 가르다라의 어두운 장갑 전투복과 검은 소총을 갖춘 네 명의 정예 경호 병력.';
 const gardaraInfantryArt={0:loadBaekArt('gardara-rifle-idle.png','gardara-rifle-fire.png'),8:loadBaekArt('gardara-grenadier-idle.png','gardara-grenadier-fire.png'),9:loadBaekArt('gardara-antitank-idle.png','gardara-antitank-fire.png'),10:loadBaekArt('gardara-machinegun.png')};
+const gardaraGuardArt=loadBaekArt('gardara-guard-idle.webp','gardara-guard-fire.webp');
+const GARDARA_GUARD_MUZZLES=[[706,267],[1114,311],[652,466],[1108,483]];
 const GARDARA_INFANTRY_PROFILES={
  0:{art:gardaraInfantryArt[0],baseFacing:1,muzzles:rightInfantryMuzzles([[650,340],[1130,240],[1440,540]],1448,1086)},
  8:{art:gardaraInfantryArt[8],baseFacing:1,muzzles:rightInfantryMuzzles([[500,145],[940,85],[1440,230]],1448,1086),projectile:'baekGrenade',flashAngle:.65},
  9:{art:gardaraInfantryArt[9],baseFacing:1,muzzles:rightInfantryMuzzles([[700,315],[1240,244],[1530,515]],1536,1024),projectile:'baekRocket'},
  10:{art:gardaraInfantryArt[10],baseFacing:1,muzzles:rightInfantryMuzzles([[1425,345]],1448,1086),burst:true}
 };
-GARDARA_INFANTRY_PROFILES[GARDARA_GUARD]={...GARDARA_INFANTRY_PROFILES[0],width:72,height:54,burst:true,burstShots:8,strong:true};
+// Pixel coordinates are measured from the actual 1122x1402 firing artwork.
+ // rightInfantryMuzzles mirrors them through baekRifleFacing for either shooting direction.
+GARDARA_INFANTRY_PROFILES[GARDARA_GUARD]={
+ art:gardaraGuardArt,baseFacing:1,
+ width:64,height:80,idleFoot:1344/1402,fireFoot:1262/1402,footY:20,
+ muzzles:rightInfantryMuzzles(GARDARA_GUARD_MUZZLES,1122,1402,64,80),
+ burst:true,burstShots:8,strong:true,highResolution:true
+};
 const gardaraInfantryProfile=infantryArtProfile;
 infantryArtProfile=function(u){return u.f===GARDARA?GARDARA_INFANTRY_PROFILES[u.type]||null:gardaraInfantryProfile(u)};
 const gardaraCaptureCheck=canCaptureCityUnit;
