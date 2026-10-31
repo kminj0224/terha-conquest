@@ -2,13 +2,17 @@
 """Repackage the retained Android shell with current game assets and original signing key."""
 import pathlib,zipfile,struct,subprocess,os,urllib.request
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
-VERSION='1.11.85';CODE=230
+VERSION='1.11.86';CODE=231
 subprocess.run(['python3','tools/prepare_operation_music.py'],check=True)
 T=ROOT/'tools';T.mkdir(exist_ok=True)
 for name,url in [('ecj.jar','https://repo.maven.apache.org/maven2/org/eclipse/jdt/ecj/3.33.0/ecj-3.33.0.jar'),('apksig.jar','https://repo.maven.apache.org/maven2/com/android/tools/build/apksig/2.3.0/apksig-2.3.0.jar')]:
  if not (T/name).exists():urllib.request.urlretrieve(url,T/name)
 for d in ['android/build','deliverables']:(ROOT/d).mkdir(parents=True,exist_ok=True)
 APP_NAME='테르하 : 낙원의 기억'
+# Keep the installed Android launcher icon in the precompiled drawable slot.
+# The source artwork is a compact WebP; the signed APK always contains a PNG.
+LAUNCHER_PNG=subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-i','game/assets/launcher-icon.webp','-frames:v','1','-f','image2pipe','-vcodec','png','-'],stdout=subprocess.PIPE,check=True).stdout
+assert LAUNCHER_PNG.startswith(b'\\x89PNG\\r\\n\\x1a\\n'), 'Launcher icon conversion failed'
 def manifest_version(data):
  # Rebuild the UTF-16 pool: the new label can exceed the retained shell's slot.
  b=bytearray(data);off=8;strings=[]
@@ -43,6 +47,7 @@ with zipfile.ZipFile('android/native-shell.zip') as base,zipfile.ZipFile('androi
    i=zipfile.ZipInfo('assets/'+p.name);i.compress_type=zipfile.ZIP_DEFLATED;entries.append((i,p.read_bytes()))
  for i,data in entries:
   if i.filename=='AndroidManifest.xml':data=manifest_version(data)
+  elif i.filename=='res/drawable/icon.png':data=LAUNCHER_PNG
   zi=zipfile.ZipInfo(i.filename);zi.compress_type=zipfile.ZIP_STORED if i.filename=='resources.arsc' else i.compress_type;zi.external_attr=i.external_attr
   if zi.compress_type==zipfile.ZIP_STORED:
    pos=out.fp.tell()+30+len(zi.filename.encode());pad=(-pos)%4
