@@ -27,9 +27,8 @@ function drawHansaGhost(p){
 }
 function addAmbientScene(scene,now){
  const threat=updateHansaGhosts(now);
- for(const e of fx){if(e.kind!=='whale'||now<e.start||now-e.start>=e.duration)continue;const p={x:e.x,y:e.y};scene.push({kind:'whale',id:e.start,p,paint:()=>drawNavalEffect(e,(now-e.start)/e.duration)})}
  if(!threat.city||hansaGhostState.alpha<=0)return;
- const objectDepth=new Map();for(const item of scene){if(item.kind==='ghost'||item.kind==='whale')continue;const tile=worldTileAt(item.p.x,item.p.y);objectDepth.set(tile,Math.max(objectDepth.get(tile)??-Infinity,item.p.y))}
+ const objectDepth=new Map();for(const item of scene){if(item.kind==='ghost')continue;const tile=worldTileAt(item.p.x,item.p.y);objectDepth.set(tile,Math.max(objectDepth.get(tile)??-Infinity,item.p.y))}
  for(let n=0;n<5;n++){
   const p=ghostPosition(threat.city,n),tile=worldTileAt(p.x,p.y);
   // Passing through an occupied tile is the requested foreground exception.

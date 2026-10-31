@@ -7,7 +7,7 @@ function drawNationalityFlag(item){const e=item.entity;if(!e)return;let x,y,w,h,
   else return;
   y-=h;ctx.save();ctx.translate(item.p.x,item.p.y+offset);drawFlag(e.f,x,y,w,h);line(x,y-1,x,bottom,'#c4caba',1);ctx.restore();
 }
-const SCENE_DEPTH_RANK={scenery:0,city:1,defense:2,unit:3,wreck:3,smokeBehind:2.8,whale:3,impact:3.5,saprosImpact:3.5,ghost:4};
+const SCENE_DEPTH_RANK={scenery:0,city:1,defense:2,unit:3,wreck:3,smokeBehind:2.8,impact:3.5,saprosImpact:3.5,ghost:4};
 function compareSceneDepth(a,b){return a.p.y-b.p.y||a.p.x-b.p.x||SCENE_DEPTH_RANK[a.kind]-SCENE_DEPTH_RANK[b.kind]||a.id-b.id}
 let worldPaintBatch=null;
 function beginWorldPaintBatch(center){worldPaintBatch={center,scene:[],foreground:[]}}

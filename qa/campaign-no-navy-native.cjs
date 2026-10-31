@@ -2,6 +2,12 @@
 const assert=require('node:assert/strict');
 module.exports=async function({run}){
  run('busy=false;aiTurnActive=false;if(activeScenario)CampaignBattle.leave();setup();started=true;setAppScreen("game")');
+ // Conquest no longer spawns whales, and legacy effects are not painted.
+ run('lastWhaleAt=0;drawNavalOverlays(100000)');
+ assert(!run('fx.some(e=>e.kind==="whale")'),'Conquest must never generate whale effects');
+ run('fx.push({kind:"whale",x:cam.x,y:cam.y,start:100000,duration:8000});window.conquestWhaleScene=[];addAmbientScene(conquestWhaleScene,101000)');
+ assert(!run('conquestWhaleScene.some(e=>e.kind==="whale")'),'Legacy whale effect must not be painted');
+ run('fx=fx.filter(e=>e.kind!=="whale")');
  const world=run('JSON.stringify({units,cities,money,food,oil,owners:tiles.map(t=>t.owner),map:MAP.tiles})');
  for(const id of ['iron-crown-m01','iron-crown-m02','iron-crown-m03']){
   run('CampaignBattle.start(null,1,{id:'+JSON.stringify(id)+'})');
