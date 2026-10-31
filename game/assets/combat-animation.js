@@ -118,9 +118,7 @@ drawBaekArtilleryEffect=function(e,t){drawIllustratedEffect(e,t)};
 drawBaekProjectile=function(e,t){drawIllustratedEffect(e,t)};
 drawDefenseEffect=function(e,t){drawIllustratedEffect(e,t)};
 drawStrategicEffect=function(e,t){drawIllustratedEffect(e,t)};
-const legacyNavalEffect=drawNavalEffect;
 drawNavalEffect=function(e,t){
- if(e.kind==='whale')return legacyNavalEffect(e,t);
  if(e.kind==='navalSink'){
   ctx.save();ctx.translate(e.x,e.y+t*12);ctx.globalAlpha=Math.min(1,(1-t)*4);drawShip({type:e.type,f:e.f},0,-1);ctx.restore();drawImpactSmoke(e.x,e.y,78,t,.9);return;
  }

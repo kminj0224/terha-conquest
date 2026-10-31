@@ -30,8 +30,8 @@ with zipfile.ZipFile(sys.argv[1]) as apk:
         offset += size
     assert offset == len(data)
     assert elements['manifest']['package'] == 'com.terha.conquest'
-    assert elements['manifest']['versionName'] == '1.11.83'
-    assert elements['manifest']['versionCode'] == 228
+    assert elements['manifest']['versionName'] == '1.11.84'
+    assert elements['manifest']['versionCode'] == 229
     assert elements['application']['label'] == '테르하 : 낙원의 기억'
     assert 'label' not in elements['activity'] or elements['activity']['label'] == '테르하 : 낙원의 기억'
     for name in ['index.html', 'app-shell.js', 'game.js']:
@@ -39,4 +39,4 @@ with zipfile.ZipFile(sys.argv[1]) as apk:
         assert '테르하 : 낙원의 기억' in text
         assert '전장의 국권' not in text
     assert '<title>테르하 : 낙원의 기억</title>' in apk.read('assets/index.html').decode()
-print('PASS: APK launcher name, title, versionCode 228, version 1.11.83 and original package identity')
+print('PASS: APK launcher name, title, versionCode 229, version 1.11.84 and original package identity')
