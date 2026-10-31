@@ -30,8 +30,8 @@ with zipfile.ZipFile(sys.argv[1]) as apk:
         offset += size
     assert offset == len(data)
     assert elements['manifest']['package'] == 'com.terha.conquest'
-    assert elements['manifest']['versionName'] == '1.11.85'
-    assert elements['manifest']['versionCode'] == 230
+    assert elements['manifest']['versionName'] == '1.11.86'
+    assert elements['manifest']['versionCode'] == 231
     assert elements['application']['label'] == '테르하 : 낙원의 기억'
     assert 'label' not in elements['activity'] or elements['activity']['label'] == '테르하 : 낙원의 기억'
     for name in ['index.html', 'app-shell.js', 'game.js']:
@@ -41,4 +41,13 @@ with zipfile.ZipFile(sys.argv[1]) as apk:
     assert '<title>테르하 : 낙원의 기억</title>' in apk.read('assets/index.html').decode()
     assert apk.read('assets/title-logo.png')[:8] == b'\x89PNG\r\n\x1a\n'
     assert 'id="titleLogo"' in apk.read('assets/index.html').decode()
-print('PASS: APK launcher name, title image, versionCode 230, version 1.11.85 and original package identity')
+    assert 'class="startPulse imageStart"' in apk.read('assets/index.html').decode()
+    assert b'src="start-button.png"' in apk.read('assets/app-shell.js')
+    assert b'hubLanding' in apk.read('assets/app-shell.js')
+    assert apk.read('assets/start-button.png')[:8] == b'\x89PNG\r\n\x1a\n'
+    assert apk.read('assets/launcher-icon.webp')[:4] == b'RIFF'
+    icon = apk.read('res/drawable/icon.png')
+    assert icon[:8] == b'\x89PNG\r\n\x1a\n', 'Launcher drawable must be PNG'
+    assert struct.unpack_from('>II', icon, 16) == (192, 192), 'Launcher icon artwork missing'
+
+print('PASS: APK launcher name, shared title and image START, 192px fox launcher icon, versionCode 231, version 1.11.86 and original package identity')
