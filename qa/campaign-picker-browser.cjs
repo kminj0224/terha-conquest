@@ -19,6 +19,22 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   assert.equal(await page.locator('#appStart .startArt').getAttribute('src'),'start-button.png');
   assert(await page.locator('#appStart .startArt').evaluate(img=>img.complete&&img.naturalWidth===700),'START artwork loads');
   await page.click('#appStart');
+  // The masthead must never resize or jump between the opening and hub pages.
+  for(const [width,height]of [[1280,720],[960,540],[640,360],[390,844]]){
+   await page.setViewportSize({width,height});
+   await page.evaluate(()=>showTitle());
+   const initial=await page.locator('#titleLogo').boundingBox();
+   const startArt=await page.locator('#appStart').boundingBox();
+   assert(startArt.width<=270&&startArt.width>=140,'START image matches the original compact text-button footprint');
+   await page.click('#appStart');
+   const hub=await page.locator('#titleLogo').boundingBox();
+   for(const k of ['x','y','width','height'])assert(Math.abs(initial[k]-hub[k])<1,'Logo '+k+' must match exactly across title and hub '+width+'x'+height);
+   const banners=await page.locator('#modal .hubLanding .mainButtons').boundingBox();
+   assert(banners&&banners.y<height*.45,'Hub banner selection is not pushed down by the image header');
+   const shift=await page.locator('#modal .hubLanding .mainButtons').evaluate(e=>parseFloat(getComputedStyle(e).marginTop));
+   assert(shift<=65,'No artificial 20vh banner offset');
+  }
+  await page.setViewportSize({width:1280,height:720});
   assert.equal(await page.locator('#modal h1').count(),0,'Hub does not recreate title text');
   assert.equal(await page.locator('#modal .subtitle').count(),0,'Hub does not recreate English subtitle');
   assert.equal(await page.locator('body[data-screen="hub"] #titleLogo').getAttribute('src'),'title-logo.png');

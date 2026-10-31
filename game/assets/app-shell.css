@@ -78,7 +78,7 @@ body:is([data-screen="country"],[data-screen="records"]) #modal{overflow:hidden;
 .hubLanding .mainButtons{margin-top:65px}
 @media(max-width:850px){#controls #coastBuild{font-size:11px;padding:5px 7px}.operationStats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-height:470px){.hubLanding .mainButtons{margin-top:60px}#modal .hubLanding .illustratedMenu{height:clamp(150px,43vh,220px)}.operationStats>div{padding:9px}.windowHeader{padding:8px 14px}.windowContent{padding:12px 16px}}
-@media(orientation:portrait) and (max-width:600px){.hubLanding .mainButtons{margin-top:100px}#modal .hubLanding .illustratedMenu{height:clamp(145px,25vh,230px)}}
+@media(orientation:portrait) and (max-width:600px){.hubLanding .mainButtons{margin-top:50px}#modal .hubLanding .illustratedMenu{height:clamp(145px,25vh,230px)}}
 /* Compact operation overview: actions are a separate fixed footer, outside the scroller. */
 #modal .operationProgress{width:min(740px,94vw);max-height:92vh;max-height:92dvh;border-color:#d0b77a66;background:linear-gradient(140deg,#142b35,#0b1c26 70%)}
 #modal .operationProgress .windowHeader{padding:10px 14px;background:linear-gradient(90deg,#233a42,#132832);border-color:#c5ad7355}
@@ -160,16 +160,13 @@ body[data-scenario^="iron-crown-m"] #modal .operationProgress>.operationActions{
 .campaignPickerActions button:focus-visible,#campaignPickerClose:focus-visible{outline:2px solid #f1d28e;outline-offset:3px}
 #mainCampaignNotice{margin:0;padding:0 22px 22px;text-align:center;font-size:13px;color:#cfbf9d}
 
-/* Title-only image masthead; the menu and gameplay continue using their own headings. */
-body[data-screen="title"] #modal .landing .titleLogo{position:absolute;top:clamp(10px,4vh,65px);left:50%;transform:translateX(-50%);width:min(84vw,1000px);max-height:32vh;height:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
-@media(max-height:470px){body[data-screen="title"] #modal .landing .titleLogo{top:max(8px,env(safe-area-inset-top));width:min(80vw,900px);max-height:35vh}}
-
-/* v1.11.86: share the actual title art across both opening screens. */
-body[data-screen="hub"] #modal .hubLanding .titleLogo{position:absolute;top:clamp(8px,3vh,30px);left:50%;transform:translateX(-50%);width:min(80vw,900px);max-height:23vh;height:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
-body[data-screen="hub"] #modal .hubLanding .mainButtons{margin-top:max(105px,20vh)}
-body[data-screen="title"] #modal .landing button.imageStart{display:flex;align-items:center;justify-content:center;min-height:0;width:min(38vw,470px);max-width:76vw;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:pointer}
+/* Opening title is a single shared image with identical placement on both pages. */
+body:is([data-screen="title"],[data-screen="hub"]) #modal .landing .titleLogo{position:absolute;top:clamp(10px,4vh,65px);left:50%;transform:translateX(-50%);width:min(84vw,1000px);max-height:32vh;height:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
+@media(max-height:470px){body:is([data-screen="title"],[data-screen="hub"]) #modal .landing .titleLogo{top:max(8px,env(safe-area-inset-top));width:min(80vw,900px);max-height:35vh}}
+/* Restore the hub banners to their original centered area; no extra 20vh offset. */
+body[data-screen="title"] #modal .landing button.imageStart{display:flex;align-items:center;justify-content:center;min-height:0;width:clamp(175px,23vw,265px);max-width:76vw;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:pointer}
 body[data-screen="title"] #modal .landing button.imageStart:active{background:transparent;transform:scale(.97)}
 body[data-screen="title"] #modal .landing .startArt{display:block;width:100%;height:auto;max-height:25vh;object-fit:contain;filter:drop-shadow(0 3px 13px #000a);pointer-events:none}
 body[data-screen="title"] #modal .landing button.imageStart:focus-visible{outline:2px solid #f5d98b;outline-offset:8px}
-@media(orientation:portrait) and (max-width:600px){body[data-screen="title"] #modal .landing button.imageStart{width:min(65vw,380px)}body[data-screen="hub"] #modal .hubLanding .titleLogo{width:90vw;max-height:20vh}}
-@media(max-height:470px){body[data-screen="title"] #modal .landing button.imageStart{width:min(31vw,360px)}body[data-screen="hub"] #modal .hubLanding .titleLogo{max-height:22vh}}
+@media(orientation:portrait) and (max-width:600px){body[data-screen="title"] #modal .landing button.imageStart{width:min(55vw,240px)}}
+@media(max-height:470px){body[data-screen="title"] #modal .landing button.imageStart{width:clamp(175px,29vw,240px)}}
