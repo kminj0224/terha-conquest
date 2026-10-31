@@ -1,0 +1,30 @@
+name: Verify airborne troops and mortar gameplay
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'game/assets/airborne-balance.js'
+      - 'game/assets/airborne-transport.js'
+      - 'game/assets/index.html'
+      - 'qa/airborne-regression-native.cjs'
+      - '.github/workflows/airborne-pr-regression.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  airborne-rules:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install test dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Prepare offline operation music
+        run: python3 tools/prepare_operation_music.py
+      - name: Verify two-turn lock, non-airborne support, rescue cost, mortar and burst
+        run: node qa/airborne-regression-native.cjs
