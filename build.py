@@ -12,7 +12,7 @@ APP_NAME='테르하 : 낙원의 기억'
 # Keep the installed Android launcher icon in the precompiled drawable slot.
 # The source artwork is a compact WebP; the signed APK always contains a PNG.
 LAUNCHER_PNG=subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-i','game/assets/launcher-icon.webp','-frames:v','1','-f','image2pipe','-vcodec','png','-'],stdout=subprocess.PIPE,check=True).stdout
-assert LAUNCHER_PNG.startswith(b'\\x89PNG\\r\\n\\x1a\\n'), 'Launcher icon conversion failed'
+assert LAUNCHER_PNG.startswith(b'\x89PNG\r\n\x1a\n'), 'Launcher icon conversion failed'
 def manifest_version(data):
  # Rebuild the UTF-16 pool: the new label can exceed the retained shell's slot.
  b=bytearray(data);off=8;strings=[]
