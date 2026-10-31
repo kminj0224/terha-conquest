@@ -15,11 +15,24 @@ const GARDARA_INFANTRY_PROFILES={
 };
 // Keep the four muzzle origins measured in the original 1122x1402 firing artwork.
  // rightInfantryMuzzles mirrors them through baekRifleFacing for either shooting direction.
+// Use original 1122x1402 lossless WebP unchanged; scale only at drawing time.
+// The non-transparent alpha>5 height of both pictures matches Black Legion (52.8px).
+const GARDARA_GUARD_INK_HEIGHT=BAEK_ART_PROFILES[6].height;
+const GARDARA_GUARD_IDLE_BOUNDS={top:115,bottom:1352};
+const GARDARA_GUARD_FIRE_BOUNDS={top:132,bottom:1274};
+const GARDARA_GUARD_IDLE_HEIGHT=GARDARA_GUARD_INK_HEIGHT*1402/(GARDARA_GUARD_IDLE_BOUNDS.bottom-GARDARA_GUARD_IDLE_BOUNDS.top);
+const GARDARA_GUARD_FIRE_HEIGHT=GARDARA_GUARD_INK_HEIGHT*1402/(GARDARA_GUARD_FIRE_BOUNDS.bottom-GARDARA_GUARD_FIRE_BOUNDS.top);
+const GARDARA_GUARD_IDLE_WIDTH=GARDARA_GUARD_IDLE_HEIGHT*1122/1402;
+const GARDARA_GUARD_FIRE_WIDTH=GARDARA_GUARD_FIRE_HEIGHT*1122/1402;
 GARDARA_INFANTRY_PROFILES[GARDARA_GUARD]={
  art:gardaraGuardArt,baseFacing:1,
- width:40,height:50,idleFoot:1344/1402,fireFoot:1262/1402,footY:20,
- muzzles:rightInfantryMuzzles(GARDARA_GUARD_MUZZLES,1122,1402,40,50),
- burst:true,burstShots:8,strong:true,highResolution:true,crispDetail:true
+ width:GARDARA_GUARD_FIRE_WIDTH,height:GARDARA_GUARD_FIRE_HEIGHT,
+ idleWidth:GARDARA_GUARD_IDLE_WIDTH,idleHeight:GARDARA_GUARD_IDLE_HEIGHT,
+ idleFoot:GARDARA_GUARD_IDLE_BOUNDS.bottom/1402,
+ fireFoot:GARDARA_GUARD_FIRE_BOUNDS.bottom/1402,
+ footY:20,
+ muzzles:rightInfantryMuzzles(GARDARA_GUARD_MUZZLES,1122,1402,GARDARA_GUARD_FIRE_WIDTH,GARDARA_GUARD_FIRE_HEIGHT),
+ burst:true,burstShots:8,strong:true,highResolution:true
 };
 const gardaraInfantryProfile=infantryArtProfile;
 infantryArtProfile=function(u){return u.f===GARDARA?GARDARA_INFANTRY_PROFILES[u.type]||null:gardaraInfantryProfile(u)};

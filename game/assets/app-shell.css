@@ -164,9 +164,9 @@ body[data-scenario^="iron-crown-m"] #modal .operationProgress>.operationActions{
 body:is([data-screen="title"],[data-screen="hub"]) #modal .landing .titleLogo{position:absolute;top:clamp(10px,4vh,65px);left:50%;transform:translateX(-50%);width:min(84vw,1000px);max-height:32vh;height:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
 @media(max-height:470px){body:is([data-screen="title"],[data-screen="hub"]) #modal .landing .titleLogo{top:max(8px,env(safe-area-inset-top));width:min(80vw,900px);max-height:35vh}}
 /* Restore the hub banners to their original centered area; no extra 20vh offset. */
-body[data-screen="title"] #modal .landing button.imageStart{display:flex;align-items:center;justify-content:center;min-height:0;width:clamp(175px,23vw,265px);max-width:76vw;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:pointer}
+body[data-screen="title"] #modal .landing button.imageStart{display:flex;align-items:center;justify-content:center;min-height:0;width:clamp(105px,13.8vw,159px);max-width:45.6vw;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:pointer}
 body[data-screen="title"] #modal .landing button.imageStart:active{background:transparent;transform:scale(.97)}
-body[data-screen="title"] #modal .landing .startArt{display:block;width:100%;height:auto;max-height:25vh;object-fit:contain;filter:drop-shadow(0 3px 13px #000a);pointer-events:none}
+body[data-screen="title"] #modal .landing .startArt{display:block;width:100%;height:auto;max-height:15vh;object-fit:contain;filter:drop-shadow(0 3px 13px #000a);pointer-events:none}
 body[data-screen="title"] #modal .landing button.imageStart:focus-visible{outline:2px solid #f5d98b;outline-offset:8px}
-@media(orientation:portrait) and (max-width:600px){body[data-screen="title"] #modal .landing button.imageStart{width:min(55vw,240px)}}
-@media(max-height:470px){body[data-screen="title"] #modal .landing button.imageStart{width:clamp(175px,29vw,240px)}}
+@media(orientation:portrait) and (max-width:600px){body[data-screen="title"] #modal .landing button.imageStart{width:min(33vw,144px)}}
+@media(max-height:470px){body[data-screen="title"] #modal .landing button.imageStart{width:clamp(105px,17.4vw,144px)}}
