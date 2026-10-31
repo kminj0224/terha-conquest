@@ -13,13 +13,13 @@ const GARDARA_INFANTRY_PROFILES={
  9:{art:gardaraInfantryArt[9],baseFacing:1,muzzles:rightInfantryMuzzles([[700,315],[1240,244],[1530,515]],1536,1024),projectile:'baekRocket'},
  10:{art:gardaraInfantryArt[10],baseFacing:1,muzzles:rightInfantryMuzzles([[1425,345]],1448,1086),burst:true}
 };
-// Pixel coordinates are measured from the actual 1122x1402 firing artwork.
+// Keep the four muzzle origins measured in the original 1122x1402 firing artwork.
  // rightInfantryMuzzles mirrors them through baekRifleFacing for either shooting direction.
 GARDARA_INFANTRY_PROFILES[GARDARA_GUARD]={
  art:gardaraGuardArt,baseFacing:1,
- width:64,height:80,idleFoot:1344/1402,fireFoot:1262/1402,footY:20,
- muzzles:rightInfantryMuzzles(GARDARA_GUARD_MUZZLES,1122,1402,64,80),
- burst:true,burstShots:8,strong:true,highResolution:true
+ width:40,height:50,idleFoot:1344/1402,fireFoot:1262/1402,footY:20,
+ muzzles:rightInfantryMuzzles(GARDARA_GUARD_MUZZLES,1122,1402,40,50),
+ burst:true,burstShots:8,strong:true,highResolution:true,crispDetail:true
 };
 const gardaraInfantryProfile=infantryArtProfile;
 infantryArtProfile=function(u){return u.f===GARDARA?GARDARA_INFANTRY_PROFILES[u.type]||null:gardaraInfantryProfile(u)};
