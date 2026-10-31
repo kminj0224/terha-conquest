@@ -136,7 +136,8 @@ showPanel=function(){
  const u=selected?.kind==='unit'?units.find(v=>v.id===selected.id):null;
  if(!isAirborne(u)||!panelOpen)return;
  const panel=$('panel');
- panel.innerHTML=panel.innerHTML.replaceAll(' / 1단계','').replaceAll('<small>1단계</small>','').replaceAll('공수부대 1','공수부대');
+ const stage=panel.querySelector?.('h2 small');if(stage)stage.remove();
+ const header=panel.querySelector?.('.eyebrow');if(header)header.textContent='보병';
  const status=document.createElement('p');
  status.textContent=airborneExpired(u)?'공수부대 지원 대기 · 이동·공격·반격 불가 · 3타일 이내 비공수 아군이 합류하면 4단계 소총수로 전환':'잔여 독립작전 '+Math.max(0,AIRBORNE_TURNS-(turn-u.airdropTurn))+'턴';
  panel.appendChild(status);
