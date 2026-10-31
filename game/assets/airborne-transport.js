@@ -1,6 +1,6 @@
 'use strict';
 // Airport-based long-range troop deployment. The aircraft is an operation,
-// not a persistent combat unit; only the deployed riflemen join the army.
+// not a persistent combat unit; the deployed paratroopers join the army.
 function airDropTileAvailable(i){
  if(!Number.isInteger(i)||i<0||i>=tiles.length)return false;
  if(tiles[i].owner<0||unitAt(i)||baseAt(i))return false;
@@ -50,10 +50,11 @@ airStrike=async function(q,type,i,ai=false){
  fx.push({kind:'airraid',type:'parachute',x:b.x,y:b.y,tx:b.x,ty:b.y,f:q.f,
   start:performance.now(),duration:ai?200:1250});
  await delay(ai?100:1250);
- const troop=makeUnit(q.f,0,i,2);
+ const troop=makeUnit(q.f,AIRBORNE_TROOPER,i,1);
+ troop.airdropTurn=turn;
  spendShot(troop); // Drop troops can act at the start of the next turn.
  if(cityAt(i))capture(troop);
- log(factions[q.f].name+' · 수송기 공수강하 · 2단계 소총수');
+ log(factions[q.f].name+' · 수송기 공수강하 · 공수부대');
  if(!ai){busy=false;selectUnit(troop);updateHUD();save();checkEnd()}
  return true;
 };

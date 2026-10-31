@@ -64,7 +64,7 @@ module.exports=async function({run}){
   check($('selectionAirCancel').style.display==='inline-block','Bottom X must stay visible');
   const second=eligible();check(second>=0&&second!==first,'No second drop tile');
   check(await airStrike(base,'transport',second,false),'Repeat airborne mission failed');
-  check(airTarget?.type==='transport'&&unitAt(first)?.level===2&&unitAt(second)?.level===2,'Second air drop must keep level-two troops and aim');
+  check(airTarget?.type==='transport'&&unitAt(first)?.type===AIRBORNE_TROOPER&&unitAt(second)?.type===AIRBORNE_TROOPER,'Second air drop must keep dedicated paratroopers and aim');
   $('selectionAirCancel').onclick();
   check(airTarget===null,'X must cancel continued airport targeting');
   return {oilRates,cityDamage:expected,boarding:'preserved',repeatDrops:2,cityAndGarrison:true};
