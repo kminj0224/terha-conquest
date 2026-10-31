@@ -5,7 +5,7 @@ const AIRBORNE_TROOPER=TYPES.length, AIRBORNE_TURNS=2;
 TYPES.push({
  name:'공수부대',cost:TYPES[0].cost,hp:211,atk:52,def:TYPES[0].def,
  move:TYPES[0].move,range:TYPES[0].range,branch:'infantry',icon:'×',
- text:'수송기 공수강하 전용. 공격력 52, 체력 211. 방어시설 피해 ×200, 3레벨 이하 도시 피해 ×500. 2턴 뒤 행동 불가. 아군 비공수부대가 3타일 안에 있거나 진입하면 4단계 소총수로 전환되며, 최초 행동에 소총수 생산 식량이 부과됩니다.'
+ text:'수송기 공수강하 전용. 공격력 52, 체력 211. 방어시설 피해 ×500, 3레벨 이하 도시 피해 ×200. 2턴 뒤 행동 불가. 아군 비공수부대가 3타일 안에 있거나 진입하면 4단계 소총수로 전환되며, 최초 행동에 소총수 생산 식량이 부과됩니다.'
 });
 UNIT_STORIES[AIRBORNE_TROOPER]='수송기의 하강등이 켜지면 공수대원들이 장구를 조여 맵니다. 처음에는 독립된 전투부대로 움직이지만, 보급부대와 합류하면 정규 소총수 편제로 재편됩니다.';
 function isAirborne(u){return !!u&&u.type===AIRBORNE_TROOPER}
@@ -22,8 +22,8 @@ canProduce=function(q,k,level=1){return k!==AIRBORNE_TROOPER&&baseAirborneProduc
 const baseAirborneSiege=siegeDamage;
 siegeDamage=function(u,target){
  if(!isAirborne(u))return baseAirborneSiege(u,target);
- if(target?.kind==='sam'||target?.kind==='sea')return Math.round(unitAttack(u)*200);
- if(Number.isInteger(target?.level)&&target.level<=3)return Math.round(unitAttack(u)*500);
+ if(target?.kind==='sam'||target?.kind==='sea')return Math.round(unitAttack(u)*500);
+ if(Number.isInteger(target?.level)&&target.level<=3)return Math.round(unitAttack(u)*200);
  return baseAirborneSiege(u,target);
 };
 // A paratrooper cannot be replaced by another paratrooper; a converted rifleman can support others.
@@ -124,9 +124,9 @@ launchShot=function(u,target,start=performance.now(),duration=520){
  if(muzzle)for(let j=1;j<8;j++)fx.push({kind:'infantryMuzzle',x:muzzle.x,y:muzzle.y,angle:u.angle||0,start:start+j*70,duration:55});
  return muzzle;
 };
-// The mortar is a one-hex weapon and burns no fuel for either action, regardless of research.
-TYPES[15].move=1;
-TYPES[15].text+=' 이동력 1. 이동과 공격에 석유를 소비하지 않습니다.';
+// Mortars move 1 tile, fire at range 2 and consume no oil for either action.
+Object.assign(TYPES[15],{move:1,range:2});
+TYPES[15].text+=' 이동력 1, 사거리 2. 이동과 공격에 석유를 소비하지 않습니다.';
 const previousMortarMoveOil=moveOil,previousMortarAttackOil=attackOil;
 moveOil=function(u){return u?.type===15?0:previousMortarMoveOil(u)};
 attackOil=function(u){return u?.type===15?0:previousMortarAttackOil(u)};

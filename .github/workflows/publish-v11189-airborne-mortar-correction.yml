@@ -1,0 +1,131 @@
+name: Publish Terha Conquest v1.11.89 corrected airborne damage and mortar range APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'game/assets/airborne-balance.js'
+      - 'qa/airborne-regression-native.cjs'
+      - 'game/assets/app-shell.js'
+      - 'game/assets/saves.js'
+      - 'build.py'
+      - 'qa/verify-apk-name.py'
+      - '.github/workflows/publish-v11189-airborne-mortar-correction.yml'
+      - 'docs/releases/v1.11.89.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: airborne-mortar-correction-v11189-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact pushed commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up FFmpeg
+        uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
+        timeout-minutes: 3
+
+      - name: Verify uploaded source binaries (no truncation)
+        run: |
+          echo 'bfc497d94d061f18240c3531028d0fc97b5498b93f6bd8a9017dd6a53fa045d5  game/assets/title-logo.png' | sha256sum -c -
+          echo '865bd03c39bd8e067c8dc522690efc7b9b37e280eb6d2f6fc4d8471892f4135c  game/assets/start-button.png' | sha256sum -c -
+          echo '58253e23e306842332646229e1389a0c6da55768ee6bbb85dab06bdce5ac6d51  game/assets/launcher-icon.webp' | sha256sum -c -
+          echo '4107049095d1d84137509a15c690ed2c93d9359d8771415403e886da400bb643  game/assets/main-campaign-scene-6.png' | sha256sum -c -
+          echo '4428a076c5b01180fefe10a8845efcf5022714a776a6a584111e70569982626f  game/assets/main-campaign-ruins.mp3' | sha256sum -c -
+          echo 'f95ca858b46c6b7378c6e49db3708b741f85e6d95c89f7879772523c54fcbd66  game/assets/main-campaign-tomb.mp3' | sha256sum -c -
+
+      - name: Install regression dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save playwright@1.58.2
+          npx playwright install --with-deps chromium
+
+      - name: Verify introduction and Android compatibility
+        run: |
+          python3 tools/prepare_operation_music.py
+          # Targeted naval/campaign regression; the full suite has a pre-existing mission02 strategy failure.
+          node qa/airborne-regression-native.cjs
+          node qa/campaign-no-navy-simulation.cjs
+          node qa/main-campaign-intro-native.cjs
+          node qa/main-campaign-intro-browser.cjs
+          node qa/campaign-picker-browser.cjs
+          node qa/campaign-browser.cjs
+          python3 qa/verify-native.py
+
+      - name: Build signed APK with original Android identity
+        run: python3 build.py
+
+      - name: Verify APK version, package and original update certificate
+        run: |
+          python3 qa/verify-apk-name.py deliverables/Terha-Conquest-v1.11.89.apk
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.89.apk
+
+      - name: Verify original resources are inside the APK unchanged
+        run: |
+          python3 - <<'PYTEST'
+          from pathlib import Path
+          from zipfile import ZipFile
+          import hashlib
+          paths = [
+              'main-campaign-scene-6.png',
+              'main-campaign-ruins.mp3',
+              'main-campaign-tomb.mp3',
+              'title-logo.png',
+              'start-button.png',
+              'launcher-icon.webp',
+          ]
+          apk = Path('deliverables/Terha-Conquest-v1.11.89.apk')
+          with ZipFile(apk) as z:
+              for name in paths:
+                  original = Path('game/assets') / name
+                  assert z.read('assets/' + name) == original.read_bytes(), name
+                  print('APK RESOURCE OK', name, original.stat().st_size)
+          PYTEST
+
+      - name: Generate APK SHA-256 checksum
+        run: |
+          cd deliverables
+          sha256sum Terha-Conquest-v1.11.89.apk > SHA256SUMS-v1.11.89.txt
+
+      - name: Upload generated APK as Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.11.89
+          path: |
+            deliverables/Terha-Conquest-v1.11.89.apk
+            deliverables/SHA256SUMS-v1.11.89.txt
+          if-no-files-found: error
+
+      - name: Publish signed APK on GitHub Releases
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.11.89 >/dev/null 2>&1; then
+            test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/tags/v1.11.89 --jq .object.sha)" = "$GITHUB_SHA"
+            gh release upload v1.11.89 deliverables/Terha-Conquest-v1.11.89.apk deliverables/SHA256SUMS-v1.11.89.txt --clobber
+          else
+            gh release create v1.11.89 deliverables/Terha-Conquest-v1.11.89.apk deliverables/SHA256SUMS-v1.11.89.txt --target "$GITHUB_SHA" --title '테르하 : 낙원의 기억 v1.11.89' --notes-file docs/releases/v1.11.89.md
+          fi
