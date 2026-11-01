@@ -7,7 +7,7 @@ const MainCampaign = (() => {
  let musicSource = '';
  function syncAudio() {
   const number = page+1;
-  const source = view !== 'intro' ? '' : number >= 2 && number <= 33 ? 'main-campaign-ruins.mp3' : number >= 37 ? 'main-campaign-tomb.mp3' : '';
+  const source = view !== 'intro' ? '' : number >= 2 && number <= 34 ? 'main-campaign-ruins.mp3' : number >= 38 ? 'main-campaign-tomb.mp3' : '';
   if (source !== musicSource) {
    music.pause();
    try { music.currentTime = 0; } catch {}
@@ -50,7 +50,8 @@ const MainCampaign = (() => {
    visible.textContent = line.text;
    visible.style.opacity = '0';
    // Illustrated center pages retain their two-second opening delay.
-   const delay = line.image ? 2000 : 1000, fade = 850, hold = 3000;
+   const pace = page === 0 ? 2 : 1;
+   const delay = (line.image ? 2000 : 1000)*pace, fade = 850*pace, hold = 3000*pace;
    const ease = t => { t = Math.max(0, Math.min(1, t)); return t*t*(3-2*t); };
    update = time => {
     if (time >= delay+fade+hold+fade) { advance(); return false; }

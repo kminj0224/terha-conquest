@@ -1,9 +1,10 @@
 'use strict';
-// User-supplied scene artwork, with page numbers matching the 45-page prologue.
+// User-supplied scene artwork, with page numbers matching the 46-page prologue.
 const MAIN_CAMPAIGN_INTRO = Object.freeze([
  ['center', '', '먼 옛날, 이아델 휘하의 네 신격이 창조한 피조물들이 테르하의 대지에 문명을 일구기 시작하던 시대.'],
- ['banner', 'main-campaign-scene-1.png', '천황상의 뜻에 따라 동방대륙에 현신한 세 존재, 이른바 ‘삼자’는 신성한 힘이 깃든 돌, 선석(善石)을 세상에 가져왔다.'],
- ['banner', 'main-campaign-scene-1.png', '그들은 동방대륙에 세 개의 제국을 세운 뒤, 자신들이 가져온 선석을 접경지의 사당, 한례사에 보관하였다.'],
+ ['banner', 'main-campaign-scene-1.png', '테르하의 동쪽 끝, 축복받은 땅 동방대륙에는 천황상의 세 아들, 이른바 ‘삼자’가 현신한다.'],
+ ['banner', 'main-campaign-scene-1.png', '그들은 신성한 힘이 깃든 돌, 선석(善石)을 가져왔고....'],
+ ['banner', 'main-campaign-scene-1.png', '각자 세 제국을 세운 뒤 접경지의 사원, 한례사에 그것을 보관하였다.'],
  ['banner', 'main-campaign-scene-1.png', '선석의 권능은 실로 경이로웠다.'],
  ['banner', 'main-campaign-scene-1.png', '그 빛이 닿는 곳에서 피조물들의 마음에 깃든 폭력과 배신, 이기심과 오만은 자취를 감추었다. 동방의 모든 이들은 타인을 해치거나 기만하려는 마음조차 품지 않는 완전한 선인으로 거듭났다.'],
  ['banner', 'main-campaign-scene-1.png', '다른 대륙에서는 전쟁과 권력투쟁, 반란과 학살이 끊임없이 되풀이되었으나, 동방대륙만큼은 그러한 참화로부터 영원히 격리된 듯하였다.'],

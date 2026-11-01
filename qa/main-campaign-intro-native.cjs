@@ -25,33 +25,38 @@ const click=id=>{const e=nodes.get(id);assert(e,id);if(!e.disabled)e.onclick()};
 const tick=ms=>{clock+=ms;const callbacks=[...frames.values()];frames.clear();for(const f of callbacks)f(clock)};
 const tap=()=>nodes.get('mainIntro').onclick?.({target:{closest:()=>null}});
 const key=key=>{for(const f of keys)f({key,target:nodes.get('mainIntro'),preventDefault(){}})};
-assert.equal(lines.length,45);assert.equal(lines.filter(l=>l.layout==='center').length,6);
-const expectedImage=n=>n>=2&&n<=12?1:n>=13&&n<=22?2:n>=23&&n<=30?3:n>=31&&n<=33?4:n>=37&&n<=38?5:n>=39&&n<=40?6:n>=41&&n<=45?7:0;
+assert.equal(lines.length,46);assert.equal(lines.filter(l=>l.layout==='center').length,6);
+const expectedImage=n=>n>=2&&n<=13?1:n>=14&&n<=23?2:n>=24&&n<=31?3:n>=32&&n<=34?4:n>=38&&n<=39?5:n>=40&&n<=41?6:n>=42&&n<=46?7:0;
 assert(lines.every((l,i)=>l.text&&l.image===(expectedImage(i+1)?'main-campaign-scene-'+expectedImage(i+1)+(expectedImage(i+1)===5?'.jpg':'.png'):'')));
-assert.equal(lines[36].layout,'center');
+assert.equal(lines[37].layout,'center');
+assert.deepEqual(Array.from(lines.slice(1,4),l=>l.text),[
+ '테르하의 동쪽 끝, 축복받은 땅 동방대륙에는 천황상의 세 아들, 이른바 ‘삼자’가 현신한다.',
+ '그들은 신성한 힘이 깃든 돌, 선석(善石)을 가져왔고....',
+ '각자 세 제국을 세운 뒤 접경지의 사원, 한례사에 그것을 보관하였다.'
+]);
 app.open();assert.equal(pickClosed,1);assert.equal(screen,'mainIntro');assert.equal(app.getPage(),0);
 assert(!nodes.has('mcPrev'));assert(!nodes.has('mcNext'));assert(!nodes.has('mcPage'));
 tap();key('ArrowRight');key('Enter');context.terhaBack();assert.equal(app.getPage(),0,'Central text rejects manual progression');
-tick(999);assert.equal(nodes.get('mcVisible').style.opacity,'0');tick(1);assert.equal(nodes.get('mcVisible').style.opacity,'0');
-tick(425);assert.equal(+nodes.get('mcVisible').style.opacity,.5);tick(425);assert.equal(+nodes.get('mcVisible').style.opacity,1);
-tick(2999);assert.equal(+nodes.get('mcVisible').style.opacity,1);assert.equal(app.getPage(),0);tick(1);tick(425);assert.equal(+nodes.get('mcVisible').style.opacity,.5);
-tick(424);assert.equal(app.getPage(),0);tick(1);assert.equal(app.getPage(),1,'Advance only after fade out');
+tick(1999);assert.equal(nodes.get('mcVisible').style.opacity,'0');tick(1);assert.equal(nodes.get('mcVisible').style.opacity,'0');
+tick(850);assert.equal(+nodes.get('mcVisible').style.opacity,.5);tick(850);assert.equal(+nodes.get('mcVisible').style.opacity,1);
+tick(5999);assert.equal(+nodes.get('mcVisible').style.opacity,1);assert.equal(app.getPage(),0);tick(1);tick(850);assert.equal(+nodes.get('mcVisible').style.opacity,.5);
+tick(849);assert.equal(app.getPage(),0);tick(1);assert.equal(app.getPage(),1,'Advance only after fade out');
 assert(nodes.get('mcNext').hidden);assert(nodes.get('mcNext').disabled);nodes.get('mcNext').onclick();tap();key('ArrowRight');assert.equal(app.getPage(),1,'Typing cannot be bypassed');
 const visible=nodes.get('mcVisible');tick(420);assert.equal(visible.textContent,lines[1].text.slice(0,10));tick(lines[1].text.length*42-420);assert.equal(visible.textContent,lines[1].text);assert.equal(nodes.get('mcNext').hidden,false);assert.equal(frames.size,0);
 tap();assert.equal(app.getPage(),1,'Only next button/keyboard advances a complete banner');click('mcNext');assert.equal(app.getPage(),2);assert(nodes.get('mcNext').hidden);
 click('mcSkip');assert.equal(frames.size,0);assert.equal(screen,'mainCampaign');tick(10000);assert(!nodes.has('mainIntro'));
 click('mcWar');assert.equal(nodes.get('mcCampaignDetails').hidden,false);click('mcReplay');assert.equal(app.getPage(),0);
-context.document.hidden=true;visibility.forEach(f=>f());tick(10000);assert.equal(app.getPage(),0);assert.equal(nodes.get('mcVisible').style.opacity,'0');context.document.hidden=false;visibility.forEach(f=>f());tick(1000);assert.equal(nodes.get('mcVisible').style.opacity,'0');
+context.document.hidden=true;visibility.forEach(f=>f());tick(10000);assert.equal(app.getPage(),0);assert.equal(nodes.get('mcVisible').style.opacity,'0');context.document.hidden=false;visibility.forEach(f=>f());tick(2000);assert.equal(nodes.get('mcVisible').style.opacity,'0');
 click('mcSkip');click('mcReplay');
-for(let n=0;n<45;n++){
+for(let n=0;n<46;n++){
  assert.equal(app.getPage(),n);
- const track=tracks[0],expected=n>=1&&n<=32?'main-campaign-ruins.mp3':n>=36?'main-campaign-tomb.mp3':'';
+ const track=tracks[0],expected=n>=1&&n<=33?'main-campaign-ruins.mp3':n>=37?'main-campaign-tomb.mp3':'';
  assert.equal(track.paused,!expected,'Correct music at page '+(n+1));
  if(expected){assert.equal(track.src,expected);assert.equal(track.loop,true);track.currentTime=17;app.syncAudio();assert.equal(track.currentTime,17,'Same range does not restart');}
  if(n===2){context.appSettings.music=0;app.syncAudio();assert(track.paused);context.appSettings.music=.4;app.syncAudio();assert(!track.paused);assert.equal(track.volume,.4);assert.equal(track.currentTime,17);context.document.hidden=true;app.syncAudio();assert(track.paused);context.document.hidden=false;app.syncAudio();assert(!track.paused);}
  if(lines[n].layout==='center'){
   assert(!nodes.has('mcNext'));assert(!nodes.has('mcPrev'));tap();key('ArrowRight');context.terhaBack();assert.equal(app.getPage(),n);
-  if(lines[n].image){tick(1999);assert.equal(nodes.get('mcVisible').style.opacity,'0');tick(4701)}else tick(5700);
+  if(lines[n].image){tick(1999);assert.equal(nodes.get('mcVisible').style.opacity,'0');tick(4701)}else tick(n===0?11400:5700);
  }else{
   assert(nodes.get('mcNext').hidden);tick(Array.from(lines[n].text).length*42);assert(!nodes.get('mcNext').hidden);click('mcNext');
  }
@@ -60,4 +65,4 @@ assert.equal(screen,'mainCampaign');assert(tracks[0].paused);assert.equal(tracks
 app.open();const stale=[...frames.values()][0];click('mcSkip');stale(clock+10000);assert.equal(screen,'mainCampaign');assert.equal(frames.size,0);
 app.open();context.setAppScreen('hub');assert.equal(frames.size,0);assert.equal(app.getView(),'closed');assert(tracks[0].paused);
 assert(fs.existsSync(path.join(__dirname,'../game/assets/main-campaign-intro.jpg')));
-console.log('PASS main prologue pacing: black 1s wait/850ms fade in/3s hold/850ms fade out, image-center 2s wait, auto-only centers, gated next after complete typing, no background tap/previous controls, Skip cancellation, visibility pause and all 45 pages');
+console.log('PASS main prologue pacing: first page 2s wait/1700ms fade in/6s hold/1700ms fade out; other black pages unchanged, image-center 2s wait, auto-only centers, gated next after complete typing, no background tap/previous controls, Skip cancellation, visibility pause and all 46 pages');
