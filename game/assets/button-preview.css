@@ -1,0 +1,59 @@
+/* Opt-in visual comparison only. No query parameter means no visual changes. */
+body[data-button-preview="silver"] {
+  --preview-button: #d9dde1;
+  --preview-button-text: #25292e;
+  --preview-button-hover: #edf0f3;
+  --preview-button-selected: #b8c0c8;
+}
+body[data-button-preview="dark"] {
+  --preview-button: #35383d;
+  --preview-button-text: #f1f2f3;
+  --preview-button-hover: #494e55;
+  --preview-button-selected: #565e68;
+}
+body[data-button-preview] button:not(.imageStart) {
+  background: var(--preview-button) !important;
+  color: var(--preview-button-text) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+body[data-button-preview] button:not(.imageStart):hover {
+  background: var(--preview-button-hover) !important;
+}
+body[data-button-preview] button.chosen {
+  background: var(--preview-button-selected) !important;
+  box-shadow: inset 0 -3px 0 #ad2d35 !important;
+}
+body[data-button-preview] button small {
+  color: inherit !important;
+  opacity: .8;
+}
+body[data-button-preview] button:is(.gold,#cityExpandGold) {
+  background: #ad2d35 !important;
+  color: #fff !important;
+}
+body[data-button-preview] button:is(.gold,#cityExpandGold):hover {
+  background: #c43a43 !important;
+}
+body[data-button-preview] button:focus-visible {
+  outline: 2px solid #fff !important;
+  outline-offset: 3px;
+}
+/* Keep the original menu artwork, with a solid rectangular caption bar. */
+body[data-button-preview] .illustratedMenu::before {
+  display: none !important;
+}
+body[data-button-preview] .illustratedMenu .menuCaption {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px;
+  gap: 4px;
+  background: var(--preview-button);
+}
+body[data-button-preview] .illustratedMenu .menuCaption :is(strong,small) {
+  color: var(--preview-button-text) !important;
+  text-shadow: none !important;
+}
