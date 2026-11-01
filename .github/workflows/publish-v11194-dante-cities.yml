@@ -1,0 +1,98 @@
+name: Verify and release Dante cities v1.11.94
+on:
+  push:
+    branches: [codex/dante-city-v11194]
+permissions:
+  contents: write
+concurrency:
+  group: dante-city-v11194
+  cancel-in-progress: false
+jobs:
+  verify-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
+        timeout-minutes: 3
+      - name: Verify selected city artwork
+        run: echo '5f5cb70acf0a528d93c5eff1c147b1c72c7592d5c687b50d28820e2d2016c057  game/assets/dante-city-atlas.webp' | sha256sum -c -
+      - name: Install regression dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Verify city art, saves, shared campaign and native shell
+        run: |
+          python3 tools/prepare_operation_music.py
+          node qa/dante-city-art-native.cjs
+          node qa/dante-city-art-browser.cjs
+          node qa/main-campaign-intro-native.cjs
+          node qa/main-campaign-intro-browser.cjs
+          node qa/campaign-picker-browser.cjs
+          node qa/campaign-browser.cjs
+          python3 qa/verify-native.py
+      - name: Build signed update APK
+        run: python3 build.py
+      - name: Verify APK identity, signature and retained source resources
+        run: |
+          python3 qa/verify-apk-name.py deliverables/Terha-Conquest-v1.11.94.apk
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.94.apk
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          import hashlib
+          with ZipFile('deliverables/Terha-Conquest-v1.11.94.apk') as z:
+              for name in ['dante-city-atlas.webp','city-art.js','main-campaign-data.js','main-campaign.js']:
+                  assert z.read('assets/'+name)==Path('game/assets',name).read_bytes(), name
+              assert hashlib.sha256(z.read('assets/dante-city-atlas.webp')).hexdigest()=='5f5cb70acf0a528d93c5eff1c147b1c72c7592d5c687b50d28820e2d2016c057'
+              assert b'dante-city-preview' not in z.read('assets/city-art.js')
+              assert 'button-preview.js' not in z.read('assets/index.html').decode()
+          print('PASS approved A city artwork and production renderer inside signed APK; no preview toggles')
+          PY
+          cd deliverables
+          sha256sum Terha-Conquest-v1.11.94.apk > SHA256SUMS-v1.11.94.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dante-city-v11194-screenshots
+          path: |
+            qa/dante-city-release/*.png
+            qa/campaign-previews/main-*.png
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.11.94
+          path: |
+            deliverables/Terha-Conquest-v1.11.94.apk
+            deliverables/SHA256SUMS-v1.11.94.txt
+          if-no-files-found: error
+      - name: Publish verified APK after exact source reaches main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for attempt in $(seq 1 180); do
+            main_sha=$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)
+            if [ "$main_sha" = "$GITHUB_SHA" ]; then
+              if gh release view v1.11.94 >/dev/null 2>&1; then
+                test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/tags/v1.11.94 --jq .object.sha)" = "$GITHUB_SHA"
+                gh release upload v1.11.94 deliverables/Terha-Conquest-v1.11.94.apk deliverables/SHA256SUMS-v1.11.94.txt --clobber
+              else
+                gh release create v1.11.94 deliverables/Terha-Conquest-v1.11.94.apk deliverables/SHA256SUMS-v1.11.94.txt --target "$GITHUB_SHA" --title '테르하 : 낙원의 기억 v1.11.94' --notes-file docs/releases/v1.11.94.md
+              fi
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'Verified source has not reached main; APK release withheld.' >&2
+          exit 1
