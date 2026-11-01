@@ -1,0 +1,24 @@
+name: Dante city concepts - actual game screenshots
+on:
+  push:
+    branches: [codex/dante-city-three-options]
+permissions:
+  contents: read
+jobs:
+  screenshots:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --no-save --package-lock=false playwright@1.58.2
+      - run: npx playwright install --with-deps chromium
+      - run: node qa/dante-city-preview-browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dante-city-actual-game-screenshots
+          path: qa/dante-city-previews/*.png
+          if-no-files-found: error

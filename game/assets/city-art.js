@@ -6,7 +6,17 @@ function baekCityProfile(q){const level=Math.max(1,Math.min(5,q.level)),key=q.ca
 function baekCityBox(q){const a=baekCityProfile(q),h=a.width*a.crop[3]/a.crop[2];return{x:-a.width/2,y:10-h,w:a.width,h,bottom:10}}
 const stetopiaCityArt={capital:loadBaekArt('stetopia-city-capital.png'),5:loadBaekArt('stetopia-city-5.png'),4:loadBaekArt('stetopia-city-4.png'),mid:loadBaekArt('stetopia-city-mid.png'),1:loadBaekArt('stetopia-city-1.png')};
 function stetopiaCityProfile(q){const level=Math.max(1,Math.min(5,q.level)),key=q.capital?'capital':level>=4?level:level>=2?'mid':1;return{key,art:stetopiaCityArt[key],crop:[0,0,1536,1024],width:(q.capital?86:[0,50,56*1.15,62*1.15*1.10,70,78][level])*1.15}}
-function photoCityProfile(q){return q.origin===0?baekCityProfile(q):q.origin===2?stetopiaCityProfile(q):null}
+// URL-only artwork comparison: founding culture and original gameplay stay intact.
+const danteCityPreviewTheme = typeof location === 'object' && typeof location.search === 'string'
+ ? (/^[abc]$/.test(new URLSearchParams(location.search).get('dante-city-preview')||'') ? new URLSearchParams(location.search).get('dante-city-preview') : '') : '';
+const danteCityPreviewCrops = {"a":{"1":[96,148,332,215],"2":[551,30,378,360],"3":[1043,34,450,383],"4":[31,459,440,469],"5":[516,430,489,535],"capital":[1036,418,483,551]},"b":{"1":[86,140,400,284],"2":[578,25,395,413],"3":[1067,30,419,410],"4":[28,503,490,461],"5":[537,468,480,518],"capital":[1026,458,502,531]},"c":{"1":[101,192,318,209],"2":[546,83,399,333],"3":[1053,61,430,355],"4":[19,489,447,451],"5":[501,484,473,467],"capital":[1011,449,508,512]}};
+const danteCityPreviewArt = danteCityPreviewTheme ? loadBaekArt('dante-city-preview-'+danteCityPreviewTheme+'.webp') : null;
+function danteCityPreviewProfile(q){
+ if(!danteCityPreviewTheme||q.origin!==1)return null;
+ const level=Math.max(1,Math.min(5,q.level)),key=q.capital?'capital':String(level);
+ return{key,art:danteCityPreviewArt,crop:danteCityPreviewCrops[danteCityPreviewTheme][key],width:q.capital?102:[0,50,58,66,75,84][level]};
+}
+function photoCityProfile(q){return q.origin===0?baekCityProfile(q):q.origin===2?stetopiaCityProfile(q):danteCityPreviewProfile(q)}
 function photoCityBox(q){const a=photoCityProfile(q),h=a.width*a.crop[3]/a.crop[2];return{x:-a.width/2,y:10-h,w:a.width,h,bottom:10}}
 const cityArtBuildingLayout=cityBuildingLayout;cityBuildingLayout=function(q){const layout=cityArtBuildingLayout(q);if(!photoCityProfile(q))return layout;const box=photoCityBox(q);return{...layout,top:box.y,starY:box.y-3}};
 const cityArtSprite=citySprite;citySprite=function(q,p){const a=photoCityProfile(q);if(!a)return cityArtSprite(q,p);if(!a.art.idleReady)return cityArtSprite(q,p);const box=photoCityBox(q);ctx.save();ctx.translate(p.x,p.y);ctx.drawImage(a.art.idle,...a.crop,box.x,box.y,box.w,box.h);if(q.airport)drawAirport();if(cam.z>.45){ctx.font='bold 11px Terha,sans-serif';ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='#153039';const stars='★'.repeat(q.level),starY=box.y-3;ctx.strokeText(stars,0,starY);ctx.fillStyle='#f6d483';ctx.fillText(stars,0,starY);}if(q.aa){rect(-31,-13,9,6,'#687d75');line(-28,-14,-21,-22,'#dde3c2',2)}if(q.lab){rect(box.w/2+3,-27,12,20,'#92b6bb');circle(box.w/2+9,-28,7,'#cae0d8')}if(q.harbor)line(-30,12,24,12,'#a7b8b3',2);if(q.launcher){rect(box.w/2,-4,18,6,'#63736b');line(box.w/2+7,-5,box.w/2+16,-23,'#c9d3c1',4)}ctx.restore();drawCityFire(q,p,lastTime)};
