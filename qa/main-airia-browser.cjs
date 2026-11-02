@@ -11,7 +11,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.click('#campaignMode');await page.click('#mainCampaign');await page.click('#mcSkip');
   assert.equal(await page.locator('#mcWar img').getAttribute('src'),'main-campaign-scene-7.png');
   const stages=async()=>{await page.click('#mcWar');assert.equal(await page.locator('.mcStageCard[aria-disabled="false"]').count(),1);assert.equal(await page.locator('.mcStageCard[aria-disabled="true"]').count(),9);assert.equal(await page.locator('.mcStageCard strong').first().textContent(),'아이리아 전역.');};
-  await stages();await page.locator('.mcStageCard').nth(1).click();assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stages');
+  await stages();await page.locator('.mcStageCard').nth(1).dispatchEvent('click');assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stages');
   await page.locator('.mcStageCard').first().click();
   const lines=await page.evaluate(()=>MAIN_AIRIA.intro);assert.equal(lines.length,25);assert.deepEqual([...new Set(lines.map(l=>l.speaker))].sort(),['adjutant','nagorn','scout']);assert.equal(lines[24].speaker,'scout');assert(lines[24].text.includes('증원병력'));
   fs.mkdirSync('qa/campaign-previews',{recursive:true});
@@ -29,7 +29,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
     await page.click('#maNext');
    }
    assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stage-start');assert.equal(await page.locator('.maStartCard h1').textContent(),'아이리아 전역.');
-   assert.equal(await page.locator('.maStartCard').innerText(),'OPERATION 01\n아이리아 전역.\n플레이');
+   assert.equal(await page.locator('.maStartCard button').count(),1);assert.equal(await page.locator('#maPlay').textContent(),'플레이');assert(!(await page.locator('.maStartCard').innerText()).includes('클리어'));
    await page.click('#maPlay');assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stage-play');
    assert(await page.evaluate(()=>activeScenario===null));assert.equal(await page.evaluate(()=>JSON.stringify(localStorage)),saves);
    await page.evaluate(()=>terhaBack());await page.locator('.mcStageCard').first().click();

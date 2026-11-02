@@ -4,7 +4,7 @@
 <path d="M0 0H1600L1400 155 800 65 180 160Z" fill="#776045"/>
 <path d="M0 0L180 160 70 900H0M1600 0L1400 155 1510 900H1600" fill="#382e24"/>
 <path d="M1000 180H1390L1440 595H1000Z" fill="url(#sky)"/>
-<image href="main-campaign-scene-7.png" x="1000" y="180" width="440" height="420" preserveAspectRatio="xMidYMid slice" opacity=".8"/>
+<path d="M1000 485L1210 250 1432 485Z" fill="#a68a5f"/><path d="M1210 250L1250 485H1432Z" fill="#776244"/><path d="M1000 485H1432V595H1000Z" fill="#b59869"/><path d="M1040 510H1100V565H1040M1140 530H1210V575H1140M1290 510H1370V575H1290" fill="#71634c"/>
 <path d="M1000 180V598H1440M1220 180V598M995 385H1418" fill="none" stroke="#332a22" stroke-width="14"/>
 <path d="M970 155L1110 170 1035 620 955 625ZM1280 170L1410 152 1480 625 1400 612Z" fill="#61503b"/>
 <path d="M185 165L800 65 1400 155M800 65V900M180 160L70 900M1400 155L1510 900" fill="none" stroke="#252822" stroke-width="15"/>
