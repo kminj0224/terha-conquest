@@ -6,7 +6,7 @@ permissions:
   contents: write
 concurrency:
   group: unit-balance-v11195
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   verify-release:
     runs-on: ubuntu-24.04

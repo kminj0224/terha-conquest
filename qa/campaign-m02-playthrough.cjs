@@ -6,9 +6,19 @@ module.exports=async function({run,drain}){
   if(prepared){CampaignBattle.start(null,1);const hero=units.find(u=>u.missionRole==='iron-crown');hero.tile=CampaignBattle.inspect().progress.exit;CampaignBattle.check();carry=JSON.parse(JSON.stringify(snapshot()));CampaignBattle.leave()}
   CampaignBattle.start(null,1,{id:'iron-crown-m02',route,carry});
   rngSeed=74123;let built=0,losses=0;const initial=units.filter(u=>u.f===2).length;console.log('M02_SETUP',JSON.stringify({route,prepared,foodIncome:foodIncome(2),food:food[2],army:units.filter(u=>u.f===2).map(u=>({type:u.type,hp:u.hp,attack:unitAttack(u)}))}));
+  function routeCosts(u,goal){
+   const costs=new Map([[goal,0]]),queue=[goal];
+   for(let n=0;n<queue.length;n++)for(const i of neighbors(queue[n])){
+    if(costs.has(i)||!CampaignBattle.contains(i)||moveCost(u,i)>=999)continue;
+    const blocker=unitAt(i),city=cityAt(i);
+    if(blocker&&blocker!==u||city&&city.f!==u.f&&city.hp>0)continue;
+    costs.set(i,costs.get(queue[n])+1);queue.push(i);
+   }
+   return costs;
+  }
   for(let step=0;step<65&&!CampaignBattle.inspect().progress.result;step++){
    if(prepared&&tech[2]<5&&!militaryResearchJobs[2]&&money[2]>=(tech[2]+1)*450){selectCity(cities[0],true);research();}
-   const extraction=prepared&&cities[1].f===2&&cities[2].f===2&&CampaignBattle.goalRows()[0].done;
+   const extraction=prepared&&cities[1].f===2&&cities[2].f===2;
    if(production&&!extraction)for(const q of cities.filter(q=>q.f===2)){
     const force=units.filter(u=>u.f===2),rifles=force.filter(u=>u.type===0).length;
     const pool=rifles<3?[0,8,9]:[2,9,1,16,0,8];
@@ -21,13 +31,31 @@ module.exports=async function({run,drain}){
    for(const u of army){
     if(!units.includes(u))continue;
     for(let action=0;action<5&&u.ap>0&&units.includes(u);action++){
-     const exit=CampaignBattle.inspect().progress.exit,extract=prepared&&cities[1].f===2&&cities[2].f===2&&CampaignBattle.goalRows()[0].done;
+     const exit=CampaignBattle.inspect().progress.exit,extract=prepared&&cities[1].f===2&&cities[2].f===2;
      if(extract&&mayMove(u)){
       const options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile);
-      if(u.missionRole){options.sort((a,b)=>distance(a,exit)-distance(b,exit));if(options[0]!==undefined&&distance(options[0],exit)<distance(u.tile,exit)){moveUnit(u,options[0],true);continue}}
-      else if(distance(u.tile,exit)<4){options.sort((a,b)=>distance(b,exit)-distance(a,exit));if(options[0]!==undefined){moveUnit(u,options[0],true);continue}}
+      if(u.missionRole){const costs=routeCosts(u,exit);options.sort((a,b)=>(costs.get(a)??Infinity)-(costs.get(b)??Infinity));if(options[0]!==undefined&&costs.has(options[0])&&(costs.get(options[0])<(costs.get(u.tile)??Infinity))){moveUnit(u,options[0],true);continue}}
+      else{
+       // Keep friendly traffic and reinforcement entry cells clear while the fortress exits.
+       const anchor=cities[1].tile,origin=IRON_CROWN_CAMPAIGN.battle2.map.origin;
+       const edge=i=>tiles[i].x-origin.x>=20||tiles[i].y-origin.y<=2||tiles[i].y-origin.y>=13;
+       const score=i=>(edge(i)?100:0)+distance(i,anchor);
+       options.sort((a,b)=>score(a)-score(b));
+       if(options[0]!==undefined&&(edge(u.tile)||distance(u.tile,exit)<4)&&score(options[0])<score(u.tile)){moveUnit(u,options[0],true);continue}
+      }
      }
-     if(extract&&!u.missionRole)break;
+     if(extract){
+      const waves=units.filter(v=>atWar(u.f,v.f)&&v.missionWave&&v.hp>0);
+      const shot=waves.filter(v=>canAttack(u,v)).sort((a,b)=>a.hp-b.hp)[0];
+      if(shot){await attack(u,shot,true);continue}
+      if(!u.missionRole&&mayMove(u)&&waves.length){
+       const target=waves.sort((a,b)=>distance(u.tile,a.tile)-distance(u.tile,b.tile))[0],range=Math.max(1,navalTargetRange(u,target));
+       const score=i=>Math.abs(distance(i,target.tile)-range);
+       const options=[...reachable(u).costs.keys()].filter(i=>i!==u.tile).sort((a,b)=>score(a)-score(b));
+       if(options[0]!==undefined&&score(options[0])<score(u.tile)){moveUnit(u,options[0],true);continue}
+      }
+      break;
+     }
      const hold=prepared&&!extract&&u.missionRole&&u.hp<unitMaxHp(u)*.65;
      if(hold&&u.missionRole&&u.tile!==cities[0].tile&&mayMove(u)&&reachable(u).costs.has(cities[0].tile)){moveUnit(u,cities[0].tile,true);continue}
      const enemies=units.filter(v=>atWar(u.f,v.f)&&v.hp>0);
