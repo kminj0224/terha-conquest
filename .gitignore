@@ -10,3 +10,6 @@ __pycache__/
 tools/android-stubs.jar
 tools/dx.jar
 game/assets/operation-music-data.js
+
+# Original campaign portraits are retained only in the isolated asset commit.
+game/assets/main-airia-*.png
