@@ -2,7 +2,7 @@
 """Repackage the retained Android shell with current game assets and original signing key."""
 import pathlib,zipfile,struct,subprocess,os,urllib.request
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
-VERSION='1.11.98';CODE=243
+VERSION='1.11.99';CODE=244
 subprocess.run(['python3','tools/prepare_operation_music.py'],check=True)
 subprocess.run(['python3','tools/prepare_main_airia_assets.py'],check=True)
 T=ROOT/'tools';T.mkdir(exist_ok=True)

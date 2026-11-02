@@ -1,0 +1,95 @@
+name: Verify and release campaign presentation and audio v1.11.99
+on:
+  push:
+    branches: [main, codex/presentation-audio-v11199]
+    paths: ['.github/workflows/publish-v11199-presentation-audio.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: release-v11199
+  cancel-in-progress: false
+jobs:
+  verify-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
+        timeout-minutes: 3
+      - name: Verify game, campaign opening and Android shell
+        run: |
+          npm ci --no-audit --no-fund
+          python3 tools/prepare_operation_music.py
+          python3 tools/prepare_main_airia_assets.py
+          npm test
+          node qa/main-campaign-intro-native.cjs
+          node qa/presentation-audio-regression.cjs
+          python3 qa/verify-native.py
+      - name: Install Chromium and verify main and shared campaign flows
+        run: |
+          npm install --no-save --package-lock=false playwright@1.51.1
+          npx playwright install --with-deps chromium
+          node qa/main-airia-browser.cjs
+          node qa/main-campaign-intro-browser.cjs
+          node qa/campaign-browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: airia-campaign-screen-checks
+          path: qa/campaign-previews/
+          if-no-files-found: ignore
+      - name: Build signed update APK
+        run: python3 build.py
+      - name: Verify APK identity, original certificate and original campaign portrait bytes
+        run: |
+          python3 qa/verify-apk-name.py deliverables/Terha-Conquest-v1.11.99.apk
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.99.apk
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          from hashlib import sha256
+          import sys
+          sys.path.insert(0,'tools')
+          from prepare_main_airia_assets import ASSETS
+          expected = ASSETS
+          with ZipFile('deliverables/Terha-Conquest-v1.11.99.apk') as z:
+              for name, digest in expected.items():
+                  original = Path('game/assets',name).read_bytes()
+                  assert sha256(original).hexdigest() == digest, name
+                  assert z.read('assets/'+name) == original, name
+              for name in ['index.html','main-airia-data.js','main-airia-command-post.jpg','dialogue-typewriter.js','game-music.js','main-campaign.js','main-campaign.css','app-shell.js','saves.js']:
+                  assert z.read('assets/'+name) == Path('game/assets',name).read_bytes(), name
+          print('PASS original Airia portrait PNG bytes and exact runtime code in signed APK')
+          PY
+          cd deliverables
+          sha256sum Terha-Conquest-v1.11.99.apk > SHA256SUMS-v1.11.99.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.11.99
+          path: |
+            deliverables/Terha-Conquest-v1.11.99.apk
+            deliverables/SHA256SUMS-v1.11.99.txt
+          if-no-files-found: error
+      - name: Publish verified update
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+          if gh release view v1.11.99 >/dev/null 2>&1; then
+            test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/tags/v1.11.99 --jq .object.sha)" = "$GITHUB_SHA"
+            gh release upload v1.11.99 deliverables/Terha-Conquest-v1.11.99.apk deliverables/SHA256SUMS-v1.11.99.txt --clobber
+          else
+            gh release create v1.11.99 deliverables/Terha-Conquest-v1.11.99.apk deliverables/SHA256SUMS-v1.11.99.txt --target "$GITHUB_SHA" --title '테르하 : 낙원의 기억 v1.11.99' --notes-file docs/releases/v1.11.99.md
+          fi

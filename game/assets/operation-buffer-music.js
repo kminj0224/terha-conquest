@@ -4,7 +4,7 @@
 class OperationBufferPlayer{
  constructor(){this.context=null;this.gain=null;this.cache=new Map();this.loading=new Map();this.nodes=[];this.generation=0;this.starting=false;this.running=false;this.error=null}
  ensure(){
-  if(!this.context){const AudioContext=window.AudioContext||window.webkitAudioContext;this.context=new AudioContext();this.gain=this.context.createGain();this.gain.connect(this.context.destination)}
+  if(!this.context){const AudioContext=window.AudioContext||window.webkitAudioContext;this.context=new AudioContext();this.gain=this.context.createGain();this.gain.connect(this.context.destination);this.context.addEventListener?.('statechange',()=>{if(operationMusicWanted()&&['suspended','interrupted'].includes(this.context.state))this.context.resume().catch(()=>{})})}
   return this.context;
  }
  async load(index){

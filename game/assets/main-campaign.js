@@ -1,9 +1,9 @@
 'use strict';
 const MainCampaign = (() => {
- let stagePage = 0, autoTimer = null;
+ let stagePage = 0, autoTimer = null, typewriter = null;
  let page = 0, frame = 0, root = null, view = 'closed', ready = false, resetClock = null;
  // One streaming player preserves playback position across pages in each music range.
- const music = new Audio();
+ const music = createGameMusic();
  music.loop = true; music.preload = 'auto';
  let musicSource = '';
  function syncAudio() {
@@ -21,7 +21,7 @@ const MainCampaign = (() => {
   } else if (!music.paused) music.pause();
  }
  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- function stop() { if (autoTimer) clearTimeout(autoTimer); autoTimer = null; if (frame) cancelAnimationFrame(frame); frame = 0; resetClock = null; ready = false; }
+ function stop() { typewriter?.cancel(); typewriter=null; if (autoTimer) clearTimeout(autoTimer); autoTimer = null; if (frame) cancelAnimationFrame(frame); frame = 0; resetClock = null; ready = false; }
  function leave() { stop(); root = null; view = 'closed'; syncAudio(); }
  function open() {
   if (busy) return;
@@ -114,6 +114,7 @@ const MainCampaign = (() => {
   view='stage-intro';
   const line=MAIN_AIRIA.intro[stagePage], person=MAIN_AIRIA.characters[line.speaker];
   mountStage('<section class="cpVN maField" aria-label="황금항의 야전 지휘소"><img class="maPortrait ma-'+line.speaker+'" src="'+person.image+'" alt="'+person.name+'"><div class="cpVNTop"><span class="cpEyebrow">황금항 · 야전 지휘소</span><div class="cpVNTools"><button id="maHistory">기록</button><button id="maAuto">자동</button><button id="maSkip">건너뛰기</button><button id="maLeave">나가기</button></div></div><div class="cpDialogue"><div class="cpSpeaker">'+person.name+'</div><p class="cpLine" id="maLine">'+esc(line.text)+'</p><div class="cpVNFooter"><span id="maPage">'+(stagePage+1)+' / 25</span><div><button id="maPrev" '+(stagePage===0?'disabled':'')+'>이전</button><button id="maNext" class="gold">'+(stagePage===24?'미션 시작':'다음')+'</button></div></div></div></section>');
+  typewriter=DialogueTypewriter.start($('maLine'),$('maNext'),line.text);
   $('maPrev').onclick=()=>{if(stagePage>0){stagePage--;stageVN();}};
   $('maNext').onclick=stageNext;
   $('maLeave').onclick=stages;
@@ -126,7 +127,7 @@ const MainCampaign = (() => {
   $('maAuto').textContent='자동 중';
   autoTimer=setTimeout(()=>{autoTimer=null;if(document.hidden||view!=='stage-intro')return;stageNext();if(view==='stage-intro')startAuto();},Math.max(3500,MAIN_AIRIA.intro[stagePage].text.length*85));
  }
- function stageNext(){if(view!=='stage-intro')return;if(stagePage<24){stagePage++;stageVN();}else stageStart();}
+ function stageNext(){if(view!=='stage-intro'||!typewriter?.ready)return;if(stagePage<24){stagePage++;stageVN();}else stageStart();}
  function stageHistory(){
   if(autoTimer){clearTimeout(autoTimer);autoTimer=null;$('maAuto').textContent='자동';}
   if($('maHistorySheet'))return;

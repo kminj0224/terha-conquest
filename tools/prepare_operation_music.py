@@ -31,6 +31,9 @@ def prepare():
         tracks[name] = dict(start=start, end=end,
                             data=base64.b64encode(path.read_bytes()).decode('ascii'))
         print(f'{name}: file={duration:.3f}s, playback={start:.3f}..{end:.3f}s')
+    # Retain complete original front-screen/prologue tracks, including their natural edges.
+    for name in ['menu-music.mp3', 'main-campaign-ruins.mp3', 'main-campaign-tomb.mp3']:
+        tracks[name] = dict(data=base64.b64encode((ASSETS/name).read_bytes()).decode('ascii'))
     (ASSETS / 'operation-music-data.js').write_text(
         "'use strict';\nconst OPERATION_MUSIC_DATA=" + json.dumps(tracks, separators=(',', ':')) + ';\n')
 

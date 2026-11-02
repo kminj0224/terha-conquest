@@ -18,7 +18,7 @@ class Element{
 const modal=new Element();nodes.set('modal',modal);
 const tracks=[];class Audio{constructor(){this.paused=true;this.currentTime=0;this.plays=0;tracks.push(this)}pause(){this.paused=true}play(){this.paused=false;this.plays++;return Promise.resolve()}}
 const context={console,Audio,appSettings:{music:.65},busy:false,$:id=>nodes.get(id),performance:{now:()=>clock},requestAnimationFrame:f=>{const id=++serial;frames.set(id,f);return id},cancelAnimationFrame:id=>frames.delete(id),document:{hidden:false,querySelectorAll:()=>[],addEventListener:(name,f)=>{if(name==='keydown')keys.push(f);if(name==='visibilitychange')visibility.push(f)}},tr:ko=>ko,setAppScreen:name=>{screen=name;context.TerhaMainCampaign?.syncAudio()},showBattlefield:()=>{context.setAppScreen('battlefield')},closeCampaignPicker:()=>{pickClosed++;context.closeCampaignPicker=null},terhaBack:()=>{oldBacks++}};
-context.window=context;vm.createContext(context);
+context.createGameMusic=()=>new Audio();context.window=context;vm.createContext(context);
 for(const name of ['main-campaign-data.js','main-airia-data.js','main-campaign.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../game/assets',name),'utf8'),context,{filename:name});
 const app=context.TerhaMainCampaign,lines=vm.runInContext('MAIN_CAMPAIGN_INTRO',context);
 const click=id=>{const e=nodes.get(id);assert(e,id);if(!e.disabled)e.onclick()};
