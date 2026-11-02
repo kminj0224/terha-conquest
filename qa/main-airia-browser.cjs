@@ -12,9 +12,9 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   assert.equal(await page.locator('#mcWar img').getAttribute('src'),'main-campaign-scene-7.png');
   const stages=async()=>{await page.click('#mcWar');assert.equal(await page.locator('.mcStageCard[aria-disabled="false"]').count(),1);assert.equal(await page.locator('.mcStageCard[aria-disabled="true"]').count(),9);assert.equal(await page.locator('.mcStageCard strong').first().textContent(),'아이리아 전역.');};
   await stages();await page.locator('.mcStageCard').nth(1).dispatchEvent('click');assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stages');
+  await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+1000));
   await page.locator('.mcStageCard').first().click();
   const lines=await page.evaluate(()=>MAIN_AIRIA.intro);assert.equal(lines.length,25);assert.deepEqual([...new Set(lines.map(l=>l.speaker))].sort(),['adjutant','nagorn','scout']);assert.equal(lines[24].speaker,'scout');assert(lines[24].text.includes('증원병력'));
-  await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+1000));
   fs.mkdirSync('qa/campaign-previews',{recursive:true});
   for(const [width,height] of [[960,540],[640,360],[390,844],[844,390]]){
    await page.setViewportSize({width,height});
