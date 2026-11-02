@@ -161,6 +161,8 @@ const MainCampaign = (() => {
   return oldBack();
  };
  document.addEventListener('keydown', e => {
+  // The shared shell already routes Back/Escape through terhaBack.
+  if(e.defaultPrevented&&['Escape','BrowserBack'].includes(e.key))return;
   if(view.startsWith('stage-')){
    if(e.key==='Escape'){e.preventDefault();window.terhaBack();return;}
    if(view==='stage-intro'&&!$('maHistorySheet')&&!['BUTTON','INPUT','SELECT'].includes(e.target?.tagName)){

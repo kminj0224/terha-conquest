@@ -2,7 +2,7 @@ name: Verify Airia campaign screens
 on:
   push:
     branches: [codex/airia-stage-01-v11198]
-    paths: ['qa/main-airia-browser.cjs', 'game/assets/main-airia-command-post.svg', '.github/workflows/airia-campaign-browser.yml']
+    paths: ['game/assets/main-campaign.js', 'qa/main-airia-browser.cjs', 'game/assets/main-airia-command-post.svg', '.github/workflows/airia-campaign-browser.yml']
 permissions:
   contents: read
 jobs:
