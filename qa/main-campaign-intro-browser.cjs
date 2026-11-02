@@ -4,7 +4,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
 (async()=>{
  const server=spawn('python3',['-m','http.server','8779','--bind','127.0.0.1'],{cwd:path.resolve(__dirname,'..'),stdio:'ignore'});let browser;
  try{
-  browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:960,height:540}}),errors=[];
+  browser=await chromium.launch({executablePath:process.env.TERHA_CHROME_EXECUTABLE||undefined,headless:true});const page=await browser.newPage({viewport:{width:960,height:540}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8779/game/assets/index.html');await page.locator('#appStart:not([disabled])').waitFor();await page.click('#appStart');await page.click('#battle');
   const saves=await page.evaluate(()=>JSON.stringify(localStorage));
@@ -27,7 +27,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    await page.click('#mcNext');
   }
   await page.click('#mcSkip');assert(await page.locator('#mainCampaignSelection').isVisible());await page.clock.fastForward(10000);assert(await page.locator('#mainCampaignSelection').isVisible());
-  await page.click('#mcWar');assert(await page.locator('.mcStages').isVisible());assert.equal(await page.locator('.mcStageCard[aria-disabled=true]').count(),10);assert.equal(await page.locator('[role=dialog], [data-stage-layout], #mcStagesClose').count(),0);await page.click('#mcStagesBack');
+  await page.click('#mcWar');assert(await page.locator('.mcStages').isVisible());assert.equal(await page.locator('.mcStageCard[aria-disabled=true]').count(),9);assert.equal(await page.locator('[role=dialog], [data-stage-layout], #mcStagesClose').count(),0);await page.click('#mcStagesBack');
   const lines=await page.evaluate(()=>MAIN_CAMPAIGN_INTRO);assert.equal(lines.length,46);assert.equal(lines.filter(l=>l.layout==='center').length,6);assert.equal(lines.filter(l=>l.image).length,42);
   for(const [width,height]of [[960,540],[640,360],[390,844],[844,390],[2400,1080]]){
    await page.setViewportSize({width,height});await page.click('#mcReplay');let font;
