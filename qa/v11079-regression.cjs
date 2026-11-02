@@ -20,12 +20,12 @@ module.exports=async function({run}){
  const cityBackup={...city},savedBases=missileBases;
  try{
   city.aa=true;missileBases=[{id:9998,kind:'sam',f:city.f,tile:city.tile,remaining:0,hp:34000}];
-  check(cityAirStrikeDamage('fighter',city)===450,'AA+SAM fighter damage');
+  check(cityAirStrikeDamage('fighter',city)===675,'AA+SAM fighter damage');
   const carrier={type:25,f:0,level:1,tile:capital.tile,hp:unitMaxHp({type:25,f:0,level:1})};
   check(siegeDamage(carrier,city)===450,'Carrier defense-adjusted 450 city damage, not 2,000');
  }finally{Object.assign(city,cityBackup);missileBases=savedBases}
  const oldUnits=units,sourceTile=city.tile,oldDip=diplomacy[0][city.f],oldDipReverse=diplomacy[city.f][0];
- const savedMoney=money[0],savedOil=oil[0];
+ const savedMoney=money[0],savedOil=oil[0],savedFood=food[0];
  try{
   diplomacy[0][city.f]=diplomacy[city.f][0]='war';units=[];missileBases=[];
   city.aa=false;city.hp=cityMaxHp(city);city.lastAttackedTurn=turn;
@@ -55,7 +55,7 @@ module.exports=async function({run}){
   check(fx.some(e=>e.kind==='blast'&&e.damage===expected),'Displayed airstrike city hit must equal actual reduced damage');
   check(oil[0]===oilD-AIR_MISSIONS[kind].oil,'Sortie oil cost changed');
   // Two back-to-back airdrops remain targeted, and the X cancels targeting.
-  units=[];missileBases=[];money[0]=300000;oil[0]=10000;
+  units=[];missileBases=[];money[0]=300000;oil[0]=10000;food[0]=10000;
   const eligible=()=>tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&!unitAt(i)&&!baseAt(i)&&distance(i,base.tile)<=60);
   const first=eligible();check(first>=0,'No valid air drop tile');
   selectCity(base,true);beginAirTarget(base,'transport');
@@ -69,7 +69,7 @@ module.exports=async function({run}){
   check(airTarget===null,'X must cancel continued airport targeting');
   return {oilRates,cityDamage:expected,boarding:'preserved',repeatDrops:2,cityAndGarrison:true};
  }finally{
-  units=oldUnits;missileBases=savedBases;money[0]=savedMoney;oil[0]=savedOil;
+  units=oldUnits;missileBases=savedBases;money[0]=savedMoney;oil[0]=savedOil;food[0]=savedFood;
   diplomacy[0][city.f]=oldDip;diplomacy[city.f][0]=oldDipReverse;
   for(const k of Object.keys(city))delete city[k];Object.assign(city,cityBackup);
   buildRegions();airTarget=null;

@@ -6,7 +6,7 @@ const balance={TYPES:Array.from({length:30},()=>({hp:100,atk:1,cost:1,text:''}))
 vm.createContext(balance);
 for(const [,file]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^"]+)"/g))
  if(['unit-balance.js','artillery-balance.js'].includes(file))vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),balance);
-assert.equal(balance.TYPES[11].atk,33);assert.equal(balance.TYPES[18].atk,96);assert.equal(balance.TYPES[18].cost,1000);assert.equal(balance.TYPES[18].branch,'armor');assert(balance.TYPES[18].tank);
+assert.equal(balance.TYPES[11].atk,33);assert.equal(balance.TYPES[18].atk,96);assert.equal(balance.TYPES[18].cost,1220);assert.equal(balance.TYPES[18].branch,'armor');assert(balance.TYPES[18].tank);
 
 const s={strategicResearch:Array.from({length:7},()=>({})),console,Set,Map,Math,Number,window:{Terha:{}},document:{addEventListener:noop},
  $:()=>({}),canProduce:()=>true,productionReason:()=>'',produce:noop,unitPage:noop,cityCommandOpen:noop,cityOverview:()=>'',deploy:noop,

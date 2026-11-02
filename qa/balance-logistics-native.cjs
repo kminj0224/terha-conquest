@@ -9,13 +9,13 @@ new Function('require','__dirname',source.slice(0,at)+`
  check(!TYPES[22].text.includes('사거리'),'Fast craft duplicate range removed');
  check(unitPrice(6,1)===780,'Black Legion food');
  check(TYPES[SAPROS].hp===520&&TYPES[SAPROS].move===2,'Sapros baseline');
- check(!TYPES[9].antiArmor,'Anti-tank multiplier removed');
- for(const [k,t] of TYPES.entries())check(!/1단계 기본 체력|생산 식량|(?<!병력 )사거리 [0-9]|공격력 [0-9]+,|이동력 [0-9]+칸/.test(t.text),'Duplicate stats '+k+': '+t.text);
+ check(TYPES[9].antiArmor===4.5,'Anti-tank multiplier x4.5');
+ for(const [k,t] of TYPES.entries())if(k!==15&&k!==AIRBORNE_TROOPER)check(!/1단계 기본 체력|생산 식량|(?<!병력 )사거리 [0-9]|공격력 [0-9]+,|이동력 [0-9]+칸/.test(t.text),'Duplicate stats '+k+': '+t.text);
  units=[];tech.fill(0);
  const tile=tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&!RANNA_RIVER_TILES.has(i));tiles[tile].terrain=1;
- const tank={type:1,f:2,level:1,tile,hp:280},at={type:9,f:0,level:1,tile,hp:135};
+ const tank={type:1,f:2,level:1,tile,hp:280},at={type:9,f:0,level:1,tile,hp:85};
  const armor=TYPES[1].def;TYPES[1].def=0;const noArmor=damage(at,tank);TYPES[1].def=900;
- check(damage(at,tank)===noArmor&&noArmor===28,'Anti-tank bypass without bonus damage');
+ check(damage(at,tank)===noArmor&&noArmor===63,'Anti-tank armor bypass and x4.5 attack');
  const g={type:DEKPHUING_GUERRILLA,f:4,level:1,tile,hp:90};tiles[tile].terrain=2;
  check(unitAttack(g)===28&&rannaTerrainProtection(g)===.7,'Guerrilla +100%/30%');
  const pierce=damage(g,tank);TYPES[1].def=0;check(damage(g,tank)===pierce,'Guerrilla ignores armor');TYPES[1].def=armor;

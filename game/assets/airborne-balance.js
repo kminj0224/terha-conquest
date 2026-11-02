@@ -1,17 +1,17 @@
 'use strict';
 // Airborne troops are a temporary, single-stage air-drop-only unit.
 // The type is appended after existing ids to preserve old saves and scenarios.
-const AIRBORNE_TROOPER=TYPES.length, AIRBORNE_TURNS=2;
+const AIRBORNE_TROOPER=TYPES.length, AIRBORNE_TURNS=3;
 TYPES.push({
- name:'공수부대',cost:TYPES[0].cost,hp:211,atk:52,def:TYPES[0].def,
+ name:'공수부대',cost:510,hp:211,atk:52,def:TYPES[0].def,
  move:TYPES[0].move,range:TYPES[0].range,branch:'infantry',icon:'×',
- text:'수송기 공수강하 전용. 공격력 52, 체력 211. 방어시설 피해 ×500, 3레벨 이하 도시 피해 ×200. 2턴 뒤 행동 불가. 아군 비공수부대가 3타일 안에 있거나 진입하면 4단계 소총수로 전환되며, 최초 행동에 소총수 생산 식량이 부과됩니다.'
+ text:'수송기 공수강하 전용. 공격력 52, 체력 211. 방어시설·3레벨 이하 도시 피해 ×90. 공수강하 비용: 식량 510, 골드 1100, 석유 20. 3턴 뒤 행동 불가. 아군 비공수부대가 2타일 안에 있거나 진입하면 1단계 소총수로 전환되며, 최초 행동에 소총수 생산 식량이 부과됩니다.'
 });
 UNIT_STORIES[AIRBORNE_TROOPER]='수송기의 하강등이 켜지면 공수대원들이 장구를 조여 맵니다. 처음에는 독립된 전투부대로 움직이지만, 보급부대와 합류하면 정규 소총수 편제로 재편됩니다.';
 function isAirborne(u){return !!u&&u.type===AIRBORNE_TROOPER}
 function airborneExpired(u){return isAirborne(u)&&Number.isInteger(u.airdropTurn)&&turn-u.airdropTurn>=AIRBORNE_TURNS}
-function airborneSupport(u){return units.some(v=>v!==u&&v.f===u.f&&v.type!==AIRBORNE_TROOPER&&v.hp>0&&!v.carriedBy&&distance(u.tile,v.tile)<=3)}
-function airborneRifleCost(u){return u?.riflePaymentDue?unitPrice(0,4):0}
+function airborneSupport(u){return units.some(v=>v!==u&&v.f===u.f&&v.type!==AIRBORNE_TROOPER&&v.hp>0&&!v.carriedBy&&distance(u.tile,v.tile)<=2)}
+function airborneRifleCost(u){return u?.riflePaymentDue?unitPrice(0,1):0}
 function airborneAffordable(u){return food[u.f]>=airborneRifleCost(u)}
 const baseAirborneHp=unitMaxHp;
 unitMaxHp=function(u){return isAirborne(u)?211:baseAirborneHp(u)};
@@ -22,19 +22,19 @@ canProduce=function(q,k,level=1){return k!==AIRBORNE_TROOPER&&baseAirborneProduc
 const baseAirborneSiege=siegeDamage;
 siegeDamage=function(u,target){
  if(!isAirborne(u))return baseAirborneSiege(u,target);
- if(target?.kind==='sam'||target?.kind==='sea')return Math.round(unitAttack(u)*500);
- if(Number.isInteger(target?.level)&&target.level<=3)return Math.round(unitAttack(u)*200);
+ if(target?.kind==='sam'||target?.kind==='sea')return Math.round(unitAttack(u)*90);
+ if(Number.isInteger(target?.level)&&target.level<=3)return Math.round(unitAttack(u)*90);
  return baseAirborneSiege(u,target);
 };
 // A paratrooper cannot be replaced by another paratrooper; a converted rifleman can support others.
 function convertAirborne(u){
  if(!airborneExpired(u)||!airborneSupport(u))return false;
  const oldMax=unitMaxHp(u),fraction=Math.max(0,Math.min(1,u.hp/oldMax));
- u.type=0;u.level=4;u.hp=Math.max(1,Math.round(unitMaxHp(u)*fraction));
+ u.type=0;u.level=1;u.hp=Math.max(1,Math.round(unitMaxHp(u)*fraction));
  delete u.airdropTurn;delete u.airdropInactive;
  u.riflePaymentDue=true;
  freshOrders(u);
- log(factions[u.f].name+' · 공수부대 합류 · 4단계 소총수로 전환');
+ log(factions[u.f].name+' · 공수부대 합류 · 1단계 소총수로 전환');
  return true;
 }
 function reconcileAirborne(){
@@ -139,7 +139,7 @@ showPanel=function(){
  const stage=panel.querySelector?.('h2 small');if(stage)stage.remove();
  const header=panel.querySelector?.('.eyebrow');if(header)header.textContent='보병';
  const status=document.createElement('p');
- status.textContent=airborneExpired(u)?'공수부대 지원 대기 · 이동·공격·반격 불가 · 3타일 이내 비공수 아군이 합류하면 4단계 소총수로 전환':'잔여 독립작전 '+Math.max(0,AIRBORNE_TURNS-(turn-u.airdropTurn))+'턴';
+ status.textContent=airborneExpired(u)?'공수부대 지원 대기 · 이동·공격·반격 불가 · 2타일 이내 비공수 아군이 합류하면 1단계 소총수로 전환':'잔여 독립작전 '+Math.max(0,AIRBORNE_TURNS-(turn-u.airdropTurn))+'턴';
  panel.appendChild(status);
 };
 const previousAirborneMigration=migrateArmy;

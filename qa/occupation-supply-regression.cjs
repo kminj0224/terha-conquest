@@ -11,7 +11,7 @@ module.exports=async function({run}){
  globalThis.supplyBefore=units.length;globalThis.supplyFood=food[player];globalThis.supplyStart=turn;
  `);
  try{
-  assert.equal(run('TYPES[11].atk'),33);assert.equal(run('TYPES[18].atk'),96);assert.equal(run('TYPES[18].branch'),'armor');assert(run('TYPES[18].tank'));assert.equal(run('unitPrice(18,1)'),1000);assert.equal(run('unitOil(18,1)'),40);
+  assert.equal(run('TYPES[11].atk'),33);assert.equal(run('TYPES[18].atk'),96);assert.equal(run('TYPES[18].branch'),'armor');assert(run('TYPES[18].tank'));assert.equal(run('unitPrice(18,1)'),1220);assert.equal(run('unitOil(18,1)'),66);
   assert(run('homelandSources(supplyTarget).some(q=>q.id===supplyHome.id)'),'lower level homeland included');
   run('supplyHome.level=3');assert(run('homelandSources(supplyTarget).includes(supplyHome)'),'equal level included');
   run('supplyHome.level=4');assert(!run('homelandSources(supplyTarget).includes(supplyHome)'),'higher level excluded');

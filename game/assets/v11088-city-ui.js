@@ -39,7 +39,7 @@ function nuclearMountButton(q,missileKey=null,bomber=false){
 // Keep one strategic-bomber row and put its nuclear loading control beside i.
 airPage=function(q){
  const box=$('cityCommandContent');
- const cityDamage={fighter:2000,bomber:5000,strategic:15000};
+ const cityDamage={fighter:3000,bomber:5000,strategic:15000};
  const bomberArmed=armedBomber?.city===q.id&&NUCLEAR_WARHEADS[armedBomber.payload];
  for(const [type,m]of Object.entries(AIR_MISSIONS)){
   const nuclear=type==='strategic'&&bomberArmed;
@@ -47,13 +47,13 @@ airPage=function(q){
   const reason=!q.airport?'공항 건설 필요':q.nukeUntil>turn?'도시 피폭 통제 중':
    type==='strategic'&&q.level<5?'5레벨 도시 필요':
    nuclear&&!strategicBomber(q)?'전략폭격기 출격 불가':
-   money[q.f]<price?'골드 부족':oil[q.f]<fuel?'석유 부족':'';
+   food[q.f]<(m.food||0)?'식량 부족':money[q.f]<price?'골드 부족':oil[q.f]<fuel?'석유 부족':'';
   const title=m.name+(nuclear?' · '+NUCLEAR_WARHEADS[armedBomber.payload].name+' 장착':'');
-  const spec=type==='transport'?'공수강하 병력: 소총수 2단계 · 사거리 '+m.range+'칸':
+  const spec=type==='transport'?'공수강하 병력: 공수부대 · 방어시설·3레벨 이하 도시 피해 ×90 · 3턴 후 비활성화 · 2타일 이내 비공수 아군 지원 시 1단계 소총수 전환 · 사거리 '+m.range+'칸':
    '부대 기본 공격력 '+m.damage+' · 도시 기본 피해 '+cityDamage[type].toLocaleString()+' · 사거리 '+m.range+'칸';
   const fire=addCityRow(box,title,reason,
    ()=>nuclear?prepareStrategicLaunch(q,'short',armedBomber.payload,true):beginAirTarget(q,type),
-   m.name,spec,'골드 '+price.toLocaleString()+' · 석유 '+fuel+' · 사거리 '+m.range);
+   m.name,spec,(m.food?'식량 '+m.food+' · ':'')+'골드 '+price.toLocaleString()+' · 석유 '+fuel+' · 사거리 '+m.range);
   if(type==='strategic')fire.parentElement.appendChild(nuclearMountButton(q,null,true));
  }
 };

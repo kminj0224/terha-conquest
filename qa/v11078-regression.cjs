@@ -6,7 +6,7 @@ module.exports=async function({run}){
  const hp=[0,6000,10000,15000,20000,30000];
  for(let n=1;n<=5;n++)check(cityMaxHp({level:n,capital:false})===hp[n],'City health level '+n);
  for(let n=1;n<=5;n++)check(cityMaxHp({level:n,capital:true})===120000+(n-3)*30000,'Capital must be unchanged');
- check(cityAirStrikeDamage('fighter',{aa:false,f:1,tile:0})===2000,'Fighter city damage');
+ check(cityAirStrikeDamage('fighter',{aa:false,f:1,tile:0})===3000,'Fighter city damage');
  check(cityAirStrikeDamage('bomber',{aa:false,f:1,tile:0})===5000,'Bomber city damage');
  check(cityAirStrikeDamage('strategic',{aa:false,f:1,tile:0})===15000,'Strategic bomber city damage');
  check(siegeDamage({type:2,f:0,tile:0,level:1,hp:unitMaxHp({type:2,f:0,level:1})},{level:2,capital:false,aa:false,f:1,tile:1})===
@@ -62,7 +62,7 @@ module.exports=async function({run}){
  check(militaryResearchJobs[0]?.remaining===1&&tech[0]===originalTech,'One turn must not complete research');
  turn++;await industryTurn();
  check(militaryResearchJobs[0]===null&&tech[0]===originalTech+1,'Military research must finish after 2 turns');
- return {cityHp:hp.slice(1),air:[2000,5000,15000],boarding:boardingChecked,researchTurns:2};
+ return {cityHp:hp.slice(1),air:[3000,5000,15000],boarding:boardingChecked,researchTurns:2};
  })()`);
  assert.equal(result.researchTurns,2);
  console.log('PASS v1.10.78 cities, artillery, air damage, coastal boarding, missile battery UI and two-turn research:',result);

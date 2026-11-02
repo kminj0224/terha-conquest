@@ -16,7 +16,7 @@ const originalAirEligibility=canAirStrike;
 canAirStrike=function(q,type,i){
  if(type!=='transport')return originalAirEligibility(q,type,i);
  const m=AIR_MISSIONS.transport;
- return !!q&&q.airport&&(q.nukeUntil||0)<=turn&&money[q.f]>=m.cost&&oil[q.f]>=m.oil&&
+ return !!q&&q.airport&&(q.nukeUntil||0)<=turn&&money[q.f]>=m.cost&&food[q.f]>=m.food&&oil[q.f]>=m.oil&&
   distance(q.tile,i)<=m.range&&airDropTileAvailable(i);
 };
 const originalAirportAction=showPanel;
@@ -29,6 +29,7 @@ showPanel=function(){
  button.onclick=()=>{
   if(!q.airport)return toast('먼저 공항을 설치하세요.');
   if(q.nukeUntil>turn)return toast('피폭 지역 통제가 끝난 뒤 출격할 수 있습니다.');
+  if(food[player]<AIR_MISSIONS.transport.food)return toast('공수강하에 필요한 식량이 부족합니다.');
   if(money[player]<AIR_MISSIONS.transport.cost)return toast('공수강하에 필요한 골드가 부족합니다.');
   if(oil[player]<AIR_MISSIONS.transport.oil)return toast('공수강하에 필요한 석유가 부족합니다.');
   beginAirTarget(q,'transport');
@@ -39,7 +40,7 @@ airStrike=async function(q,type,i,ai=false){
  if(type!=='transport')return originalAviationMission(q,type,i,ai);
  if(!canAirStrike(q,type,i))return false;
  const m=AIR_MISSIONS.transport,a=pxy(q.tile),b=pxy(i);
- money[q.f]-=m.cost;oil[q.f]-=m.oil;
+ money[q.f]-=m.cost;food[q.f]-=m.food;oil[q.f]-=m.oil;
  airTarget=null;panelOpen=false;
  if(!ai){busy=true;refreshSelection();updateHUD()}
  // Two distinct animations: the transport flies to the landing site,

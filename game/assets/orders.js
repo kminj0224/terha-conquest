@@ -18,7 +18,7 @@ const ARMOR_POWER={
 14:{hp:680,atk:205,def:76,antiInfantry:1.35,smallArms:.22},
 17:{hp:720,atk:200,def:68,antiInfantry:1.35,smallArms:.4}
 };for(const [k,stats]of Object.entries(ARMOR_POWER))Object.assign(TYPES[k],stats);
-delete TYPES[9].antiArmor;TYPES[9].ignoreTankArmor=true;TYPES[9].text='대전차 로켓. 기갑 대상 공격력 ×3.6. 단거리에서 전차를 견제합니다.';
+TYPES[9].antiArmor=4.5;TYPES[9].ignoreTankArmor=true;TYPES[9].text='대전차 로켓. 전차 군종 상대 공격력 ×4.5, 장갑 무시.';
 TYPES[12].text='차륜 장갑차. 빠른 기동과 연발 사격으로 보병을 제압합니다.';
 for(const k of ARMOR){TYPES[k].text+=' 보병 상대 공격 +'+Math.round((TYPES[k].antiInfantry-1)*100)+'%. 소화기 피해 '+Math.round((1-TYPES[k].smallArms)*100)+'% 감소. 기갑 격파 보상 적용.'}
 TYPES[17].text+=' 강화된 마갑과 돌격 화력. 소화기 피해 60% 감소.';

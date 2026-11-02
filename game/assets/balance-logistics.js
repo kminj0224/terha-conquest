@@ -26,13 +26,13 @@ for(const t of TYPES){
 }
 TYPES[22].text=TYPES[22].text.replace(/ 지상 병력 사거리 3칸\./g,'');
 APP_EN[TYPES[22].text]='Fast coastal vessel with repeated cannon fire.';
-TYPES[9].text='대전차 로켓. 적 전차 군종을 공격할 때 장갑을 무시합니다.';
+TYPES[9].text='대전차 로켓. 적 전차 군종 상대 공격력 ×4.5, 장갑 무시.';
 TYPES[DEKPHUING_GUERRILLA].text='란나 특수 보병. 산·숲·강 타일에서 공격력 100% 증가, 장갑 무시, 받는 공격 피해 30% 감소. 해당 지형의 이동력 감소를 무시합니다.';
 TYPES[SAPROS].text='아이리아 제국 특수 유닛. 수도 또는 4레벨 이상 본토 도시에서 생산. 석유를 소비하지 않으며, 이동할 때마다 식량 18, 공격할 때마다 식량 16을 소비합니다(1단계 기준, 편제 단계 배율 적용). 전차 특성: 격파 후 추가 공격, 이동을 쓰지 않았다면 이동 가능. 3타일 이내 아군 보병 공격력 +45%. 같은 지원 효과는 중첩되지 않습니다.';
 // Counterfire is now reliable; remove an obsolete chance description too.
 TYPES[3].text=TYPES[3].text.replace(/공격·피격 시 반격 발생 확률 40%\./g,'').trim();
 Object.assign(APP_EN,{
- [TYPES[9].text]:'Anti-tank rockets. Ignores armor when attacking enemy tank-class units.',
+ [TYPES[9].text]:'Anti-tank rockets. Multiplies attack by 4.5 and ignores armor against enemy tank-class units.',
  [TYPES[DEKPHUING_GUERRILLA].text]:'Ranna special infantry. On forest, mountain or river tiles: +100% attack, ignores armor, and takes 30% less damage. Ignores movement penalties on these tiles.',
  [TYPES[SAPROS].text]:'Ayria special unit. Produced in the capital or level-4+ homeland cities. Uses no oil. Each move consumes 18 food and each attack consumes 16 food at tier one, scaled by formation tier. Tank kill grants another attack and preserves unused movement. Friendly infantry within 3 tiles gain +45% attack; this support does not stack.',
  '수송로 개선':'Supply route improvement',
