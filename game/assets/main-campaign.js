@@ -86,10 +86,23 @@ const MainCampaign = (() => {
  function next() { if (view === 'intro' && MAIN_CAMPAIGN_INTRO[page].layout === 'banner' && ready) advance(); }
  function selection() {
   stop(); root = null; view = 'selection'; setAppScreen('mainCampaign');
-  $('modal').innerHTML = '<section class="mcSelection" id="mainCampaignSelection"><header><button id="mcBack" aria-label="뒤로">‹</button><h1>'+tr('메인 캠페인 선택','MAIN CAMPAIGN')+'</h1><button id="mcReplay">'+tr('서막 다시 보기','REPLAY INTRO')+'</button></header><div class="mcCampaignGrid"><button id="mcWar" class="mcCampaignCard" aria-pressed="false"><img src="main-campaign-intro.jpg" alt=""><span><small>MAIN CAMPAIGN</small><strong>2차 선석전쟁</strong></span></button></div><div id="mcCampaignDetails" hidden><h2>2차 선석전쟁</h2><p>후피왕의 피라미드에 봉인된 선석을 둘러싸고, 단테 제국과 아이리아 제국, 스테토피아연합왕국이 전쟁에 돌입한다.</p><button disabled>임무 준비 중</button></div></section>';
+  $('modal').innerHTML = '<section class="mcSelection" id="mainCampaignSelection"><header><button id="mcBack" aria-label="뒤로">‹</button><h1>'+tr('메인 캠페인 선택','MAIN CAMPAIGN')+'</h1><button id="mcReplay">'+tr('서막 다시 보기','REPLAY INTRO')+'</button></header><div class="mcCampaignGrid"><button id="mcWar" class="mcCampaignCard"><img src="main-campaign-intro.jpg" alt=""><span><small>MAIN CAMPAIGN</small><strong>2차 선석전쟁</strong></span></button></div></section>';
   $('mcBack').onclick = close;
   $('mcReplay').onclick = open;
-  $('mcWar').onclick = () => { $('mcCampaignDetails').hidden = false; $('mcWar').setAttribute('aria-pressed','true'); };
+  $('mcWar').onclick = stages;
+ }
+ // This selector never creates battle saves or unlocks unimplemented missions.
+ const stageImages = ['main-campaign-scene-7.png','main-campaign-scene-6.png','main-campaign-scene-5.jpg','main-campaign-scene-4.png','main-campaign-scene-2.png','main-campaign-scene-3.png','main-campaign-scene-1.png','main-campaign-scene-6.png','main-campaign-scene-7.png','main-campaign-scene-7.png'];
+ const lockIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>';
+ function stages() {
+  stop(); root = null; view = 'stages'; syncAudio();
+  $('modal').innerHTML = '<main class="mcStages" id="mainCampaignStages" tabindex="-1" aria-labelledby="mcStagesTitle">'+
+   '<header class="mcStageHeader"><button id="mcStagesBack">‹ '+tr('캠페인 목록','CAMPAIGNS')+'</button><div class="mcStageHeading"><small>MAIN CAMPAIGN / 01</small><h1 id="mcStagesTitle">'+tr('2차 선석전쟁','SECOND SEONSEOK WAR')+'</h1><p>'+tr('스테이지 선택','SELECT STAGE')+' <span>01 — 10</span></p></div><div class="mcStageProgress">'+tr('전역 진행도','CAMPAIGN PROGRESS')+' <b>0 <span>/ 10</span></b><i></i></div></header>'+
+   '<div class="mcStageBody"><div class="mcStageList">'+stageImages.map((image,i)=>'<button class="mcStageCard" aria-disabled="true" aria-label="'+tr('스테이지 ','Stage ')+(i+1)+tr(' · 잠김 · 미클리어',' · Locked · Uncleared')+'"><img src="'+image+'" alt=""><span class="mcStageShade"></span><span class="mcStageNumber">'+String(i+1).padStart(2,'0')+'</span><span class="mcStageCaption"><small>STAGE '+String(i+1).padStart(2,'0')+'</small><strong>'+tr('스테이지 ','Stage ')+String(i+1).padStart(2,'0')+'</strong><span class="mcStageStatus">'+tr('미클리어','UNCLEARED')+'</span></span><span class="mcStageLock">'+lockIcon+'</span></button>').join('')+'</div></div>'+
+   '<footer class="mcStageFooter">'+lockIcon+'<span>'+tr('미클리어 스테이지는 잠금으로 표시됩니다.','Uncleared stages are shown as locked.')+'</span><p id="mcStageNotice" role="status" hidden></p></footer></main>';
+  $('mcStagesBack').onclick = selection;
+  document.querySelectorAll('.mcStageCard').forEach(button => button.onclick = () => { $('mcStageNotice').hidden=false; $('mcStageNotice').textContent=tr('아직 클리어하지 않은 스테이지입니다.','This stage has not been cleared.'); });
+  $('mainCampaignStages').focus({preventScroll:true});
  }
  function close() { leave(); showBattlefield(); }
  const oldScreen = setAppScreen;
@@ -100,10 +113,12 @@ const MainCampaign = (() => {
  const oldBack = window.terhaBack;
  window.terhaBack = function() {
   if (view === 'intro') return;
+  if (view === 'stages') { selection(); return; }
   if (view === 'selection') { close(); return; }
   return oldBack();
  };
  document.addEventListener('keydown', e => {
+  if (view === 'stages' && e.key === 'Escape') { e.preventDefault(); selection(); return; }
   if (view !== 'intro') return;
   if (['ArrowLeft','ArrowRight','Enter',' '].includes(e.key) && e.target !== $('mcSkip')) { e.preventDefault(); if (e.key !== 'ArrowLeft') next(); }
  });
