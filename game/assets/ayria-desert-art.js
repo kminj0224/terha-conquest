@@ -24,4 +24,4 @@ function ayriaDesertArt(source){
 const ayriaTankArt=Object.fromEntries(Object.entries(danteTankArt).map(([type,art])=>[type,ayriaDesertArt(art)]));
 const ayriaSPArt=ayriaDesertArt(danteSPArt),ayriaMLArt=ayriaDesertArt(danteMLArt);
 TOWED_ART[3]={...TOWED_ART[1],idle:ayriaDesertArt(TOWED_ART[1].idle),move:ayriaDesertArt(TOWED_ART[1].move)};
-MORTAR_ART[3]={...MORTAR_ART[1],idle:ayriaDesertArt(MORTAR_ART[1].idle),move:ayriaDesertArt(MORTAR_ART[1].move)};
+// Ayria mortar uses its own original idle/travel PNGs in mortar-art.js.
