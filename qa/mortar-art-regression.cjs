@@ -3,7 +3,7 @@ run(`setup();busy=false;cam.z=1;tech.fill(0);
 const mortarCheck=(v,m)=>{if(!v)throw Error(m)};
 const mortarDrawImage=ctx.drawImage;let mortarPaint=null;
 ctx.drawImage=function(img,...args){mortarPaint={img,args,m:ctx.getTransform()};return mortarDrawImage(img,...args)};
-try{for(const f of [0,1]){
+try{for(const f of [0,1,3]){
  const u=makeUnit(f,15,cities.find(q=>q.f===f).tile,1),p=pxy(u.tile),a=MORTAR_ART[f];
  mortarCheck(a.idle.idleReady&&a.move.idleReady,'Images decoded');
  for(const facing of [-1,1]){u.artilleryFacing=facing;
@@ -15,8 +15,8 @@ try{for(const f of [0,1]){
  mortarCheck(mortarPaint?.img===(travel?a.move:a.idle).idle,'Correct image for '+state);
  const [x,y,w,h]=mortarPaint.args,foot=travel?a.mfoot/a.mh:a.foot/a.h;
  mortarCheck(Math.abs(y+h*foot-20)<.001,'Feet/tires above HP bar');
- mortarCheck(Math.abs(mortarPaint.m.a+facing)<.001,'Facing matches movement/aim');
- mortarCheck(travel?w===78:Math.abs(h-52.992)<1e-8,'Crew/vehicle size');
+ mortarCheck(Math.abs(mortarPaint.m.a-facing*(a.baseFacing??-1))<.001,'Facing matches movement/aim');
+ mortarCheck(travel?(a.moveHeight?Math.abs(h-a.moveHeight)<1e-8:w===78):Math.abs(h-52.992)<1e-8,'Crew/vehicle size');
  }
  moving=[];fx=[];fireMotions.clear();const m=launchShot(u,{x:p.x+facing*100,y:p.y},1000);
  const shell=fx.find(e=>e.kind==='baekArtilleryShell');mortarCheck(shell&&Math.hypot(shell.x-m.x,shell.y-m.y)<.001,'Shell leaves muzzle');

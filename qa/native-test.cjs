@@ -52,6 +52,7 @@ await require('./v11090-regression.cjs')({run});
 await require('./v11091-regression.cjs')({run});
 await require('./v11092-regression.cjs')({run});
 await require('./special-operations-regression.cjs')({run});
+await require('./mortar-art-regression.cjs')({run});
 require('./motorized-art-regression.cjs')({run});
 await require('./occupation-supply-regression.cjs')({run});
 await require('./siege-live-regression.cjs')({run});

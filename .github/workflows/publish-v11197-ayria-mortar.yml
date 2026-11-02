@@ -1,0 +1,76 @@
+name: Verify and release Ayria mortar artwork v1.11.97
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-v11197-ayria-mortar.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: release-v11197
+  cancel-in-progress: false
+jobs:
+  verify-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
+        timeout-minutes: 3
+      - name: Verify game, mortar states and Android shell
+        run: |
+          npm ci --no-audit --no-fund
+          python3 tools/prepare_operation_music.py
+          npm test
+          node qa/ayria-desert-regression.cjs
+          python3 qa/verify-native.py
+      - name: Build signed update APK
+        run: python3 build.py
+      - name: Verify APK identity, original certificate and Ayria mortar artwork assets
+        run: |
+          python3 qa/verify-apk-name.py deliverables/Terha-Conquest-v1.11.97.apk
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.11.97.apk
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          from hashlib import sha256
+          expected = {'ayria-mortar-idle.png':'55b935cce476f23dad30aa927ff26ac2d7c7d0128addbee1a9aa85de74c082d5', 'ayria-mortar-move.png':'3f0cd598198de76946bba2bc8b53591a8aad61184174874b2ecf43ed26863d80'}
+          with ZipFile('deliverables/Terha-Conquest-v1.11.97.apk') as z:
+              for name, digest in expected.items():
+                  original = Path('game/assets',name).read_bytes()
+                  assert sha256(original).hexdigest() == digest, name
+                  assert z.read('assets/'+name) == original, name
+              for name in ['mortar-art.js','ayria-desert-art.js','app-shell.js','saves.js']:
+                  assert z.read('assets/'+name) == Path('game/assets',name).read_bytes(), name
+          print('PASS original Ayria mortar PNG bytes and exact runtime code in signed APK')
+          PY
+          cd deliverables
+          sha256sum Terha-Conquest-v1.11.97.apk > SHA256SUMS-v1.11.97.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.11.97
+          path: |
+            deliverables/Terha-Conquest-v1.11.97.apk
+            deliverables/SHA256SUMS-v1.11.97.txt
+          if-no-files-found: error
+      - name: Publish verified update
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+          if gh release view v1.11.97 >/dev/null 2>&1; then
+            test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/tags/v1.11.97 --jq .object.sha)" = "$GITHUB_SHA"
+            gh release upload v1.11.97 deliverables/Terha-Conquest-v1.11.97.apk deliverables/SHA256SUMS-v1.11.97.txt --clobber
+          else
+            gh release create v1.11.97 deliverables/Terha-Conquest-v1.11.97.apk deliverables/SHA256SUMS-v1.11.97.txt --target "$GITHUB_SHA" --title '테르하 : 낙원의 기억 v1.11.97' --notes-file docs/releases/v1.11.97.md
+          fi
