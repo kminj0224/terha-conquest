@@ -1,5 +1,6 @@
 'use strict';
 const MainCampaign = (() => {
+ let stageLayout = 1;
  let page = 0, frame = 0, root = null, view = 'closed', ready = false, resetClock = null;
  // One streaming player preserves playback position across pages in each music range.
  const music = new Audio();
@@ -89,7 +90,20 @@ const MainCampaign = (() => {
   $('modal').innerHTML = '<section class="mcSelection" id="mainCampaignSelection"><header><button id="mcBack" aria-label="뒤로">‹</button><h1>'+tr('메인 캠페인 선택','MAIN CAMPAIGN')+'</h1><button id="mcReplay">'+tr('서막 다시 보기','REPLAY INTRO')+'</button></header><div class="mcCampaignGrid"><button id="mcWar" class="mcCampaignCard" aria-pressed="false"><img src="main-campaign-intro.jpg" alt=""><span><small>MAIN CAMPAIGN</small><strong>2차 선석전쟁</strong></span></button></div><div id="mcCampaignDetails" hidden><h2>2차 선석전쟁</h2><p>후피왕의 피라미드에 봉인된 선석을 둘러싸고, 단테 제국과 아이리아 제국, 스테토피아연합왕국이 전쟁에 돌입한다.</p><button disabled>임무 준비 중</button></div></section>';
   $('mcBack').onclick = close;
   $('mcReplay').onclick = open;
-  $('mcWar').onclick = () => { $('mcCampaignDetails').hidden = false; $('mcWar').setAttribute('aria-pressed','true'); };
+  $('mcWar').onclick = stages;
+ }
+ // This selector never creates battle saves or unlocks unimplemented missions.
+ const stageImages = ['main-campaign-scene-7.png','main-campaign-scene-6.png','main-campaign-scene-5.jpg','main-campaign-scene-4.png','main-campaign-scene-2.png','main-campaign-scene-3.png','main-campaign-scene-1.png','main-campaign-scene-6.png','main-campaign-scene-7.png','main-campaign-intro.jpg'];
+ const lockIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>';
+ function stages() {
+  stop(); root = null; view = 'stages'; syncAudio();
+  const labels = [tr('배너 목록','BANNERS'),tr('포스터 격자','POSTERS'),tr('작전 기록','DOSSIER')];
+  $('modal').innerHTML = '<section class="mcStages mcStages-'+stageLayout+'" role="dialog" aria-modal="true" aria-labelledby="mcStagesTitle"><div class="mcStageBackdrop"></div><div class="mcStageWindow"><header class="mcStageHeader"><div class="mcStageHeading"><small>MAIN CAMPAIGN / 01</small><h1 id="mcStagesTitle">'+tr('2차 선석전쟁','SECOND SEONSEOK WAR')+'</h1><p>'+tr('스테이지 선택','SELECT STAGE')+' <span>01 — 10</span></p></div><button id="mcStagesClose" aria-label="'+tr('스테이지 선택 닫기','Close stage selection')+'">×</button></header><div class="mcStageToolbar"><div class="mcStageProgress">'+tr('전역 진행도','CAMPAIGN PROGRESS')+' <b>0 <span>/ 10</span></b><i><em></em></i></div><nav aria-label="'+tr('시안 비교','Layout options')+'">'+labels.map((label,i)=>'<button data-stage-layout="'+(i+1)+'" aria-pressed="'+(stageLayout===i+1)+'">'+(i+1)+tr('안','')+' · '+label+'</button>').join('')+'</nav></div><main class="mcStageBody"><aside class="mcStageFeature"><img src="main-campaign-intro.jpg" alt=""><div><small>THE SECOND SEONSEOK WAR</small><h2>'+tr('2차<br>선석전쟁','SECOND<br>SEONSEOK WAR')+'</h2><p>'+tr('후피왕의 피라미드에 봉인된 선석.<br>그것을 둘러싼 세 제국의 전쟁.','The Seonseok sealed in King Hupi’s pyramid.<br>Three empires enter the war.')+'</p><span>10 STAGES</span></div></aside><div class="mcStageList">'+stageImages.map((image,i)=>'<button class="mcStageCard" aria-disabled="true" aria-label="'+tr('스테이지 ','Stage ')+(i+1)+tr(' · 잠김 · 미클리어',' · Locked · Uncleared')+'"><img src="'+image+'" alt="" loading="eager"><span class="mcStageShade"></span><span class="mcStageNumber">'+String(i+1).padStart(2,'0')+'</span><span class="mcStageCaption"><small>STAGE '+String(i+1).padStart(2,'0')+'</small><strong>'+tr('스테이지 ','Stage ')+String(i+1).padStart(2,'0')+'</strong><span class="mcStageStatus">'+tr('미클리어','UNCLEARED')+'</span></span><span class="mcStageLock">'+lockIcon+'<small>'+tr('잠김','LOCKED')+'</small></span></button>').join('')+'</div></main><footer class="mcStageFooter"><span>'+lockIcon+tr('미클리어 스테이지는 잠금으로 표시됩니다.','Uncleared stages are shown as locked.')+'</span><button id="mcStagesBack">‹ '+tr('캠페인 목록','CAMPAIGNS')+'</button></footer><p class="mcStageNotice" id="mcStageNotice" role="status" hidden></p></div></section>';
+  $('mcStagesClose').onclick = selection;
+  $('mcStagesBack').onclick = selection;
+  document.querySelectorAll('[data-stage-layout]').forEach(button => button.onclick = () => { stageLayout = Number(button.dataset.stageLayout); stages(); document.querySelector('[data-stage-layout="'+stageLayout+'"]').focus(); });
+  document.querySelectorAll('.mcStageCard').forEach(button => button.onclick = () => { $('mcStageNotice').hidden=false; $('mcStageNotice').textContent=tr('아직 클리어하지 않은 스테이지입니다.','This stage has not been cleared.'); });
+  $('mcStagesClose').focus({preventScroll:true});
  }
  function close() { leave(); showBattlefield(); }
  const oldScreen = setAppScreen;
@@ -100,10 +114,18 @@ const MainCampaign = (() => {
  const oldBack = window.terhaBack;
  window.terhaBack = function() {
   if (view === 'intro') return;
+  if (view === 'stages') { selection(); return; }
   if (view === 'selection') { close(); return; }
   return oldBack();
  };
  document.addEventListener('keydown', e => {
+  if (view === 'stages' && e.key === 'Escape') { e.preventDefault(); selection(); return; }
+  if (view === 'stages' && e.key === 'Tab') {
+   const buttons = [...document.querySelectorAll('.mcStages button')];
+   const first=buttons[0], last=buttons[buttons.length-1];
+   if(e.shiftKey && document.activeElement===first){e.preventDefault();last.focus();}
+   else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus();}
+  }
   if (view !== 'intro') return;
   if (['ArrowLeft','ArrowRight','Enter',' '].includes(e.key) && e.target !== $('mcSkip')) { e.preventDefault(); if (e.key !== 'ArrowLeft') next(); }
  });

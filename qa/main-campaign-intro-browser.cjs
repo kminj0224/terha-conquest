@@ -27,7 +27,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    await page.click('#mcNext');
   }
   await page.click('#mcSkip');assert(await page.locator('#mainCampaignSelection').isVisible());await page.clock.fastForward(10000);assert(await page.locator('#mainCampaignSelection').isVisible());
-  await page.click('#mcWar');assert(await page.locator('#mcCampaignDetails').isVisible());assert(await page.locator('#mcCampaignDetails button').isDisabled());
+  await page.click('#mcWar');assert(await page.locator('.mcStages').isVisible());assert.equal(await page.locator('.mcStageCard[aria-disabled=true]').count(),10);await page.click('#mcStagesClose');
   const lines=await page.evaluate(()=>MAIN_CAMPAIGN_INTRO);assert.equal(lines.length,46);assert.equal(lines.filter(l=>l.layout==='center').length,6);assert.equal(lines.filter(l=>l.image).length,42);
   for(const [width,height]of [[960,540],[640,360],[390,844],[844,390],[2400,1080]]){
    await page.setViewportSize({width,height});await page.click('#mcReplay');let font;

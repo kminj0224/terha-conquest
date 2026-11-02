@@ -17,7 +17,7 @@ class Element{
 }
 const modal=new Element();nodes.set('modal',modal);
 const tracks=[];class Audio{constructor(){this.paused=true;this.currentTime=0;this.plays=0;tracks.push(this)}pause(){this.paused=true}play(){this.paused=false;this.plays++;return Promise.resolve()}}
-const context={console,Audio,appSettings:{music:.65},busy:false,$:id=>nodes.get(id),performance:{now:()=>clock},requestAnimationFrame:f=>{const id=++serial;frames.set(id,f);return id},cancelAnimationFrame:id=>frames.delete(id),document:{hidden:false,addEventListener:(name,f)=>{if(name==='keydown')keys.push(f);if(name==='visibilitychange')visibility.push(f)}},tr:ko=>ko,setAppScreen:name=>{screen=name;context.TerhaMainCampaign?.syncAudio()},showBattlefield:()=>{context.setAppScreen('battlefield')},closeCampaignPicker:()=>{pickClosed++;context.closeCampaignPicker=null},terhaBack:()=>{oldBacks++}};
+const context={console,Audio,appSettings:{music:.65},busy:false,$:id=>nodes.get(id),performance:{now:()=>clock},requestAnimationFrame:f=>{const id=++serial;frames.set(id,f);return id},cancelAnimationFrame:id=>frames.delete(id),document:{hidden:false,querySelectorAll:()=>[],addEventListener:(name,f)=>{if(name==='keydown')keys.push(f);if(name==='visibilitychange')visibility.push(f)}},tr:ko=>ko,setAppScreen:name=>{screen=name;context.TerhaMainCampaign?.syncAudio()},showBattlefield:()=>{context.setAppScreen('battlefield')},closeCampaignPicker:()=>{pickClosed++;context.closeCampaignPicker=null},terhaBack:()=>{oldBacks++}};
 context.window=context;vm.createContext(context);
 for(const name of ['main-campaign-data.js','main-campaign.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../game/assets',name),'utf8'),context,{filename:name});
 const app=context.TerhaMainCampaign,lines=vm.runInContext('MAIN_CAMPAIGN_INTRO',context);
@@ -45,7 +45,7 @@ assert(nodes.get('mcNext').hidden);assert(nodes.get('mcNext').disabled);nodes.ge
 const visible=nodes.get('mcVisible');tick(420);assert.equal(visible.textContent,lines[1].text.slice(0,10));tick(lines[1].text.length*42-420);assert.equal(visible.textContent,lines[1].text);assert.equal(nodes.get('mcNext').hidden,false);assert.equal(frames.size,0);
 tap();assert.equal(app.getPage(),1,'Only next button/keyboard advances a complete banner');click('mcNext');assert.equal(app.getPage(),2);assert(nodes.get('mcNext').hidden);
 click('mcSkip');assert.equal(frames.size,0);assert.equal(screen,'mainCampaign');tick(10000);assert(!nodes.has('mainIntro'));
-click('mcWar');assert.equal(nodes.get('mcCampaignDetails').hidden,false);click('mcReplay');assert.equal(app.getPage(),0);
+click('mcWar');assert.equal(app.getView(),'stages');assert.equal((modal.html.match(/class="mcStageCard"/g)||[]).length,10);assert.equal((modal.html.match(/aria-disabled="true"/g)||[]).length,10);key('Escape');assert.equal(app.getView(),'selection');click('mcWar');context.terhaBack();assert.equal(app.getView(),'selection');click('mcReplay');assert.equal(app.getPage(),0);
 context.document.hidden=true;visibility.forEach(f=>f());tick(10000);assert.equal(app.getPage(),0);assert.equal(nodes.get('mcVisible').style.opacity,'0');context.document.hidden=false;visibility.forEach(f=>f());tick(2000);assert.equal(nodes.get('mcVisible').style.opacity,'0');
 click('mcSkip');click('mcReplay');
 for(let n=0;n<46;n++){
