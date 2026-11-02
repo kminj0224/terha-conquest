@@ -14,13 +14,20 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await stages();await page.locator('.mcStageCard').nth(1).dispatchEvent('click');assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stages');
   await page.locator('.mcStageCard').first().click();
   const lines=await page.evaluate(()=>MAIN_AIRIA.intro);assert.equal(lines.length,25);assert.deepEqual([...new Set(lines.map(l=>l.speaker))].sort(),['adjutant','nagorn','scout']);assert.equal(lines[24].speaker,'scout');assert(lines[24].text.includes('증원병력'));
+  await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+1000));
   fs.mkdirSync('qa/campaign-previews',{recursive:true});
   for(const [width,height] of [[960,540],[640,360],[390,844],[844,390]]){
    await page.setViewportSize({width,height});
    for(let n=0;n<25;n++){
     assert.equal(await page.evaluate(()=>MainCampaign.getStagePage()),n);
-    assert.equal(await page.locator('#maLine').textContent(),lines[n].text);
+    assert.equal(await page.locator('#maNext').isVisible(),false);
+    const beforePage=await page.evaluate(()=>MainCampaign.getStagePage());await page.keyboard.press('ArrowRight');assert.equal(await page.evaluate(()=>MainCampaign.getStagePage()),beforePage);
+    await page.clock.fastForward(Array.from(lines[n].text).length*42+32);
+    assert.equal(await page.locator('#maLine .vnVisible').textContent(),lines[n].text);
+    assert.equal(await page.locator('#maLine').evaluate(e=>getComputedStyle(e).userSelect),'none');
     await page.locator('.maPortrait').evaluate(e=>e.decode());
+    const portrait=await page.locator('.maPortrait').boundingBox();assert(portrait.y>=50&&portrait.y<height/4,'head is below controls and inside viewport');
+    assert((await page.locator('.maField').evaluate(e=>getComputedStyle(e).backgroundImage)).includes('main-airia-command-post.jpg'));
     assert.equal(await page.locator('#maPage').textContent(),`${n+1} / 25`);
     assert(await page.evaluate(()=>menuMusic.paused));
     const fit=await page.locator('.cpDialogue').evaluate(e=>{const b=e.getBoundingClientRect();return b.x>=0&&b.y>=0&&b.right<=innerWidth+1&&b.bottom<=innerHeight+1&&e.scrollHeight<=e.clientHeight+1;});assert(fit,`dialogue fits ${width}x${height} page ${n+1}`);
@@ -34,9 +41,9 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    assert(await page.evaluate(()=>activeScenario===null));assert.equal(await page.evaluate(()=>JSON.stringify(localStorage)),saves);
    await page.evaluate(()=>terhaBack());await page.locator('.mcStageCard').first().click();
   }
-  await page.click('#maNext');await page.click('#maPrev');assert.equal(await page.evaluate(()=>MainCampaign.getStagePage()),0);
+  await page.clock.fastForward(12000);await page.click('#maNext');await page.click('#maPrev');assert.equal(await page.evaluate(()=>MainCampaign.getStagePage()),0);
   await page.click('#maHistory');assert.equal(await page.locator('.cpHistoryItem').count(),1);assert(await page.locator('.maField').evaluate(e=>e.inert));await page.keyboard.press('Escape');assert.equal(await page.locator('#maHistorySheet').count(),0);
-  await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+1000));await page.click('#maAuto');await page.clock.fastForward(15000);assert((await page.evaluate(()=>MainCampaign.getStagePage()))>0);
+  await page.click('#maAuto');await page.clock.fastForward(15000);assert((await page.evaluate(()=>MainCampaign.getStagePage()))>0);
   await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});const n=await page.evaluate(()=>MainCampaign.getStagePage());await page.clock.fastForward(30000);assert.equal(await page.evaluate(()=>MainCampaign.getStagePage()),n);await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});
   await page.click('#maSkip');assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stage-start');await page.clock.fastForward(30000);assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stage-start');await page.click('#maStartBack');await page.click('#mcStagesBack');await page.click('#mcBack');
   await page.click('#campaignMode');await page.click('#subCampaign');assert(await page.locator('#cpCampaignIron').isVisible());await page.evaluate(()=>TerhaCampaign.close());

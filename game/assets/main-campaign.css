@@ -53,10 +53,9 @@ body:is([data-screen="mainIntro"],[data-screen="mainCampaign"]) #frontBackground
 /* Airia shares the subcampaign dialogue controls and banner geometry. */
 .mcStageCard[aria-disabled="false"]{border-color:#d7bb80}.mcStageCard[aria-disabled="false"]>img{filter:saturate(.85);opacity:.9}
 #campaignRoot.mcAiria{background:#151b1e}
-.mcAiria .maField{background-image:url('main-airia-command-post.svg')}
-.maPortrait{position:absolute;left:8%;bottom:-16%;width:61%;height:114%;object-fit:contain;object-position:center bottom;filter:drop-shadow(12px 6px 16px #0007);pointer-events:none}
-.maPortrait.ma-adjutant{left:16%;width:48%;height:119%;bottom:-20%}
-.maPortrait.ma-scout{left:18%;width:48%;height:119%;bottom:-20%}
+.mcAiria .maField{background-image:url('main-airia-command-post.jpg')}
+/* All three originals share one top and full-body height, regardless of aspect ratio. */
+.maPortrait{position:absolute;top:max(60px,11%);left:36%;height:89%;width:auto;max-width:none;transform:translateX(-50%);object-fit:contain;object-position:center top;filter:drop-shadow(12px 6px 16px #0007);pointer-events:none}
 .mcAiria .cpDialogue{background:linear-gradient(110deg,#1c2429f7,#22282cf2)}
 .mcAiria .cpVNTop{top:max(12px,env(safe-area-inset-top));left:max(20px,env(safe-area-inset-left));right:max(20px,env(safe-area-inset-right))}
 .mcAiria .cpDialogue{bottom:max(4%,env(safe-area-inset-bottom))}
@@ -68,5 +67,5 @@ body:is([data-screen="mainIntro"],[data-screen="mainCampaign"]) #frontBackground
 #campaignRoot #maPlay{min-width:160px;min-height:48px;font-size:17px}
 #campaignRoot .maBack{position:absolute;top:calc(16px + env(safe-area-inset-top));left:calc(16px + env(safe-area-inset-left));z-index:4}
 .maPlay{background:#10171c}
-@media(max-width:560px) and (min-height:471px){.maPortrait{left:-18%;width:135%;height:92%;bottom:6%}.maPortrait.ma-adjutant,.maPortrait.ma-scout{left:0;width:100%;height:95%;bottom:4%}.mcAiria .cpVNTop{left:12px;right:12px}.mcAiria .cpDialogue{max-height:52%;bottom:max(3%,env(safe-area-inset-bottom))}.maStartCard{padding:28px 20px}}
-@media(max-height:470px){.maPortrait{left:9%;width:57%;height:123%;bottom:-24%}.maPortrait.ma-adjutant,.maPortrait.ma-scout{left:18%;width:40%;height:128%;bottom:-27%}.mcAiria .cpVNTop .cpEyebrow{font-size:9px;letter-spacing:1px}}
+@media(max-width:560px) and (min-height:471px){.maPortrait{left:50%;top:max(96px,12%);height:83%}.mcAiria .cpVNTop{left:12px;right:12px}.mcAiria .cpDialogue{max-height:52%;bottom:max(3%,env(safe-area-inset-bottom))}.maStartCard{padding:28px 20px}}
+@media(max-height:470px){.maPortrait{left:36%;top:max(54px,14%);height:86%}.mcAiria .cpVNTop .cpEyebrow{font-size:9px;letter-spacing:1px}}

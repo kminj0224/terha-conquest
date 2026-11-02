@@ -12,7 +12,7 @@ function ensureCombatAudio(){
    master.gain.value=.58;limiter.connect(master);master.connect(audio.destination);
    Object.assign(combatAudio,{context:audio,input:limiter,master});
   }
-  const context=combatAudio.context;if(context.state==='suspended')context.resume().catch(()=>{});return context;
+  const context=combatAudio.context;if(['suspended','interrupted'].includes(context.state))context.resume().catch(()=>{});return context;
  }catch(error){combatAudio.enabled=false;return null}
 }
 function combatBuffer(name,variant,echo=false){

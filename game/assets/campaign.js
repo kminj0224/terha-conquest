@@ -3,7 +3,7 @@ const campaignMenuMusic=appUsesMenuMusic;
 appUsesMenuMusic=function(){return document.body.dataset.campaignDialogue!=='true'&&campaignMenuMusic()};
 const CampaignApp=(()=>{
  const DATA=IRON_CROWN_CAMPAIGN,KEY='terha-campaign-iron-crown-v1';
- let record=null,view='menu',root=null,autoTimer=null,notice='',draft=false,resumeRecord=null;
+ let record=null,view='menu',root=null,autoTimer=null,typewriter=null,notice='',draft=false,resumeRecord=null;
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const mission=()=>DATA.implementedMissions.includes(record?.mission)?record.mission:1;
  const title=()=>DATA.missions[mission()-1].title;
@@ -14,7 +14,7 @@ const CampaignApp=(()=>{
  const trc=(ko,en)=>typeof tr==='function'?tr(ko,en):ko;
  function loadRecord(){try{const x=JSON.parse(localStorage.getItem(KEY));if(!x||x.id!==DATA.id||![1,2].includes(x.schema)||!Number.isInteger(x.vn)||x.vn<0||x.vn>=25||![0,1,2].includes(x.difficulty)||!Array.isArray(x.completed))return null;if(x.schema===1){x.schema=2;x.phase=x.phase==='intro'?'intro':'briefing';x.battle=null;x.checkpoint=null;x.legacyReset=true}x.mission=x.mission||1;if(!DATA.implementedMissions.includes(x.mission)||x.mission>1&&!x.completed.includes(x.mission-1))return null;if(!['intro','briefing','route','deployment','battle','won','lost'].includes(x.phase)||x.battle&&!CampaignBattle.valid(x.battle)||x.checkpoint&&!CampaignBattle.valid(x.checkpoint)||x.pendingStart&&!CampaignBattle.valid(x.pendingStart))return null;return x}catch{return null}}
  function save(){if(!record||draft)return true;try{record.savedAt=Date.now();localStorage.setItem(KEY,JSON.stringify(record));archive();return true}catch{notice='캠페인을 저장하지 못했습니다. 저장 공간을 확인하십시오.';return false}}
- function stop(){clearTimeout(autoTimer);autoTimer=null}
+ function stop(){typewriter?.cancel();typewriter=null;clearTimeout(autoTimer);autoTimer=null}
  function mount(){stop();$('modal').classList.remove('campaignDeployment');$('modal').classList.add('campaignModal');$('modal').innerHTML='<div id="campaignRoot"></div>';root=$('campaignRoot')}
  function button(id,fn){const e=$(id);if(e)e.onclick=fn}
  function open(){if(activeScenario&&!busy)CampaignBattle.leave();setAppScreen('campaign');draft=false;resumeRecord=null;record=loadRecord();view='menu';renderMenu()}
@@ -38,8 +38,9 @@ const CampaignApp=(()=>{
  }
  function character(id){return id==='steward'?{id,name:'관문 영주의 집사'}:DATA.characters.find(c=>c.id===id)}
  function renderVN(){dialogue(true);view='intro';mount();root.style.setProperty('--cp-field','url("'+battleData().map.image+'")');const line=intro()[record.vn],person=character(line.speaker);root.innerHTML='<section class="cpVN '+(line.scene==='field'?'field':'')+'">'+(person&&person.portrait!==undefined?'<img class="cpPortrait" src="campaign-'+person.id+'-v3.webp" alt="">':'')+'<div class="cpVNTop"><span class="cpEyebrow">'+title()+'</span><div class="cpVNTools"><button id="cpHistory">기록</button><button id="cpAuto">자동</button><button id="cpSkip">건너뛰기</button><button id="cpVNLeave">저장·나가기</button></div></div><div class="cpDialogue"><div class="cpSpeaker">'+esc(person?person.name:line.speaker==='severin'?'제국 통행관리소':'')+'</div><p id="cpLine" class="cpLine">'+esc(line.text)+'</p><div class="cpVNFooter"><span>'+(record.vn+1)+' / '+intro().length+'</span><div><button id="cpPrev" '+(!record.vn?'disabled':'')+'>이전</button><button id="cpNext" class="gold">'+(record.vn===24?(mission()===3?'배차 선택':mission()===2?'통행 조건':'전투 시작'):'다음')+'</button></div></div></div></section>';
- button('cpPrev',()=>{if(record.vn>0){record.vn--;save();renderVN()}});button('cpNext',nextLine);button('cpVNLeave',()=>{save();renderMenu()});button('cpSkip',()=>{record.vn=24;return finishVN()});button('cpHistory',history);button('cpAuto',()=>{if(autoTimer){clearTimeout(autoTimer);autoTimer=null;$('cpAuto').textContent='자동';return}$('cpAuto').textContent='자동 중';autoTimer=setTimeout(()=>{autoTimer=null;const next=record.vn+1;nextLine();if(view==='intro'&&record.vn===next)$('cpAuto').click()},Math.max(3500,line.text.length*85))})}
- function nextLine(){if(record.vn<24){record.vn++;save();renderVN()}else return finishVN()}
+ typewriter=DialogueTypewriter.start($('cpLine'),$('cpNext'),line.text);
+ button('cpPrev',()=>{if(record.vn>0){record.vn--;save();renderVN()}});button('cpNext',nextLine);button('cpVNLeave',()=>{save();renderMenu()});button('cpSkip',()=>{record.vn=24;return finishVN()});button('cpHistory',history);button('cpAuto',()=>{if(autoTimer){clearTimeout(autoTimer);autoTimer=null;$('cpAuto').textContent='자동';return}$('cpAuto').textContent='자동 중';autoTimer=setTimeout(()=>{autoTimer=null;if(document.hidden||$('cpSheet'))return;const next=record.vn+1;nextLine();if(view==='intro'&&record.vn===next)$('cpAuto').click()},Math.max(3500,line.text.length*85))})}
+ function nextLine(){if(!typewriter?.ready)return;if(record.vn<24){record.vn++;save();renderVN()}else return finishVN()}
  function sheet(html){clearTimeout(autoTimer);autoTimer=null;if($('cpAuto'))$('cpAuto').textContent='자동';const old=$('cpSheet');old?.remove();const e=document.createElement('div');e.id='cpSheet';e.className='cpSheet';e.innerHTML=html;root.appendChild(e);return e}
  function history(){sheet('<h2>대화 기록</h2>'+intro().slice(0,record.vn+1).map(l=>'<div class="cpHistoryItem"><b>'+esc(character(l.speaker)?.name||'')+'</b><div>'+esc(l.text)+'</div></div>').join('')+'<button id="cpSheetClose">닫기</button>');button('cpSheetClose',()=>{ $('cpSheet').remove()})}
  function finishVN(){record.needsIntro=false;if(mission()>1&&!record.route){record.phase='route';save();renderChoice()}else return enterBattle(record.battle)}

@@ -149,3 +149,7 @@ body[data-scenario^="iron-crown-m"] #panel{z-index:2}
 @media(max-height:470px){.cpAwardCard{padding:14px 20px 12px}.cpDefenseBriefNote{font-size:11px!important;margin-top:7px!important}}
 
 body[data-scenario="iron-crown-m03"][data-screen="game"] #log{display:none}
+
+/* Stable dialogue layout while letters appear. */
+.cpLine{position:relative}.vnMeasure{display:block;visibility:hidden}.vnVisible{position:absolute;inset:0;display:block}
+#campaignRoot button[hidden]{display:none!important}
