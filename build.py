@@ -4,7 +4,7 @@ import pathlib,zipfile,struct,subprocess,os,urllib.request
 from tools.apk_assets import runtime_assets
 from tools.prepare_apk_webp import prepare as prepare_webp
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
-VERSION='1.12.0';CODE=245
+VERSION='1.12.1';CODE=246
 subprocess.run(['python3','tools/prepare_operation_music.py'],check=True)
 subprocess.run(['python3','tools/prepare_main_airia_assets.py'],check=True)
 T=ROOT/'tools';T.mkdir(exist_ok=True)

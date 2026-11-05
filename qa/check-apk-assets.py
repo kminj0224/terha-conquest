@@ -25,7 +25,10 @@ def check(apk=None, directory=ASSETS):
     literal = re.compile(r'''["'(]([A-Za-z0-9][\w.-]*\.(?:html|js|css|png|jpg|webp|svg|mp3|otf|woff))["')]''')
     for p in selected:
         if p.suffix in {'.html', '.js', '.css'}:
-            expected.update(literal.findall(p.read_text()))
+            text = p.read_text()
+            expected.update(literal.findall(text))
+            if webp and p.suffix == '.js':
+                assert not re.search(r'''(['"])png\1''', text), 'Unconverted dynamic PNG extension: '+p.name
 
     # Exercise the naming contracts used by the runtime, not filename grep alone.
     def metadata(name, constant):

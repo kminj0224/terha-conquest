@@ -34,4 +34,4 @@ jobs:
           npm test
           python3 qa/verify-native.py
           python3 build.py
-          python3 qa/verify-apk-name.py deliverables/Terha-Conquest-v1.12.0.apk
+          python3 qa/verify-apk-name.py deliverables/Terha-Conquest-v1.12.1.apk
