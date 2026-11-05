@@ -6,10 +6,11 @@ from pathlib import Path
 import re
 import sys
 import zipfile
+import base64
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from tools.apk_assets import runtime_assets
+from tools.apk_assets import runtime_assets, EMBEDDED_MUSIC
 
 ASSETS = ROOT / 'game/assets'
 
@@ -34,6 +35,17 @@ def check(apk=None, directory=ASSETS):
     def metadata(name, constant):
         text = (ASSETS / name).read_text()
         return json.JSONDecoder().raw_decode(text.split('const '+constant+'=', 1)[1])[0]
+
+    # MP3 literals are logical track IDs. Verify their sole packaged payload,
+    # including exact original bytes, before exempting them from file references.
+    assert 'operation-music-data.js' in names, 'Missing embedded music bundle'
+    music = metadata('operation-music-data.js', 'OPERATION_MUSIC_DATA')
+    assert set(music) == EMBEDDED_MUSIC, 'Embedded music inventory changed'
+    assert not (names & EMBEDDED_MUSIC), 'Duplicate MP3 payload in runtime bundle'
+    for name, entry in music.items():
+        original = ROOT / 'game/assets' / name
+        assert base64.b64decode(entry['data'], validate=True) == original.read_bytes(), 'Embedded MP3 differs: '+name
+    expected.difference_update(EMBEDDED_MUSIC)
 
     ground = metadata('ground-data.js', 'GROUND_DATA')
     for stem in ['ground-overview'] + [q['name'] for q in ground['chunks']]:

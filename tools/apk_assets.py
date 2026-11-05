@@ -2,6 +2,13 @@
 from pathlib import Path
 import re
 
+# Original MP3s stay as build inputs; runtime players share their embedded bytes.
+EMBEDDED_MUSIC = frozenset({
+    'operation-music-1.mp3', 'operation-last-light.mp3',
+    'operation-ghost-trail.mp3', 'operation-music-5.mp3',
+    'menu-music.mp3', 'main-campaign-ruins.mp3', 'main-campaign-tomb.mp3',
+})
+
 # These are inputs/diagnostics for tools and historical QA, never runtime loads.
 SOURCE_ONLY = frozenset({
     'terrain-crops.js', 'rivers.js', 'smoke-plume-data.js',
@@ -17,7 +24,7 @@ RUNTIME_SUFFIXES = frozenset({'.html', '.js', '.css', '.png', '.jpg', '.webp',
 
 def is_runtime_asset(path):
     path = Path(path)
-    if path.name.startswith('.') or path.name in SOURCE_ONLY:
+    if path.name.startswith('.') or path.name in SOURCE_ONLY or path.name in EMBEDDED_MUSIC:
         return False
     if path.name.startswith('trial-'):
         return False

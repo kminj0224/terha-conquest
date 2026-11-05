@@ -1,0 +1,77 @@
+name: Verify music deduplication and build APK
+on:
+  push:
+    branches: [fix/music-payload-dedup]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: music-dedup-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
+      - name: Install build and browser dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y webp python3-pil
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false playwright@1.51.1
+          npx playwright install --with-deps chromium
+      - name: Verify original music and shared game
+        run: |
+          python3 tools/prepare_operation_music.py
+          python3 tools/prepare_main_airia_assets.py
+          node qa/music-dedup-regression.cjs
+          node qa/operation-music-regression.cjs
+          node qa/operation-buffer-music-regression.cjs
+          node qa/presentation-audio-regression.cjs
+          npm test
+          python3 qa/verify-native.py
+      - name: Build lossless WebP APK and verify update identity
+        run: |
+          python3 build.py
+          python3 qa/verify-apk-name.py deliverables/Terha-Conquest-v1.12.2.apk
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.12.2.apk
+      - name: Test actual staged bundle in Chromium
+        env:
+          TERHA_TEST_ROOT: ${{ github.workspace }}/android/build/webp
+        run: |
+          node qa/music-dedup-browser.cjs
+          node qa/hud-flags-browser.cjs
+          node qa/main-campaign-intro-browser.cjs
+          node qa/campaign-browser.cjs
+      - name: Measure signed APK savings
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          apk = pathlib.Path('deliverables/Terha-Conquest-v1.12.2.apk')
+          baseline = 354290388  # Released v1.12.1 APK.
+          actual = apk.stat().st_size
+          report = dict(baselineVersion='1.12.1', baselineBytes=baseline,
+                        version='1.12.2', apkBytes=actual, savedBytes=baseline-actual,
+                        savedPercent=round((baseline-actual)/baseline*100, 2))
+          assert report['savedBytes'] > 30000000, report
+          pathlib.Path('deliverables/music-size-report.json').write_text(json.dumps(report, indent=2)+'\n')
+          print(json.dumps(report, indent=2))
+          PY
+          echo "$GITHUB_SHA" > deliverables/SOURCE_COMMIT
+          cd deliverables
+          sha256sum Terha-Conquest-v1.12.2.apk music-size-report.json SOURCE_COMMIT > SHA256SUMS-v1.12.2.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.12.2-music-dedup
+          path: deliverables/
+          if-no-files-found: error
