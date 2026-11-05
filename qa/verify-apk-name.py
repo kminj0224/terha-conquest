@@ -45,7 +45,7 @@ with zipfile.ZipFile(sys.argv[1]) as apk:
     assert b'src="start-button.png"' in apk.read('assets/app-shell.js')
     assert b'hubLanding' in apk.read('assets/app-shell.js')
     assert apk.read('assets/start-button.png')[:8] == b'\x89PNG\r\n\x1a\n'
-    assert apk.read('assets/launcher-icon.webp')[:4] == b'RIFF'
+    assert 'assets/launcher-icon.webp' not in apk.namelist(), 'Source icon must not be duplicated as a web asset'
     icon = apk.read('res/drawable/icon.png')
     assert icon[:8] == b'\x89PNG\r\n\x1a\n', 'Launcher drawable must be PNG'
     assert struct.unpack_from('>II', icon, 16) == (192, 192), 'Launcher icon artwork missing'

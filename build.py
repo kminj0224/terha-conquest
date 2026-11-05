@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Repackage the retained Android shell with current game assets and original signing key."""
 import pathlib,zipfile,struct,subprocess,os,urllib.request
+from tools.apk_assets import runtime_assets
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
 VERSION='1.11.99';CODE=244
 subprocess.run(['python3','tools/prepare_operation_music.py'],check=True)
@@ -41,11 +42,13 @@ def manifest_version(data):
     if strings[name]=='versionCode':assert b[p+15]==0x10;struct.pack_into('<I',b,p+16,CODE)
   off+=size
  return bytes(b)
+assets=runtime_assets(ROOT/'game/assets')
+subprocess.run(['python3','qa/check-apk-assets.py'],check=True)
 with zipfile.ZipFile('android/native-shell.zip') as base,zipfile.ZipFile('android/build/aligned.apk','w') as out:
- entries=[(i,base.read(i)) for i in base.infolist()]
- for p in sorted(pathlib.Path('game/assets').iterdir()):
-  if p.is_file() and not p.name.startswith("."):
-   i=zipfile.ZipInfo('assets/'+p.name);i.compress_type=zipfile.ZIP_DEFLATED;entries.append((i,p.read_bytes()))
+ # Only native shell entries survive; never inherit stale web assets or signatures.
+ entries=[(i,base.read(i)) for i in base.infolist() if not i.filename.startswith(('assets/','META-INF/'))]
+ for p in assets:
+  i=zipfile.ZipInfo('assets/'+p.name);i.compress_type=zipfile.ZIP_DEFLATED;entries.append((i,p.read_bytes()))
  for i,data in entries:
   if i.filename=='AndroidManifest.xml':data=manifest_version(data)
   elif i.filename=='res/drawable/icon.png':data=LAUNCHER_PNG
@@ -60,8 +63,8 @@ result='deliverables/Terha-Conquest-v'+VERSION+'.apk'
 subprocess.run([java,'--add-exports','java.base/sun.security.x509=ALL-UNNAMED','--add-exports','java.base/sun.security.util=ALL-UNNAMED','--add-exports','java.base/sun.security.pkcs=ALL-UNNAMED','-cp','tools:tools/apksig.jar','SignApk','android/build/aligned.apk',result],env=env,check=True)
 with zipfile.ZipFile(result) as z:
  assert z.testzip() is None
- for p in pathlib.Path('game/assets').iterdir():
-  if p.is_file() and not p.name.startswith("."):assert z.read('assets/'+p.name)==p.read_bytes(),p
+ for p in assets:assert z.read('assets/'+p.name)==p.read_bytes(),p
+subprocess.run(['python3','qa/check-apk-assets.py',result],check=True)
 print(result)
 
 

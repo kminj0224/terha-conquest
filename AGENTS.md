@@ -4,6 +4,7 @@ The current baseline is v1.11.63. Preserve existing save compatibility, faction/
 
 - Edit the game under game/assets; index.html script order matters and bootstrap.js must be last.
 - Build with Python 3 and Java 17 using python3 build.py. The original Android shell, build JARs and signing files are under android/ and tools/.
+- APK asset selection is in tools/apk_assets.py; offline generator/QA inputs stay out of APKs. build.py runs qa/check-apk-assets.py before/after signing. Preserve dynamic map LOD, flag, transport, helicopter and portrait dependencies; see docs/apk-assets.md.
 - Run python3 tools/prepare_operation_music.py before npm test; it generates offline MP3 data with ffmpeg/ffprobe without changing source audio. build.py also runs it automatically. Do not commit generated game/assets/operation-music-data.js.
 - Native Canvas regression coverage is qa/native-test.cjs. Run npm install before npm test when dependencies are missing. The test uses real graphics with simulated DOM/audio; it is not a physical Android test.
 - qa/verify-native.py checks the native shell patch.
