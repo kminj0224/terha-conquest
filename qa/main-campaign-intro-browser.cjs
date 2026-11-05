@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
 const {chromium}=require('playwright'),{spawn}=require('node:child_process');
 (async()=>{
- const server=spawn('python3',['-m','http.server','8779','--bind','127.0.0.1'],{cwd:path.resolve(__dirname,'..'),stdio:'ignore'});let browser;
+ const server=spawn('python3',['-m','http.server','8779','--bind','127.0.0.1'],{cwd:process.env.TERHA_TEST_ROOT||path.resolve(__dirname,'..'),stdio:'ignore'});let browser;
  try{
   browser=await chromium.launch({executablePath:process.env.TERHA_CHROME_EXECUTABLE||undefined,headless:true});const page=await browser.newPage({viewport:{width:960,height:540}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));

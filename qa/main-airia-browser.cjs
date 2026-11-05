@@ -2,14 +2,14 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright'),{spawn}=require('node:child_process');
 (async()=>{
- const server=spawn('python3',['-m','http.server','8786','--bind','127.0.0.1'],{cwd:path.resolve(__dirname,'..'),stdio:'ignore'});let browser;
+ const server=spawn('python3',['-m','http.server','8786','--bind','127.0.0.1'],{cwd:process.env.TERHA_TEST_ROOT||path.resolve(__dirname,'..'),stdio:'ignore'});let browser;
  try{
   browser=await chromium.launch({executablePath:process.env.TERHA_CHROME_EXECUTABLE||undefined,headless:true});const page=await browser.newPage({viewport:{width:960,height:540}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8786/game/assets/index.html');await page.locator('#appStart:not([disabled])').waitFor();await page.click('#appStart');await page.click('#battle');
   const saves=await page.evaluate(()=>JSON.stringify(localStorage));
   await page.click('#campaignMode');await page.click('#mainCampaign');await page.click('#mcSkip');
-  assert.equal(await page.locator('#mcWar img').getAttribute('src'),'main-campaign-scene-7.png');
+  assert.equal(await page.locator('#mcWar img').getAttribute('src'),(process.env.TERHA_TEST_ROOT?'main-campaign-scene-7.webp':'main-campaign-scene-7.png'));
   const stages=async()=>{await page.click('#mcWar');assert.equal(await page.locator('.mcStageCard[aria-disabled="false"]').count(),1);assert.equal(await page.locator('.mcStageCard[aria-disabled="true"]').count(),9);assert.equal(await page.locator('.mcStageCard strong').first().textContent(),'아이리아 전역.');};
   await stages();await page.locator('.mcStageCard').nth(1).dispatchEvent('click');assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stages');
   await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+1000));

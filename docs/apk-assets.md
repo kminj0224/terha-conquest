@@ -31,3 +31,24 @@ campaign portraits. Run the existing asset preparation commands first.
 inventory, duplicate entries, ZIP integrity and every packaged byte.
 The APK-assets pull request workflow runs these checks and the shared native
 game regression suite without publishing a release.
+
+## v1.12.0 WebP release bundle
+
+GitHub Actions installs `cwebp` and Pillow; image conversion never runs in the
+local agent workspace. `tools/prepare_apk_webp.py` stages the selected runtime
+files under `android/build/webp/game/assets`, converts each PNG with lossless,
+exact transparent RGB and retained metadata, and compares every decoded RGBA
+pixel and image dimension. Only staged JS/CSS/HTML image references and PNG
+extension metadata change. Original source images and their checksum tests
+remain intact. No image is resized or encoded with a lossy quality setting.
+
+The signed APK uses only the staged bundle. `qa/check-apk-assets.py --assets`
+validates its static/dynamic dependencies, forbids PNG web assets, then checks
+the final signed APK inventory and bytes. `res/drawable/icon.png` remains the
+required native launcher image. Browser tests serve the actual staged bundle
+through `TERHA_TEST_ROOT` and exercise conquest and campaign rendering.
+
+The release workflow validates the branch and uploads the signed artifact with
+the exact source commit and SHA-256 sums. After that same commit reaches main,
+the main job downloads that successful artifact, checks its checksum and source
+commit, verifies the update certificate again, and publishes v1.12.0.

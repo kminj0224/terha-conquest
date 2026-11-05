@@ -30,8 +30,8 @@ with zipfile.ZipFile(sys.argv[1]) as apk:
         offset += size
     assert offset == len(data)
     assert elements['manifest']['package'] == 'com.terha.conquest'
-    assert elements['manifest']['versionName'] == '1.11.99'
-    assert elements['manifest']['versionCode'] == 244
+    assert elements['manifest']['versionName'] == '1.12.0'
+    assert elements['manifest']['versionCode'] == 245
     assert elements['application']['label'] == '테르하 : 낙원의 기억'
     assert 'label' not in elements['activity'] or elements['activity']['label'] == '테르하 : 낙원의 기억'
     for name in ['index.html', 'app-shell.js', 'game.js']:
@@ -39,15 +39,16 @@ with zipfile.ZipFile(sys.argv[1]) as apk:
         assert '테르하 : 낙원의 기억' in text
         assert '전장의 국권' not in text
     assert '<title>테르하 : 낙원의 기억</title>' in apk.read('assets/index.html').decode()
-    assert apk.read('assets/title-logo.png')[:8] == b'\x89PNG\r\n\x1a\n'
+    assert apk.read('assets/title-logo.webp')[:4] == b'RIFF'
     assert 'id="titleLogo"' in apk.read('assets/index.html').decode()
     assert 'class="startPulse imageStart"' in apk.read('assets/index.html').decode()
-    assert b'src="start-button.png"' in apk.read('assets/app-shell.js')
+    assert b'src="start-button.webp"' in apk.read('assets/app-shell.js')
     assert b'hubLanding' in apk.read('assets/app-shell.js')
-    assert apk.read('assets/start-button.png')[:8] == b'\x89PNG\r\n\x1a\n'
+    assert apk.read('assets/start-button.webp')[:4] == b'RIFF'
     assert 'assets/launcher-icon.webp' not in apk.namelist(), 'Source icon must not be duplicated as a web asset'
+    assert not any(n.startswith('assets/') and n.endswith('.png') for n in apk.namelist())
     icon = apk.read('res/drawable/icon.png')
     assert icon[:8] == b'\x89PNG\r\n\x1a\n', 'Launcher drawable must be PNG'
     assert struct.unpack_from('>II', icon, 16) == (192, 192), 'Launcher icon artwork missing'
 
-print('PASS: APK launcher name, shared title and image START, 192px fox launcher icon, versionCode 244, version 1.11.99 and original package identity')
+print('PASS: APK launcher name, shared title and image START, 192px fox launcher icon, versionCode 245, version 1.12.0 and original package identity')

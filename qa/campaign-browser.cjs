@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright'),{spawn}=require('node:child_process');
 (async()=>{
- const server=spawn('python3',['-m','http.server','8766','--bind','127.0.0.1'],{cwd:path.resolve(__dirname,'..'),stdio:'ignore'});let browser,watchdog,phase='startup';const mark=name=>{phase=name;console.log('CAMPAIGN_QA_PHASE',name)};
+ const server=spawn('python3',['-m','http.server','8766','--bind','127.0.0.1'],{cwd:process.env.TERHA_TEST_ROOT||path.resolve(__dirname,'..'),stdio:'ignore'});let browser,watchdog,phase='startup';const mark=name=>{phase=name;console.log('CAMPAIGN_QA_PHASE',name)};
  try{
   browser=await chromium.launch({executablePath:process.env.TERHA_CHROME_EXECUTABLE||undefined,headless:true,channel:process.env.TERHA_CHROME_CHANNEL||undefined});const page=await browser.newPage({viewport:{width:960,height:540},deviceScaleFactor:2}),errors=[];page.on('pageerror',e=>errors.push(e.message));fs.mkdirSync('qa/campaign-previews',{recursive:true});
   watchdog=setTimeout(async()=>{console.error('CAMPAIGN_QA_TIMEOUT',phase);try{console.error('CAMPAIGN_QA_STATE',await Promise.race([page.evaluate(()=>({appScreen,busy,aiTurnActive,turn,units:units.length,selected,scenario:activeScenario,loading:campaignLoading,cam})),new Promise(r=>setTimeout(()=>r('page blocked'),3000))]))}catch(e){console.error(e.message)}await Promise.race([browser.close(),new Promise(r=>setTimeout(r,4000))]);server.kill();process.exit(1)},360000);

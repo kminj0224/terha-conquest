@@ -2,8 +2,9 @@
 """Repackage the retained Android shell with current game assets and original signing key."""
 import pathlib,zipfile,struct,subprocess,os,urllib.request
 from tools.apk_assets import runtime_assets
+from tools.prepare_apk_webp import prepare as prepare_webp
 ROOT=pathlib.Path(__file__).resolve().parent;os.chdir(ROOT)
-VERSION='1.11.99';CODE=244
+VERSION='1.12.0';CODE=245
 subprocess.run(['python3','tools/prepare_operation_music.py'],check=True)
 subprocess.run(['python3','tools/prepare_main_airia_assets.py'],check=True)
 T=ROOT/'tools';T.mkdir(exist_ok=True)
@@ -42,8 +43,9 @@ def manifest_version(data):
     if strings[name]=='versionCode':assert b[p+15]==0x10;struct.pack_into('<I',b,p+16,CODE)
   off+=size
  return bytes(b)
-assets=runtime_assets(ROOT/'game/assets')
-subprocess.run(['python3','qa/check-apk-assets.py'],check=True)
+web_assets=prepare_webp()
+assets=runtime_assets(web_assets)
+subprocess.run(['python3','qa/check-apk-assets.py','--assets',str(web_assets)],check=True)
 with zipfile.ZipFile('android/native-shell.zip') as base,zipfile.ZipFile('android/build/aligned.apk','w') as out:
  # Only native shell entries survive; never inherit stale web assets or signatures.
  entries=[(i,base.read(i)) for i in base.infolist() if not i.filename.startswith(('assets/','META-INF/'))]
@@ -64,7 +66,7 @@ subprocess.run([java,'--add-exports','java.base/sun.security.x509=ALL-UNNAMED','
 with zipfile.ZipFile(result) as z:
  assert z.testzip() is None
  for p in assets:assert z.read('assets/'+p.name)==p.read_bytes(),p
-subprocess.run(['python3','qa/check-apk-assets.py',result],check=True)
+subprocess.run(['python3','qa/check-apk-assets.py',result,'--assets',str(web_assets)],check=True)
 print(result)
 
 

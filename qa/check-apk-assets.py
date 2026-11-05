@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check static/dynamic runtime dependencies and the exact signed APK inventory."""
 import json
+import argparse
 from pathlib import Path
 import re
 import sys
@@ -13,7 +14,10 @@ from tools.apk_assets import runtime_assets
 ASSETS = ROOT / 'game/assets'
 
 
-def check(apk=None):
+def check(apk=None, directory=ASSETS):
+    ASSETS = Path(directory)
+    webp = (ASSETS / 'world-clean.webp').exists()
+    image_suffix = '.webp' if webp else '.png'
     selected = runtime_assets(ASSETS)
     names = {p.name for p in selected}
     expected = {'index.html', 'FONT-LICENSE.txt', 'main-intro-font-OFL.txt'}
@@ -30,18 +34,20 @@ def check(apk=None):
 
     ground = metadata('ground-data.js', 'GROUND_DATA')
     for stem in ['ground-overview'] + [q['name'] for q in ground['chunks']]:
-        expected.update(stem + layer for layer in ('-terrain.png', '-detail.png'))
+        expected.update(stem + layer + image_suffix for layer in ('-terrain', '-detail'))
     detail = metadata('natural-detail-data.js', 'NATURAL_DETAIL')
     extension = metadata('map-page-ext0-data.js', 'data')
     for q in detail['regions'] + extension['details']:
         expected.add(q['name'] + '.' + q.get('extension', 'jpg'))
         expected.add(q['name'].replace('natural-detail', 'natural-mid') + '.' + q.get('extension', 'jpg'))
-    expected.update(f'flag-{f}.' + ('svg' if f in (3, 6) else 'png') for f in range(7))
-    expected.update(f'transport-ship-{f}.png' for f in range(1, 7))
+    expected.update(f'flag-{f}' + ('.svg' if f in (3, 6) else image_suffix) for f in range(7))
+    expected.update(f'transport-ship-{f}'+image_suffix for f in range(1, 7))
     expected.update(f'baek-attack-heli-{f}.webp' for f in range(1, 5))
     expected.update(f'campaign-{person}-v3.webp' for person in ('edric', 'rozena', 'kessel'))
     missing = expected - names
     assert not missing, 'Missing/excluded runtime dependencies: ' + ', '.join(sorted(missing))
+    if webp:
+        assert not any(n.endswith('.png') for n in names), 'PNG leaked into WebP release bundle'
     if apk:
         with zipfile.ZipFile(apk) as z:
             entries = z.namelist()
@@ -56,4 +62,8 @@ def check(apk=None):
 
 
 if __name__ == '__main__':
-    check(sys.argv[1] if len(sys.argv) > 1 else None)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('apk', nargs='?')
+    parser.add_argument('--assets', type=Path, default=ASSETS)
+    args = parser.parse_args()
+    check(args.apk, args.assets)
