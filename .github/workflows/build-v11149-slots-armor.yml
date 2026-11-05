@@ -1,8 +1,7 @@
 name: Slots and armored cars v1.11.49 APK
 on:
-  push:
-    branches: [main, codex/slots-apc-v11149]
-    paths: ['game/assets/**', 'qa/**', 'build.py', '.github/workflows/build-v11149-slots-armor.yml']
+  workflow_dispatch:
+
 permissions:
   contents: write
 jobs:

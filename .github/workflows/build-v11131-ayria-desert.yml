@@ -1,23 +1,7 @@
 name: Build v1.11.31 Ayria infantry APK
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'game/assets/ayria-*.webp'
-      - 'game/assets/rifle-art.js'
-      - 'game/assets/ayria-desert-art.js'
-      - 'game/assets/dante-tank-art.js'
-      - 'game/assets/artillery-art.js'
-      - 'game/assets/index.html'
-      - 'qa/ayria-desert-regression.cjs'
-      - 'qa/ranna-regression.cjs'
-      - 'game/assets/infantry-fire.js'
-      - 'game/assets/saves.js'
-      - 'game/assets/app-shell.js'
-      - 'build.py'
-      - 'qa/ayria-infantry-regression.cjs'
-      - '.github/workflows/build-v11131-ayria-desert.yml'
   workflow_dispatch:
+
 permissions:
   contents: write
 jobs:

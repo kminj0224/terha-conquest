@@ -1,9 +1,7 @@
 name: White Night and research fixes v1.11.48 APK
 on:
-  push:
-    branches: [main, codex/white-night-v11148]
-    paths: ['game/assets/**', 'qa/**', 'build.py', '.github/workflows/build-v11148-white-night.yml']
   workflow_dispatch:
+
 permissions:
   contents: write
 jobs:

@@ -1,9 +1,7 @@
 name: Verify and publish main campaign prologue v1.11.79
 on:
-  push:
-    branches: [main, codex/main-campaign-prologue]
-    paths: ['.github/workflows/publish-v11179-main-intro.yml', 'game/assets/main-campaign*', 'qa/main-campaign-intro-browser.cjs']
   workflow_dispatch:
+
 permissions:
   contents: write
 concurrency:

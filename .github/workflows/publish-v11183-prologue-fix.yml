@@ -1,18 +1,6 @@
 name: Build and publish Terha Conquest v1.11.83
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/publish-v11183-prologue-fix.yml'
-      - 'game/assets/main-campaign-scene-6.png'
-      - 'game/assets/main-campaign-ruins.mp3'
-      - 'game/assets/main-campaign-tomb.mp3'
-      - 'build.py'
-      - 'game/assets/saves.js'
-      - 'game/assets/app-shell.js'
-      - 'qa/verify-apk-name.py'
-      - 'docs/releases/v1.11.83.md'
   workflow_dispatch:
 
 permissions:

@@ -1,15 +1,7 @@
 name: Build v1.11.32 motorized infantry APK
 on:
-  push:
-    branches: [main, codex/motorized-infantry]
-    paths:
-      - 'game/assets/*motorized*'
-      - 'qa/motorized-art-regression.cjs'
-      - 'qa/ranna-regression.cjs'
-      - 'qa/native-test.cjs'
-      - 'build.py'
-      - '.github/workflows/build-v11132-motorized.yml'
   workflow_dispatch:
+
 permissions:
   contents: write
 jobs:

@@ -1,21 +1,6 @@
 name: Publish Terha Conquest v1.11.86 shared logo and launcher icon APK
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'game/assets/app-shell.js'
-      - 'game/assets/index.html'
-      - 'game/assets/app-shell.css'
-      - 'game/assets/saves.js'
-      - 'build.py'
-      - 'qa/verify-apk-name.py'
-      - 'qa/campaign-picker-browser.cjs'
-      - 'game/assets/title-logo.png'
-      - 'game/assets/start-button.png'
-      - 'game/assets/launcher-icon.webp'
-      - '.github/workflows/publish-v11186-title-logo.yml'
-      - 'docs/releases/v1.11.86.md'
   workflow_dispatch:
 
 permissions:

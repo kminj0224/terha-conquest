@@ -1,19 +1,6 @@
 name: Publish Terha Conquest v1.11.90 Gardara guard artwork and aligned gun flashes APK
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'game/assets/gardara.js'
-      - 'game/assets/app-shell.js'
-      - 'game/assets/saves.js'
-      - 'build.py'
-      - 'qa/verify-apk-name.py'
-      - 'game/assets/gardara-guard-idle.webp'
-      - 'game/assets/gardara-guard-fire.webp'
-      - 'qa/gardara-special-art-native.cjs'
-      - '.github/workflows/publish-v11190-gardara-guard-art.yml'
-      - 'docs/releases/v1.11.90.md'
   workflow_dispatch:
 
 permissions:

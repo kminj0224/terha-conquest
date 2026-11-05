@@ -1,18 +1,6 @@
 name: Publish Terha Conquest v1.11.91 Gardara guard compact sharper artwork APK
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'game/assets/gardara.js'
-      - 'game/assets/rifle-art.js'
-      - 'game/assets/app-shell.js'
-      - 'game/assets/saves.js'
-      - 'build.py'
-      - 'qa/verify-apk-name.py'
-      - 'qa/gardara-special-art-native.cjs'
-      - '.github/workflows/publish-v11191-gardara-guard-sizing.yml'
-      - 'docs/releases/v1.11.91.md'
   workflow_dispatch:
 
 permissions:

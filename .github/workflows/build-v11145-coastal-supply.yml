@@ -1,9 +1,7 @@
 name: Connected coastal occupation supply v1.11.45 APK
 on:
-  push:
-    branches: [main, codex/coastal-region-supply]
-    paths: ['game/assets/**', 'qa/**', 'build.py', '.github/workflows/build-v11145-coastal-supply.yml']
   workflow_dispatch:
+
 permissions:
   contents: write
 jobs:

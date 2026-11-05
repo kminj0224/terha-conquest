@@ -1,13 +1,7 @@
 name: Build v1.11.20 ocean world
 on:
-  push:
-    branches: [main, codex/v11120-ocean]
-    paths:
-      - 'game/assets/**'
-      - 'qa/ocean-world-regression.cjs'
-      - '.github/workflows/build-v11120-ocean.yml'
-      - 'build.py'
   workflow_dispatch:
+
 permissions:
   contents: write
 jobs:

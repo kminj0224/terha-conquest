@@ -1,13 +1,7 @@
 name: Build v1.11.40 transport artwork and occupied-city routes APK
 on:
-  push:
-    branches: [main, codex/ground-garrison-breach]
-    paths:
-      - 'game/assets/**'
-      - 'qa/**'
-      - 'build.py'
-      - '.github/workflows/build-v11140-ground-garrison.yml'
   workflow_dispatch:
+
 permissions:
   contents: write
 jobs:

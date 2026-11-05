@@ -1,21 +1,6 @@
 name: Publish Terha Conquest v1.11.92 original Gardara images and smaller START APK
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'game/assets/gardara.js'
-      - 'game/assets/app-shell.css'
-      - 'game/assets/app-shell.js'
-      - 'game/assets/saves.js'
-      - 'build.py'
-      - 'qa/verify-apk-name.py'
-      - 'qa/gardara-special-art-native.cjs'
-      - 'qa/campaign-picker-browser.cjs'
-      - 'game/assets/gardara-guard-idle.webp'
-      - 'game/assets/gardara-guard-fire.webp'
-      - '.github/workflows/publish-v11192-gardara-original-webp.yml'
-      - 'docs/releases/v1.11.92.md'
   workflow_dispatch:
 
 permissions:

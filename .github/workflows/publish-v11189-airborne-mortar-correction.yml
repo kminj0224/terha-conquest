@@ -1,17 +1,6 @@
 name: Publish Terha Conquest v1.11.89 corrected airborne damage and mortar range APK
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'game/assets/airborne-balance.js'
-      - 'qa/airborne-regression-native.cjs'
-      - 'game/assets/app-shell.js'
-      - 'game/assets/saves.js'
-      - 'build.py'
-      - 'qa/verify-apk-name.py'
-      - '.github/workflows/publish-v11189-airborne-mortar-correction.yml'
-      - 'docs/releases/v1.11.89.md'
   workflow_dispatch:
 
 permissions:

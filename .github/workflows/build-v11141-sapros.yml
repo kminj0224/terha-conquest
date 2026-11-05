@@ -1,13 +1,7 @@
 name: Build v1.11.41 Sapros and homeland production APK
 on:
-  push:
-    branches: [main, codex/sapros-v11141]
-    paths:
-      - 'game/assets/**'
-      - 'qa/**'
-      - 'build.py'
-      - '.github/workflows/build-v11141-sapros.yml'
   workflow_dispatch:
+
 permissions:
   contents: write
 jobs:

@@ -1,8 +1,7 @@
 name: Advect narrow smoke columns upward v1.11.71 APK
 on:
-  push:
-    branches: [main, codex/campaign-polish]
-    paths: ['game/assets/**', 'qa/**', 'build.py', '.github/workflows/build-v11150-autocannon.yml']
+  workflow_dispatch:
+
 permissions:
   contents: write
 jobs:

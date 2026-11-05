@@ -1,22 +1,6 @@
 name: Remove whale effects and publish Terha Conquest v1.11.84
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'game/assets/coast.js'
-      - 'game/assets/ambience.js'
-      - 'game/assets/navy.js'
-      - 'game/assets/combat-animation.js'
-      - 'game/assets/nationality-flags.js'
-      - 'game/assets/game.js'
-      - 'qa/campaign-no-navy-native.cjs'
-      - 'build.py'
-      - 'game/assets/saves.js'
-      - 'game/assets/app-shell.js'
-      - 'qa/verify-apk-name.py'
-      - '.github/workflows/publish-v11184-no-whale.yml'
-      - 'docs/releases/v1.11.84.md'
   workflow_dispatch:
 
 permissions:

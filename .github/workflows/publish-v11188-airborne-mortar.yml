@@ -1,21 +1,6 @@
 name: Publish Terha Conquest v1.11.88 airborne troops and mortar APK
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'game/assets/index.html'
-      - 'game/assets/airborne-transport.js'
-      - 'game/assets/rifle-art.js'
-      - 'game/assets/app-shell.js'
-      - 'game/assets/saves.js'
-      - 'build.py'
-      - 'qa/verify-apk-name.py'
-      - 'qa/v11079-regression.cjs'
-      - 'game/assets/airborne-balance.js'
-      - 'qa/airborne-regression-native.cjs'
-      - '.github/workflows/publish-v11188-airborne-mortar.yml'
-      - 'docs/releases/v1.11.88.md'
   workflow_dispatch:
 
 permissions:

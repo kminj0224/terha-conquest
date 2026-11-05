@@ -1,9 +1,7 @@
 name: Balance and national logistics v1.11.47 APK
 on:
-  push:
-    branches: [main, codex/balance-logistics-v11147]
-    paths: ['game/assets/**', 'qa/**', 'build.py']
   workflow_dispatch:
+
 permissions:
   contents: write
 jobs:
