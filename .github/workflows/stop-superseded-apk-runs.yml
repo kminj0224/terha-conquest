@@ -1,0 +1,24 @@
+name: Stop superseded APK workflows
+on:
+  push:
+    branches: [cleanup/apk-unused-assets]
+    paths: ['.github/workflows/stop-superseded-apk-runs.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  stop-superseded:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Cancel old version workflows for the WebP release commit only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: 6ac54c1545f4d43b74455c57821853cfd3962f9c
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$TARGET_SHA&per_page=100" --jq '.workflow_runs[] | select(.head_branch == "main" and .path != ".github/workflows/release-v11200-webp.yml" and .status != "completed") | .id' > /tmp/stale-apk-run-ids
+          while read -r run_id; do
+            echo "Cancel superseded workflow $run_id"
+            gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/cancel" || true
+          done < /tmp/stale-apk-run-ids
