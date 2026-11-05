@@ -58,6 +58,43 @@ class GameMusicPlayer {
   if(this.context&&this.context.state!=='closed')this.context.suspend().catch(()=>{});
  }
 }
+// The legacy player uses the same embedded bytes, never a second packaged MP3.
+// Create its media element only on play: the normal Web Audio path needs none.
+class EmbeddedMusicAudio {
+ constructor(src=''){
+  this._src=src;this.audio=null;this._volume=1;this._loop=false;this._preload='auto';this._time=0;this.onended=null;
+ }
+ get src(){return this._src}
+ set src(value){
+  if(value===this._src)return;
+  this._src=value;this._time=0;
+  if(this.audio){this.audio.pause();this.audio.src=this.mediaSource()}
+ }
+ mediaSource(){
+  const entry=typeof OPERATION_MUSIC_DATA!=='undefined'&&OPERATION_MUSIC_DATA[this.src];
+  return entry?'data:audio/mpeg;base64,'+entry.data:this.src;
+ }
+ ensure(){
+  if(!this.audio){
+   const audio=this.audio=new Audio(this.mediaSource());
+   audio.volume=this._volume;audio.loop=this._loop;audio.preload=this._preload;
+   audio.onended=()=>this.onended?.();
+   if(this._time)audio.currentTime=this._time;
+  }
+  return this.audio;
+ }
+ get paused(){return this.audio?this.audio.paused:true}
+ get volume(){return this._volume}
+ set volume(value){this._volume=value;if(this.audio)this.audio.volume=value}
+ get loop(){return this._loop}
+ set loop(value){this._loop=value;if(this.audio)this.audio.loop=value}
+ get preload(){return this._preload}
+ set preload(value){this._preload=value;if(this.audio)this.audio.preload=value}
+ get currentTime(){return this.audio?this.audio.currentTime:this._time}
+ set currentTime(value){this._time=value;if(this.audio)this.audio.currentTime=value}
+ play(){return this.ensure().play()}
+ pause(){this.audio?.pause()}
+}
 function createGameMusic(src){
- return (window.AudioContext||window.webkitAudioContext)&&typeof OPERATION_MUSIC_DATA!=='undefined'?new GameMusicPlayer(src):new Audio(src);
+ return (window.AudioContext||window.webkitAudioContext)&&typeof OPERATION_MUSIC_DATA!=='undefined'?new GameMusicPlayer(src):new EmbeddedMusicAudio(src);
 }

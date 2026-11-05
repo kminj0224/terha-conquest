@@ -6,7 +6,7 @@ const OPERATION_MUSIC_TRACKS=[
  {src:'operation-music-5.mp3',name:'Lopsided Pulse'}
 ];
 const OPERATION_MUSIC_GAP=4000;
-const operationMusic=new Audio(OPERATION_MUSIC_TRACKS[0].src);
+const operationMusic=new EmbeddedMusicAudio(OPERATION_MUSIC_TRACKS[0].src);
 operationMusic.preload='auto';operationMusic.loop=false;
 let operationMusicActive=false,operationMusicIndex=0,operationMusicWaiting=false;
 let operationMusicTimer=null,operationMusicRemaining=0,operationMusicDeadline=0;

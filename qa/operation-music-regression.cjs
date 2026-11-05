@@ -8,7 +8,7 @@ class AudioStub{
  play(){this.paused=false;this.plays++;return Promise.resolve()}
  pause(){this.paused=true}
 }
-const b={Audio:AudioStub,started:true,appScreen:'game',campaignLoading:false,appSettings:{music:.65},
+const b={EmbeddedMusicAudio:AudioStub,started:true,appScreen:'game',campaignLoading:false,appSettings:{music:.65},
  document:{hidden:false,addEventListener(){}},performance:{now:()=>clock},
  setTimeout:(fn,ms)=>{const id=nextTimer++;timers.set(id,{fn,at:clock+ms});return id},clearTimeout:id=>timers.delete(id),
  appFront:()=>['title','hub','country'].includes(b.appScreen),appUsesMenuMusic:()=>['title','hub','country','settings'].includes(b.appScreen),applyAppAudio(){},
