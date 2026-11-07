@@ -75,10 +75,11 @@ const airPatrolPanel=showPanel;
 showPanel=function(){
  airPatrolPanel();if(!panelOpen||selected?.kind!=='unit')return;
  const u=units.find(v=>v.id===selected.id);if(u?.type!==4)return;
+ const content=[...$('panel').children].find(e=>isWindowClass(e,'windowContent'))||$('panel');
  const p=document.createElement('p');p.id='airPatrolStatus';
  p.textContent=tr('초계 반경 4타일 · 요격·호위 합계 ','Patrol radius 4 tiles · interceptions/escorts remaining ')+(u.airPatrol?u.airPatrolLeft:0)+'/2'+tr('회 · 다음 자국 턴 시작 시 종료',' · ends at the start of its next faction turn');
- $('panel').appendChild(p);
- if(u.f===player){const b=document.createElement('button');b.id='startAirPatrol';b.textContent=tr('초계 개시 · 석유 8','Start patrol · oil 8');b.disabled=busy||!canStartPatrol(u);b.onclick=()=>startAirPatrol(u);$('panel').appendChild(b)}
+ content.appendChild(p);
+ if(u.f===player){const b=document.createElement('button');b.id='startAirPatrol';b.textContent=tr('초계 개시 · 석유 8','Start patrol · oil 8');b.disabled=busy||!canStartPatrol(u);b.onclick=()=>startAirPatrol(u);content.appendChild(b)}
 };
 const airPatrolAI=aiStep;
 aiStep=function(u,targets){

@@ -10,7 +10,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.evaluate(()=>{
    player=0;setup();started=true;setAppScreen('game');units=[];missileBases=[];money.fill(200000);food.fill(200000);oil.fill(100000);sound=false;
    const q=cities.find(q=>q.f===0&&q.capital);q.airport=true;q.level=5;q.nukeUntil=0;q.queue=null;q.produced=false;
-   window.testAirport=q;cityProfile(q);selectCity(q,true);unitPage(q);
+   window.testAirport=q;cityProfile(q);selectCity(q,true);cityCommandOpen('units');
   });
   assert((await page.locator('#production').textContent()).includes('초계 전투기'));
   assert(await page.evaluate(()=>canProduce(testAirport,4,1)));
