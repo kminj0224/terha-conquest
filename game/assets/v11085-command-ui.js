@@ -107,7 +107,7 @@ function sciencePage(q){
 }
 function facilityPage(q,box=$('cityCommandContent')){
  for(const [key,d] of Object.entries(FACILITIES)){
-  addCityRow(box,d.name+' 건설 · 골드 '+d.cost,facilityReason(q,key),()=>buildFacility(q,key));
+  addCityRow(box,d.name+' 건설 · 골드 '+d.cost+(d.oil?' · 석유 '+d.oil:'')+(d.turns?' · '+d.turns+'턴':''),facilityReason(q,key),()=>buildFacility(q,key));
  }
 }
 function unitPage(q){

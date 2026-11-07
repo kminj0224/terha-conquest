@@ -5,7 +5,7 @@ module.exports=async function({run}){
   setup();started=true;setAppScreen('game');player=0;busy=false;menuMode=false;
   money[player]=999999;oil[player]=99999;
   const q=cities.find(c=>c.f===player&&c.capital);
-  q.level=5;q.airport=true;q.lab=true;q.launcher=true;q.nukeUntil=0;
+  q.level=5;q.airport=true;q.lab=true;q.launcher=true;q.nukeUntil=0;airWing(q).strategic.total=1;airWing(q).fighter.total=1;
   strategicResearch[player].ballistic=true;strategicResearch[player].nuclear=true;
   const stock=warheadStock(q);stock.atomic=2;stock.hydrogen=1;syncWarheads(q);
   selectCity(q,true);cityCommandOpen('missiles');
@@ -42,7 +42,7 @@ module.exports=async function({run}){
   const city=cities.find(c=>c.f===player&&c.id!==q.id);
   city.level=5;city.nukeUntil=0;city.airport=false;city.lab=false;city.aa=false;
   check(buildFacility(city,'airport'),'City airport build must succeed');
-  check(messages.some(m=>m==='공항이 건설되었습니다.'),'Airport completion toast missing');
+  check(!city.airport&&city.airportJob?.remaining===3&&messages.some(m=>m==='공항 건설 시작 · 3턴'),'Airport must start a three-turn build');
   check(buildFacility(city,'lab'),'Science laboratory build must succeed');
   check(messages.some(m=>m==='과학연구소가 건설되었습니다.'),'Lab completion toast missing');
   toast=oldToast;

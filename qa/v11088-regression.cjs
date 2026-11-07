@@ -7,7 +7,7 @@ module.exports=async function({run}){
   money[0]=500000;oil[0]=100000;
   const q=cities.find(c=>c.f===0&&c.capital);
   q.level=5;q.airport=true;q.lab=true;cityProfile(q);
-  strategicResearch[0].nuclear=true;
+  strategicResearch[0].nuclear=true;airWing(q).strategic.total=1;
   selectCity(q,true);
   function checkTitle(tab){
    cityCommandOpen(tab);
@@ -25,8 +25,8 @@ module.exports=async function({run}){
   }
   for(const tab of ['overview','science','units','air','nuclear','missiles'])checkTitle(tab);
   cityCommandOpen('air');
-  const rows=Array.from($('cityCommandContent').children);
-  const bomberRows=rows.filter(x=>x.className?.includes('cityActionRow')&&x.children[0]?.textContent.includes(AIR_MISSIONS.strategic.name));
+  const rows=Array.from($('airportFleet-strategic').children);
+  const bomberRows=rows.filter(x=>x.className?.includes('cityActionRow')&&x.children[0]?.id==='airSortie-strategic');
   check(bomberRows.length===1,'There must be exactly one strategic-bomber row');
   check(rows.every(x=>!x.textContent.includes('전략폭격기 핵 장착')&&!x.textContent.includes('전략폭격기 핵 공격')),'Standalone nuclear bomber menu must be removed');
   let bomber=bomberRows[0];
@@ -34,7 +34,7 @@ module.exports=async function({run}){
   check(bomber.children[1].textContent==='i','Technical information button must be next to bomber strike');
   check(bomber.children[2].getAttribute('aria-label')==='핵탄두 장착','Mounted warhead control must be third adjacent button');
   check(!bomber.children[0].textContent.includes('핵 장착'),'No duplicate nuclear bomber product row');
-  check(bomber.children[0].innerHTML.includes('<small>'),'Price belongs on small subline');
+  check($('airportFleet-strategic').textContent.includes('재고 1'),'Strategic aircraft inventory must be visible');
   const stock=warheadStock(q);stock.atomic=2;stock.hydrogen=1;syncWarheads(q);
   bomber.children[2].onclick();
   check($('warheadOptions').textContent.includes('원자폭탄')&&$('warheadOptions').textContent.includes('수소폭탄'),'Warhead chooser must list available types');
@@ -46,7 +46,7 @@ module.exports=async function({run}){
   cancelAirTarget();
   check(!strategicTarget&&!armedBomber,'Cancel must abandon the mounted atomic payload');
   cityCommandOpen('air');
-  const bomberAfter=Array.from($('cityCommandContent').children).filter(x=>x.className?.includes('cityActionRow')&&x.children[0]?.textContent.includes(AIR_MISSIONS.strategic.name));
+  const bomberAfter=Array.from($('airportFleet-strategic').children).filter(x=>x.className?.includes('cityActionRow')&&x.children[0]?.id==='airSortie-strategic');
   check(bomberAfter.length===1&&bomberAfter[0].children.length===3,'After cancel, bomber must stay a single 3-button row');
   check(!bomberAfter[0].children[0].textContent.includes('원자폭탄 장착'),'Cancelled payload must not remain on bomber row');
   busy=false;menuMode=false;

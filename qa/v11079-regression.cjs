@@ -43,7 +43,7 @@ module.exports=async function({run}){
   const occupant=makeUnit(city.f,0,city.tile,2);
   const base=capital;
   const forwardAirfield={...capital,tile:city.tile,level:5,airport:true,nukeUntil:0};
-  base.airport=true;
+  base.airport=true;airWing(forwardAirfield).fighter.total=1;
   base.nukeUntil=0;
   money[0]=300000;oil[0]=10000;missileBases=[];
   const oilD=oil[0],cityHP=city.hp,unitHP=occupant.hp;

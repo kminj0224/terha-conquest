@@ -8,7 +8,7 @@ module.exports=async function({run}){
    units=[];missileBases=[];money[0]=100000;oil[0]=10000;food[0]=100000;sound=false;fx=[];q.level=5;q.aa=false;q.nukeUntil=0;
    const oilBefore=oil[0];
    for(const [type,expected]of [['fighter',3000],['bomber',5000],['strategic',15000]]){
-    q.hp=120000;
+    q.hp=120000;airWing(source)[type].total=2;
     check(cityAirStrikeDamage(type,q)===expected,'City air damage balance: '+type);
     check(await airStrike(source,type,q.tile,true),'Air strike did not execute: '+type);
     check(q.hp===120000-expected,'Actual city HP loss: '+type);
@@ -20,7 +20,7 @@ module.exports=async function({run}){
    q.aa=false;
    for(const type of [20,21,25]){const u={type,f:0,level:1,hp:unitMaxHp({type,f:0,level:1}),tile:q.tile},d=siegeDamage(u,q);check(type===25?d===2000:d>=2000&&d<=3000,'Carrier city damage equals fighter 2,000');const base={...q,kind:'sam'};check(siegeDamage(u,base)===previousAirSiegeDamage(u,base),'Defense facility damage changed')}
    for(const type of [0,1,2]){const u={type,f:0,level:1,hp:unitMaxHp({type,f:0,level:1}),tile:q.tile};check(siegeDamage(u,q)===previousAirSiegeDamage(u,q),'Ground siege damage changed')}
-   check(AIR_MISSIONS.fighter.cost===1300&&AIR_MISSIONS.bomber.cost===3000&&AIR_MISSIONS.strategic.cost===10000,'Aircraft gold costs incorrect');
+   check(AIR_MISSIONS.fighter.cost===0&&AIR_MISSIONS.bomber.cost===0&&AIR_MISSIONS.strategic.cost===0,'Aircraft gold costs incorrect');
    check(AIR_MISSIONS.transport.cost===1100&&AIR_MISSIONS.transport.food===510&&AIR_MISSIONS.transport.oil===20&&AIR_MISSIONS.transport.range>30,'Air transport spec incorrect');
    const empty=tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&!unitAt(i)&&!baseAt(i)&&distance(i,source.tile)<=60);
    check(empty>=0&&airDropTileAvailable(empty),'No eligible drop tile');

@@ -1,5 +1,5 @@
 'use strict';
-const AIRPORT_COST=420;
+const AIRPORT_COST=15000;
 const AIR_MISSIONS={fighter:{name:'전투기 공습',cost:1300,range:8,damage:48,oil:30},bomber:{name:'폭격기 공습',cost:3000,range:12,damage:76,oil:50},strategic:{name:'전략폭격',cost:10000,range:30,damage:150,oil:100},transport:{name:'수송기 공수강하',cost:1100,food:510,range:60,damage:0,oil:20}};
 function isAircraft(u){return u.type===4||u.type===7}
 function cityMaxHp(q){return 60+q.level*30}

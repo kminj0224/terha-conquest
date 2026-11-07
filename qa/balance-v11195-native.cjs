@@ -47,7 +47,7 @@ async function verifyBalance(){
  check(await airStrike(airport,'transport',landing,true),'Exact-resource drop succeeds');
  check(food[0]===0&&money[0]===0&&oil[0]===0,'Exact drop resource debit');
  check(unitAt(landing).type===AIRBORNE_TROOPER&&unitAt(landing).level===1,'Dedicated airborne unit deployed');
- check(AIR_MISSIONS.fighter.cost===1300&&AIR_MISSIONS.fighter.oil===30,'Fighter resources');
+ check(AIR_MISSIONS.fighter.cost===0&&AIR_MISSIONS.fighter.oil===30,'Fighter resources');
  check(cityAirStrikeDamage('fighter',{aa:false,f:1,tile:land})===3000,'Fighter city damage');
  check(cityAirStrikeDamage('fighter',{aa:true,f:1,tile:land})===1350,'City AA protection retained');
  return {mechaKnight:[1220,66],antiTank:[14,85,4.5],airborne:[510,1100,20,90,3,2,1],fighter:[1300,30,3000]};

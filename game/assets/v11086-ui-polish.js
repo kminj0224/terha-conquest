@@ -61,7 +61,7 @@ sciencePage=function(q){
 facilityPage=function(q,box=$('cityCommandContent')){
  for(const [key,d]of Object.entries(FACILITIES)){
   if(q[key])continue;
-  addCityRow(box,d.name+' 건설',facilityReason(q,key),()=>buildFacility(q,key),null,null,'골드 '+d.cost.toLocaleString());
+  addCityRow(box,d.name+' 건설',facilityReason(q,key),()=>buildFacility(q,key),null,null,'골드 '+d.cost.toLocaleString()+(d.oil?' · 석유 '+d.oil:'')+(d.turns?' · '+d.turns+'턴':''));
  }
 };
 airPage=function(q){
