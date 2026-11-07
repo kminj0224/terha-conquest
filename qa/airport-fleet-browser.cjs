@@ -16,7 +16,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    for(const q of cities)q.airWing=emptyAirWing(q.f);aircraftRandom=()=>.99;selectCity(fleetHome,true);cityCommandOpen('air');
   });
   assert.equal(await page.locator('#airspaceToggle').count(),0);assert.equal(await page.locator('#startAirPatrol').count(),0);
-  for(const type of ['fighter','bomber','strategic'])assert((await page.locator('#airportFleet-'+type).textContent()).includes('보유 0'));
+  for(const type of ['fighter','bomber','strategic'])assert((await page.locator('#airportFleet-'+type).textContent()).includes('재고 0'));
   // Inventory text must use the same rendered typography as nuclear stock in both languages.
   for(const lang of ['ko','en']){
    const styles=await page.evaluate(lang=>{
@@ -34,7 +34,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.locator('#airProduce-bomber').click();assert.equal(await page.evaluate(()=>money[0]),gold-500);
   await page.evaluate(()=>cityCommandOpen('overview'));assert((await page.locator('#panel .progressCard').textContent()).includes('전투기 생산'));
   await page.evaluate(()=>{turn++;beginAirportFactionTurn(0);fleetHome.produced=false;cityCommandOpen('air')});
-  assert((await page.locator('#airportFleet-fighter').textContent()).includes('보유 1'));
+  assert((await page.locator('#airportFleet-fighter').textContent()).includes('재고 1'));
 
   await page.locator('#airSortie-fighter').click();
   await page.evaluate(()=>{const i=fleetEnemy.tile,p=pxy(i);cam.x=p.x;cam.y=p.y;cam.z=1;tap(screenW/2,screenH/2)});

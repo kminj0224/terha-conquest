@@ -36,11 +36,13 @@ jobs:
           python3 tools/prepare_main_airia_assets.py
           npm install --no-save --package-lock=false playwright@1.51.1
           npx playwright install --with-deps chromium
-          npm test
           node qa/airport-fleet-native.cjs
+          node qa/conquest-ai-simulation.cjs
+          node qa/airborne-regression-native.cjs
           node qa/airport-fleet-browser.cjs
       - name: Verify shared city research presentation and native shell
         run: |
+          npm test
           node - <<'JS'
           const fs=require('fs'),path=require('path'),Module=require('module'),filename=path.resolve('qa/native-test.cjs');
           const pre=fs.readFileSync(filename,'utf8').split("assert.equal(run('appScreen'),'title');")[0];

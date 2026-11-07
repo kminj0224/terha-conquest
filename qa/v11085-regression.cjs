@@ -2,7 +2,7 @@ const assert=require('assert');
 module.exports=async function({run}){
  const result=await run(`(async()=>{
  const check=(v,m)=>{if(!v)throw Error(m)};
- setup();started=true;setAppScreen('game');player=0;busy=false;menuMode=false;
+ appSettings.language='ko';setup();started=true;setAppScreen('game');player=0;busy=false;menuMode=false;
  money[0]=500000;oil[0]=100000;food[0]=200000;
  const q=cities.find(c=>c.f===0&&c.capital),foreign=cities.find(c=>c.f!==0&&c.capital);
  q.lab=true;q.launcher=true;q.airport=true;q.level=5;cityProfile(q);
