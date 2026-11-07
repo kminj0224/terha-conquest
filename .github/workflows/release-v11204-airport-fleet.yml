@@ -38,6 +38,7 @@ jobs:
           npx playwright install --with-deps chromium
           node qa/airport-fleet-native.cjs
           node qa/airport-fleet-browser.cjs
+      # Legacy command fixtures must inspect the active UI language.
       - name: Verify source gameplay and native shell
         run: |
           python3 tools/prepare_operation_music.py

@@ -34,7 +34,7 @@ module.exports=async function({run}){
   check(bomber.children[1].textContent==='i','Technical information button must be next to bomber strike');
   check(bomber.children[2].getAttribute('aria-label')==='핵탄두 장착','Mounted warhead control must be third adjacent button');
   check(!bomber.children[0].textContent.includes('핵 장착'),'No duplicate nuclear bomber product row');
-  check($('airportFleet-strategic').textContent.includes('재고 1'),'Strategic aircraft inventory must be visible');
+  check($('airportFleet-strategic').textContent.includes(tr('재고 ','Stock ')+'1'),'Strategic aircraft inventory must be visible');
   const stock=warheadStock(q);stock.atomic=2;stock.hydrogen=1;syncWarheads(q);
   bomber.children[2].onclick();
   check($('warheadOptions').textContent.includes('원자폭탄')&&$('warheadOptions').textContent.includes('수소폭탄'),'Warhead chooser must list available types');

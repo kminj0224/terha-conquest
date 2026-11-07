@@ -44,7 +44,7 @@ module.exports=async function({run}){
  const count={
   science:checkRows('science','군사 연구'),
   units:checkRows('units','소총수'),
-  air:checkRows('air','전투기 공습'),
+  air:checkRows('air',tr('전투기 공습','Fighter raid')),
   nuclear:checkRows('nuclear','원자폭탄'),
   missiles:checkRows('missiles','단거리 탄도미사일')
  };

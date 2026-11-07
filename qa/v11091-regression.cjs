@@ -42,7 +42,7 @@ module.exports=async function({run}){
   const city=cities.find(c=>c.f===player&&c.id!==q.id);
   city.level=5;city.nukeUntil=0;city.airport=false;city.lab=false;city.aa=false;
   check(buildFacility(city,'airport'),'City airport build must succeed');
-  check(!city.airport&&city.airportJob?.remaining===3&&messages.some(m=>m==='공항 건설 시작 · 3턴'),'Airport must start a three-turn build');
+  check(!city.airport&&city.airportJob?.remaining===3&&messages.some(m=>m===tr('공항 건설 시작 · 3턴','Airport construction started · 3 turns')),'Airport must start a three-turn build');
   check(buildFacility(city,'lab'),'Science laboratory build must succeed');
   check(messages.some(m=>m==='과학연구소가 건설되었습니다.'),'Lab completion toast missing');
   toast=oldToast;
