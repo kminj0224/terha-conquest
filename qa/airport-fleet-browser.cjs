@@ -109,7 +109,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.evaluate(()=>{
    window.fleetBuild=cities.find(q=>q.f===0&&q!==fleetHome&&q!==fleetDest);fleetBuild.level=5;fleetBuild.airport=false;fleetBuild.nukeUntil=0;delete fleetBuild.airportJob;selectCity(fleetBuild,true);cityCommandOpen('overview');
   });
-  const build=page.locator('#cityOverviewFacilities button').filter({hasText:'공항 건설'});assert((await build.textContent()).includes('15000')||(await build.textContent()).includes('15,000'));assert((await build.textContent()).includes('100'));assert((await build.textContent()).includes('3턴'));await build.click();
+  const build=page.locator('#cityOverviewFacilities button').filter({hasText:'공항 건설'});assert((await build.textContent()).includes('15000')||(await build.textContent()).includes('15,000'));assert((await build.textContent()).includes('100'));assert.equal(await build.locator('.cityMetric[aria-label="턴 3"]').count(),1);await build.click();
   assert.equal(await page.evaluate(()=>fleetBuild.airportJob.remaining),3);assert.equal(await page.evaluate(()=>fleetBuild.airport),false);
   for(const [w,h]of [[800,360],[640,360],[390,844]]){
    await page.setViewportSize({width:w,height:h});await page.evaluate(()=>{selectCity(fleetHome,true);cityCommandOpen('air')});
