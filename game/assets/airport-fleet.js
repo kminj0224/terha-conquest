@@ -200,13 +200,38 @@ const fleetStudyReason=studyReason;
 studyReason=function(q,key){return aviationResearch(q.f).job?.city===q.id?tr('이 도시에서 항공 연구가 진행 중입니다.','Aviation research is using this city.'):fleetStudyReason(q,key)};
 const fleetFuelReason=fuelResearchReason;
 fuelResearchReason=function(q){return aviationResearch(q.f).job?.city===q.id?tr('이 도시에서 항공 연구가 진행 중입니다.','Aviation research is using this city.'):fleetFuelReason(q)};
+function aviationResearchTitle(f,key,level){
+ const name=aviationResearchSpec(f,key).name+(key==='performance'?tr(' 연구',' research'):'');
+ return name+tr(' ',' level ')+level+tr('단계','');
+}
+function aviationResearchEffect(key,from,to){
+ if(key==='performance')return tr('국가 항공전 성능 ','National air-combat performance ')+from+' → '+to+tr('단계 · 높은 단계 승리 / 동일 단계 50%',' · higher level wins / equal levels 50%');
+ const chance=level=>Math.round(Math.max(.2,.7-level*.05)*100);
+ return tr('대공미사일 격추 확률 ','SAM loss probability ')+chance(from)+'%'+(to===from?tr(' · 최고 단계',' · maximum level'):' → '+chance(to)+'%');
+}
 const fleetSciencePage=sciencePage;
 sciencePage=function(q){
  fleetSciencePage(q);const box=$('cityCommandContent'),a=aviationResearch(q.f);
- for(const key of ['performance','stealth']){const d=aviationResearchSpec(q.f,key),j=a.job?.key===key?a.job:null;const label=d.name+' · '+tr('현재 ','Current ')+a[key]+(j?' · '+j.remaining+tr('턴 남음',' turns left'):' · '+d.next+tr('단계 연구',' research')+' · '+tr('골드 ','Gold ')+d.gold+' · '+tr('석유 ','Oil ')+d.oil+' · 2'+tr('턴',' turns'));const b=addCityRow(box,label,aviationResearchReason(q,key),()=>studyAviation(q,key),d.name,key==='stealth'?tr('1~10단계. 과학연구소 필요. 단계마다 대공미사일 격추 확률 -5%p.','Levels 1–10. Requires a science lab. Each level reduces SAM loss chance by 5 percentage points.'):tr('단계가 높은 국가의 편대가 승리하며, 같으면 50% 확률로 승패가 결정됩니다.','The side with the higher level wins; equal levels resolve at 50%.'));b.id='airResearch-'+key}
+ for(const key of ['performance','stealth']){
+  const d=aviationResearchSpec(q.f,key),j=a.job?.key===key?a.job:null,complete=key==='stealth'&&a.stealth>=10;
+  const level=j?.next??(complete?10:d.next),title=aviationResearchTitle(q.f,key,level)+(complete?tr(' · 완료',' · complete'):'');
+  const effect=aviationResearchEffect(key,a[key],level);
+  const meta=complete?tr('최고 단계 10/10','Maximum level 10/10'):tr('골드 ','Gold ')+d.gold.toLocaleString()+tr(' · 석유 ',' · oil ')+d.oil.toLocaleString()+' · '+d.turns+tr('턴',' turns');
+  const info=effect+(key==='stealth'?tr(' · 과학연구소 필요 · 1~10단계',' · science lab required · levels 1–10'):'');
+  const button=addCityRow(box,title,aviationResearchReason(q,key),()=>studyAviation(q,key),aviationResearchTitle(q.f,key,level),info,meta);
+  button.id='airResearch-'+key;
+ }
 };
 const fleetOverview=cityOverview;
-cityOverview=function(q){let html=fleetOverview(q),cards='';if(q.airportJob)cards+=progressCard(tr('공항 건설','Airport construction'),tr('골드 15000 · 석유 100','Gold 15000 · oil 100'),q.airportJob.remaining,3);const j=aviationResearch(q.f).job;if(j?.city===q.id)cards+=progressCard(aviationResearchSpec(q.f,j.key).name,tr('국가 항공 연구','National aviation research'),j.remaining,j.total);return html.replace('<h3>진행 중인 작업</h3>','<h3>진행 중인 작업</h3>'+cards)};
+cityOverview=function(q){
+ let html=fleetOverview(q),cards='';
+ if(q.airportJob)cards+=progressCard(tr('공항 건설','Airport construction'),tr('골드 15000 · 석유 100','Gold 15000 · oil 100'),q.airportJob.remaining,3);
+ const j=aviationResearch(q.f).job;
+ if(j?.city===q.id)cards+=progressCard(aviationResearchTitle(q.f,j.key,j.next),tr('이 도시에서 진행 · ','In progress in this city · ')+aviationResearchEffect(j.key,j.next-1,j.next),j.remaining,j.total);
+ if(cards)html=html.replace(/<p class="(?:hint|quiet)">[^<]*작업[^<]*없[^<]*<\/p>/,'');
+ return html.replace('<h3>진행 중인 작업</h3>','<h3>진행 중인 작업</h3>'+cards);
+};
+
 airPage=function(q){
  const box=$('cityCommandContent');box.innerHTML='';
  const info=document.createElement('p');info.id='airportFleetSummary';info.textContent=q.airport?tr('공항 항공기 재고 · 기체마다 자국 턴 주기당 1회 출격 · 귀환 기체는 다음 자국 턴에 다시 준비됩니다.','Airport inventory · one sortie per airframe per friendly turn cycle; survivors become ready next friendly turn.'):q.airportJob?tr('공항 건설 중 · ','Airport under construction · ')+q.airportJob.remaining+tr('턴 남음',' turns left'):tr('공항이 없습니다. 골드 15000 · 석유 100 · 건설 3턴.','No airport. Gold 15000 · oil 100 · construction 3 turns.');box.appendChild(info);

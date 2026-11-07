@@ -1,7 +1,7 @@
 name: Verify and release airport inventory APK v1.12.4
 on:
   push:
-    branches: [main, feat/airport-fleet]
+    branches: [feat/airport-fleet]
     paths: ['.github/workflows/release-v11204-airport-fleet.yml', 'game/assets/airport-fleet.js', 'qa/airport-fleet-*.cjs']
   workflow_dispatch:
 permissions:

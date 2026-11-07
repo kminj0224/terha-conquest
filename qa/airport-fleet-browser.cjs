@@ -37,7 +37,29 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   fs.mkdirSync('qa/campaign-previews',{recursive:true});await page.screenshot({path:'qa/campaign-previews/airport-fleet-crash.png'});
   // National research is offered through the existing city science tab.
   await page.evaluate(()=>{missileBases=[];selectCity(fleetHome,true);cityCommandOpen('science')});
-  assert((await page.locator('#airResearch-performance').textContent()).includes('40000'));await page.locator('#airResearch-performance').click();assert.equal(await page.evaluate(()=>aviationResearch(0).job.key),'performance');
+  assert((await page.locator('#airResearch-performance small').textContent()).includes('40,000'));await page.locator('#airResearch-performance').click();assert.equal(await page.evaluate(()=>aviationResearch(0).job.key),'performance');
+  await page.evaluate(()=>cityCommandOpen('overview'));
+  assert((await page.locator('#panel .progressCard').textContent()).includes('전투기 성능 개선 연구 2단계'));
+  assert((await page.locator('#panel .progressCard').textContent()).includes('1 → 2단계'));
+  assert(!(await page.locator('#panel').textContent()).includes('진행 중인 작업이 없습니다.'));
+  await page.screenshot({path:'qa/campaign-previews/research-performance-banner.png'});
+  await page.evaluate(()=>{aviationResearch(0).job=null;aviationResearch(0).stealth=2;cityCommandOpen('science')});
+  const stealthRow=page.locator('#airResearch-stealth');
+  assert((await stealthRow.textContent()).includes('스텔스 연구 3단계'));
+  assert((await stealthRow.locator('small').textContent()).includes('30,000'));
+  await stealthRow.click();await page.evaluate(()=>cityCommandOpen('overview'));
+  assert((await page.locator('#panel .progressCard').textContent()).includes('스텔스 연구 3단계'));
+  assert((await page.locator('#panel .progressCard').textContent()).includes('60% → 55%'));
+  await page.screenshot({path:'qa/campaign-previews/research-stealth-banner.png'});
+  for(const lang of ['ko','en']){
+   await page.evaluate(lang=>{appSettings.language=lang;cityCommandOpen('science')},lang);
+   assert.equal(await page.locator('#airResearch-performance small').count(),1);
+   assert((await page.locator('#airResearch-stealth').textContent()).includes(lang==='ko'?'스텔스 연구 3단계':'Stealth research level 3'));
+   await page.evaluate(()=>cityCommandOpen('overview'));
+   assert((await page.locator('#panel .progressCard').textContent()).includes('60% → 55%'));
+  }
+  await page.evaluate(()=>{appSettings.language='ko';aviationResearch(0).job={key:'performance',owner:0,city:fleetHome.id,next:2,remaining:2,total:2,lastTick:turn}});
+
   // Construction progress is separate from already completed airports.
   await page.evaluate(()=>{
    window.fleetBuild=cities.find(q=>q.f===0&&q!==fleetHome&&q!==fleetDest);fleetBuild.level=5;fleetBuild.airport=false;fleetBuild.nukeUntil=0;delete fleetBuild.airportJob;selectCity(fleetBuild,true);cityCommandOpen('overview');
