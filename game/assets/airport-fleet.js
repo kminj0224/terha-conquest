@@ -123,6 +123,17 @@ airStrike=async function(q,type,i,ai=false){
  }
  return true;
 };
+// Targeting owns map taps. Defense information windows must not swallow a
+// tap on a SAM battery while an air or strategic mission is being aimed.
+const airportTargetTap=tap;
+tap=function(sx,sy){
+ if(started&&!busy&&!menuMode&&(airTarget||strategicTarget)){
+  const i=worldTileAt((sx-screenW/2)/cam.z+cam.x,(sy-screenH/2)/cam.z+cam.y);if(i<0)return;
+  if(airTarget){const q=cities[airTarget.city],type=airTarget.type;if(canAirStrike(q,type,i))return airStrike(q,type,i);toast(tr('작전 범위·목표·출격 가능한 재고를 확인하세요.','Check range, target and ready aircraft.'));return}
+  const q=cities[strategicTarget.city],kind=strategicTarget.kind;if(canStrategic(q,kind,i))return launchStrategic(q,kind,i);toast(tr('전략 임무의 목표와 자원을 확인하세요.','Check the strategic target and resources.'));return;
+ }
+ return airportTargetTap(sx,sy);
+};
 const stockAircraftDrawing=drawMissionAircraft;
 drawMissionAircraft=function(e,t){
  if(!e.crash||t<(e.crashAt??.56))return stockAircraftDrawing(e,t);
@@ -214,4 +225,4 @@ function prepareAirportAI(f,owned){
  for(const q of airports)for(const [type,goal]of [['fighter',2],['bomber',1],['strategic',difficulty===2&&q.level===5?1:0]])if(airWing(q)[type].total<goal&&money[f]>AIRCRAFT[type].gold+5000&&oil[f]>AIRCRAFT[type].oil+60)produceAircraft(q,type,true);
  const a=aviationResearch(f);if(!a.job&&money[f]>50000&&oil[f]>550){const q=owned.find(q=>q.nukeUntil<=turn&&!localResearchJob(q));if(q)studyAviation(q,'performance',true)}
 }
-Object.assign(window.Terha,{AIRCRAFT,AIR_FLEET_SCHEMA,airWing,aircraftReady,useAircraft,loseAircraft,beginAirportFactionTurn,produceAircraft,transferAircraft,aircraftTransferDialog,aviationResearch,aviationResearchSpec,aviationResearchReason,studyAviation,samAircraftLossChance,interceptingAirport,resolveAircraftInterception,missionSAM,aircraftGroundDamage,applyAirportBombing,airStrike,canAirStrike,beginAirTarget,drawMissionAircraft,strategicBomber,launchStrategic,facilityReason,buildFacility,migrateAirportPlanes,migrateArmy,setup,capture,nuclearImpact,industryTurn,localResearchJob,studyReason,fuelResearchReason,sciencePage,cityOverview,airPage,prepareAirportAI});
+Object.assign(window.Terha,{AIRCRAFT,AIR_FLEET_SCHEMA,airWing,aircraftReady,useAircraft,loseAircraft,beginAirportFactionTurn,produceAircraft,transferAircraft,aircraftTransferDialog,aviationResearch,aviationResearchSpec,aviationResearchReason,studyAviation,samAircraftLossChance,interceptingAirport,resolveAircraftInterception,missionSAM,aircraftGroundDamage,applyAirportBombing,airStrike,canAirStrike,beginAirTarget,tap,drawMissionAircraft,strategicBomber,launchStrategic,facilityReason,buildFacility,migrateAirportPlanes,migrateArmy,setup,capture,nuclearImpact,industryTurn,localResearchJob,studyReason,fuelResearchReason,sciencePage,cityOverview,airPage,prepareAirportAI});

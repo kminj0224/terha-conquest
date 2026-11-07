@@ -33,7 +33,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    selectCity(fleetHome,true);cityCommandOpen('air');
   });
   await page.locator('#airSortie-fighter').click();await page.evaluate(()=>{const p=pxy(fleetEnemy.tile);cam.x=p.x;cam.y=p.y;cam.z=1;tap(screenW/2,screenH/2)});
-  await page.waitForFunction(()=>!busy&&fleetSmoke>0);assert.equal(await page.evaluate(()=>airWing(fleetHome).fighter.total),0);
+  try{await page.waitForFunction(()=>!busy&&fleetSmoke>0)}catch(e){console.log('FLEET_STATE',await page.evaluate(()=>({busy,menuMode,airTarget,smoke:fleetSmoke,stock:airWing(fleetHome),effects:fx.map(e=>({kind:e.kind,crash:e.crash}))})));console.log('BROWSER_ERRORS',errors);throw e};assert.equal(await page.evaluate(()=>airWing(fleetHome).fighter.total),0);
   fs.mkdirSync('qa/campaign-previews',{recursive:true});await page.screenshot({path:'qa/campaign-previews/airport-fleet-crash.png'});
   // National research is offered through the existing city science tab.
   await page.evaluate(()=>{missileBases=[];selectCity(fleetHome,true);cityCommandOpen('science')});

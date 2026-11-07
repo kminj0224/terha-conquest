@@ -68,6 +68,11 @@ const scenario=async function(){
  const neighbor=neighbors(land).find(i=>tiles[i].owner>=0&&!cityAt(i));const rifle=makeUnit(1,0,land,4),splash=makeUnit(1,0,neighbor,4);rifle.hp=splash.hp=10000;
  const field={...home,tile:land,airWing:emptyAirWing(0)},direct=aircraftGroundDamage(rifle),area=Math.round(150*bombProtection(splash,null)*specialIncomingFactor(splash));
  for(const type of AIRCRAFT_TYPES){airWing(field)[type].total=1;airWing(field)[type].used=0;const dh=rifle.hp,ah=splash.hp;check(await airStrike(field,type,land,true),'all classes bomb ground');check(dh-rifle.hp===direct&&ah-splash.hp===area,'300 direct / 150 area with existing protection')}
+ // Clicking a SAM target must launch the mission rather than open battery information.
+ units=[];missileBases=[{id:9004,f:1,kind:'sam',tile:land,hp:34000,remaining:0,facing:1}];
+ airWing(home).fighter.total=1;airWing(home).fighter.used=0;aircraftRandom=()=>.99;
+ selected={kind:'city',id:home.id};airTarget={city:home.id,type:'fighter'};panelOpen=false;menuMode=false;cam.x=pxy(land).x;cam.y=pxy(land).y;cam.z=1;
+ check(await tap(screenW/2,screenH/2),'SAM map tap launches an actual air mission');check(missileBases[0].hp===32200&&!menuMode,'SAM target tap cannot open defense modal');missileBases=[];
  for(let level=0;level<=10;level++){aviationResearch(0).stealth=level;check(Math.abs(samAircraftLossChance(0)-(.7-level*.05))<1e-9,'stealth stage loss probability '+level)}
  // Three-turn airport: exact resources, same-turn idempotence and completion boundary.
  const build=cities.find(q=>q.f===0&&q!==home&&q!==dest);build.level=5;build.airport=false;build.nukeUntil=0;delete build.airportJob;
