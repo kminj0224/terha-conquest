@@ -175,3 +175,9 @@ body[data-screen="title"] #modal .landing button.imageStart:focus-visible{outlin
 html,body,body *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 img{-webkit-user-drag:none}
+
+/* Keep the complete raid forecast and launch choices inside small screens. */
+#confirmOverlay.airMissionPreview{padding:12px}
+#confirmOverlay.airMissionPreview .confirmBox{max-height:calc(100dvh - 24px);overflow:auto;padding:18px}
+#confirmOverlay.airMissionPreview h2{font-size:15px;line-height:1.55;margin-bottom:14px}
+#airspaceToggle[aria-pressed="true"]{border-color:#8ed7ff;background:#214b60}

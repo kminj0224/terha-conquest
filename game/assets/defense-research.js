@@ -55,6 +55,7 @@ airStrike=async function(q,type,i,ai=false){
  const b=baseAt(i);
  if(!b||!atWar(q.f,b.f))return defenseAirStrike(q,type,i,ai);
  if(!canAirStrike(q,type,i))return false;
+ const missionFactor=resolveAirMission(q,type,i);
  const m=AIR_MISSIONS[type],a=pxy(q.tile),p=pxy(i);
  money[q.f]-=m.cost;oil[q.f]-=m.oil;q.airTurn=turn;
  if(!ai)busy=true;
@@ -64,14 +65,14 @@ airStrike=async function(q,type,i,ai=false){
  const victim=unitAt(i);
  if(victim&&atWar(q.f,victim.f)){
   const unitDamage=Math.max(1,Math.round(Math.max(16,m.damage-unitArmor(victim)*.35)
-   *bombProtection(victim,cityAt(i))*specialIncomingFactor(victim)*(cityAt(i)?.f===victim.f?.7:1)));
+   *bombProtection(victim,cityAt(i))*specialIncomingFactor(victim)*(cityAt(i)?.f===victim.f?.7:1)*missionFactor));
   victim.hp-=unitDamage;
   fx.push({kind:'blast',x:p.x+42,y:p.y+30,start:performance.now(),duration:740,damage:unitDamage});
   if(victim.hp<=0)kill(victim);
  }
  // A ready SAM battery (or neighboring allied SAM) halves the actual hit.
  // The popup must always use the same number subtracted from structure HP.
- const realDamage=Math.round(m.damage*12*samAirProtection(b));
+ const realDamage=Math.round(m.damage*12*samAirProtection(b)*missionFactor);
  b.hp-=realDamage;
  targetExplosions({type:3,strategic:true},p,realDamage);
  if(b.hp<=0)missileBases=missileBases.filter(v=>v!==b);
