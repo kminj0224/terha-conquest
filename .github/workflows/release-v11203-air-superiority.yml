@@ -2,7 +2,7 @@ name: Verify and release air superiority APK v1.12.3
 on:
   push:
     branches: [main, feat/air-superiority]
-    paths: ['.github/workflows/release-v11203-air-superiority.yml', 'game/assets/air-superiority.js', 'qa/air-superiority-*.cjs']
+    paths: ['.github/workflows/release-v11203-air-superiority.yml', 'game/assets/air-superiority.js', 'qa/air-superiority-*.cjs', 'qa/verify-apk-name.py']
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,7 +32,32 @@ jobs:
           npm ci --no-audit --no-fund
           npm install --no-save --package-lock=false playwright@1.51.1
           npx playwright install --with-deps chromium
+      - name: Reuse passing engine and source UI checks only for identical source
+        id: previous
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The prior run passed engine/native and source-browser checks, then
+          # stopped at an obsolete version assertion after successfully building.
+          verified=7ef310ad38f8091d0cf824f6f0ec6065e530dda4
+          git fetch --depth=1 origin "$verified"
+          if git diff --quiet "$verified" "$GITHUB_SHA" -- . ':!.github' ':!qa/verify-apk-name.py'; then
+            test "$(gh api repos/$GITHUB_REPOSITORY/actions/runs/42359433273 --jq .head_sha)" = "$verified"
+            gh api repos/$GITHUB_REPOSITORY/actions/runs/42359433273/jobs > /tmp/air-verified-jobs.json
+            python3 - <<'PYVERIFY'
+          import json
+          jobs = json.load(open('/tmp/air-verified-jobs.json'))['jobs']
+          steps = next(job for job in jobs if job['name'] == 'verify')['steps']
+          required = ['Verify actual source engine, old saves and native shell',
+                      'Verify actual production, patrol and forecast UI']
+          for name in required:
+              assert any(s['name'] == name and s['conclusion'] == 'success' for s in steps), name
+          print('Reused successful engine/native and source Chromium checks for byte-identical code')
+          PYVERIFY
+            echo 'reuse=true' >> "$GITHUB_OUTPUT"
+          fi
       - name: Verify actual source engine, old saves and native shell
+        if: steps.previous.outputs.reuse != 'true'
         run: |
           python3 tools/prepare_operation_music.py
           python3 tools/prepare_main_airia_assets.py
@@ -43,6 +68,7 @@ jobs:
           node qa/presentation-audio-regression.cjs
           python3 qa/verify-native.py
       - name: Verify actual production, patrol and forecast UI
+        if: steps.previous.outputs.reuse != 'true'
         run: node qa/air-superiority-browser.cjs
       - name: Build lossless signed release on GitHub runner
         run: |
