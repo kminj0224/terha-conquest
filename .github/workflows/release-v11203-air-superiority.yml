@@ -2,14 +2,14 @@ name: Verify and release air superiority APK v1.12.3
 on:
   push:
     branches: [main, feat/air-superiority]
-    paths: ['.github/workflows/release-v11203-air-superiority.yml']
+    paths: ['.github/workflows/release-v11203-air-superiority.yml', 'game/assets/air-superiority.js', 'qa/air-superiority-*.cjs']
   workflow_dispatch:
 permissions:
   contents: read
   actions: read
 concurrency:
   group: air-superiority-v11203-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   verify:
     if: github.ref == 'refs/heads/feat/air-superiority'

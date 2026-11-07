@@ -2,7 +2,7 @@
 // Local patrols use existing unit orders and saves. Preview and execution share
 // one deterministic calculation; no combat globals are held across awaits.
 const AIR_PATROL_RANGE=4,AIR_PATROL_SORTIES=2,AIR_PATROL_OIL=8;
-let airspaceVisible=false,airPreviewPending=false;
+let airspaceVisible=false,airPreviewPending=false,airspaceCacheKey='',airspaceCells=[];
 function patrolActive(u){return !!(u&&u.type===4&&u.hp>0&&!u.carriedBy&&u.airPatrol&&u.airPatrolLeft>0)}
 function canStartPatrol(u){return !!(u&&u.type===4&&units.includes(u)&&!u.carriedBy&&mayFire(u)&&!u.airPatrol&&oil[u.f]>=AIR_PATROL_OIL)}
 function startAirPatrol(u,ai=false){
@@ -123,13 +123,26 @@ airspaceButton.textContent=tr('공역','Airspace');airspaceButton.setAttribute('
 function drawAirspace(){
  if(!airspaceVisible||!started||menuMode)return;
  const patrols=units.filter(patrolActive);if(!patrols.length)return;
- const near=patrols.filter(u=>Math.abs(nearWorldPoint(pxy(u.tile),{x:cam.x,y:cam.y}).x-cam.x)<screenW/2/cam.z+S*6&&Math.abs(pxy(u.tile).y-cam.y)<screenH/2/cam.z+V*6);
- const area=new Set();for(const u of near){let frontier=[u.tile];area.add(u.tile);const visited=new Set([u.tile]);for(let n=0;n<AIR_PATROL_RANGE;n++){const next=[];for(const i of frontier)for(const j of neighbors(i))if(!visited.has(j)){visited.add(j);area.add(j);next.push(j)}frontier=next}}
+ const relevant=patrols.filter(u=>u.f===player||atWar(player,u.f));
+ const key=player+'|'+diplomacy[player].join(',')+'|'+relevant.map(u=>[u.id,u.f,u.tile,u.hp,u.level,u.airPatrolLeft].join(':')).join(';');
+ if(key!==airspaceCacheKey){
+  const cells=new Map();
+  for(const u of relevant){
+   let frontier=[u.tile];const visited=new Set(frontier);
+   for(let n=0;n<AIR_PATROL_RANGE;n++){const next=[];for(const i of frontier)for(const j of neighbors(i))if(!visited.has(j)){visited.add(j);next.push(j)}frontier=next}
+   for(const i of visited){const power=patrolPower(u,i);if(!power)continue;const value=cells.get(i)||{i,own:0,enemy:0};value[u.f===player?'own':'enemy']+=power;cells.set(i,value)}
+  }
+  airspaceCacheKey=key;airspaceCells=[...cells.values()];
+ }
+ const inView=i=>{const p=pxy(i);return Math.abs(p.x-cam.x)<screenW/2/cam.z+S&&Math.abs(p.y-cam.y)<screenH/2/cam.z+V};
+ const near=relevant.filter(u=>inView(u.tile));
  ctx.save();ctx.translate(screenW/2,screenH/2);ctx.scale(cam.z,cam.z);ctx.translate(-cam.x,-cam.y);
- for(const i of area){const own=near.filter(u=>u.f===player).reduce((s,u)=>s+patrolPower(u,i),0),enemy=near.filter(u=>atWar(player,u.f)).reduce((s,u)=>s+patrolPower(u,i),0);if(!own&&!enemy)continue;const color=own&&enemy?'#e8bb4b':own?'#70bee8':'#ee7777';hex(pxy(i),30);ctx.fillStyle=color+'24';ctx.fill();ctx.strokeStyle=color+'65';ctx.lineWidth=1;ctx.stroke()}
+ for(const {i,own,enemy}of airspaceCells){if(!inView(i))continue;const color=own&&enemy?'#e8bb4b':own?'#70bee8':'#ee7777';hex(pxy(i),30);ctx.fillStyle=color+'24';ctx.fill();ctx.strokeStyle=color+'65';ctx.lineWidth=1;ctx.stroke()}
  for(const u of near){if(u.f!==player&&!atWar(player,u.f))continue;const p=pxy(u.tile);ctx.font='bold 12px Terha,sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff3c9';ctx.strokeStyle='#11252d';ctx.lineWidth=3;const text=tr('초계 ','Patrol ')+u.airPatrolLeft+'/2';ctx.strokeText(text,p.x,p.y-47);ctx.fillText(text,p.x,p.y-47)}
  ctx.restore();
 }
+const airPatrolLanguage=refreshGameLanguage;
+refreshGameLanguage=function(){airspaceButton.textContent=tr('공역','Airspace')+(airspaceVisible?' ✓':'');return airPatrolLanguage()};
 const airspaceWorld=drawWorld;
 drawWorld=function(now,backgroundOnly=false){const result=airspaceWorld(now,backgroundOnly);if(!backgroundOnly)drawAirspace();return result};
 Object.assign(window.Terha,{AIR_PATROL_RANGE,AIR_PATROL_SORTIES,AIR_PATROL_OIL,patrolActive,patrolPower,canStartPatrol,startAirPatrol,airspaceState,airMissionPlan,resolveAirMission,freshOrders,canCounterattack,migrateArmy,setup,showPanel,aiStep,aiProcure,canAirStrike,tap,drawWorld});
