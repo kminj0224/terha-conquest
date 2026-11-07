@@ -1,7 +1,7 @@
 name: Verify and release research interface APK v1.12.6
 on:
   push:
-    branches: [main, feat/aviation-ui-consistency]
+    branches: [feat/aviation-ui-consistency]
     paths: ['.github/workflows/release-v11206-aviation-ui-consistency.yml', 'game/assets/airport-fleet.js', 'game/assets/app-shell.css', 'qa/airport-fleet-*.cjs']
   workflow_dispatch:
 permissions:

@@ -32,7 +32,7 @@ module.exports=async function({run}){
   const found=rows.find(row=>row.children[0]?.textContent.includes(label));
   check(found,'Missing '+label+' in '+tab);
   const button=found.children[0];
-  check(button.innerHTML.includes('<small>'),'Metadata must be below name inside small text on '+tab);
+  check(/<small(?:\s[^>]*)?>/.test(button.innerHTML),'Metadata must be below name inside small text on '+tab);
   check(!button.childNodes[0].textContent.includes('골드'),'Gold price must not share title line in '+tab);
   if(tab!=='units'&&found.children[1]?.textContent==='i'){
    found.children[1].onclick();

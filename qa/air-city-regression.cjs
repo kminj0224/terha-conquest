@@ -24,6 +24,7 @@ module.exports=async function({run}){
    check(AIR_MISSIONS.transport.cost===1100&&AIR_MISSIONS.transport.food===510&&AIR_MISSIONS.transport.oil===20&&AIR_MISSIONS.transport.range>30,'Air transport spec incorrect');
    const empty=tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&!unitAt(i)&&!baseAt(i)&&distance(i,source.tile)<=60);
    check(empty>=0&&airDropTileAvailable(empty),'No eligible drop tile');
+   airWing(source).fighter.total=2;airWing(source).fighter.used=0;
    const troopCount=units.length,goldBefore=money[0],oilBeforeDrop=oil[0],foodBeforeDrop=food[0];
    check(await airStrike(source,'transport',empty,true),'Air transport deployment failed');
    const dropped=unitAt(empty);

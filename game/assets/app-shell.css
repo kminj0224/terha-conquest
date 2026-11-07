@@ -175,4 +175,13 @@ body[data-screen="title"] #modal .landing button.imageStart:focus-visible{outlin
 html,body,body *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 img{-webkit-user-drag:none}
-.airportFleetGroup{border-top:1px solid #95b6ac44;padding-top:10px;margin-top:12px}#airportFleetSummary{font-size:12px;line-height:1.6}#airTransferTo,#airTransferCount{display:block;width:100%;margin:8px 0 16px;padding:10px;font:inherit;background:#11272e;color:#e8eddf;border:1px solid #8caa9d;border-radius:4px}
+.airportFleetGroup{border-top:1px solid #95b6ac44;padding-top:10px;margin-top:12px}#airTransferTo,#airTransferCount{display:block;width:100%;margin:8px 0 16px;padding:10px;font:inherit;background:#11272e;color:#e8eddf;border:1px solid #8caa9d;border-radius:4px}
+
+/* Shared resource metrics across city command pages. */
+#panel .produceButton small.cityCostLine{display:flex;flex-wrap:wrap;align-items:center;gap:5px 12px;line-height:1.5}
+.cityMetric{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-weight:400}
+.cityMetric .resourceIcon{display:inline-block;width:15px;height:15px;flex:0 0 15px;vertical-align:middle}
+.airStock{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:400}
+.airStockCounts{display:flex;flex-wrap:wrap;gap:10px;font-size:12px}
+
+.helpText table{width:100%;border-collapse:collapse;margin:10px 0 16px;font-size:12px}.helpText th,.helpText td{text-align:left;padding:6px 4px;border-bottom:1px solid #8caa9d44}.helpText ul{padding-left:20px}.helpText li{margin:8px 0}

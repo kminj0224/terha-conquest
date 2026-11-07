@@ -56,11 +56,12 @@ module.exports=async function({run}){
  const captures=[];
  for(let f=0;f<factions.length;f++){
   player=(f+1)%factions.length;units=[];airport.f=f;airport.level=5;airport.airport=true;airport.nukeUntil=0;target.f=player;target.hp=0;target.nukeUntil=0;tiles[target.tile].owner=player;
+  airWing(airport).fighter.total=1;airWing(airport).fighter.used=0;airWing(target).fighter.total=0;
   diplomacy[f][player]='war';food[f]=AIR_MISSIONS.transport.food;money[f]=AIR_MISSIONS.transport.cost;oil[f]=AIR_MISSIONS.transport.oil;
   check(await aiCaptureBreachedCities(f,[airport])===1&&target.f===f,'AI captures breached enemy city '+f);
   check(money[f]===120&&oil[f]===0&&food[f]===0,'Air drop charges exact resources '+f);captures.push(f);
  }
- player=0;diplomacy[1][0]='war';target.f=0;target.hp=0;units=[];tiles[target.tile].owner=0;airport.f=1;airport.airport=true;money[1]=AIR_MISSIONS.transport.cost-1;oil[1]=10000;
+ player=0;diplomacy[1][0]='war';target.f=0;target.hp=0;units=[];tiles[target.tile].owner=0;airport.f=1;airport.airport=true;airWing(airport).fighter.total=2;airWing(airport).fighter.used=0;money[1]=AIR_MISSIONS.transport.cost-1;oil[1]=10000;
  check(await aiCaptureBreachedCities(1,[airport])===0&&target.f===0,'Insufficient gold blocks drop');
  money[1]=10000;oil[1]=AIR_MISSIONS.transport.oil-1;check(await aiCaptureBreachedCities(1,[airport])===0,'Insufficient oil blocks drop');
  money[1]=10000;oil[1]=10000;food[1]=AIR_MISSIONS.transport.food-1;check(await aiCaptureBreachedCities(1,[airport])===0,'Insufficient food blocks drop');food[1]=10000;target.hp=1;check(await aiCaptureBreachedCities(1,[airport])===0,'Intact city never receives capture drop');

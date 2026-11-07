@@ -57,6 +57,7 @@ module.exports=async function({run}){
   // Two back-to-back airdrops remain targeted, and the X cancels targeting.
   units=[];missileBases=[];money[0]=300000;oil[0]=10000;food[0]=10000;
   const eligible=()=>tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&!unitAt(i)&&!baseAt(i)&&distance(i,base.tile)<=60);
+  airWing(base).fighter.total=3;airWing(base).fighter.used=0;
   const first=eligible();check(first>=0,'No valid air drop tile');
   selectCity(base,true);beginAirTarget(base,'transport');
   check(await airStrike(base,'transport',first,false),'First airborne mission failed');

@@ -112,7 +112,7 @@ async function aiCaptureBreachedCities(f,owned){
   options.sort((a,b)=>a.d-b.d||a.target.id-b.target.id||a.q.id-b.q.id);
   const best=options[0];if(!best)break;
   if(!await airStrike(best.q,'transport',best.target.tile,true))break;
-  captured++;
+  if(best.target.f===f)captured++;
  }
  return captured;
 }

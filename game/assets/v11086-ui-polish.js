@@ -32,10 +32,21 @@ cityInfo=function(title,description){
  $('modal').innerHTML='<div class="box cityTechInfo"><button class="close" id="cityInfoX" aria-label="정보 닫기">×</button><h2>'+title+'</h2><p>'+description+'</p></div>';
  $('cityInfoX').onclick=()=>{menuMode=false;$('modal').style.display='none';showPanel()};
 };
+function cityMetricIcon(path){return '<svg class="resourceIcon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+path+'</svg>'}
+const CITY_METRIC_ICONS={gold:GOLD_ICON,food:FOOD_ICON,oil:OIL_ICON,range:cityMetricIcon('<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M1 12h4m14 0h4"/>'),turns:cityMetricIcon('<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>'),fighter:cityMetricIcon(CITY_SVG.cityAircraft)};
+function cityMetric(key,value,label){return '<span class="cityMetric" title="'+label+'" aria-label="'+label+' '+value+'">'+CITY_METRIC_ICONS[key]+'<span>'+value+'</span></span>'}
+function cityCostLine(meta){
+ return meta.split(' · ').map(part=>{
+  for(const [key,pattern]of Object.entries({gold:/^(골드|Gold)\s+(.+)$/i,food:/^(식량|Food)\s+(.+)$/i,oil:/^(석유|Oil)\s+(.+)$/i,range:/^(사거리|Range)\s+(.+)$/i,fighter:/^(전투기|Fighter)\s+(.+)$/i})){
+   const m=part.match(pattern);if(m)return cityMetric(key,m[2],m[1]);
+  }
+  const turns=part.match(/^(\d+)(턴| turns)$/);return turns?cityMetric('turns',turns[1],tr('턴','Turns')):'<span>'+part+'</span>';
+ }).join('');
+}
 addCityRow=function(parent,title,reason,action,infoTitle,infoBody,meta=''){
  const row=document.createElement('div');row.className='productionRow cityActionRow';
  const b=document.createElement('button');b.className='produceButton'+(reason?' unavailable':'');
- b.title=reason||'';b.innerHTML=title+(meta?'<small>'+meta+'</small>':'');
+ b.title=reason||'';b.innerHTML=title+(meta?'<small class="cityCostLine">'+cityCostLine(meta)+'</small>':'');
  b.onclick=()=>{if(reason)return toast(reason);action()};
  row.appendChild(b);
  if(infoTitle){
