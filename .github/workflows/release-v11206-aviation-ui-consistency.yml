@@ -1,0 +1,120 @@
+name: Verify and release research interface APK v1.12.6
+on:
+  push:
+    branches: [main, feat/aviation-ui-consistency]
+    paths: ['.github/workflows/release-v11206-aviation-ui-consistency.yml', 'game/assets/airport-fleet.js', 'game/assets/app-shell.css', 'qa/airport-fleet-*.cjs']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: webp-v11206-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: FedericoCarboni/setup-ffmpeg@583042d32dd1cabb8bd09df03bde06080da5c87c
+      - name: Install remote lossless encoder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y webp python3-pil
+          npm ci --no-audit --no-fund
+      - name: Verify airport model and browser interactions before the full regression suite
+        run: |
+          python3 tools/prepare_operation_music.py
+          python3 tools/prepare_main_airia_assets.py
+          npm install --no-save --package-lock=false playwright@1.51.1
+          npx playwright install --with-deps chromium
+          node qa/airport-fleet-native.cjs
+          node qa/airport-fleet-browser.cjs
+      - name: Verify shared city research presentation and native shell
+        run: |
+          node - <<'JS'
+          const fs=require('fs'),path=require('path'),Module=require('module'),filename=path.resolve('qa/native-test.cjs');
+          const pre=fs.readFileSync(filename,'utf8').split("assert.equal(run('appScreen'),'title');")[0];
+          const tail=`(async()=>{await Promise.all(pending);for(const language of ['ko','en']){run('appSettings.language='+JSON.stringify(language));for(const file of ['v11086-regression.cjs','v11088-regression.cjs','v11089-regression.cjs'])await require('./'+file)({run,nodes,click,settle,drain})}assert.deepEqual(errors,[]);console.log('PASS shared city research presentation in both languages');process.exit(0)})().catch(e=>{console.error(e);process.exit(1)});`;
+          const m=new Module(filename,module);m.filename=filename;m.paths=Module._nodeModulePaths(path.dirname(filename));m._compile(pre+tail,filename);
+          JS
+          python3 qa/verify-native.py
+      - name: Convert all release PNGs on runner, compare every pixel and build signed APK
+        run: |
+          python3 build.py
+          python3 qa/verify-apk-name.py deliverables/Terha-Conquest-v1.12.6.apk
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.12.6.apk
+      - name: Verify actual WebP release bundle in Chromium
+        env:
+          TERHA_TEST_ROOT: ${{ github.workspace }}/android/build/webp
+        run: |
+          npm install --no-save --package-lock=false playwright@1.51.1
+          npx playwright install --with-deps chromium
+          node qa/airport-fleet-browser.cjs
+          node qa/hud-flags-browser.cjs
+      - name: Record artifact checksums and source commit
+        run: |
+          echo "$GITHUB_SHA" > deliverables/SOURCE_COMMIT
+          cd deliverables
+          sha256sum Terha-Conquest-v1.12.6.apk webp-conversion-report.json SOURCE_COMMIT > SHA256SUMS-v1.12.6.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Terha-Conquest-v1.12.6
+          path: |
+            deliverables/Terha-Conquest-v1.12.6.apk
+            deliverables/webp-conversion-report.json
+            deliverables/SOURCE_COMMIT
+            deliverables/SHA256SUMS-v1.12.6.txt
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: WebP-browser-checks
+          path: qa/campaign-previews/
+          if-no-files-found: ignore
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Retrieve successfully verified artifact for this exact main commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+          run_id=$(gh run list --workflow release-v11206-aviation-ui-consistency.yml --branch feat/aviation-ui-consistency --commit "$GITHUB_SHA" --status success --json databaseId --jq '.[0].databaseId')
+          test -n "$run_id"
+          gh run download "$run_id" --name Terha-Conquest-v1.12.6 --dir deliverables
+          cd deliverables
+          sha256sum -c SHA256SUMS-v1.12.6.txt
+          test "$(cat SOURCE_COMMIT)" = "$GITHUB_SHA"
+      - name: Verify release identity and original signing certificate
+        run: |
+          python3 qa/verify-apk-name.py deliverables/Terha-Conquest-v1.12.6.apk
+          java -jar tools/ecj.jar -17 -classpath tools/apksig.jar -d tools tools/VerifyCertificate.java
+          java -cp tools:tools/apksig.jar VerifyCertificate deliverables/Terha-Conquest-v1.12.6.apk
+      - name: Publish main release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+          if gh release view v1.12.6 >/dev/null 2>&1; then
+            test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/tags/v1.12.6 --jq .object.sha)" = "$GITHUB_SHA"
+            gh release upload v1.12.6 deliverables/Terha-Conquest-v1.12.6.apk deliverables/webp-conversion-report.json deliverables/SHA256SUMS-v1.12.6.txt --clobber
+          else
+            gh release create v1.12.6 deliverables/Terha-Conquest-v1.12.6.apk deliverables/webp-conversion-report.json deliverables/SHA256SUMS-v1.12.6.txt --target "$GITHUB_SHA" --title '테르하 : 낙원의 기억 v1.12.6 — 항공기 재고 표시 통일' --notes-file docs/releases/v1.12.6.md
+          fi

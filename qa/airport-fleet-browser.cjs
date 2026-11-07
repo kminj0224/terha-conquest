@@ -17,6 +17,17 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   });
   assert.equal(await page.locator('#airspaceToggle').count(),0);assert.equal(await page.locator('#startAirPatrol').count(),0);
   for(const type of ['fighter','bomber','strategic'])assert((await page.locator('#airportFleet-'+type).textContent()).includes('재고 0'));
+  // Inventory text must use the same rendered typography as nuclear stock in both languages.
+  for(const lang of ['ko','en']){
+   const styles=await page.evaluate(lang=>{
+    appSettings.language=lang;
+    const typography=node=>{const s=getComputedStyle(node);return ['fontFamily','fontSize','fontWeight','color','lineHeight'].map(k=>s[k])};
+    cityCommandOpen('nuclear');const nuclear=typography(document.querySelector('#cityCommandContent .cityStock'));
+    cityCommandOpen('air');return {nuclear,air:[...document.querySelectorAll('.airportFleetGroup .cityStock')].map(typography)};
+   },lang);
+   assert.equal(styles.air.length,3);for(const style of styles.air)assert.deepEqual(style,styles.nuclear);
+  }
+  await page.evaluate(()=>{appSettings.language='ko';cityCommandOpen('air')});
   const count=await page.evaluate(()=>units.length),gold=await page.evaluate(()=>money[0]);
   await page.locator('#airProduce-fighter').click();assert.equal(await page.evaluate(()=>units.length),count);assert.equal(await page.evaluate(()=>money[0]),gold-500);assert((await page.locator('#airportFleet-fighter').textContent()).includes('재고 1'));
   await page.locator('#airSortie-fighter').click();
@@ -37,6 +48,16 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   fs.mkdirSync('qa/campaign-previews',{recursive:true});await page.screenshot({path:'qa/campaign-previews/airport-fleet-crash.png'});
   // National research is offered through the existing city science tab.
   await page.evaluate(()=>{missileBases=[];selectCity(fleetHome,true);cityCommandOpen('science')});
+  for(const lang of ['ko','en']){
+   await page.evaluate(lang=>{appSettings.language=lang;cityCommandOpen('science')},lang);
+   await page.locator('#airResearch-stealth').locator('..').locator('.unitInfoButton').click();
+   const description=await page.locator('#modal p').textContent();
+   assert(!description.includes('과학연구소')&&!description.toLowerCase().includes('lab'));
+   assert(description.includes('70%')&&description.includes('65%'));
+   await page.locator('#cityInfoX').click();
+   assert(await page.evaluate(()=>{fleetHome.lab=false;const reason=aviationResearchReason(fleetHome,'stealth');fleetHome.lab=true;return !!reason}));
+  }
+  await page.evaluate(()=>{appSettings.language='ko';cityCommandOpen('science')});
   assert((await page.locator('#airResearch-performance small').textContent()).includes('40,000'));await page.locator('#airResearch-performance').click();assert.equal(await page.evaluate(()=>aviationResearch(0).job.key),'performance');
   await page.evaluate(()=>cityCommandOpen('overview'));
   assert((await page.locator('#panel .progressCard').textContent()).includes('전투기 성능 개선 연구 2단계'));

@@ -217,7 +217,7 @@ sciencePage=function(q){
   const level=j?.next??(complete?10:d.next),title=aviationResearchTitle(q.f,key,level)+(complete?tr(' · 완료',' · complete'):'');
   const effect=aviationResearchEffect(key,a[key],level);
   const meta=complete?tr('최고 단계 10/10','Maximum level 10/10'):tr('골드 ','Gold ')+d.gold.toLocaleString()+tr(' · 석유 ',' · oil ')+d.oil.toLocaleString()+' · '+d.turns+tr('턴',' turns');
-  const info=effect+(key==='stealth'?tr(' · 과학연구소 필요 · 1~10단계',' · science lab required · levels 1–10'):'');
+  const info=effect;
   const button=addCityRow(box,title,aviationResearchReason(q,key),()=>studyAviation(q,key),aviationResearchTitle(q.f,key,level),info,meta);
   button.id='airResearch-'+key;
  }
@@ -235,7 +235,7 @@ cityOverview=function(q){
 airPage=function(q){
  const box=$('cityCommandContent');box.innerHTML='';
  const info=document.createElement('p');info.id='airportFleetSummary';info.textContent=q.airport?tr('공항 항공기 재고 · 기체마다 자국 턴 주기당 1회 출격 · 귀환 기체는 다음 자국 턴에 다시 준비됩니다.','Airport inventory · one sortie per airframe per friendly turn cycle; survivors become ready next friendly turn.'):q.airportJob?tr('공항 건설 중 · ','Airport under construction · ')+q.airportJob.remaining+tr('턴 남음',' turns left'):tr('공항이 없습니다. 골드 15000 · 석유 100 · 건설 3턴.','No airport. Gold 15000 · oil 100 · construction 3 turns.');box.appendChild(info);
- for(const type of AIRCRAFT_TYPES){const d=AIRCRAFT[type],slot=airWing(q)[type],group=document.createElement('section');group.className='airportFleetGroup';group.id='airportFleet-'+type;const title=document.createElement('h3');title.textContent=aircraftName(type)+' · '+tr('재고 ','Stock ')+slot.total+' · '+tr('출격 가능 ','Ready ')+aircraftReady(q,type);group.appendChild(title);box.appendChild(group);
+ for(const type of AIRCRAFT_TYPES){const d=AIRCRAFT[type],slot=airWing(q)[type],group=document.createElement('section');group.className='airportFleetGroup';group.id='airportFleet-'+type;const title=document.createElement('p');title.className='cityStock';title.textContent=aircraftName(type)+' · '+tr('재고 ','Stock ')+slot.total+' · '+tr('출격 가능 ','Ready ')+aircraftReady(q,type);group.appendChild(title);box.appendChild(group);
   const make=addCityRow(group,aircraftName(type)+tr(' 생산',' production'),aircraftProductionReason(q,type),()=>produceAircraft(q,type),null,null,tr('골드 ','Gold ')+d.gold+tr(' · 식량 ',' · food ')+d.food+tr(' · 석유 ',' · oil ')+d.oil);make.id='airProduce-'+type;
   const why=!q.airport?tr('공항이 필요합니다.','An airport is required.'):q.nukeUntil>turn?tr('피폭 통제 중입니다.','Nuclear exclusion is active.'):type==='strategic'&&q.level<5?tr('5레벨 도시가 필요합니다.','A level 5 city is required.'):aircraftReady(q,type)<1?tr('출격 가능한 기체가 없습니다.','No ready aircraft.'):oil[q.f]<AIR_MISSIONS[type].oil?tr('석유 부족','Insufficient oil'):'';
   const armed=type==='strategic'&&armedBomber?.city===q.id&&NUCLEAR_WARHEADS[armedBomber.payload];
