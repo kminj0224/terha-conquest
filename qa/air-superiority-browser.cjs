@@ -27,7 +27,9 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   for(const [width,height]of [[800,360],[640,360],[390,844]]){
    await page.setViewportSize({width,height});const button=page.locator('#airspaceToggle'),r=await button.boundingBox();
    assert(r&&r.x>=0&&r.y>=0&&r.x+r.width<=width+1&&r.y+r.height<=height+1,'Airspace control inside viewport');
-   assert(await button.evaluate(e=>{const b=e.getBoundingClientRect();return document.elementFromPoint(b.x+b.width/2,b.y+b.height/2)===e}),'Airspace control is not covered by turn/selection controls');
+   const hit=await button.evaluate(e=>{const b=e.getBoundingClientRect(),hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return hit?.id||hit?.tagName||'none'});
+   if(hit!=='airspaceToggle'){fs.mkdirSync('qa/campaign-previews',{recursive:true});await page.screenshot({path:'qa/campaign-previews/airspace-obscured-'+width+'.png'})}
+   assert.equal(hit,'airspaceToggle','Airspace control at '+width+'x'+height+' covered by '+hit);
   }
   await page.setViewportSize({width:800,height:360});
   await page.evaluate(()=>{
