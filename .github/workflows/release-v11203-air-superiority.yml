@@ -41,7 +41,7 @@ jobs:
           # stopped at an obsolete version assertion after successfully building.
           verified=7ef310ad38f8091d0cf824f6f0ec6065e530dda4
           git fetch --depth=1 origin "$verified"
-          if git diff --quiet "$verified" "$GITHUB_SHA" -- . ':!.github' ':!qa/verify-apk-name.py'; then
+          if git diff --quiet "$verified" "$GITHUB_SHA" -- . ':!.github' ':!qa/verify-apk-name.py' ':!game/assets/app-shell.css' ':!qa/air-superiority-browser.cjs'; then
             test "$(gh api repos/$GITHUB_REPOSITORY/actions/runs/42359433273 --jq .head_sha)" = "$verified"
             gh api repos/$GITHUB_REPOSITORY/actions/runs/42359433273/jobs > /tmp/air-verified-jobs.json
             python3 - <<'PYVERIFY'
@@ -54,10 +54,13 @@ jobs:
               assert any(s['name'] == name and s['conclusion'] == 'success' for s in steps), name
           print('Reused successful engine/native and source Chromium checks for byte-identical code')
           PYVERIFY
-            echo 'reuse=true' >> "$GITHUB_OUTPUT"
+            echo 'engine=true' >> "$GITHUB_OUTPUT"
+            if git diff --quiet "$verified" "$GITHUB_SHA" -- . ':!.github' ':!qa/verify-apk-name.py'; then
+              echo 'reuse=true' >> "$GITHUB_OUTPUT"
+            fi
           fi
       - name: Verify actual source engine, old saves and native shell
-        if: steps.previous.outputs.reuse != 'true'
+        if: steps.previous.outputs.engine != 'true'
         run: |
           python3 tools/prepare_operation_music.py
           python3 tools/prepare_main_airia_assets.py

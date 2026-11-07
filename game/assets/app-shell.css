@@ -181,3 +181,4 @@ img{-webkit-user-drag:none}
 #confirmOverlay.airMissionPreview .confirmBox{max-height:calc(100dvh - 24px);overflow:auto;padding:18px}
 #confirmOverlay.airMissionPreview h2{font-size:15px;line-height:1.55;margin-bottom:14px}
 #airspaceToggle[aria-pressed="true"]{border-color:#8ed7ff;background:#214b60}
+@media(max-width:500px){#controls #airspaceToggle{position:fixed;right:12px;bottom:calc(58px + env(safe-area-inset-bottom));z-index:3}}

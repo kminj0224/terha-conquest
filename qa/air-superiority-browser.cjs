@@ -23,6 +23,13 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   assert.equal(await page.evaluate(()=>testFighter.airPatrolLeft),2);
   assert((await page.locator('#airPatrolStatus').textContent()).includes('2/2'));
   await page.locator('#airspaceToggle').click();assert.equal(await page.locator('#airspaceToggle').getAttribute('aria-pressed'),'true');
+  await page.evaluate(()=>{panelOpen=false;refreshSelection()});
+  for(const [width,height]of [[800,360],[640,360],[390,844]]){
+   await page.setViewportSize({width,height});const button=page.locator('#airspaceToggle'),r=await button.boundingBox();
+   assert(r&&r.x>=0&&r.y>=0&&r.x+r.width<=width+1&&r.y+r.height<=height+1,'Airspace control inside viewport');
+   assert(await button.evaluate(e=>{const b=e.getBoundingClientRect();return document.elementFromPoint(b.x+b.width/2,b.y+b.height/2)===e}),'Airspace control is not covered by turn/selection controls');
+  }
+  await page.setViewportSize({width:800,height:360});
   await page.evaluate(()=>{
    panelOpen=false;refreshSelection();const q=testAirport;
    const tile=tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&!unitAt(i)&&distance(q.tile,i)>=2&&distance(q.tile,i)<=5);
