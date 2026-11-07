@@ -67,7 +67,7 @@ productionPanel=function(q){
  const group=document.createElement('div');group.className='unitGroup';group.innerHTML='<h3>가르다라 특수 병종</h3>';
  const row=document.createElement('div');row.className='productionRow';row.id='gardaraGuardProductionRow';
  const reason=productionReason(q,GARDARA_GUARD,productionTier,productionAA),button=document.createElement('button');
- button.className='produceButton'+(reason?' unavailable':'');button.title=reason;button.innerHTML=TYPES[GARDARA_GUARD].name+' '+productionTier+'<small>식량 '+unitPrice(GARDARA_GUARD,productionTier)+' · 석유 '+unitOil(GARDARA_GUARD,productionTier)+'</small>';
+ button.className='produceButton'+(reason?' unavailable':'');button.title=reason;button.innerHTML=TYPES[GARDARA_GUARD].name+' '+productionTier+'<small class="cityCostLine">'+unitProductionCost(q,GARDARA_GUARD,productionTier)+ '</small>';
  button.onclick=()=>produce(q,GARDARA_GUARD,productionTier,productionAA);
  const info=document.createElement('button');info.className='unitInfoButton';info.textContent='i';info.onclick=()=>showProductionInfo(q,GARDARA_GUARD,productionTier);
  row.appendChild(button);row.appendChild(info);group.appendChild(row);cat.appendChild(group);

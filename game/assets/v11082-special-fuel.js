@@ -30,7 +30,7 @@ productionPanel=function(q){
  const k=NAKWOL_COMMANDO,l=productionTier,reason=productionReason(q,k,l,productionAA);
  const row=document.createElement('div');row.className='productionRow';row.id='nakwolCommandoProductionRow';
  const b=document.createElement('button');b.className='produceButton'+(reason?' unavailable':'');b.title=reason;
- b.innerHTML=TYPES[k].name+' '+l+'<small>식량 '+unitPrice(k,l)+' · 석유 '+unitOil(k,l)+(productionAA?' · 골드 '+aaCost(l):'')+'</small>';
+ b.innerHTML=TYPES[k].name+' '+l+'<small class="cityCostLine">'+unitProductionCost(q,k,l)+ '</small>';
  b.onclick=()=>produce(q,k,l,productionAA);
  const info=document.createElement('button');info.className='unitInfoButton';info.textContent='i';info.title='낙월 특공대 정보';
  info.onclick=()=>showProductionInfo(q,k,l);

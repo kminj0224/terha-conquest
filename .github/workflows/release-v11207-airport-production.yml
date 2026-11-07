@@ -1,7 +1,7 @@
 name: Verify and release research interface APK v1.12.7
 on:
   push:
-    branches: [main, feat/airport-production]
+    branches: [feat/airport-production]
     paths: ['.github/workflows/release-v11207-airport-production.yml', 'game/assets/airport-fleet.js', 'game/assets/app-shell.css', 'game/assets/v11086-ui-polish.js', 'game/assets/warfare.js', 'qa/airport-fleet-*.cjs']
   workflow_dispatch:
 permissions:

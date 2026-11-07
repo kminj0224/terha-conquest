@@ -36,7 +36,7 @@ productionPanel=function(q){
  const row=document.createElement('div');row.className='productionRow';row.id='saprosProductionRow';
  const button=document.createElement('button'),reason=productionReason(q,SAPROS,productionTier,productionAA);
  button.className='produceButton'+(reason?' unavailable':'');button.title=reason;
- button.innerHTML=TYPES[SAPROS].name+' '+productionTier+'<small>식량 '+unitPrice(SAPROS,productionTier)+' · 석유 0'+(productionAA?' · 골드 '+aaCost(productionTier):'')+'</small>';
+ button.innerHTML=TYPES[SAPROS].name+' '+productionTier+'<small class="cityCostLine">'+unitProductionCost(q,SAPROS,productionTier)+ '</small>';
  button.onclick=()=>produce(q,SAPROS,productionTier,productionAA);
  const info=document.createElement('button');info.className='unitInfoButton';info.textContent='i';info.title='사프로스 정보';info.onclick=()=>showProductionInfo(q,SAPROS,productionTier);
  row.appendChild(button);row.appendChild(info);group.appendChild(row);cat.appendChild(group);

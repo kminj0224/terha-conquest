@@ -24,7 +24,7 @@ module.exports=async function({run}){
   if(tab==='units'){
    const catalogue=$('unitCatalogue');
    check(!!catalogue,'Unit production catalogue must be present');
-   check(catalogue.textContent.includes('소총수')&&catalogue.innerHTML.includes('<small>'),'Unit production must retain names and small pricing lines');
+   check(catalogue.textContent.includes('소총수')&&catalogue.innerHTML.includes('<small'),'Unit production must retain names and small pricing lines');
    return catalogue.children.length;
   }
   const rows=[];function visit(e){for(const c of e.children||[]){if(c.className?.includes('cityActionRow'))rows.push(c);visit(c)}}visit($('cityCommandContent'));

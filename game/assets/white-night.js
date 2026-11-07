@@ -38,7 +38,7 @@ productionPanel=function(q){
  const row=document.createElement('div');row.className='productionRow';row.id='whiteNightProductionRow';
  const button=document.createElement('button'),why=productionReason(q,WHITE_NIGHT,productionTier,productionAA);
  button.className='produceButton'+(why?' unavailable':'');button.title=why;
- button.innerHTML=TYPES[WHITE_NIGHT].name+' '+productionTier+'<small>식량 '+unitPrice(WHITE_NIGHT,productionTier)+(productionAA?' · 골드 '+aaCost(productionTier):'')+'</small>';
+ button.innerHTML=TYPES[WHITE_NIGHT].name+' '+productionTier+'<small class="cityCostLine">'+unitProductionCost(q,WHITE_NIGHT,productionTier)+ '</small>';
  button.onclick=()=>produce(q,WHITE_NIGHT,productionTier,productionAA);
  const info=document.createElement('button');info.className='unitInfoButton';info.textContent='i';info.title='백야의 밤 정보';info.onclick=()=>showProductionInfo(q,WHITE_NIGHT,productionTier);
  row.appendChild(button);row.appendChild(info);group.appendChild(row);cat.appendChild(group);
