@@ -2,7 +2,7 @@ name: Verify and release air balance and parallel production APK v1.12.9
 on:
   push:
     branches: [main, feat/air-balance-parallel-production]
-    paths: ['.github/workflows/release-v11209-air-balance.yml', 'game/assets/airport-fleet.js', 'game/assets/app-shell.js', 'game/assets/saves.js', 'build.py', 'qa/airport-fleet-native.cjs', 'qa/airport-fleet-browser.cjs']
+    paths: ['.github/workflows/release-v11209-air-balance.yml', 'game/assets/airport-fleet.js', 'game/assets/app-shell.js', 'game/assets/saves.js', 'build.py', 'qa/verify-apk-name.py', 'qa/airport-fleet-native.cjs', 'qa/airport-fleet-browser.cjs']
   workflow_dispatch:
 permissions:
   contents: write
