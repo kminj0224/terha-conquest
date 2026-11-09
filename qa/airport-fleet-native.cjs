@@ -15,12 +15,20 @@ const scenario=async function(){
  check(money[0]===before.g-500&&food[0]===before.f-200&&oil[0]===before.o-20,'exact fighter production cost');
  check(units.length===before.units&&!canProduce(home,4,1),'planes are not map units');
  check(airWing(home).fighter.total===0&&home.aircraftJob.type==='fighter','production waits for next own turn');
- check(!produceAircraft(home,'bomber')&&!produceAircraft(home,'strategic')&&!canProduce(home,0,1),'one shared production order per city');
+ check(!home.produced,'aircraft order does not spend ground production');
+ check(produce(home,0,1,false)&&home.aircraftJob.type==='fighter','ground order starts alongside aircraft job');
+ home.queue=null;home.produced=false;
+ check(!produceAircraft(home,'bomber')&&!produceAircraft(home,'strategic')&&canProduce(home,0,1),'independent ground production remains available');
  beginAirportFactionTurn(0);check(airWing(home).fighter.total===0,'same turn cannot finish aircraft');
  turn++;beginAirportFactionTurn(1);check(airWing(home).fighter.total===0,'enemy turn cannot finish aircraft');
  beginAirportFactionTurn(0);check(airWing(home).fighter.total===1&&!home.aircraftJob,'next owner turn finishes exactly once');
  beginAirportFactionTurn(0);check(airWing(home).fighter.total===1,'completion is idempotent');
  home.produced=false;
+ check(produce(home,0,1,false),'ground production starts');
+ check(produceAircraft(home,'bomber'),'aircraft starts alongside queued ground unit');
+ check(home.queue.type===0&&home.aircraftJob.type==='bomber','both independent jobs retained');
+ check(!produce(home,0,1,false)&&!produceAircraft(home,'fighter'),'each lane still limited to one order');
+ home.queue=null;delete home.aircraftJob;delete home.lastAircraftOrderTurn;home.produced=false;
 
  const f0=aircraftReady(home,'fighter');check(useAircraft(home,'fighter')&&aircraftReady(home,'fighter')===f0-1,'one sortie consumes readiness');
  check(!useAircraft(home,'fighter'),'same survivor cannot fly twice');
@@ -39,6 +47,7 @@ const scenario=async function(){
  check(!await airStrike(source,'fighter',target,true),'unlimited repeat blocked');
  check(!fx.findLast(e=>e.kind==='airraid'&&e.f===0).crash,'survivor uses original flight');
  check(AIR_MISSIONS.fighter.range===AIR_MISSIONS.bomber.range&&AIR_MISSIONS.fighter.range===12,'fighter and bomber both range 12');
+ check(AIR_MISSIONS.fighter.damage===500&&AIR_MISSIONS.fighter.splash===250&&AIR_MISSIONS.bomber.damage===1000&&AIR_MISSIONS.bomber.splash===500,'requested air combat balance');
  // Local region ownership, not nearest airport, determines automatic interception.
  airWing(source).fighter.used=0;airWing(enemy).fighter.total=1;
  aviationResearch(0).performance=2;aviationResearch(1).performance=1;
@@ -68,27 +77,29 @@ const scenario=async function(){
  // A different city's fighters do not defend this region.
  airWing(enemy).fighter.total=0;const remote=cities.find(q=>q.f===1&&q!==enemy);remote.airport=true;airWing(remote).fighter.total=20;
  check(interceptingAirport(0,target)===null,'unrelated regional city cannot intercept');
- // SAM damage applies before one 70% loss roll, even with overlapping batteries.
+ // SAM damage applies before one 20% loss roll, even with overlapping batteries.
  airWing(enemy).fighter.total=0;aviationResearch(0).stealth=0;
  missileBases=[{id:9001,f:1,kind:'sam',tile:target,hp:34000,remaining:0},{id:9002,f:1,kind:'sam',tile:target,hp:34000,remaining:0}];
- airWing(source).bomber.total=1;aircraftRandom=()=>{rolls++;return .69999};rolls=0;
+ airWing(source).bomber.total=1;aircraftRandom=()=>{rolls++;return .19999};rolls=0;
  const samHP=enemy.hp;check(await airStrike(source,'bomber',target,true),'SAM-protected raid');
  check(samHP-enemy.hp===2500,'SAM halves actual bomber city damage once');
  check(airWing(source).bomber.total===0&&rolls===1,'overlapping SAMs make a single loss roll after damage');
  const crash=fx.findLast(e=>e.kind==='airraid'&&e.f===0);check(crash.crash,'SAM loss marks crash animation');
  let smoke=0;const oldCircle=circle;circle=function(x,y,r,color){if(color==='#273038')smoke++;return oldCircle(x,y,r,color)};try{drawMissionAircraft(crash,.8)}finally{circle=oldCircle}check(smoke>=9,'crash renderer emits actual smoke trail');
+ airWing(source).bomber.total=1;airWing(source).bomber.used=0;aircraftRandom=()=>.2;
+ check(await airStrike(source,'bomber',target,true)&&airWing(source).bomber.total===1,'20 percent boundary survives');
  missileBases=[]; // The destroyed ground facility path is independently tested below.
  // Ground direct and all-class adjacent splash damage.
  units=[];const land=tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&distance(i,home.tile)<=8&&neighbors(i).some(j=>tiles[j].owner>=0&&!cityAt(j)));
  const neighbor=neighbors(land).find(i=>tiles[i].owner>=0&&!cityAt(i));const rifle=makeUnit(1,0,land,4),splash=makeUnit(1,0,neighbor,4);rifle.hp=splash.hp=10000;
- const field={...home,tile:land,airWing:emptyAirWing(0)},direct=aircraftGroundDamage(rifle),area=Math.round(150*bombProtection(splash,null)*specialIncomingFactor(splash));
- for(const type of AIRCRAFT_TYPES){airWing(field)[type].total=1;airWing(field)[type].used=0;const dh=rifle.hp,ah=splash.hp;check(await airStrike(field,type,land,true),'all classes bomb ground');check(dh-rifle.hp===direct&&ah-splash.hp===area,'300 direct / 150 area with existing protection')}
+ const field={...home,tile:land,airWing:emptyAirWing(0)};
+ for(const type of AIRCRAFT_TYPES){const direct=aircraftGroundDamage(rifle,AIR_MISSIONS[type].damage),area=Math.round(AIR_MISSIONS[type].splash*bombProtection(splash,null)*specialIncomingFactor(splash));airWing(field)[type].total=1;airWing(field)[type].used=0;const dh=rifle.hp,ah=splash.hp;check(await airStrike(field,type,land,true),'all classes bomb ground');check(dh-rifle.hp===direct&&ah-splash.hp===area,'mission-specific direct and area damage with existing protection')}
  // Clicking a SAM target must launch the mission rather than open battery information.
  units=[];missileBases=[{id:9004,f:1,kind:'sam',tile:land,hp:34000,remaining:0,facing:1}];
  airWing(home).fighter.total=1;airWing(home).fighter.used=0;aircraftRandom=()=>.99;
  selected={kind:'city',id:home.id};airTarget={city:home.id,type:'fighter'};panelOpen=false;menuMode=false;cam.x=pxy(land).x;cam.y=pxy(land).y;cam.z=1;
- check(await tap(screenW/2,screenH/2),'SAM map tap launches an actual air mission');check(missileBases[0].hp===32200&&!menuMode,'SAM target tap cannot open defense modal');missileBases=[];
- for(let level=0;level<=10;level++){aviationResearch(0).stealth=level;check(Math.abs(samAircraftLossChance(0)-(.7-level*.05))<1e-9,'stealth stage loss probability '+level)}
+ check(await tap(screenW/2,screenH/2),'SAM map tap launches an actual air mission');check(missileBases[0].hp===31000&&!menuMode,'SAM target tap cannot open defense modal');missileBases=[];
+ for(let level=0;level<=10;level++){aviationResearch(0).stealth=level;check(Math.abs(samAircraftLossChance(0)-(.2-level*.02))<1e-9,'stealth stage loss probability '+level)}
  // Transport consumes one ready fighter permanently, never on an invalid order.
  units=[];missileBases=[];for(const c of cities)if(c.f!==0)airWing(c).fighter.total=0;
  const landing=tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&!baseAt(i)&&distance(i,home.tile)>0&&distance(i,home.tile)<=AIR_MISSIONS.transport.range);

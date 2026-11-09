@@ -4,8 +4,8 @@
 const AIR_FLEET_SCHEMA=1;
 const AIRCRAFT={fighter:{name:'전투기',gold:500,food:200,oil:20,min:3},bomber:{name:'폭격기',gold:1200,food:350,oil:40,min:3},strategic:{name:'전략폭격기',gold:3000,food:600,oil:80,min:5}};
 const AIRCRAFT_TYPES=Object.keys(AIRCRAFT);
-Object.assign(AIR_MISSIONS.fighter,{cost:0,range:12,damage:300,splash:150});
-Object.assign(AIR_MISSIONS.bomber,{cost:0,damage:300,splash:150});
+Object.assign(AIR_MISSIONS.fighter,{cost:0,range:12,damage:500,splash:250});
+Object.assign(AIR_MISSIONS.bomber,{cost:0,damage:1000,splash:500});
 Object.assign(AIR_MISSIONS.strategic,{cost:0,damage:300,splash:150});
 Object.assign(FACILITIES.airport,{cost:15000,oil:100,turns:3});
 let aircraftRandom=()=>Math.random();
@@ -28,22 +28,22 @@ function beginAirportFactionTurn(f){
  }
 }
 const airportCanProduce=canProduce;
-canProduce=function(q,...args){return !q.aircraftJob&&q.lastAircraftOrderTurn!==turn&&airportCanProduce(q,...args)};
+canProduce=function(q,...args){return airportCanProduce(q,...args)};
 function aircraftProductionReason(q,type,ai=false){
  const d=AIRCRAFT[type];if(!d)return tr('병종을 확인하세요.','Unknown aircraft type.');
  if(!q||!ai&&(busy||q.f!==player))return tr('작전 진행 또는 소유 국가를 확인하세요.','Check orders and airport ownership.');
  if(!q.airport)return q.airportJob?tr('공항 건설 중입니다.','Airport is under construction.'):tr('공항이 필요합니다.','An airport is required.');
  if(q.nukeUntil>turn)return tr('피폭 통제 중입니다.','Nuclear exclusion is active.');
  if(q.level<d.min)return tr('도시 레벨이 부족합니다.','City level is too low.');
- if(q.aircraftJob||q.queue)return tr('생산 중','Production in progress');
- if(q.produced||q.lastAircraftOrderTurn===turn)return tr('이번 턴 생산 완료','Production ordered this turn');
+ if(q.aircraftJob)return tr('생산 중','Production in progress');
+ if(q.lastAircraftOrderTurn===turn)return tr('이번 턴 생산 완료','Production ordered this turn');
  if(money[q.f]<d.gold||food[q.f]<d.food||oil[q.f]<d.oil)return tr('생산 자원이 부족합니다.','Insufficient production resources.');
  return '';
 }
 function produceAircraft(q,type,ai=false){
  const why=aircraftProductionReason(q,type,ai);if(why){if(!ai)toast(why);return false}
  const d=AIRCRAFT[type];money[q.f]-=d.gold;food[q.f]-=d.food;oil[q.f]-=d.oil;
- q.aircraftJob={owner:q.f,type,startedTurn:turn};q.lastAircraftOrderTurn=turn;q.produced=true;
+ q.aircraftJob={owner:q.f,type,startedTurn:turn};q.lastAircraftOrderTurn=turn;
  if(!ai){toast(aircraftName(type)+tr(' 생산 명령',' production ordered'));showPanel();updateHUD();save()}return true;
 }
 function transferAircraft(source,dest,type,count){
@@ -77,7 +77,8 @@ function aviationResearchReason(q,key,ai=false){
  return '';
 }
 function studyAviation(q,key,ai=false){const why=aviationResearchReason(q,key,ai);if(why){if(!ai)toast(why);return false}const d=aviationResearchSpec(q.f,key);money[q.f]-=d.gold;oil[q.f]-=d.oil;aviationResearch(q.f).job={key,city:q.id,owner:q.f,next:d.next,remaining:d.turns,total:d.turns,lastTick:turn};if(!ai){showPanel();updateHUD();save()}return true}
-function samAircraftLossChance(f){return Math.max(.2,.7-aviationResearch(f).stealth*.05)}
+function samLossChanceAtLevel(level){return Math.max(0,.2-level*.02)}
+function samAircraftLossChance(f){return samLossChanceAtLevel(aviationResearch(f).stealth)}
 function interceptingAirport(attacker,i){
  const q=cities[tiles[i]?.region];
  return q&&atWar(attacker,q.f)&&q.airport&&q.nukeUntil<=turn&&aircraftReady(q,'fighter')>0?q:null;
@@ -139,16 +140,16 @@ async function airportDrop(q,i,ai=false){
  if(!ai){if(aircraftReady(q,'fighter')>0&&money[q.f]>=m.cost&&food[q.f]>=m.food&&oil[q.f]>=m.oil){selected={kind:'city',id:q.id};airTarget={city:q.id,type:'transport'}}else if(troop)selectUnit(troop);refreshSelection();updateHUD();save();checkEnd()}
  return true;
 }
-function aircraftGroundDamage(u,base=300){return Math.round(Math.max(16,base-Math.round(unitArmor(u)*.35))*bombProtection(u,cityAt(u.tile))*specialIncomingFactor(u)*garrisonProtection(u))}
+function aircraftGroundDamage(u,base=AIR_MISSIONS.fighter.damage){return Math.round(Math.max(16,base-Math.round(unitArmor(u)*.35))*bombProtection(u,cityAt(u.tile))*specialIncomingFactor(u)*garrisonProtection(u))}
 function applyAirportBombing(q,type,i){
  const victim=unitAt(i),city=cityAt(i),facility=baseAt(i),p=pxy(i);let shown=0;
- if(victim&&!victim.carriedBy&&atWar(q.f,victim.f)){const hit=escortProtected(victim)?0:aircraftGroundDamage(victim);victim.hp-=hit;shown=hit;if(victim.hp<=0)kill(victim)}
+ if(victim&&!victim.carriedBy&&atWar(q.f,victim.f)){const hit=escortProtected(victim)?0:aircraftGroundDamage(victim,AIR_MISSIONS[type].damage);victim.hp-=hit;shown=hit;if(victim.hp<=0)kill(victim)}
  if(city&&atWar(q.f,city.f)&&city.hp>0)shown=damageCity(city,cityAirStrikeDamage(type,city),1);
  if(facility&&atWar(q.f,facility.f)){
   const hit=Math.round(AIR_MISSIONS[type].damage*12*samAirProtection(facility));facility.hp-=hit;shown=hit;if(facility.hp<=0)missileBases=missileBases.filter(v=>v!==facility);
  }
  for(const u of units.filter(v=>!v.carriedBy&&v.tile!==i&&atWar(q.f,v.f)&&distance(i,v.tile)<=1).slice()){
-  const hit=escortProtected(u)?0:Math.round(150*bombProtection(u,cityAt(u.tile))*specialIncomingFactor(u)*garrisonProtection(u));u.hp-=hit;addAreaImpact({type:3,strategic:true,f:q.f},u,hit,performance.now());if(u.hp<=0)kill(u);
+  const hit=escortProtected(u)?0:Math.round(AIR_MISSIONS[type].splash*bombProtection(u,cityAt(u.tile))*specialIncomingFactor(u)*garrisonProtection(u));u.hp-=hit;addAreaImpact({type:3,strategic:true,f:q.f},u,hit,performance.now());if(u.hp<=0)kill(u);
  }
  targetExplosions({type:type==='fighter'?4:3,strategic:true,f:q.f,tile:q.tile},p,shown);
 }
@@ -273,7 +274,7 @@ function aviationResearchTitle(f,key,level){
 }
 function aviationResearchEffect(key,from,to){
  if(key==='performance')return tr('항공전 성능 ','Air-combat performance ')+from+' → '+to+tr('단계','');
- const chance=level=>Math.round(Math.max(.2,.7-level*.05)*100);
+ const chance=level=>Math.round(samLossChanceAtLevel(level)*100);
  return tr('대공미사일 격추 확률 ','SAM loss probability ')+chance(from)+'%'+(to===from?tr(' · 최고 단계',' · maximum level'):' → '+chance(to)+'%');
 }
 const fleetSciencePage=sciencePage;
@@ -309,7 +310,7 @@ airPage=function(q){
   const make=addCityRow(group,aircraftName(type)+tr(' 생산',' production'),aircraftProductionReason(q,type),()=>produceAircraft(q,type),null,null,tr('골드 ','Gold ')+d.gold.toLocaleString()+tr(' · 식량 ',' · food ')+d.food.toLocaleString()+tr(' · 석유 ',' · oil ')+d.oil+' · 1'+tr('턴',' turns'));make.id='airProduce-'+type;
   const armed=type==='strategic'&&armedBomber?.city===q.id&&NUCLEAR_WARHEADS[armedBomber.payload];
   const why=!q.airport?tr('공항 필요','Airport required'):q.nukeUntil>turn?tr('피폭 통제 중','Nuclear exclusion'):type==='strategic'&&q.level<5?tr('5레벨 도시 필요','Level 5 city required'):aircraftReady(q,type)<1?tr('출격 가능 기체 없음','No ready aircraft'):oil[q.f]<(armed?18:AIR_MISSIONS[type].oil)?tr('석유 부족','Insufficient oil'):armed&&money[q.f]<600?tr('골드 부족','Insufficient gold'):'';
-  const sortie=addCityRow(group,tr(AIR_MISSIONS[type].name,{fighter:'Fighter raid',bomber:'Bomber raid',strategic:'Strategic bombing'}[type])+(armed?' ('+armed.name+')':''),why,()=>armed?prepareStrategicLaunch(q,'short',armedBomber.payload,true):beginAirTarget(q,type),aircraftName(type),tr('공격 300 / 범위 피해 150','Attack 300 / splash 150'),(armed?tr('골드 600 · ','Gold 600 · '):'')+tr('석유 ','Oil ')+(armed?18:AIR_MISSIONS[type].oil)+tr(' · 사거리 ',' · Range ')+AIR_MISSIONS[type].range);sortie.id='airSortie-'+type;if(type==='strategic')sortie.parentElement.appendChild(nuclearMountButton(q,null,true));
+  const sortie=addCityRow(group,tr(AIR_MISSIONS[type].name,{fighter:'Fighter raid',bomber:'Bomber raid',strategic:'Strategic bombing'}[type])+(armed?' ('+armed.name+')':''),why,()=>armed?prepareStrategicLaunch(q,'short',armedBomber.payload,true):beginAirTarget(q,type),aircraftName(type),tr('공격 ','Attack ')+AIR_MISSIONS[type].damage+tr(' / 범위 피해 ',' / splash ')+AIR_MISSIONS[type].splash,(armed?tr('골드 600 · ','Gold 600 · '):'')+tr('석유 ','Oil ')+(armed?18:AIR_MISSIONS[type].oil)+tr(' · 사거리 ',' · Range ')+AIR_MISSIONS[type].range);sortie.id='airSortie-'+type;if(type==='strategic')sortie.parentElement.appendChild(nuclearMountButton(q,null,true));
   const transfer=addCityRow(group,tr('이송','Transfer'),!q.airport||!aircraftReady(q,type)?tr('출격 가능 기체 없음','No ready aircraft'):'',()=>aircraftTransferDialog(q,type));transfer.id='airTransfer-'+type;
  }
  const m=AIR_MISSIONS.transport,why=!q.airport?tr('공항 필요','Airport required'):q.nukeUntil>turn?tr('피폭 통제 중','Nuclear exclusion'):!aircraftReady(q,'fighter')?tr('출격 가능 전투기 없음','No ready fighter'):food[q.f]<m.food||money[q.f]<m.cost||oil[q.f]<m.oil?tr('자원 부족','Insufficient resources'):'';

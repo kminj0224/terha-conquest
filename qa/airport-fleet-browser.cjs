@@ -75,7 +75,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    await page.locator('#airResearch-stealth').locator('..').locator('.unitInfoButton').click();
    const description=await page.locator('#modal p').textContent();
    assert(!description.includes('과학연구소')&&!description.toLowerCase().includes('lab'));
-   assert(description.includes('70%')&&description.includes('65%'));
+   assert(description.includes('20%')&&description.includes('18%'));
    await page.locator('#cityInfoX').click();
    assert(await page.evaluate(()=>{fleetHome.lab=false;const reason=aviationResearchReason(fleetHome,'stealth');fleetHome.lab=true;return !!reason}));
   }
@@ -128,7 +128,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.evaluate(()=>{airTarget=null;selectCity(fleetHome,true);cityCommandOpen('air')});
 
   assert(await page.evaluate(async()=>{const expected=airWing(fleetDest).fighter.total;save(9);await load(9);return airWing(cities[fleetDest.id]).fighter.total===expected&&cities[fleetBuild.id].airportJob.remaining===3&&aviationResearch(0).job.key==='performance'&&units.every(u=>!isAircraft(u))}));
-  for(const lang of ['ko','en']){await page.evaluate(lang=>{appSettings.language=lang;showHelp('game')},lang);const text=await page.locator('#modal').textContent();assert(text.includes(lang==='ko'?'공항 건설과 항공기 재고':'Airports and aircraft inventory'));assert(text.includes(lang==='ko'?'70%':'70%'));assert(text.includes(lang==='ko'?'40,000':'40,000'))}
+  for(const lang of ['ko','en']){await page.evaluate(lang=>{appSettings.language=lang;showHelp('game')},lang);const text=await page.locator('#modal').textContent();assert(text.includes(lang==='ko'?'공항 건설과 항공기 재고':'Airports and aircraft inventory'));assert(text.includes(lang==='ko'?'20%':'20%'));assert(text.includes(lang==='ko'?'40,000':'40,000'))}
   assert.deepEqual(errors,[]);console.log('PASS real airport inventory UI, production without units, sortie budgets, transfer, smoke crash, research, 3-turn construction, mobile scrolling and save/load');
  }finally{await browser?.close();server.kill()}
 })().catch(e=>{console.error(e);process.exitCode=1});
