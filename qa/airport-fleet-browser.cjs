@@ -93,7 +93,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   assert((await stealthRow.locator('small').textContent()).includes('30,000'));
   await stealthRow.click();await page.evaluate(()=>cityCommandOpen('overview'));
   assert((await page.locator('#panel .progressCard').textContent()).includes('스텔스 연구 3단계'));
-  assert((await page.locator('#panel .progressCard').textContent()).includes('60% → 55%'));
+  assert((await page.locator('#panel .progressCard').textContent()).includes('16% → 14%'));
   await page.locator('#panel .progressCard').scrollIntoViewIfNeeded();
   await page.locator('#panel .progressCard').screenshot({path:'qa/campaign-previews/research-stealth-banner.png'});
   for(const lang of ['ko','en']){
@@ -101,7 +101,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    assert.equal(await page.locator('#airResearch-performance small').count(),1);
    assert((await page.locator('#airResearch-stealth').textContent()).includes(lang==='ko'?'스텔스 연구 3단계':'Stealth research level 3'));
    await page.evaluate(()=>cityCommandOpen('overview'));
-   assert((await page.locator('#panel .progressCard').textContent()).includes('60% → 55%'));
+   assert((await page.locator('#panel .progressCard').textContent()).includes('16% → 14%'));
   }
   await page.evaluate(()=>{appSettings.language='ko';aviationResearch(0).job={key:'performance',owner:0,city:fleetHome.id,next:2,remaining:2,total:2,lastTick:turn}});
 
