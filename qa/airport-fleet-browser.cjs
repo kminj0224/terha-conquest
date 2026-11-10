@@ -42,6 +42,36 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.evaluate(()=>{selectCity(fleetHome,true);cityCommandOpen('air')});await page.locator('#airProduce-fighter').click();await page.evaluate(()=>{turn++;beginAirportFactionTurn(0);fleetHome.produced=false;cityCommandOpen('air')});await page.locator('#airTransfer-fighter').click();
   await page.locator('#airTransferTo').selectOption(String(await page.evaluate(()=>fleetDest.id)));await page.locator('#airTransferCount').fill('1');await page.locator('#airTransferConfirm').click();
   assert.equal(await page.evaluate(()=>airWing(fleetDest).fighter.total),1);assert.equal(await page.evaluate(()=>aircraftReady(fleetDest,'fighter')),0);
+  // Destination-side import: source filtering, quantity bounds, localization and stale ownership.
+  for(const lang of ['ko','en']){
+   await page.evaluate(lang=>{
+    appSettings.language=lang;window.importBackup=cities.map(q=>JSON.parse(JSON.stringify({airWing:q.airWing,airport:q.airport,nukeUntil:q.nukeUntil})));
+    airWing(fleetHome).bomber.total=0;airWing(fleetDest).bomber.total=5;airWing(fleetDest).bomber.used=2;
+    window.fleetImportOther=cities.find(q=>q.f===0&&q!==fleetHome&&q!==fleetDest);fleetImportOther.airport=true;fleetImportOther.nukeUntil=0;airWing(fleetImportOther).bomber.total=2;airWing(fleetImportOther).bomber.used=0;
+    cityCommandOpen('air');
+   },lang);
+   await page.locator('#airImport-bomber').click();
+   assert((await page.locator('#airImportFrom').textContent()).includes(await page.evaluate(()=>fleetDest.name)));
+   assert.equal(await page.locator('#airImportFrom option').count(),2);
+   await page.locator('#airImportFrom').selectOption(String(await page.evaluate(()=>fleetDest.id)));
+   assert.equal(await page.locator('#airImportCount').getAttribute('max'),'3');
+   await page.locator('#airImportCount').fill('4');await page.locator('#airImportConfirm').click();
+   assert.equal(await page.evaluate(()=>airWing(fleetHome).bomber.total),0);
+   await page.locator('#airImportFrom').selectOption(String(await page.evaluate(()=>fleetImportOther.id)));
+   assert.equal(await page.locator('#airImportCount').getAttribute('max'),'2');
+   await page.locator('#airImportCount').fill('1.5');await page.locator('#airImportConfirm').click();
+   assert.equal(await page.evaluate(()=>airWing(fleetHome).bomber.total),0);
+   await page.locator('#airImportFrom').selectOption(String(await page.evaluate(()=>fleetDest.id)));
+   await page.locator('#airImportCount').fill('2');
+   await page.screenshot({path:'qa/campaign-previews/aircraft-import-'+lang+'.png'});
+   await page.locator('#airImportConfirm').click();
+   assert.equal(await page.evaluate(()=>airWing(fleetHome).bomber.total),2);assert.equal(await page.evaluate(()=>aircraftReady(fleetHome,'bomber')),0);
+   assert.equal(await page.evaluate(()=>airWing(fleetDest).bomber.total),3);
+   await page.locator('#airImport-bomber').click();await page.locator('#airImportFrom').selectOption(String(await page.evaluate(()=>fleetDest.id)));
+   await page.evaluate(()=>fleetDest.f=1);await page.locator('#airImportConfirm').click();
+   assert.equal(await page.evaluate(()=>airWing(fleetHome).bomber.total),2);await page.locator('#airImportClose').click();
+   await page.evaluate(()=>{fleetDest.f=0;cities.forEach((q,i)=>Object.assign(q,importBackup[i]));appSettings.language='ko';cityCommandOpen('air')});
+  }
   // Smoke/crash animation and post-hit stock loss are exercised in the real renderer.
   await page.evaluate(()=>{
    beginAirportFactionTurn(0);aircraftRandom=()=>0;aviationResearch(0).performance=1;airWing(fleetEnemy).fighter.total=0;
@@ -75,7 +105,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    await page.locator('#airResearch-stealth').locator('..').locator('.unitInfoButton').click();
    const description=await page.locator('#modal p').textContent();
    assert(!description.includes('과학연구소')&&!description.toLowerCase().includes('lab'));
-   assert(description.includes('20%')&&description.includes('18%'));
+   assert(description.includes('50%')&&description.includes('45%'));
    await page.locator('#cityInfoX').click();
    assert(await page.evaluate(()=>{fleetHome.lab=false;const reason=aviationResearchReason(fleetHome,'stealth');fleetHome.lab=true;return !!reason}));
   }
@@ -93,7 +123,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   assert((await stealthRow.locator('small').textContent()).includes('30,000'));
   await stealthRow.click();await page.evaluate(()=>cityCommandOpen('overview'));
   assert((await page.locator('#panel .progressCard').textContent()).includes('스텔스 연구 3단계'));
-  assert((await page.locator('#panel .progressCard').textContent()).includes('16% → 14%'));
+  assert((await page.locator('#panel .progressCard').textContent()).includes('40% → 35%'));
   await page.locator('#panel .progressCard').scrollIntoViewIfNeeded();
   await page.locator('#panel .progressCard').screenshot({path:'qa/campaign-previews/research-stealth-banner.png'});
   for(const lang of ['ko','en']){
@@ -101,7 +131,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    assert.equal(await page.locator('#airResearch-performance small').count(),1);
    assert((await page.locator('#airResearch-stealth').textContent()).includes(lang==='ko'?'스텔스 연구 3단계':'Stealth research level 3'));
    await page.evaluate(()=>cityCommandOpen('overview'));
-   assert((await page.locator('#panel .progressCard').textContent()).includes('16% → 14%'));
+   assert((await page.locator('#panel .progressCard').textContent()).includes('40% → 35%'));
   }
   await page.evaluate(()=>{appSettings.language='ko';aviationResearch(0).job={key:'performance',owner:0,city:fleetHome.id,next:2,remaining:2,total:2,lastTick:turn}});
 
@@ -128,7 +158,7 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.evaluate(()=>{airTarget=null;selectCity(fleetHome,true);cityCommandOpen('air')});
 
   assert(await page.evaluate(async()=>{const expected=airWing(fleetDest).fighter.total;save(9);await load(9);return airWing(cities[fleetDest.id]).fighter.total===expected&&cities[fleetBuild.id].airportJob.remaining===3&&aviationResearch(0).job.key==='performance'&&units.every(u=>!isAircraft(u))}));
-  for(const lang of ['ko','en']){await page.evaluate(lang=>{appSettings.language=lang;showHelp('game')},lang);const text=await page.locator('#modal').textContent();assert(text.includes(lang==='ko'?'공항 건설과 항공기 재고':'Airports and aircraft inventory'));assert(text.includes(lang==='ko'?'20%':'20%'));assert(text.includes(lang==='ko'?'40,000':'40,000'))}
+  for(const lang of ['ko','en']){await page.evaluate(lang=>{appSettings.language=lang;showHelp('game')},lang);const text=await page.locator('#modal').textContent();assert(text.includes(lang==='ko'?'공항 건설과 항공기 재고':'Airports and aircraft inventory'));assert(text.includes(lang==='ko'?'50%':'50%'));assert(text.includes(lang==='ko'?'40,000':'40,000'))}
   assert.deepEqual(errors,[]);console.log('PASS real airport inventory UI, production without units, sortie budgets, transfer, smoke crash, research, 3-turn construction, mobile scrolling and save/load');
  }finally{await browser?.close();server.kill()}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -6,6 +6,16 @@ const scenario=async function(){
  const check=(ok,msg)=>{if(!ok)throw Error(msg)};
  player=0;setup();started=true;setAppScreen('game');busy=false;menuMode=false;sound=false;delay=async()=>{};
  units=[];missileBases=[];money.fill(1000000);oil.fill(100000);food.fill(100000);tech.fill(0);
+ check(TYPES[2].hp===130&&TYPES[2].def===25&&TYPES[3].hp===120&&TYPES[3].def===20,'requested artillery health and armor');
+ // Old damaged artillery retains its damage ratio, including technology and tiers.
+ tech[0]=2;
+ const guns=[makeUnit(0,2,cities[0].tile,1),makeUnit(0,3,cities[0].tile,3)];
+ const old=JSON.parse(JSON.stringify(snapshot()));delete old.artilleryHealthSchema;
+ for(const u of old.units)u.hp=Math.round((ARTILLERY_PREVIOUS_HP[u.type]+24)*tierMultiplier(u.level))/2;
+ units=old.units;migrateArmy(old);
+ for(const u of units)check(u.hp===Math.round(unitMaxHp(u)/2),'old artillery damage ratio');
+ for(let n=0;n<2;n++){const current=JSON.parse(JSON.stringify(snapshot()));units=current.units;migrateArmy(current);for(const u of units)check(u.hp===Math.round(unitMaxHp(u)/2),'new artillery reload preserves exact hp')}
+ units=[];tech.fill(0);
  const home=cities.find(q=>q.f===0&&q.capital),enemy=cities.find(q=>q.f===1&&q.capital),dest=cities.find(q=>q.f===0&&q!==home);
  home.airport=true;home.level=5;home.nukeUntil=0;dest.airport=true;dest.level=5;dest.nukeUntil=0;enemy.airport=true;enemy.nukeUntil=0;enemy.hp=100000;enemy.aa=false;
  for(const q of cities)q.airWing=emptyAirWing(q.f);
@@ -39,6 +49,10 @@ const scenario=async function(){
  check(!transferAircraft(dest,home,'fighter',1),'transfer loop cannot refresh spent aircraft');
  beginAirportFactionTurn(0);check(aircraftReady(dest,'fighter')===1,'transferred aircraft ready next own turn');
  check(!transferAircraft(dest,enemy,'fighter',1),'no enemy transfer');
+ check(aircraftImportSources(home,'fighter').includes(dest)&&!aircraftImportSources(home,'fighter').includes(home),'import lists available friendly source cities');
+ for(const count of [0,-1,1.5,2,NaN,Infinity])check(!transferAircraft(dest,home,'fighter',count),'invalid import count rejected '+count);
+ check(transferAircraft(dest,home,'fighter',1)&&aircraftReady(home,'fighter')===0,'pull uses the same transfer readiness rule');
+ beginAirportFactionTurn(0);check(transferAircraft(home,dest,'fighter',1),'restore transfer fixture');
  // Real conventional flight with no defense: exact city hit and one flight per aircraft.
  aircraftRandom=()=>.99;airWing(source).fighter.total=1;const hp=enemy.hp,g=money[0],o=oil[0];
  check(await airStrike(source,'fighter',target,true),'inventory raid succeeds');
@@ -77,17 +91,17 @@ const scenario=async function(){
  // A different city's fighters do not defend this region.
  airWing(enemy).fighter.total=0;const remote=cities.find(q=>q.f===1&&q!==enemy);remote.airport=true;airWing(remote).fighter.total=20;
  check(interceptingAirport(0,target)===null,'unrelated regional city cannot intercept');
- // SAM damage applies before one 20% loss roll, even with overlapping batteries.
+ // SAM damage applies before one 50% loss roll, even with overlapping batteries.
  airWing(enemy).fighter.total=0;aviationResearch(0).stealth=0;
  missileBases=[{id:9001,f:1,kind:'sam',tile:target,hp:34000,remaining:0},{id:9002,f:1,kind:'sam',tile:target,hp:34000,remaining:0}];
- airWing(source).bomber.total=1;aircraftRandom=()=>{rolls++;return .19999};rolls=0;
+ airWing(source).bomber.total=1;aircraftRandom=()=>{rolls++;return .49999};rolls=0;
  const samHP=enemy.hp;check(await airStrike(source,'bomber',target,true),'SAM-protected raid');
  check(samHP-enemy.hp===2500,'SAM halves actual bomber city damage once');
  check(airWing(source).bomber.total===0&&rolls===1,'overlapping SAMs make a single loss roll after damage');
  const crash=fx.findLast(e=>e.kind==='airraid'&&e.f===0);check(crash.crash,'SAM loss marks crash animation');
  let smoke=0;const oldCircle=circle;circle=function(x,y,r,color){if(color==='#273038')smoke++;return oldCircle(x,y,r,color)};try{drawMissionAircraft(crash,.8)}finally{circle=oldCircle}check(smoke>=9,'crash renderer emits actual smoke trail');
- airWing(source).bomber.total=1;airWing(source).bomber.used=0;aircraftRandom=()=>.2;
- check(await airStrike(source,'bomber',target,true)&&airWing(source).bomber.total===1,'20 percent boundary survives');
+ airWing(source).bomber.total=1;airWing(source).bomber.used=0;aircraftRandom=()=>.5;
+ check(await airStrike(source,'bomber',target,true)&&airWing(source).bomber.total===1,'50 percent boundary survives');
  missileBases=[]; // The destroyed ground facility path is independently tested below.
  // Ground direct and all-class adjacent splash damage.
  units=[];const land=tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&distance(i,home.tile)<=8&&neighbors(i).some(j=>tiles[j].owner>=0&&!cityAt(j)));
@@ -99,7 +113,7 @@ const scenario=async function(){
  airWing(home).fighter.total=1;airWing(home).fighter.used=0;aircraftRandom=()=>.99;
  selected={kind:'city',id:home.id};airTarget={city:home.id,type:'fighter'};panelOpen=false;menuMode=false;cam.x=pxy(land).x;cam.y=pxy(land).y;cam.z=1;
  check(await tap(screenW/2,screenH/2),'SAM map tap launches an actual air mission');check(missileBases[0].hp===31000&&!menuMode,'SAM target tap cannot open defense modal');missileBases=[];
- for(let level=0;level<=10;level++){aviationResearch(0).stealth=level;check(Math.abs(samAircraftLossChance(0)-(.2-level*.02))<1e-9,'stealth stage loss probability '+level)}
+ for(let level=0;level<=10;level++){aviationResearch(0).stealth=level;check(Math.abs(samAircraftLossChance(0)-(.5-level*.05))<1e-9,'stealth stage loss probability '+level)}
  // Transport consumes one ready fighter permanently, never on an invalid order.
  units=[];missileBases=[];for(const c of cities)if(c.f!==0)airWing(c).fighter.total=0;
  const landing=tiles.findIndex((t,i)=>t.owner>=0&&!cityAt(i)&&!baseAt(i)&&distance(i,home.tile)>0&&distance(i,home.tile)<=AIR_MISSIONS.transport.range);

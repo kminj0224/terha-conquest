@@ -60,6 +60,22 @@ function aircraftTransferDialog(q,type){
  const close=()=>{menuMode=false;$('modal').style.display='none';showPanel()};$('airTransferClose').onclick=close;
  $('airTransferConfirm').onclick=()=>{const dest=cities.find(d=>d.id===Number($('airTransferTo').value));if(transferAircraft(q,dest,type,Number($('airTransferCount').value)))close();else toast(tr('이송 수량과 공항 상태를 확인하세요.','Check the count and airport status.'))};refreshWindowChrome();
 }
+function aircraftImportSources(q,type){
+ return cities.filter(source=>source!==q&&source.f===q.f&&source.airport&&source.nukeUntil<=turn&&aircraftReady(source,type)>0);
+}
+function aircraftImportDialog(q,type){
+ if(busy||q?.f!==player||!q.airport||q.nukeUntil>turn)return toast(tr('사용 가능한 아군 공항이 필요합니다.','An operational friendly airport is required.'));
+ const sources=aircraftImportSources(q,type);
+ if(!sources.length)return toast(tr('가져올 수 있는 항공기가 없습니다.','No aircraft are available to import.'));
+ menuMode=true;$('modal').style.display='flex';
+ $('modal').innerHTML='<div class="box"><button class="close" id="airImportClose">×</button><h2>'+aircraftName(type)+tr(' 가져오기',' import')+'</h2><p>'+tr('도착 도시: ','Destination: ')+q.name+'</p><label for="airImportFrom">'+tr('출발 도시','Source city')+'</label><select id="airImportFrom">'+sources.map(source=>'<option value="'+source.id+'">'+source.name+' · '+tr('재고 ','Stock ')+airWing(source)[type].total+' · '+tr('출격 ','Ready ')+aircraftReady(source,type)+'</option>').join('')+'</select><label id="airImportAvailable" for="airImportCount"></label><input id="airImportCount" type="number" min="1" step="1" value="1"><p>'+tr('가져온 항공기는 다음 자기 턴부터 출격할 수 있습니다.','Imported aircraft become ready next friendly turn.')+'</p><button id="airImportConfirm" class="gold">'+tr('가져오기','Import')+'</button></div>';
+ const selectedSource=()=>cities.find(source=>source.id===Number($('airImportFrom').value));
+ const update=()=>{const source=selectedSource(),ready=source?aircraftReady(source,type):0;$('airImportCount').max=ready;$('airImportCount').value=Math.max(1,Math.min(ready,Math.floor(Number($('airImportCount').value)||1)));$('airImportAvailable').textContent=tr('수량 · 가능 ','Count · Available ')+ready};
+ const close=()=>{menuMode=false;$('modal').style.display='none';showPanel()};
+ $('airImportFrom').onchange=update;$('airImportClose').onclick=close;
+ $('airImportConfirm').onclick=()=>{if(transferAircraft(selectedSource(),q,type,Number($('airImportCount').value)))close();else{update();toast(tr('수량과 공항 상태를 확인하세요.','Check the count and airport status.'))}};
+ update();refreshWindowChrome();
+}
 function aviationResearch(f){
  const r=strategicResearch[f];if(!r.aviation||typeof r.aviation!=='object')r.aviation={stealth:0,performance:0,job:null};
  const a=r.aviation;a.stealth=Math.max(0,Math.min(10,Math.floor(Number(a.stealth)||0)));a.performance=Math.max(0,Math.floor(Number(a.performance)||0));return a;
@@ -77,7 +93,7 @@ function aviationResearchReason(q,key,ai=false){
  return '';
 }
 function studyAviation(q,key,ai=false){const why=aviationResearchReason(q,key,ai);if(why){if(!ai)toast(why);return false}const d=aviationResearchSpec(q.f,key);money[q.f]-=d.gold;oil[q.f]-=d.oil;aviationResearch(q.f).job={key,city:q.id,owner:q.f,next:d.next,remaining:d.turns,total:d.turns,lastTick:turn};if(!ai){showPanel();updateHUD();save()}return true}
-function samLossChanceAtLevel(level){return Math.max(0,.2-level*.02)}
+function samLossChanceAtLevel(level){return Math.max(0,.5-level*.05)}
 function samAircraftLossChance(f){return samLossChanceAtLevel(aviationResearch(f).stealth)}
 function interceptingAirport(attacker,i){
  const q=cities[tiles[i]?.region];
@@ -312,6 +328,8 @@ airPage=function(q){
   const why=!q.airport?tr('공항 필요','Airport required'):q.nukeUntil>turn?tr('피폭 통제 중','Nuclear exclusion'):type==='strategic'&&q.level<5?tr('5레벨 도시 필요','Level 5 city required'):aircraftReady(q,type)<1?tr('출격 가능 기체 없음','No ready aircraft'):oil[q.f]<(armed?18:AIR_MISSIONS[type].oil)?tr('석유 부족','Insufficient oil'):armed&&money[q.f]<600?tr('골드 부족','Insufficient gold'):'';
   const sortie=addCityRow(group,tr(AIR_MISSIONS[type].name,{fighter:'Fighter raid',bomber:'Bomber raid',strategic:'Strategic bombing'}[type])+(armed?' ('+armed.name+')':''),why,()=>armed?prepareStrategicLaunch(q,'short',armedBomber.payload,true):beginAirTarget(q,type),aircraftName(type),tr('공격 ','Attack ')+AIR_MISSIONS[type].damage+tr(' / 범위 피해 ',' / splash ')+AIR_MISSIONS[type].splash,(armed?tr('골드 600 · ','Gold 600 · '):'')+tr('석유 ','Oil ')+(armed?18:AIR_MISSIONS[type].oil)+tr(' · 사거리 ',' · Range ')+AIR_MISSIONS[type].range);sortie.id='airSortie-'+type;if(type==='strategic')sortie.parentElement.appendChild(nuclearMountButton(q,null,true));
   const transfer=addCityRow(group,tr('이송','Transfer'),!q.airport||!aircraftReady(q,type)?tr('출격 가능 기체 없음','No ready aircraft'):'',()=>aircraftTransferDialog(q,type));transfer.id='airTransfer-'+type;
+  const importWhy=!q.airport?tr('공항 필요','Airport required'):q.nukeUntil>turn?tr('피폭 통제 중','Nuclear exclusion'):!aircraftImportSources(q,type).length?tr('가져올 수 있는 항공기 없음','No aircraft available'):'';
+  const bring=addCityRow(group,tr('가져오기','Import'),importWhy,()=>aircraftImportDialog(q,type));bring.id='airImport-'+type;
  }
  const m=AIR_MISSIONS.transport,why=!q.airport?tr('공항 필요','Airport required'):q.nukeUntil>turn?tr('피폭 통제 중','Nuclear exclusion'):!aircraftReady(q,'fighter')?tr('출격 가능 전투기 없음','No ready fighter'):food[q.f]<m.food||money[q.f]<m.cost||oil[q.f]<m.oil?tr('자원 부족','Insufficient resources'):'';
  const drop=addCityRow(box,tr(m.name,'Airborne drop'),why,()=>beginAirTarget(q,'transport'),tr('공수강하','Airborne drop'),tr('공수부대 1개 배치','Deploy one airborne unit'),tr('골드 ','Gold ')+m.cost.toLocaleString()+tr(' · 식량 ',' · Food ')+m.food.toLocaleString()+tr(' · 석유 ',' · Oil ')+m.oil+tr(' · 사거리 ',' · Range ')+m.range+tr(' · 전투기 1',' · Fighter 1'));drop.id='airSortie-transport';
@@ -321,4 +339,4 @@ function prepareAirportAI(f,owned){
  for(const q of airports)for(const [type,goal]of [['fighter',2],['bomber',1],['strategic',difficulty===2&&q.level===5?1:0]])if(airWing(q)[type].total<goal&&money[f]>AIRCRAFT[type].gold+5000&&oil[f]>AIRCRAFT[type].oil+60)produceAircraft(q,type,true);
  const a=aviationResearch(f);if(!a.job&&money[f]>50000&&oil[f]>550){const q=owned.find(q=>q.nukeUntil<=turn&&!localResearchJob(q));if(q)studyAviation(q,'performance',true)}
 }
-Object.assign(window.Terha,{AIRCRAFT,AIR_FLEET_SCHEMA,canProduce,airWing,aircraftReady,useAircraft,loseAircraft,beginAirportFactionTurn,produceAircraft,transferAircraft,aircraftTransferDialog,aviationResearch,aviationResearchSpec,aviationResearchReason,studyAviation,samAircraftLossChance,interceptingAirport,resolveAircraftInterception,missionSAM,aircraftGroundDamage,applyAirportBombing,airStrike,canAirStrike,beginAirTarget,tap,drawMissionAircraft,strategicBomber,launchStrategic,facilityReason,buildFacility,migrateAirportPlanes,migrateArmy,setup,capture,nuclearImpact,industryTurn,localResearchJob,studyReason,fuelResearchReason,sciencePage,cityOverview,airPage,prepareAirportAI});
+Object.assign(window.Terha,{AIRCRAFT,AIR_FLEET_SCHEMA,canProduce,airWing,aircraftReady,useAircraft,loseAircraft,beginAirportFactionTurn,produceAircraft,transferAircraft,aircraftTransferDialog,aircraftImportSources,aircraftImportDialog,aviationResearch,aviationResearchSpec,aviationResearchReason,studyAviation,samAircraftLossChance,interceptingAirport,resolveAircraftInterception,missionSAM,aircraftGroundDamage,applyAirportBombing,airStrike,canAirStrike,beginAirTarget,tap,drawMissionAircraft,strategicBomber,launchStrategic,facilityReason,buildFacility,migrateAirportPlanes,migrateArmy,setup,capture,nuclearImpact,industryTurn,localResearchJob,studyReason,fuelResearchReason,sciencePage,cityOverview,airPage,prepareAirportAI});
