@@ -11,13 +11,31 @@ module.exports=function({run}){
     const garrison=army.filter(u=>u.tile===q.tile);
     check(garrison.length===1&&TYPES[garrison[0].type].branch==='infantry','Incorrect city garrison: '+q.name);
    }
-   const reserves=army.filter(u=>TYPES[u.type].branch!=='infantry');
+   const reserves=army.filter(u=>TYPES[u.type].branch!=='infantry'&&u.initialDanteBorder===undefined);
    check(JSON.stringify(reserves.map(u=>u.type))===JSON.stringify(heavyByCountry[f]),'Incorrect heavy reserve: '+f);
-   check(army.length===ownCities.length+reserves.length,'Unexpected field infantry: '+f);
+   check(army.filter(u=>TYPES[u.type].branch==='infantry').length===ownCities.length,'Unexpected field infantry: '+f);
    check(reserves.every(u=>tiles[u.tile].owner===f&&!cityAt(u.tile)&&!baseAt(u.tile)&&units.filter(v=>v.tile===u.tile).length===1),'Invalid reserve placement: '+f);
    summary[f]={infantry:ownCities.length,heavy:reserves.length};
   }
   check(Object.values(summary).reduce((n,a)=>n+a.infantry,0)===190,'Conquest city count');
+  const danteBorders=[0,2,4,6];
+  const deployed=units.filter(u=>u.initialDanteBorder!==undefined);
+  check(deployed.length===40,'Expected ten units on each of four Dante land borders');
+  for(const rival of danteBorders){
+   const force=deployed.filter(u=>u.initialDanteBorder===rival);
+   for(const branch of ['armor','artillery']){
+    const group=force.filter(u=>TYPES[u.type].branch===branch);
+    check(group.length===5&&group.some(u=>u.level===2)&&group.some(u=>u.level===3),'Incorrect border mix: '+rival+' '+branch);
+    check(group.every(u=>u.level===2||u.level===3)&&new Set(group.map(u=>u.type)).size>=3,'Incorrect border tiers or types: '+rival+' '+branch);
+   }
+   const border=tiles.flatMap((t,i)=>t.owner===1&&neighbors(i).some(j=>tiles[j].owner===rival)?[i]:[]);
+   const belt=new Set(border);let edge=border;
+   for(let depth=0;depth<3;depth++){
+    edge=edge.flatMap(i=>neighbors(i)).filter(i=>tiles[i].owner===1&&!belt.has(i));
+    edge.forEach(i=>belt.add(i));
+   }
+   check(force.every(u=>u.f===1&&belt.has(u.tile)&&!cityAt(u.tile)&&!baseAt(u.tile)&&units.filter(v=>v.tile===u.tile).length===1),'Invalid border deployment: '+rival);
+  }
   const ships=units.filter(u=>u.f===0&&u.initialFrontlineReinforcement&&isNaval(u)),front=reinforcementFrontDepth(0);
   check(ships.length===4,'Forward fleet missing');
   const northern=ships.filter(u=>tiles[u.tile].y<Math.min(...front.border.map(i=>tiles[i].y)));
@@ -25,15 +43,17 @@ module.exports=function({run}){
   for(const [type,count]of [[25,1],[24,1],[23,2]])check(ships.filter(u=>u.type===type).length===count,'Fleet composition '+type);
   check(ships.every(u=>tiles[u.tile].owner<0&&u.level===2&&u.westernFleet&&Math.min(...front.border.map(i=>distance(i,u.tile)))<=12),'Fleet too far from western front');
   check(ships.every(u=>units.filter(v=>!v.carriedBy&&v.hp>0&&v.tile===u.tile).length===1),'Fleet overlaps another unit');
-  const roster=()=>JSON.stringify(units.map(u=>[u.id,u.f,u.type,u.tile]));
+  const roster=()=>JSON.stringify(units.map(u=>[u.id,u.f,u.type,u.level,u.tile,u.initialDanteBorder]));
   const before=roster();
   setup();check(roster()===before,'Restart changes the starting roster');
   const oldSave=JSON.parse(JSON.stringify(snapshot()));
-  oldSave.appVersion='1.12.10';
+  oldSave.appVersion='1.12.11';
+  oldSave.units=oldSave.units.filter(u=>u.initialDanteBorder===undefined);
   const extra=makeUnit(0,1,tiles.findIndex((t,i)=>t.owner===0&&!unitAt(i)&&!cityAt(i)&&!baseAt(i)));
   oldSave.units.push(extra);oldSave.uid=uid;
   units=oldSave.units;cities=oldSave.cities;
   migrateArmy(oldSave);check(units.some(u=>u.id===extra.id&&u.type===1),'Save migration removed a preexisting tank');
+  check(units.every(u=>u.initialDanteBorder===undefined),'Save migration inserted new border units');
   setup();check(roster()===before,'Restart after migration changes the starting roster');
   // Measure actual transformed paint calls, including the mirrored sprite.
   const originalImage=ctx.drawImage,originalPoly=poly,paint=[];let image=null;
@@ -54,6 +74,6 @@ module.exports=function({run}){
   return summary;
  })()`);
  assert.equal(Object.values(report).reduce((n,a)=>n+a.heavy,0),8);
- console.log('PASS: conquest city garrisons and reserves, forward fleet, save/restart stability, mirrored MG muzzle paint and 35% carrier scaling',report);
+ console.log('PASS: conquest city garrisons, reserves and four Dante border groups, forward fleet, save/restart stability, mirrored MG muzzle paint and 35% carrier scaling',report);
 };
 

@@ -30,8 +30,8 @@ with zipfile.ZipFile(sys.argv[1]) as apk:
         offset += size
     assert offset == len(data)
     assert elements['manifest']['package'] == 'com.terha.conquest'
-    assert elements['manifest']['versionName'] == '1.12.11'
-    assert elements['manifest']['versionCode'] == 256
+    assert elements['manifest']['versionName'] == '1.12.12'
+    assert elements['manifest']['versionCode'] == 257
     assert elements['application']['label'] == '테르하 : 낙원의 기억'
     assert 'label' not in elements['activity'] or elements['activity']['label'] == '테르하 : 낙원의 기억'
     for name in ['index.html', 'app-shell.js', 'game.js']:
@@ -51,4 +51,4 @@ with zipfile.ZipFile(sys.argv[1]) as apk:
     assert icon[:8] == b'\x89PNG\r\n\x1a\n', 'Launcher drawable must be PNG'
     assert struct.unpack_from('>II', icon, 16) == (192, 192), 'Launcher icon artwork missing'
 
-print('PASS: APK launcher name, shared title and image START, 192px fox launcher icon, versionCode 256, version 1.12.11 and original package identity')
+print('PASS: APK launcher name, shared title and image START, 192px fox launcher icon, versionCode 257, version 1.12.12 and original package identity')

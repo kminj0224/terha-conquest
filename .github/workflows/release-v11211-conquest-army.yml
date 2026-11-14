@@ -1,8 +1,5 @@
 name: Verify and release conquest starting armies APK v1.12.11
 on:
-  push:
-    branches: [main, balance/conquest-starting-army]
-    paths: ['.github/workflows/release-v11211-conquest-army.yml', 'game/assets/conquest-starting-army.js']
   workflow_dispatch:
 permissions:
   contents: read
