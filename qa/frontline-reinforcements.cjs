@@ -3,15 +3,21 @@ module.exports=function({run}){
  const report=run(`(()=>{
   const check=(ok,msg)=>{if(!ok)throw Error(msg)},summary={};
   setup();
-  for(const [f,expected,at]of [[0,22,10],[2,20,3]]){
-   const added=units.filter(u=>u.f===f&&u.initialFrontlineReinforcement&&!isNaval(u)),front=reinforcementFrontDepth(f);
-   check(added.length===expected,'Wrong frontline grant '+f+': '+added.length);
-   check(added.filter(u=>u.type===14&&u.level===3).length===(f===0?1:3),'Elite tanks missing '+f);
-   check(added.filter(u=>u.type===9).length===at,'Antitank grant '+f);
-   check(added.every(u=>tiles[u.tile].owner===f&&front.depth[u.tile]>=0&&front.depth[u.tile]<=4&&moveCost(u,u.tile)<99999),'Invalid land deployment '+f);
-   check(added.every(u=>!missileBases.some(b=>b.tile===u.tile)&&units.filter(v=>!v.carriedBy&&v.hp>0&&v.tile===u.tile).length===1),'Occupied land deployment '+f);
-   summary[f]={land:added.length,elite:f===0?1:3,antitank:at};
+  const heavyByCountry=[[1,2],[1,1,2],[1,16],[2],[],[],[],[]];
+  for(let f=0;f<factions.length;f++){
+   const ownCities=cities.filter(q=>q.f===f);
+   const army=units.filter(u=>u.f===f&&['infantry','armor','artillery'].includes(TYPES[u.type].branch));
+   for(const q of ownCities){
+    const garrison=army.filter(u=>u.tile===q.tile);
+    check(garrison.length===1&&TYPES[garrison[0].type].branch==='infantry','Incorrect city garrison: '+q.name);
+   }
+   const reserves=army.filter(u=>TYPES[u.type].branch!=='infantry');
+   check(JSON.stringify(reserves.map(u=>u.type))===JSON.stringify(heavyByCountry[f]),'Incorrect heavy reserve: '+f);
+   check(army.length===ownCities.length+reserves.length,'Unexpected field infantry: '+f);
+   check(reserves.every(u=>tiles[u.tile].owner===f&&!cityAt(u.tile)&&!baseAt(u.tile)&&units.filter(v=>v.tile===u.tile).length===1),'Invalid reserve placement: '+f);
+   summary[f]={infantry:ownCities.length,heavy:reserves.length};
   }
+  check(Object.values(summary).reduce((n,a)=>n+a.infantry,0)===190,'Conquest city count');
   const ships=units.filter(u=>u.f===0&&u.initialFrontlineReinforcement&&isNaval(u)),front=reinforcementFrontDepth(0);
   check(ships.length===4,'Forward fleet missing');
   const northern=ships.filter(u=>tiles[u.tile].y<Math.min(...front.border.map(i=>tiles[i].y)));
@@ -19,9 +25,16 @@ module.exports=function({run}){
   for(const [type,count]of [[25,1],[24,1],[23,2]])check(ships.filter(u=>u.type===type).length===count,'Fleet composition '+type);
   check(ships.every(u=>tiles[u.tile].owner<0&&u.level===2&&u.westernFleet&&Math.min(...front.border.map(i=>distance(i,u.tile)))<=12),'Fleet too far from western front');
   check(ships.every(u=>units.filter(v=>!v.carriedBy&&v.hp>0&&v.tile===u.tile).length===1),'Fleet overlaps another unit');
-  const before=units.filter(u=>u.initialFrontlineReinforcement).length;
-  migrateArmy(snapshot());check(units.filter(u=>u.initialFrontlineReinforcement).length===before,'Save migration duplicates or removes grants');
-  setup();check(units.filter(u=>u.initialFrontlineReinforcement).length===46,'Restart duplicates grants');
+  const roster=()=>JSON.stringify(units.map(u=>[u.id,u.f,u.type,u.tile]));
+  const before=roster();
+  setup();check(roster()===before,'Restart changes the starting roster');
+  const oldSave=JSON.parse(JSON.stringify(snapshot()));
+  oldSave.appVersion='1.12.10';
+  const extra=makeUnit(0,1,tiles.findIndex((t,i)=>t.owner===0&&!unitAt(i)&&!cityAt(i)&&!baseAt(i)));
+  oldSave.units.push(extra);oldSave.uid=uid;
+  units=oldSave.units;cities=oldSave.cities;
+  migrateArmy(oldSave);check(units.some(u=>u.id===extra.id&&u.type===1),'Save migration removed a preexisting tank');
+  setup();check(roster()===before,'Restart after migration changes the starting roster');
   // Measure actual transformed paint calls, including the mirrored sprite.
   const originalImage=ctx.drawImage,originalPoly=poly,paint=[];let image=null;
   ctx.drawImage=function(img,...a){image={img,args:a,m:ctx.getTransform()};return originalImage(img,...a)};
@@ -40,7 +53,7 @@ module.exports=function({run}){
   }finally{ctx.drawImage=originalImage;poly=originalPoly}
   return summary;
  })()`);
- assert.equal(report[0].land,22);assert.equal(report[2].land,20);
- console.log('PASS: frontline grants, forward fleet, save/restart stability, mirrored MG muzzle paint and 35% carrier scaling',report);
+ assert.equal(Object.values(report).reduce((n,a)=>n+a.heavy,0),8);
+ console.log('PASS: conquest city garrisons and reserves, forward fleet, save/restart stability, mirrored MG muzzle paint and 35% carrier scaling',report);
 };
 

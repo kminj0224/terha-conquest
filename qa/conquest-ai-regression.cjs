@@ -6,7 +6,7 @@ module.exports=async function({run}){
  delay=()=>Promise.resolve();busy=false;activeScenario=null;
  check(!units.some(u=>u.f!==player&&u.type===26&&u.aiFreeTransport),'Easy has no initial free AI transport');
  check(units.some(u=>u.f===player&&u.type===26),'Player starting transports remain');
- check(units.filter(u=>u.initialFrontlineReinforcement).length===46,'Easy preserves every ordinary frontline reinforcement');
+ check(units.every(u=>!u.initialFrontlineReinforcement||isNaval(u)),'Easy excludes the old ground frontline grants');
  check(units.filter(u=>u.f===0&&u.initialFrontlineReinforcement&&isNaval(u)).length===4,'Easy preserves forward fleet placement');
  for(let d=0;d<3;d++){
   difficulty=d;const factor=[1,1.5,3][d];
