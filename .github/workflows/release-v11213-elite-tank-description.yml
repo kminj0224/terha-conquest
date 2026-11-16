@@ -2,7 +2,7 @@ name: Verify and release elite tank description APK v1.12.13
 on:
   push:
     branches: [main, text/elite-tank-description]
-    paths: ['.github/workflows/release-v11213-elite-tank-description.yml', 'game/assets/orders.js']
+    paths: ['.github/workflows/release-v11213-elite-tank-description.yml', 'game/assets/orders.js', 'qa/verify-apk-name.py']
   workflow_dispatch:
 permissions:
   contents: read
