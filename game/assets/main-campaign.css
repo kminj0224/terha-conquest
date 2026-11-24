@@ -59,13 +59,16 @@ body:is([data-screen="mainIntro"],[data-screen="mainCampaign"]) #frontBackground
 .mcAiria .cpDialogue{background:linear-gradient(110deg,#1c2429f7,#22282cf2)}
 .mcAiria .cpVNTop{top:max(12px,env(safe-area-inset-top));left:max(20px,env(safe-area-inset-left));right:max(20px,env(safe-area-inset-right))}
 .mcAiria .cpDialogue{bottom:max(4%,env(safe-area-inset-bottom))}
-.maStart,.maPlay{position:absolute;inset:0;background:linear-gradient(#10181c77,#0a1119cc),url('main-campaign-scene-7.png') center/cover;display:flex;align-items:center;justify-content:center}
+.maStart{position:absolute;inset:0;background:linear-gradient(#10181c77,#0a1119cc),url('main-campaign-scene-7.png') center/cover;display:flex;align-items:center;justify-content:center}
 .maStartCard{text-align:center;padding:38px 50px;max-width:90%;background:#141d23eb;border:1px solid #c1a569;box-shadow:0 20px 80px #0007}
 .maStartCard small{font-size:11px;letter-spacing:4px;color:#c5ac76}
 #campaignRoot .maStartCard h1{font-size:clamp(26px,4vw,42px);margin:24px 0;letter-spacing:2px}
 .maStartRule{height:1px;background:linear-gradient(90deg,transparent,#c1a569,transparent);margin:24px 0}
 #campaignRoot #maPlay{min-width:160px;min-height:48px;font-size:17px}
 #campaignRoot .maBack{position:absolute;top:calc(16px + env(safe-area-inset-top));left:calc(16px + env(safe-area-inset-left));z-index:4}
-.maPlay{background:#10171c}
+.maStartActions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px}
+.maStartCard p{margin:0 0 12px;line-height:1.5}
+.maStartCard strong{color:#efd69e}
+@media(max-height:470px){.maStartCard{padding:16px 22px}#campaignRoot .maStartCard h1,.maStartRule{margin:12px 0}}
 @media(max-width:560px) and (min-height:471px){.maPortrait{left:50%;top:max(96px,12%);height:83%}.mcAiria .cpVNTop{left:12px;right:12px}.mcAiria .cpDialogue{max-height:52%;bottom:max(3%,env(safe-area-inset-bottom))}.maStartCard{padding:28px 20px}}
 @media(max-height:470px){.maPortrait{left:36%;top:max(54px,14%);height:86%}.mcAiria .cpVNTop .cpEyebrow{font-size:9px;letter-spacing:1px}}

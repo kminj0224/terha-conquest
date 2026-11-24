@@ -3,7 +3,9 @@
 // implement movement, damage, AI, production, selection, UI, or a second canvas.
 const CampaignBattle=(()=>{
  let DATA=IRON_CROWN_CAMPAIGN.battle,ID=DATA.id,SCHEMA=DATA.schema,ORIGIN=DATA.map.origin,COLS=DATA.map.cols,ROWS=DATA.map.rows;
- function config(id){return id==='iron-crown-m03'?IRON_CROWN_CAMPAIGN.battle3:id==='iron-crown-m02'?IRON_CROWN_CAMPAIGN.battle2:id==='iron-crown-m01'?IRON_CROWN_CAMPAIGN.battle:null}
+ const config=id=>[IRON_CROWN_CAMPAIGN.battle,IRON_CROWN_CAMPAIGN.battle2,IRON_CROWN_CAMPAIGN.battle3,MAIN_AIRIA.battle].find(d=>d.id===id);
+ const defenseMission=()=>!!DATA.defenseSites;
+ const controller=()=>defenseMission()?window.TerhaMainCampaign:window.TerhaCampaign;
  function configure(id){const d=config(id);if(!d)throw Error('Unknown mission');if(activeScenario&&activeScenario.id!==id)throw Error('Leave current mission first');if(DATA!==d)image=null;DATA=d;ID=d.id;SCHEMA=d.schema;ORIGIN=d.map.origin;COLS=d.map.cols;ROWS=d.map.rows;}
  let suspended=null,progress=null,resultTimer=null;
  let image=null;function artwork(){if(!image){image=new Image();image.src=DATA.map.image}return image}
@@ -26,11 +28,13 @@ const CampaignBattle=(()=>{
  function createMap(){
   MAP.tiles=tiles.map(()=>[-1,0]);tiles=tiles.map(t=>({x:t.x,y:t.y,owner:-1,terrain:0,city:-1,region:-1}));
   for(let q=0;q<COLS;q++)for(let r=1;r<ROWS-1;r++){
-   const i=tile(q,r),owner=q<(ID==='iron-crown-m02'?6:10)?2:1,terrain=ID==='iron-crown-m02'?0:(q<4&&r<4||q>13&&r>7)?2:0;
+   const i=tile(q,r),terrain=defenseMission()||ID==='iron-crown-m02'?0:(q<4&&r<4||q>13&&r>7)?2:0;
+   let owner=q<(ID==='iron-crown-m02'?6:10)?DATA.player:1;
    let origin=owner;
    if(ID!=='iron-crown-m01'){
     const local=DATA.cities.reduce((a,b)=>distance(i,tile(a[1],a[2]))<=distance(i,tile(b[1],b[2]))?a:b);
     origin=local[4];
+    if(defenseMission())owner=local[3];
    }
    MAP.tiles[i]=[origin,terrain];Object.assign(tiles[i],{owner,terrain});
   }
@@ -38,23 +42,33 @@ const CampaignBattle=(()=>{
  }
  function ensureContext(){if(active())return;if(busy)throw Error('An operation is still running');suspended=captureWorld();activeScenario={id:ID};document.body.dataset.scenario=ID;RANNA_RIVER_TILES.clear();CITY_GROUND_SUPPORT.fill(0);CITY_GROUND_CENTER.fill(0);createMap();}
  function newMission(level,options={}){
-  units=[];cities=[];logs=[];productionTier=1;productionAA=false;uid=1;turn=1;player=2;difficulty=[0,1,2].includes(level)?level:1;activeSlot=0;started=true;busy=false;
+  units=[];cities=[];logs=[];productionTier=1;productionAA=false;uid=1;turn=1;player=DATA.player;difficulty=[0,1,2].includes(level)?level:1;activeSlot=0;started=true;busy=false;
   money=Array(factions.length).fill(950);food=Array(factions.length).fill(1200);oil=Array(factions.length).fill(180);tech=Array(factions.length).fill(0);foodTurn=turn;
-  strategicResearch=factions.map(()=>({ballistic:false,nuclear:false,jobs:[]}));militaryResearchJobs=Array(factions.length).fill(null);defeatedNotices=new Set([0,3,4,5,6]);
-  diplomacy=factions.map((_,a)=>factions.map((_,b)=>a===b?'self':'neutral'));diplomacy[1][2]=diplomacy[2][1]='war';
+  strategicResearch=factions.map(()=>({ballistic:false,nuclear:false,jobs:[]}));militaryResearchJobs=Array(factions.length).fill(null);defeatedNotices=new Set(factions.map((_,i)=>i).filter(i=>i!==1&&i!==player));
+  diplomacy=factions.map((_,a)=>factions.map((_,b)=>a===b?'self':'neutral'));diplomacy[1][player]=diplomacy[player][1]='war';
   missileBases=[];navalUid=1;hansaBridges=[];aiTransportGrantTurn=Array(factions.length).fill(-1);aiSpecialOrderTurns.fill(-1);danteExpansionSeeded=true;
   for(const [name,q,r,f,origin,level,capital,hp]of DATA.cities){
    const city={id:cities.length,name,tile:tile(q,r),f,origin,level,capital,seedId:7000+cities.length,airport:false,airTurn:-1,queue:null,produced:false,lastAttackedTurn:turn};
    cityProfile(city);city.hp=hp===null?cityMaxHp(city):hp;syncWarheads(city);cities.push(city);tiles[city.tile].city=city.id;
   }
   buildRegions();
-  const fort=makeUnit(DATA.player,DATA.fortress.type,tile(DATA.fortress.q,DATA.fortress.r),1);fort.missionName=DATA.fortress.name;fort.missionRole='iron-crown';
-  for(const [type,q,r]of DATA.friendly)makeUnit(2,type,tile(q,r),1);
+  let fort=null;
+  if(DATA.fortress){
+   fort=makeUnit(player,DATA.fortress.type,tile(DATA.fortress.q,DATA.fortress.r),1);
+   fort.missionName=DATA.fortress.name;fort.missionRole='iron-crown';
+  }
+  for(const [type,q,r]of DATA.friendly)makeUnit(player,type,tile(q,r),1);
   for(const [type,q,r]of DATA.enemy)makeUnit(1,type,tile(q,r),1);
   if(difficulty===2)for(const [type,q,r]of DATA.hardExtra)makeUnit(1,type,tile(q,r),1);
-  progress={fortressId:fort.id,exit:tile(DATA.exit.q,DATA.exit.r),result:null,triggered:[],initialFriendly:units.filter(u=>u.f===2).map(u=>u.id)};
-  if(ID!=='iron-crown-m01'){
-   progress.route=ID==='iron-crown-m03'?(options.route==='cargo'?'cargo':'troops'):(options.route==='pay'?'pay':'recapture');progress.waves=[];progress.pending=[];progress.lastTurn=0;progress.waveSerial=0;
+  progress={result:null,triggered:[],initialFriendly:units.filter(u=>u.f===player).map(u=>u.id)};
+  if(fort){progress.fortressId=fort.id;if(DATA.exit)progress.exit=tile(DATA.exit.q,DATA.exit.r)}
+  if(DATA.waves)Object.assign(progress,{waves:[],pending:[],lastTurn:0,waveSerial:0});
+  if(defenseMission()){
+   food[player]=2400;
+   oil[player]=260;
+   money[1]=DATA.enemyGoldCeiling;food[1]=500;oil[1]=220;
+  }else if(ID!=='iron-crown-m01'){
+   progress.route=ID==='iron-crown-m03'?(options.route==='cargo'?'cargo':'troops'):(options.route==='pay'?'pay':'recapture');
    if(ID==='iron-crown-m03'){progress.holdTurns=0;progress.holdStart=null;progress.deliveryStart=null;progress.delivered=false;progress.cargoSecured=false}
    // Ordinary formations are mission-local. Only the named fortress persists.
    const previous=options.carry;
@@ -78,12 +92,21 @@ const CampaignBattle=(()=>{
    money[1]=350;food[1]=500;oil[1]=220;
   }
   CampaignTerrain.relocate(DATA);
-  appRunId='iron-crown-'+Date.now();appRunWon=false;cam={...pxy(fort.tile),z:1.2};invalidate();faceInitialArmy();
-  const order=ID==='iron-crown-m03'?'철도 분기점 · 중앙역·신호소 확보 후 5턴 방어':ID==='iron-crown-m02'?'닫힌 관문 · 관문과 남부 보급소 확보':'출정 허가 · 〈철관〉을 동쪽 출구로 이동';log(order);worldNotice(order);updateHUD();refreshSelection();save();
+  appRunId=ID+'-'+Date.now();appRunWon=false;cam={...pxy(fort?.tile??cities[0].tile),z:1.2};invalidate();faceInitialArmy();
+  const order=defenseMission()?'황금항 방어전 · 부두와 피라미드 진입로를 '+DATA.holdRequired+'턴 방어':ID==='iron-crown-m03'?'철도 분기점 · 중앙역·신호소 확보 후 5턴 방어':ID==='iron-crown-m02'?'닫힌 관문 · 관문과 남부 보급소 확보':'출정 허가 · 〈철관〉을 동쪽 출구로 이동';log(order);worldNotice(order);updateHUD();refreshSelection();save();
  }
  function valid(s){
   const d=config(s?.scenario);
-  if(!s||!d||s.scenarioSchema!==d.schema||!Array.isArray(s.units)||!Array.isArray(s.cities)||s.cities.length!==d.cities.length||!Array.isArray(s.owners)||s.owners.length!==tiles.length||s.player!==2||!Number.isInteger(s.turn)||s.turn<1||!s.missionProgress||!Number.isInteger(s.missionProgress.fortressId))return false;
+  if(!s||!d||s.scenarioSchema!==d.schema||!Array.isArray(s.units)||!Array.isArray(s.cities)||s.cities.length!==d.cities.length||!Array.isArray(s.owners)||s.owners.length!==tiles.length||s.player!==d.player||!Number.isInteger(s.turn)||s.turn<1||!s.missionProgress||d.fortress&&!Number.isInteger(s.missionProgress.fortressId))return false;
+  if(d.defenseSites){
+   const p=s.missionProgress;
+   const waveTurns=d.waves.map(w=>w.turn);
+   if(![null,'won','lost'].includes(p.result)||!Array.isArray(p.triggered)||!Array.isArray(p.waves)||
+      !p.waves.every(t=>waveTurns.includes(t)&&t<=s.turn)||!Number.isInteger(p.lastTurn)||p.lastTurn<0||p.lastTurn>s.turn||
+      !Number.isInteger(p.waveSerial)||p.waveSerial<0||!Array.isArray(p.pending)||
+      !p.pending.every(e=>e&&TYPES[e.type]&&p.waves.includes(e.wave)&&Number.isInteger(e.serial)&&e.serial>=0&&e.serial<p.waveSerial&&
+         e.entry?.q===d.waves.find(w=>w.turn===e.wave).entry.q&&e.entry.r===d.waves.find(w=>w.turn===e.wave).entry.r))return false;
+  }
   if(s.scenario==='iron-crown-m02'&&(!['pay','recapture'].includes(s.missionProgress.route)||!Array.isArray(s.missionProgress.waves)||!Array.isArray(s.missionProgress.pending)||!Number.isInteger(s.missionProgress.lastTurn)||!Number.isInteger(s.missionProgress.waveSerial)))return false;
   if(s.scenario==='iron-crown-m03'){
    const p=s.missionProgress;
@@ -93,9 +116,10 @@ const CampaignBattle=(()=>{
  }
  function restore(s,slot=0){
   if(!active()||s?.scenario!==ID||!valid(s))return false;
+  clearTimeout(resultTimer);resultTimer=null;
   const v=copy(s);rngSeed=v.rngSeed??rngSeed;productionTier=v.productionTier??1;productionAA=!!v.productionAA;({units,cities,money,food,oil,tech,turn,player,difficulty,uid,cam}=v);activeSlot=slot||v.activeSlot||0;
   strategicResearch=v.strategicResearch||factions.map(()=>({ballistic:false,nuclear:false,jobs:[]}));militaryResearchJobs=v.militaryResearchJobs||Array(factions.length).fill(null);foodTurn=v.foodTurn||turn;diplomacy=v.diplomacy;missileBases=v.missileBases||[];navalUid=v.navalUid||1;defeatedNotices=new Set(v.defeatedNotices||[0,3,4,5,6]);aiTransportGrantTurn=v.aiTransportGrantTurn||Array(factions.length).fill(-1);aiSpecialOrderTurns.forEach((_,i)=>aiSpecialOrderTurns[i]=v.aiSpecialOrderTurns?.[i]??-1);hansaBridges=[];danteExpansionSeeded=true;
-  appRunId=v.appRunId||'iron-crown-'+Date.now();appRunWon=false;progress=copy(v.missionProgress);tiles.forEach((t,i)=>{t.city=-1;t.owner=v.owners[i]??-1});CampaignTerrain.apply(DATA);cities.forEach(q=>{q.tile=tile(DATA.cities[q.id][1],DATA.cities[q.id][2]);tiles[q.tile].city=q.id;cityProfile(q);syncWarheads(q)});CampaignOrders.clearNaval();CampaignTerrain.relocate(DATA);buildRegions();started=true;busy=false;invalidate();constrainCamera();updateHUD();refreshSelection();return true;
+  appRunId=v.appRunId||ID+'-'+Date.now();appRunWon=false;progress=copy(v.missionProgress);tiles.forEach((t,i)=>{t.city=-1;t.owner=v.owners[i]??-1});CampaignTerrain.apply(DATA);cities.forEach(q=>{q.tile=tile(DATA.cities[q.id][1],DATA.cities[q.id][2]);tiles[q.tile].city=q.id;cityProfile(q);syncWarheads(q)});CampaignOrders.clearNaval();CampaignTerrain.relocate(DATA);buildRegions();started=true;busy=false;invalidate();constrainCamera();updateHUD();refreshSelection();return true;
  }
  function start(s,level=1,options={}){configure(s?.scenario||options.id||'iron-crown-m01');artwork();ensureContext();if(s){if(!restore(s))throw Error('Invalid campaign save')}else newMission(level,options);constrainCamera();setAppScreen('game');updateHUD();refreshSelection();save();return snapshot()}
  function metadata(){if(active()&&!busy)tick();constrainCamera();return active()?{scenario:ID,scenarioSchema:SCHEMA,missionProgress:copy(progress),rngSeed,militaryResearchJobs,productionTier,productionAA,aiSpecialOrderTurns:[...aiSpecialOrderTurns]}:{}}
@@ -103,11 +127,11 @@ const CampaignBattle=(()=>{
   if(!active()||busy)return false;clearTimeout(resultTimer);resultTimer=null;
   const saved=suspended;if(!saved)return false;MAP.tiles=saved.map;
   ({rngSeed,tiles,cities,units,money,tech,turn,player,difficulty,activeSlot,cam,started,uid,logs,productionTier,productionAA,oil,food,foodTurn,strategicResearch,defeatedNotices,diplomacy,militaryResearchJobs,regionTiles,hansaBridges,aiTransportGrantTurn,appRunId,appRunWon,danteExpansionSeeded}=saved);
-  aiSpecialOrderTurns.forEach((_,i)=>aiSpecialOrderTurns[i]=saved.specialTurns[i]);RANNA_RIVER_TILES.clear();for(const i of saved.riverTiles)RANNA_RIVER_TILES.add(i);for(let i=0;i<saved.support.length;i++){CITY_GROUND_SUPPORT[i]=saved.support[i];CITY_GROUND_CENTER[i]=saved.center[i]}$('log').innerHTML=saved.logHTML;activeScenario=null;delete document.body.dataset.scenario;suspended=null;progress=null;missileBases=saved.missileBases||[];navalUid=saved.navalUid||1;busy=false;invalidate();updateHUD();refreshSelection();window.TerhaCampaign?.onLeave();return true;
+  aiSpecialOrderTurns.forEach((_,i)=>aiSpecialOrderTurns[i]=saved.specialTurns[i]);RANNA_RIVER_TILES.clear();for(const i of saved.riverTiles)RANNA_RIVER_TILES.add(i);for(let i=0;i<saved.support.length;i++){CITY_GROUND_SUPPORT[i]=saved.support[i];CITY_GROUND_CENTER[i]=saved.center[i]}$('log').innerHTML=saved.logHTML;activeScenario=null;delete document.body.dataset.scenario;suspended=null;progress=null;missileBases=saved.missileBases||[];navalUid=saved.navalUid||1;busy=false;invalidate();updateHUD();refreshSelection();controller()?.onLeave?.();return true;
  }
 
  function edgeSites(edge,entry=null){
-  if(ID==='iron-crown-m03'&&entry){
+  if(entry){
    const anchor=tile(entry.q,entry.r),sites=[];
    for(let q=0;q<COLS;q++)for(let r=1;r<ROWS-1;r++){
     const i=tile(q,r);if(!CampaignTerrain.blocked(i,DATA)&&!cityAt(i)&&distance(i,anchor)<=2)sites.push(i);
@@ -132,6 +156,7 @@ const CampaignBattle=(()=>{
  function cleared(){return progress.waves?.length===DATA.waves?.length&&!progress.pending.length&&waveAlive()===0}
  function secured(){return cities[1].f===2&&cities[2].f===2}
  function waveDue(w){
+  if(defenseMission())return turn>=w.turn;
   const fort=units.find(u=>u.id===progress.fortressId),forward=units.some(u=>u.f===2&&tiles[u.tile].x>=ORIGIN.x+8);
   if(ID==='iron-crown-m03')return w.stage==='approach'?(forward||turn>=w.turn):w.stage==='station'?cities[1].f===2:w.stage==='hold2'?progress.holdTurns>=1:progress.holdTurns>=3;
   if(turn>=w.turn)return true;
@@ -172,7 +197,7 @@ const CampaignBattle=(()=>{
   }
   // Never teleport beside a player unit or overwrite an occupied edge cell.
   const pending=[];
-  for(const entry of progress.pending){const sites=edgeSites(entry.edge,entry.entry),site=sites.find(i=>!unitAt(i)&&units.every(u=>u.f!==2||distance(i,u.tile)>2));
+  for(const entry of progress.pending){const sites=edgeSites(entry.edge,entry.entry),site=sites.find(i=>!unitAt(i)&&units.every(u=>u.f!==player||distance(i,u.tile)>2));
    if(site===undefined){pending.push(entry);continue}
    const tier=difficulty===0?1:entry.wave>=17?2:1,u=makeUnit(1,entry.type,site,tier);u.missionWave=entry.wave;u.missionWaveSerial=entry.serial;
   }
@@ -187,6 +212,14 @@ const CampaignBattle=(()=>{
  }
  function goalRows(){
   if(!active()||!progress)return[];
+  if(defenseMission()){
+   const elapsed=Math.min(DATA.holdRequired,turn-1);
+   const next=DATA.waves.find(w=>!progress.waves.includes(w.turn));
+   return [
+    ...DATA.defenseSites.map(id=>({label:cities[id].name,done:cities[id].f===player,value:cities[id].f===player?'아군 통제 · 내구도 '+Math.ceil(cities[id].hp):'상실'})),
+    {label:'방어 '+elapsed+' / '+DATA.holdRequired+'턴',done:progress.result==='won',value:next?next.turn+'턴 · '+next.name:progress.pending.length?'적 증원 진입 대기 중':'스테토피아 선단의 도착까지 거점을 사수'}
+   ];
+  }
   const fort=units.find(u=>u.id===progress.fortressId&&u.hp>0);
   if(ID==='iron-crown-m03')return[
    {label:'목표 거점 확보',done:secured(),value:(cities[1].f===2?'중앙역 ☑':'중앙역 ☐')+' · '+(cities[2].f===2?'신호소 ☑':'신호소 ☐')},
@@ -206,21 +239,29 @@ const CampaignBattle=(()=>{
   if(!active()||!progress)return false;
   if(!busy)tick();
   const fort=units.find(u=>u.id===progress.fortressId&&u.hp>0);
-  if(!progress.result){if(turn>CampaignRules.rules(DATA)[0]){progress.result='lost';progress.failure='timeout'}else if(!fort)progress.result='lost';else if(ID==='iron-crown-m03'){if(!cities.some(q=>q.f===2))progress.result='lost';else if(secured()&&progress.holdTurns>=DATA.holdRequired)progress.result='won'}else if(fort.tile===progress.exit&&(ID!=='iron-crown-m02'||cleared()&&secured()))progress.result='won';else if(ID==='iron-crown-m02'&&!cities.some(q=>q.f===2))progress.result='lost';}
+  if(!progress.result&&defenseMission()){
+   if(DATA.defenseSites.some(id=>cities[id].f!==player))progress.result='lost';
+   else if(!busy&&turn>DATA.holdRequired)progress.result='won';
+  }else if(!progress.result){if(turn>CampaignRules.rules(DATA)[0]){progress.result='lost';progress.failure='timeout'}else if(!fort)progress.result='lost';else if(ID==='iron-crown-m03'){if(!cities.some(q=>q.f===2))progress.result='lost';else if(secured()&&progress.holdTurns>=DATA.holdRequired)progress.result='won'}else if(fort.tile===progress.exit&&(ID!=='iron-crown-m02'||cleared()&&secured()))progress.result='won';else if(ID==='iron-crown-m02'&&!cities.some(q=>q.f===2))progress.result='lost';}
   for(const event of DATA.triggers){const city=cities.find(q=>q.id===event.city);if(city?.f===event.owner&&!progress.triggered.includes(event.id)){progress.triggered.push(event.id);worldNotice(event.message)}}
   if(!progress.result||busy||resultTimer||!['game','menu'].includes(appScreen))return false;
   const delayMs=Math.max(0,...moving.map(a=>a.start+a.duration-performance.now()))+50;
-  resultTimer=setTimeout(()=>{resultTimer=null;if(!active()||busy)return;save();if(['game','menu'].includes(appScreen))complete(progress.result==='won')},delayMs);return true;
+  resultTimer=setTimeout(()=>{resultTimer=null;if(!active()||busy||!progress.result)return;if(['game','menu'].includes(appScreen))complete(progress.result==='won')},delayMs);return true;
  }
- function complete(win){if(!active())return;progress.result=win?'won':'lost';save();window.TerhaCampaign?.onResult(win,snapshot());}
- function onSaved(s){if(!active())return;window.TerhaCampaign?.onBattleSnapshot(s);check()}
- function objective(){if(!active())return null;if(ID==='iron-crown-m03')return{label:defenseStatus().title,percent:progress?.result==='won'?100:Math.min(95,(secured()?30:0)+(progress?.holdTurns||0)*10+(progress?.holdTurns>=DATA.holdRequired?15:0)),value:defenseStatus().sites+' · '+defenseStatus().next};if(ID==='iron-crown-m02')return{label:'관문·보급소 확보 및 반격 격퇴',percent:progress?.result==='won'?100:Math.min(95,(progress?.waves?.length||0)*12+(secured()?25:0)),value:goalRows()[0].value};const fort=units.find(u=>u.id===progress?.fortressId),d=fort?distance(fort.tile,progress.exit):14;return{label:'〈철관〉을 동쪽 출구로 이동',percent:progress?.result==='won'?100:Math.max(0,Math.min(99,(14-d)/14*100)),value:progress?.result==='won'?'완료':progress?.result==='lost'?'실패':Math.ceil(d)+'칸'}}
- const nativeGround=drawStaticGround;drawStaticGround=function(){if(!active())return nativeGround();const b=bounds();ctx.fillStyle='#091721';ctx.fillRect(cam.x-screenW/2/cam.z-2,cam.y-screenH/2/cam.z-2,screenW/cam.z+4,screenH/cam.z+4);if(image?.complete&&image.naturalWidth)ctx.drawImage(image,b.x,b.y,b.w,b.h);if(ID==='iron-crown-m03')return;const p=pxy(progress?.exit??tile(16,4));ctx.save();hex(p,32);ctx.fillStyle='#e7c56a55';ctx.fill();ctx.strokeStyle='#ebd18b';ctx.lineWidth=2;ctx.stroke();ctx.font='bold 13px Terha,sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffe4a3';ctx.strokeStyle='#10222a';ctx.lineWidth=3;ctx.strokeText('출구',p.x,p.y-35);ctx.fillText('출구',p.x,p.y-35);ctx.restore()};
+ function complete(win){if(!active())return;progress.result=win?'won':'lost';save();controller()?.onResult(win,snapshot());}
+ function onSaved(s){if(!active())return;controller()?.onBattleSnapshot?.(s);check()}
+ function objective(){if(!active())return null;
+  if(defenseMission()){
+   const status=goalRows()[DATA.defenseSites.length];
+   return {label:status.label,percent:Math.min(100,(turn-1)/DATA.holdRequired*100),value:status.value};
+  }
+  if(ID==='iron-crown-m03')return{label:defenseStatus().title,percent:progress?.result==='won'?100:Math.min(95,(secured()?30:0)+(progress?.holdTurns||0)*10+(progress?.holdTurns>=DATA.holdRequired?15:0)),value:defenseStatus().sites+' · '+defenseStatus().next};if(ID==='iron-crown-m02')return{label:'관문·보급소 확보 및 반격 격퇴',percent:progress?.result==='won'?100:Math.min(95,(progress?.waves?.length||0)*12+(secured()?25:0)),value:goalRows()[0].value};const fort=units.find(u=>u.id===progress?.fortressId),d=fort?distance(fort.tile,progress.exit):14;return{label:'〈철관〉을 동쪽 출구로 이동',percent:progress?.result==='won'?100:Math.max(0,Math.min(99,(14-d)/14*100)),value:progress?.result==='won'?'완료':progress?.result==='lost'?'실패':Math.ceil(d)+'칸'}}
+ const nativeGround=drawStaticGround;drawStaticGround=function(){if(!active())return nativeGround();const b=bounds();ctx.fillStyle='#091721';ctx.fillRect(cam.x-screenW/2/cam.z-2,cam.y-screenH/2/cam.z-2,screenW/cam.z+4,screenH/cam.z+4);if(image?.complete&&image.naturalWidth)ctx.drawImage(image,b.x,b.y,b.w,b.h);if(!DATA.exit||ID==='iron-crown-m03')return;const p=pxy(progress?.exit??tile(DATA.exit.q,DATA.exit.r));ctx.save();hex(p,32);ctx.fillStyle='#e7c56a55';ctx.fill();ctx.strokeStyle='#ebd18b';ctx.lineWidth=2;ctx.stroke();ctx.font='bold 13px Terha,sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffe4a3';ctx.strokeStyle='#10222a';ctx.lineWidth=3;ctx.strokeText('출구',p.x,p.y-35);ctx.fillText('출구',p.x,p.y-35);ctx.restore()};
  const nativeMini=drawMini;drawMini=function(){if(!active())return nativeMini();if($('mini').style.display!=='block')return;const m=$('mini'),g=m.getContext('2d'),b=bounds();m.width=166;m.height=119;g.fillStyle='#091721';g.fillRect(0,0,166,119);if(image?.complete&&image.naturalWidth)g.drawImage(image,0,0,166,119);for(const q of cities){const p=pxy(q.tile);g.fillStyle=factions[q.f].color;g.fillRect((p.x-b.x)/b.w*166,(p.y-b.y)/b.h*119,3,3)}g.strokeStyle='#f3e8bd';g.strokeRect((cam.x-screenW/2/cam.z-b.x)/b.w*166,(cam.y-screenH/2/cam.z-b.y)/b.h*119,screenW/cam.z/b.w*166,screenH/cam.z/b.h*119)};
  const nativeMapButton=$('mapbtn').onclick;$('mapbtn').onclick=()=>{if(!active())return nativeMapButton();$('mini').style.display=$('mini').style.display==='block'?'none':'block';const b=bounds();cam.x=b.x+b.w/2;cam.y=b.y+b.h/2;cam.z=Math.max(screenW/b.w,screenH/b.h);constrainCamera()};
  const nativeMiniClick=$('mini').onclick;$('mini').onclick=e=>{if(!active())return nativeMiniClick(e);const r=$('mini').getBoundingClientRect(),b=bounds();cam.x=b.x+(e.clientX-r.left)/r.width*b.w;cam.y=b.y+(e.clientY-r.top)/r.height*b.h;constrainCamera()};
  window.addEventListener('resize',constrainCamera);
- return{active,contains,tile,bounds,constrainCamera,start,restore,valid,leave,metadata,check,complete,onSaved,objective,goalRows,defenseStatus,ready:()=>!!image?.complete&&image.naturalWidth>0,inspect:()=>({active:active(),progress:copy(progress),bounds:bounds()})};
+ return{controller,definition:()=>active()?DATA:null,active,contains,tile,bounds,constrainCamera,start,restore,valid,leave,metadata,check,complete,onSaved,objective,goalRows,defenseStatus,ready:()=>!!image?.complete&&image.naturalWidth>0,inspect:()=>({active:active(),progress:copy(progress),bounds:bounds()})};
 })();
 window.TerhaScenario=CampaignBattle;
 

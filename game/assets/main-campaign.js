@@ -1,6 +1,8 @@
 'use strict';
 const MainCampaign = (() => {
  let stagePage = 0, autoTimer = null, typewriter = null;
+ const stageBattle=MAIN_AIRIA.battle, stageRecordKey='terha-main-airia-m01';
+ const stageSaveKey=saveKey(0,stageBattle.id);
  let page = 0, frame = 0, root = null, view = 'closed', ready = false, resetClock = null;
  // One streaming player preserves playback position across pages in each music range.
  const music = createGameMusic();
@@ -92,17 +94,18 @@ const MainCampaign = (() => {
   $('mcReplay').onclick = open;
   $('mcWar').onclick = stages;
  }
- // Stage 01 opens its dialogue and start flow; no battle scenario or save is created.
  const stageImages = ['main-campaign-scene-7.png','main-campaign-scene-6.png','main-campaign-scene-5.jpg','main-campaign-scene-4.png','main-campaign-scene-2.png','main-campaign-scene-3.png','main-campaign-scene-1.png','main-campaign-scene-6.png','main-campaign-scene-7.png','main-campaign-scene-7.png'];
  const lockIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>';
  function stages() {
+  setAppScreen('mainCampaign');
   stop(); root = null; view = 'stages'; syncAudio();
+  const cleared=stageRecord().cleared;
   $('modal').innerHTML = '<main class="mcStages" id="mainCampaignStages" tabindex="-1" aria-labelledby="mcStagesTitle">'+
-   '<header class="mcStageHeader"><button id="mcStagesBack">‹ '+tr('캠페인 목록','CAMPAIGNS')+'</button><div class="mcStageHeading"><small>MAIN CAMPAIGN / 01</small><h1 id="mcStagesTitle">'+tr('2차 선석전쟁','SECOND SEONSEOK WAR')+'</h1><p>'+tr('스테이지 선택','SELECT STAGE')+' <span>01 — 10</span></p></div><div class="mcStageProgress">'+tr('전역 진행도','CAMPAIGN PROGRESS')+' <b>0 <span>/ 10</span></b><i></i></div></header>'+
-   '<div class="mcStageBody"><div class="mcStageList">'+stageImages.map((image,i)=>'<button class="mcStageCard" aria-disabled="'+(i>0)+'" aria-label="'+(i===0?MAIN_AIRIA.title:tr('스테이지 ','Stage ')+(i+1))+(i===0?tr(' · 진행 가능',' · Available'):tr(' · 잠김 · 미클리어',' · Locked · Uncleared'))+'"><img src="'+image+'" alt=""><span class="mcStageShade"></span><span class="mcStageNumber">'+String(i+1).padStart(2,'0')+'</span><span class="mcStageCaption"><small>STAGE '+String(i+1).padStart(2,'0')+'</small><strong>'+(i===0?MAIN_AIRIA.title:tr('스테이지 ','Stage ')+String(i+1).padStart(2,'0'))+'</strong><span class="mcStageStatus">'+(i===0?tr('진행 가능','AVAILABLE'):tr('미클리어','UNCLEARED'))+'</span></span>'+(i>0?'<span class="mcStageLock">'+lockIcon+'</span>':'')+'</button>').join('')+'</div></div>'+
+   '<header class="mcStageHeader"><button id="mcStagesBack">‹ '+tr('캠페인 목록','CAMPAIGNS')+'</button><div class="mcStageHeading"><small>MAIN CAMPAIGN / 01</small><h1 id="mcStagesTitle">'+tr('2차 선석전쟁','SECOND SEONSEOK WAR')+'</h1><p>'+tr('스테이지 선택','SELECT STAGE')+' <span>01 — 10</span></p></div><div class="mcStageProgress">'+tr('전역 진행도','CAMPAIGN PROGRESS')+' <b>'+(cleared?1:0)+' <span>/ 10</span></b><i></i></div></header>'+
+   '<div class="mcStageBody"><div class="mcStageList">'+stageImages.map((image,i)=>'<button class="mcStageCard" aria-disabled="'+(i>0)+'" aria-label="'+(i===0?MAIN_AIRIA.title:tr('스테이지 ','Stage ')+(i+1))+(i===0?(cleared?tr(' · 클리어',' · Cleared'):tr(' · 진행 가능',' · Available')):tr(' · 잠김 · 미클리어',' · Locked · Uncleared'))+'"><img src="'+image+'" alt=""><span class="mcStageShade"></span><span class="mcStageNumber">'+String(i+1).padStart(2,'0')+'</span><span class="mcStageCaption"><small>STAGE '+String(i+1).padStart(2,'0')+'</small><strong>'+(i===0?MAIN_AIRIA.title:tr('스테이지 ','Stage ')+String(i+1).padStart(2,'0'))+'</strong><span class="mcStageStatus">'+(i===0?(cleared?tr('클리어','CLEARED'):tr('진행 가능','AVAILABLE')):tr('미클리어','UNCLEARED'))+'</span></span>'+(i>0?'<span class="mcStageLock">'+lockIcon+'</span>':'')+'</button>').join('')+'</div></div>'+
    '<footer class="mcStageFooter">'+lockIcon+'<span>'+tr('다음 전역은 순서대로 개방됩니다.','Further stages unlock in order.')+'</span><p id="mcStageNotice" role="status" hidden></p></footer></main>';
   $('mcStagesBack').onclick = selection;
-  document.querySelectorAll('.mcStageCard').forEach((button,i) => button.onclick = () => { if(i===0){stagePage=0;stageVN();return;} $('mcStageNotice').hidden=false; $('mcStageNotice').textContent=tr('아직 클리어하지 않은 스테이지입니다.','This stage has not been cleared.'); });
+  document.querySelectorAll('.mcStageCard').forEach((button,i) => button.onclick = () => { if(i===0){const saved=battleSave();if(saved||cleared)stageStart();else{stagePage=0;stageVN();}return;} $('mcStageNotice').hidden=false; $('mcStageNotice').textContent=tr('아직 클리어하지 않은 스테이지입니다.','This stage has not been cleared.'); });
   $('mainCampaignStages').focus({preventScroll:true});
  }
  function mountStage(content) {
@@ -110,42 +113,135 @@ const MainCampaign = (() => {
   $('modal').innerHTML='<div id="campaignRoot" class="mcAiria">'+content+'</div>';
   root=$('campaignRoot');
  }
+ function battleSave() {
+  const saved=readAppJSON(stageSaveKey,null);
+  return CampaignBattle.valid(saved)&&saved.scenario===stageBattle.id?saved:null;
+ }
+ function stageRecord() {
+  const saved=readAppJSON(stageRecordKey,{});
+  return {
+   cleared:saved.cleared===true||battleSave()?.missionProgress.result==='won',
+   endingPage:Number.isInteger(saved.endingPage)&&MAIN_AIRIA.outro[saved.endingPage]?saved.endingPage:0,
+   endingSeen:saved.endingSeen===true
+  };
+ }
+ function saveEnding(endingPage,endingSeen=false) {
+  try{localStorage.setItem(stageRecordKey,JSON.stringify({cleared:true,endingPage,endingSeen}));}
+  catch{toast('클리어 기록을 저장하지 못했습니다.');}
+ }
+ const stageDialogue=()=>view==='stage-intro'||view==='stage-outro';
+ const stageLines=()=>view==='stage-outro'?MAIN_AIRIA.outro:MAIN_AIRIA.intro;
+ function finishStageVN() {
+  if(view!=='stage-outro')return stageStart();
+  saveEnding(0,true);
+  stages();
+ }
  function stageVN() {
-  view='stage-intro';
-  const line=MAIN_AIRIA.intro[stagePage], person=MAIN_AIRIA.characters[line.speaker];
-  mountStage('<section class="cpVN maField" aria-label="황금항의 야전 지휘소"><img class="maPortrait ma-'+line.speaker+'" src="'+person.image+'" alt="'+person.name+'"><div class="cpVNTop"><span class="cpEyebrow">황금항 · 야전 지휘소</span><div class="cpVNTools"><button id="maHistory">기록</button><button id="maAuto">자동</button><button id="maSkip">건너뛰기</button><button id="maLeave">나가기</button></div></div><div class="cpDialogue"><div class="cpSpeaker">'+person.name+'</div><p class="cpLine" id="maLine">'+esc(line.text)+'</p><div class="cpVNFooter"><span id="maPage">'+(stagePage+1)+' / 25</span><div><button id="maPrev" '+(stagePage===0?'disabled':'')+'>이전</button><button id="maNext" class="gold">'+(stagePage===24?'미션 시작':'다음')+'</button></div></div></div></section>');
+  if(!stageDialogue())view='stage-intro';
+  const ending=view==='stage-outro', lines=stageLines();
+  const line=lines[stagePage], person=MAIN_AIRIA.characters[line.speaker];
+  const location=ending?'황금항 · 방어전 직후':'황금항 · 야전 지휘소';
+  const nextLabel=stagePage<lines.length-1?'다음':ending?'전역 선택':'미션 시작';
+  mountStage(`<section class="cpVN maField" aria-label="${location}">
+   <img class="maPortrait ma-${line.speaker}" src="${person.image}" alt="${person.name}">
+   <div class="cpVNTop"><span class="cpEyebrow">${location}</span><div class="cpVNTools">
+    <button id="maHistory">기록</button><button id="maAuto">자동</button><button id="maSkip">건너뛰기</button><button id="maLeave">나가기</button>
+   </div></div>
+   <div class="cpDialogue"><div class="cpSpeaker">${person.name}</div>
+    <p class="cpLine" id="maLine">${esc(line.text)}</p><div class="cpVNFooter"><span id="maPage">${stagePage+1} / ${lines.length}</span>
+    <div><button id="maPrev" ${stagePage===0?'disabled':''}>이전</button><button id="maNext" class="gold">${nextLabel}</button></div>
+   </div></div></section>`);
   typewriter=DialogueTypewriter.start($('maLine'),$('maNext'),line.text);
-  $('maPrev').onclick=()=>{if(stagePage>0){stagePage--;stageVN();}};
+  $('maPrev').onclick=()=>{if(stagePage>0)goToStagePage(stagePage-1);};
   $('maNext').onclick=stageNext;
   $('maLeave').onclick=stages;
-  $('maSkip').onclick=stageStart;
+  $('maSkip').onclick=finishStageVN;
   $('maHistory').onclick=stageHistory;
   $('maAuto').onclick=()=>{if(autoTimer){clearTimeout(autoTimer);autoTimer=null;$('maAuto').textContent='자동';return;}startAuto();};
  }
- function startAuto(){
-  if(view!=='stage-intro'||document.hidden)return;
-  $('maAuto').textContent='자동 중';
-  autoTimer=setTimeout(()=>{autoTimer=null;if(document.hidden||view!=='stage-intro')return;stageNext();if(view==='stage-intro')startAuto();},Math.max(3500,MAIN_AIRIA.intro[stagePage].text.length*85));
+ function goToStagePage(page) {
+  stagePage=page;
+  if(view==='stage-outro')saveEnding(page);
+  stageVN();
  }
- function stageNext(){if(view!=='stage-intro'||!typewriter?.ready)return;if(stagePage<24){stagePage++;stageVN();}else stageStart();}
- function stageHistory(){
+ function startAuto() {
+  if(!stageDialogue()||document.hidden)return;
+  $('maAuto').textContent='자동 중';
+  autoTimer=setTimeout(()=>{
+   autoTimer=null;
+   if(document.hidden||!stageDialogue())return;
+   stageNext();
+   if(stageDialogue())startAuto();
+  },Math.max(3500,stageLines()[stagePage].text.length*85));
+ }
+ function stageNext() {
+  if(!stageDialogue()||!typewriter?.ready)return;
+  if(stagePage<stageLines().length-1)goToStagePage(stagePage+1);
+  else finishStageVN();
+ }
+ function stageHistory() {
   if(autoTimer){clearTimeout(autoTimer);autoTimer=null;$('maAuto').textContent='자동';}
   if($('maHistorySheet'))return;
   const sheet=document.createElement('section');sheet.id='maHistorySheet';sheet.className='cpSheet';sheet.setAttribute('role','dialog');sheet.setAttribute('aria-modal','true');sheet.setAttribute('aria-label','대화 기록');
-  sheet.innerHTML='<h2>대화 기록</h2>'+MAIN_AIRIA.intro.slice(0,stagePage+1).map(l=>'<div class="cpHistoryItem"><b>'+MAIN_AIRIA.characters[l.speaker].name+'</b><div>'+esc(l.text)+'</div></div>').join('')+'<button id="maHistoryClose">닫기</button>';
+  sheet.innerHTML='<h2>대화 기록</h2>'+stageLines().slice(0,stagePage+1).map(l=>'<div class="cpHistoryItem"><b>'+MAIN_AIRIA.characters[l.speaker].name+'</b><div>'+esc(l.text)+'</div></div>').join('')+'<button id="maHistoryClose">닫기</button>';
   const scene=root.firstElementChild;scene.inert=true;root.appendChild(sheet);$('maHistoryClose').onclick=()=>{sheet.remove();scene.inert=false;$('maHistory').focus();};$('maHistoryClose').focus();
  }
- function stageStart(){
+ function stageStart() {
   view='stage-start';
-  mountStage('<section class="maStart"><button id="maStartBack" class="maBack">‹ 전역 선택</button><article class="maStartCard"><small>OPERATION 01</small><h1>'+MAIN_AIRIA.title+'</h1><div class="maStartRule"></div><button id="maPlay" class="gold">플레이</button></article></section>');
+  const saved=battleSave(), ongoing=saved&&!saved.missionProgress.result, record=stageRecord();
+  mountStage(`<section class="maStart"><button id="maStartBack" class="maBack">‹ 전역 선택</button><article class="maStartCard">
+   <small>OPERATION 01</small><h1>${MAIN_AIRIA.title}</h1><div class="maStartRule"></div>
+   <p>황금항 부두와 후피왕 피라미드 진입로를 <strong>${stageBattle.holdRequired}턴</strong> 지키십시오.</p>
+   <p>어느 한 거점이라도 점령당하면 작전에 실패합니다.</p>
+   <div class="maStartActions">
+    ${ongoing?'<button id="maResume" class="gold">이어하기</button>':''}
+    <button id="maPlay" class="${ongoing?'':'gold'}">${ongoing||saved?'새 전투':'플레이'}</button>
+    ${record.cleared?'<button id="maEnding">전투 후 이야기 '+(record.endingSeen?'다시 보기':'보기')+'</button>':''}
+    ${ongoing||saved||record.cleared?'<button id="maRewatch">도입 다시 보기</button>':''}
+   </div></article></section>`);
   $('maStartBack').onclick=stages;
-  $('maPlay').onclick=stagePlay;
+  $('maPlay').onclick=async()=>{
+   if(ongoing&&!await askApp('진행 중인 전투를 처음부터 다시 시작하시겠습니까?'))return;
+   stagePlay();
+  };
+  if(ongoing)$('maResume').onclick=()=>stagePlay(saved);
+  if(record.cleared)$('maEnding').onclick=()=>showEnding(record.endingSeen?0:record.endingPage);
+  if($('maRewatch'))$('maRewatch').onclick=()=>{stagePage=0;view='stage-intro';stageVN();};
  }
- function stagePlay(){
-  // Intentionally no setup(), CampaignBattle entry, victory state or save writes.
-  view='stage-play';
-  mountStage('<section class="maPlay" aria-label="아이리아 전역"><button id="maPlayBack" class="maBack">‹ 전역 선택</button></section>');
-  $('maPlayBack').onclick=stages;
+ async function stagePlay(saved=null) {
+  if(busy||campaignLoading)return false;
+  stop();
+  const loaded=await runCampaignLoading(()=>{
+   $('modal').innerHTML='';
+   return CampaignBattle.start(saved,1,{id:stageBattle.id});
+  });
+  if(loaded!==false)return true;
+  if(activeScenario?.id===stageBattle.id)CampaignBattle.leave();
+  setAppScreen('mainCampaign');
+  stageStart();
+  return false;
+ }
+ function showEnding(page) {
+  setAppScreen('mainCampaign');
+  view='stage-outro';
+  goToStagePage(page);
+ }
+ function onResult(win,saved) {
+  CampaignBattle.leave();
+  if(win){showEnding(0);return;}
+  setAppScreen('mainCampaign');
+  view='stage-lost';
+  const lost=stageBattle.defenseSites.map(id=>saved.cities[id]).filter(city=>city.f!==stageBattle.player);
+  mountStage(`<section class="maStart"><article class="maStartCard"><small>OPERATION 01</small><h1>황금항 방어 실패</h1>
+   <p>${lost.map(city=>esc(city.name)).join(' · ')} 상실</p>
+   <div class="maStartActions"><button id="maRetry" class="gold">다시하기</button><button id="maResultBack">전역 선택</button></div>
+  </article></section>`);
+  $('maRetry').onclick=()=>stagePlay();
+  $('maResultBack').onclick=stages;
+ }
+ async function restart() {
+  if(busy||campaignLoading||!await askApp('현재 임무를 처음부터 다시 시작하시겠습니까?'))return false;
+  return stagePlay();
  }
  function close() { leave(); showBattlefield(); }
  const oldScreen = setAppScreen;
@@ -155,6 +251,7 @@ const MainCampaign = (() => {
  };
  const oldBack = window.terhaBack;
  window.terhaBack = function() {
+  if (appConfirm||campaignLoading) return oldBack();
   if (view.startsWith('stage-')) { if($('maHistoryClose'))$('maHistoryClose').click();else stages();return; }
   if (view === 'intro') return;
   if (view === 'stages') { selection(); return; }
@@ -166,9 +263,9 @@ const MainCampaign = (() => {
   if(e.defaultPrevented&&['Escape','BrowserBack'].includes(e.key))return;
   if(view.startsWith('stage-')){
    if(e.key==='Escape'){e.preventDefault();window.terhaBack();return;}
-   if(view==='stage-intro'&&!$('maHistorySheet')&&!['BUTTON','INPUT','SELECT'].includes(e.target?.tagName)){
+   if(stageDialogue()&&!$('maHistorySheet')&&!['BUTTON','INPUT','SELECT'].includes(e.target?.tagName)){
     if(['Enter',' ','ArrowRight'].includes(e.key)){e.preventDefault();stageNext();}
-    else if(e.key==='ArrowLeft'&&stagePage>0){e.preventDefault();stagePage--;stageVN();}
+    else if(e.key==='ArrowLeft'&&stagePage>0){e.preventDefault();goToStagePage(stagePage-1);}
    }
    return;
   }
@@ -177,6 +274,6 @@ const MainCampaign = (() => {
   if (['ArrowLeft','ArrowRight','Enter',' '].includes(e.key) && e.target !== $('mcSkip')) { e.preventDefault(); if (e.key !== 'ArrowLeft') next(); }
  });
  document.addEventListener('visibilitychange', () => { resetClock?.(); if(document.hidden&&autoTimer){clearTimeout(autoTimer);autoTimer=null;if($('maAuto'))$('maAuto').textContent='자동';} });
- return Object.freeze({open, close, getView:()=>view, getPage:()=>page, getStagePage:()=>stagePage, syncAudio});
+ return Object.freeze({open, close, getView:()=>view, getPage:()=>page, getStagePage:()=>stagePage, onResult, restart, syncAudio});
 })();
 window.TerhaMainCampaign = MainCampaign;

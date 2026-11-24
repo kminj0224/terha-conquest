@@ -37,9 +37,9 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
    }
    assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stage-start');assert.equal(await page.locator('.maStartCard h1').textContent(),'아이리아 전역.');
    assert.equal(await page.locator('.maStartCard button').count(),1);assert.equal(await page.locator('#maPlay').textContent(),'플레이');assert(!(await page.locator('.maStartCard').innerText()).includes('클리어'));
-   await page.click('#maPlay');assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stage-play');
+   assert((await page.locator('.maStartCard').innerText()).includes('8턴'));
    assert(await page.evaluate(()=>activeScenario===null));assert.equal(await page.evaluate(()=>JSON.stringify(localStorage)),saves);
-   await page.evaluate(()=>terhaBack());await page.locator('.mcStageCard').first().click();
+   await page.click('#maStartBack');await page.locator('.mcStageCard').first().click();
   }
   await page.clock.fastForward(12000);await page.click('#maNext');await page.click('#maPrev');assert.equal(await page.evaluate(()=>MainCampaign.getStagePage()),0);
   await page.click('#maHistory');assert.equal(await page.locator('.cpHistoryItem').count(),1);assert(await page.locator('.maField').evaluate(e=>e.inert));await page.keyboard.press('Escape');assert.equal(await page.locator('#maHistorySheet').count(),0);
@@ -48,6 +48,6 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process');
   await page.click('#maSkip');assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stage-start');await page.clock.fastForward(30000);assert.equal(await page.evaluate(()=>MainCampaign.getView()),'stage-start');await page.click('#maStartBack');await page.click('#mcStagesBack');await page.click('#mcBack');
   await page.click('#campaignMode');await page.click('#subCampaign');assert(await page.locator('#cpCampaignIron').isVisible());await page.evaluate(()=>TerhaCampaign.close());
   assert.equal(await page.evaluate(()=>JSON.stringify(localStorage)),saves);assert.deepEqual(errors,[]);
-  console.log('PASS Airia 25 dialogue pages at four viewports, original portraits, pyramid banner, locks, previous/history/auto/visibility/skip/exit, mission start/play stub, no scenario or save mutation, subcampaign preserved');
+  console.log('PASS Airia 25 dialogue pages at four viewports, original portraits, pyramid banner, locks, previous/history/auto/visibility/skip/exit, mission briefing, no scenario or save mutation before Play, subcampaign preserved');
  }finally{await browser?.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

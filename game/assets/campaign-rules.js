@@ -38,7 +38,8 @@ const CampaignTerrain=(()=>{
  function blocked(i,d){
   const t=tiles[i],m=d?.map;if(!t||!m)return true;
   const x=(t.x-m.origin.x+2/3)/(m.cols+1/3),y=(t.y-m.origin.y+.5+.5*(t.x&1))/(m.rows+.5);
-  const polygons=shapes[d.id];return !!polygons&&!polygons.some(p=>inside(x,y,p));
+  const polygons=m.land??shapes[d.id];
+  return (!!polygons&&!polygons.some(p=>inside(x,y,p)))||!!m.obstacles?.some(p=>inside(x,y,p));
  }
  function apply(d){
   for(let q=0;q<d.map.cols;q++)for(let r=1;r<d.map.rows-1;r++){
