@@ -2,13 +2,15 @@
 // Scenario restrictions and orders only; movement, combat, capture and production
 // continue to run through the conquest engine and its existing UI.
 const CampaignOrders=(()=>{
- const data=()=>activeScenario?.id==='iron-crown-m03'?IRON_CROWN_CAMPAIGN.battle3:activeScenario?.id==='iron-crown-m02'?IRON_CROWN_CAMPAIGN.battle2:activeScenario?.id==='iron-crown-m01'?IRON_CROWN_CAMPAIGN.battle:null;
- const points=()=>{const d=data();return d?cities.filter(q=>(d.id==='iron-crown-m01'||d.id==='iron-crown-m03'?[1,2]:[1,2,3]).includes(q.id)):[]};
+ const data=CampaignBattle.definition;
+ const points=()=>{const d=data();return d?cities.filter(q=>(d.defenseSites??(d.id==='iron-crown-m02'?[1,2,3]:[1,2])).includes(q.id)):[]};
  function goal(u){
-  if(data()?.id==='iron-crown-m03'){
-   const objectives=points(),retake=objectives.filter(q=>atWar(u.f??1,q.f)),targets=retake.length?retake:objectives;
+  const d=data();
+  if(d?.defenseSites||d?.id==='iron-crown-m03'){
+   const objectives=points(),assigned=d.defenseSites?d.defenseSites[u.id%d.defenseSites.length]:u.id%2?1:2;
+   const retake=objectives.filter(q=>atWar(u.f??1,q.f)),targets=retake.length?retake:objectives;
    return targets.slice().sort((a,b)=>{
-    const score=q=>distance(u.tile,q.tile)+(targets.length>1&&q.id!==(u.id%2?1:2)?5:0);
+    const score=q=>distance(u.tile,q.tile)+(targets.length>1&&q.id!==assigned?5:0);
     return score(a)-score(b)||a.id-b.id;
    })[0]||null;
   }
@@ -92,7 +94,7 @@ const CampaignOrders=(()=>{
   if(!data()||u.f!==1)return nativeStep(u,targets);
   if(!units.includes(u)||u.carriedBy||u.hp<=0||u.ap<=0)return null;
   const q=goal(u);if(!q)return null;
-  if(data().id==='iron-crown-m03')return assault(u,q);
+  if(data().defenseSites||data().id==='iron-crown-m03')return assault(u,q);
   const action=nativeStep(u,[q]);
   if(action)return action;
   return q.f===u.f?defense(u,q):null;

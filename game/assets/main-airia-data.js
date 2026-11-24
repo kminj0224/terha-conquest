@@ -1,7 +1,30 @@
 'use strict';
-// Dialogue pages only; battle objectives stay out of the opening UI.
+// Stage 01: Golden Harbor, from the 17th Corps briefing to the fleet arrival.
 const MAIN_AIRIA = Object.freeze({
  title:'아이리아 전역.',
+ battle:Object.freeze({
+  id:'main-airia-m01',schema:2,player:3,
+  map:{
+   origin:{x:40,y:30},cols:22,rows:15,image:'main-airia-golden-harbor.webp',
+   land:[[[0,0],[.856,0],[.819,.12],[.805,.26],[.818,.34],[.789,.49],[.779,.68],[.762,.82],[.712,1],[0,1]]],
+   obstacles:[[[.489,.423],[.498,.332],[.585,.13],[.714,.295],[.716,.412]]]
+  },
+  cities:[
+   ['황금항 부두',14,10,3,3,3,false,4000],
+   ['후피왕 피라미드 진입로',10,6,3,3,3,false,2900],
+   ['서부 교차로',7,9,3,3,2,false,null],
+   ['단테 전진기지',1,7,1,1,1,false,null]
+  ],
+  defenseSites:[0,1],holdRequired:8,
+  friendly:[[0,14,10],[0,10,6],[0,7,9],[0,10,7],[9,9,5],[9,9,10],[1,11,8],[1,11,11],[2,13,8],[12,9,3]],
+  enemy:[[0,5,5],[0,4,9],[1,5,7],[2,3,7]],
+  hardExtra:[],triggers:[],enemyGoldCeiling:350,
+  waves:[
+   {turn:2,name:'북서쪽 선발대',entry:{q:2,r:3},troops:[0,0,1,9]},
+   {turn:4,name:'남서쪽 기갑대',entry:{q:2,r:11},troops:[0,0,1,1,2]},
+   {turn:6,name:'서부 돌파대',entry:{q:3,r:7},troops:[0,0,9,1,2,2]}
+  ]
+ }),
  characters:Object.freeze({nagorn:{name:'나고른 장군',image:'main-airia-nagorn.png'},adjutant:{name:'부관',image:'main-airia-adjutant.png'},scout:{name:'정찰병',image:'main-airia-scout.png'}}),
  intro:Object.freeze([
   {'speaker': 'adjutant', 'text': '장군님, 황금항 방어구역 재편을 마쳤습니다. 제17군단 사령부는 이 야전 지휘소에서 항만과 후피왕 피라미드의 방어를 함께 지휘합니다.'},
@@ -29,5 +52,21 @@ const MAIN_AIRIA = Object.freeze({
   {'speaker': 'adjutant', 'text': '예, 장군님. 각 방어대에 명령을 전하겠습니다. 피라미드 주변 포대에는 사격 구역을 다시 확인시키고, 왕국군과 연결할 통신 채널도 열어 두겠습니다.'},
   {'speaker': 'nagorn', 'text': '왕국기가 보이면 즉시 보고하게. 그들이 오기 전까지 이 항구는 우리 손으로 지킨다. 그리고 보존 요청서에는 내 이름을 넣어. 황실에서 물으면 내가 답하지.'},
   {'speaker': 'scout', 'text': '장군님! 전방 정찰 보고입니다! 단테군 증원병력이 도착했습니다! 기갑부대와 후속 차량들이 황금항 방면으로 접근 중입니다!'}
+ ].map(Object.freeze)),
+ outro:Object.freeze([
+  {speaker:'scout',text:'장군님, 서쪽 도로에서 움직이던 단테 차량들이 멈췄습니다. 두 대가 전진기지 쪽으로 돌아갑니다. 나머지는 먼지 때문에 식별이 안 됩니다.'},
+  {speaker:'nagorn',text:'따라가지 마. 포반은 진지에 남기고, 관측병을 피라미드 아래로 보내. 돌계단이 보이는 데까지만.'},
+  {speaker:'adjutant',text:'부두에서 등화 신호가 들어왔습니다. 왕국 선단입니다. 첫 수송함은 접안 허가와 하역 순서를 요청합니다.'},
+  {speaker:'nagorn',text:'들여보내. 서쪽 안벽에 있는 우리 부상자부터 옮겨야 하니, 동쪽으로 돌라고 해.'},
+  {speaker:'adjutant',text:'그쪽은 물이 얕습니다. 왕국 측 항해사가 흘수표를 요구합니다. 우리 항만청은 연락이 끊겼습니다.'},
+  {speaker:'scout',text:'제가 부두에서 일한 적 있습니다. 동쪽 여울에 노란 표주가 있었는데 어제 부러졌습니다. 보트를 주시면 제가 나가서 길을 보이겠습니다.'},
+  {speaker:'nagorn',text:'좋아. 네가 돌아오기 전까지 등대를 켜 둬라.'},
+  {speaker:'adjutant',text:'선단 지휘함에서 발굴 장비의 하역 순서도 물어왔습니다. 첫 선적분에 들어 있다고 합니다.'},
+  {speaker:'nagorn',text:'먼저 내릴 건 우리 전선에 갈 병력과 탄약이다. 굴착기는 선창에 두라고 전해.'},
+  {speaker:'adjutant',text:'협정에 따르면 왕국 측에도 장비를 들일 권리가 있습니다. 통역관이 뭐라고 써야 할지 기다리고 있습니다.'},
+  {speaker:'nagorn',text:'부두가 좁아 순서를 정한다고 써. 항만의 책임자는 아직 나야. 발굴 감독관이 도착하면 그때 장비 목록을 같이 보겠네.'},
+  {speaker:'scout',text:'부두 전화 왔습니다. 왕국 수송함 한 척이 외항에 닻을 내렸답니다. 우리 쪽 등대가 잘 보인다고 했습니다.'},
+  {speaker:'nagorn',text:'닻을 올리면 네가 인도하게. 부관, 근무표부터 바꿔. 밤새 서 있던 애들한테 새벽 근무까지 시키지 말고.'},
+  {speaker:'adjutant',text:'예. 황실에도 보고하겠습니다. 황금항 부두 접안 가능. 후피왕 피라미드 진입로는 제17군단이 계속 통제 중.'}
  ].map(Object.freeze))
 });
